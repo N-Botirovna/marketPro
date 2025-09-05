@@ -1,5 +1,5 @@
 import Breadcrumb from "@/components/Breadcrumb";
-import BookShopSection from "@/components/BookShopSection";
+import ShopDetails from "@/components/ShopDetails";
 import FooterTwo from "@/components/FooterTwo";
 import HeaderTwo from "@/components/HeaderTwo";
 import ShippingTwo from "@/components/ShippingTwo";
@@ -8,12 +8,11 @@ import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
 
 export const metadata = {
-  title: "MarketPro - E-commerce Next JS Template",
-  description:
-    "MarketPro is a comprehensive and versatile Next JS template designed for e-commerce platforms, specifically tailored for multi vendor marketplaces. With its modern design and extensive feature set, MarketPro provides everything you need to create a robust and user-friendly online marketplace..",
+  title: "Do'kon tafsilotlari - MarketPro",
+  description: "Do'kon tafsilotlari va ma'lumotlari",
 };
 
-const page = () => {
+const ShopDetailsPage = ({ params }) => {
   return (
     <>
       {/* ColorInit */}
@@ -25,14 +24,14 @@ const page = () => {
       {/* Preloader */}
       <Preloader />
 
-      {/* HeaderOne */}
+      {/* HeaderTwo */}
       <HeaderTwo category={true} />
 
       {/* Breadcrumb */}
-      <Breadcrumb title={"Shop"} />
+      <Breadcrumb title={"Do'kon tafsilotlari"} />
 
-      {/* BookShopSection */}
-      <BookShopSection />
+      {/* ShopDetails */}
+      <ShopDetails shopId={params.id} />
 
       {/* ShippingTwo */}
       <ShippingTwo />
@@ -43,4 +42,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default ShopDetailsPage;

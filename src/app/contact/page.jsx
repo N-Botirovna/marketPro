@@ -1,6 +1,7 @@
 import BottomFooter from "@/components/BottomFooter";
 import Breadcrumb from "@/components/Breadcrumb";
 import Contact from "@/components/Contact";
+import FaqSection from "@/components/FaqSection";
 import FooterTwo from "@/components/FooterTwo";
 import HeaderTwo from "@/components/HeaderTwo";
 import ShippingOne from "@/components/ShippingOne";
@@ -34,6 +35,9 @@ const page = () => {
 
       {/* Contact */}
       <Contact />
+
+      {/* FAQ Section */}
+      <FaqSection />
 
       {/* ShippingOne */}
       <ShippingOne />

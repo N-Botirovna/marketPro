@@ -1,8 +1,30 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Slider from "react-slick";
+import { getBanners } from "@/services/banners";
 const BannerOne = () => {
+  const [banners, setBanners] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        setLoading(true);
+        const response = await getBanners({ limit: 10 });
+        setBanners(response.banners);
+      } catch (err) {
+        console.error('Banner yuklashda xatolik:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBanners();
+  }, []);
+
   function SampleNextArrow(props) {
     const { className, onClick } = props;
     return (
@@ -39,68 +61,106 @@ const BannerOne = () => {
     nextArrow: <SampleNextArrow />,
     prevArrow: <SamplePrevArrow />,
   };
+  // Loading state
+  if (loading) {
+    return (
+      <div className='banner'>
+        <div className='container container-lg'>
+          <div className='banner-item rounded-24 overflow-hidden position-relative arrow-center'>
+            <div className='d-flex justify-content-center align-items-center' style={{ height: '400px' }}>
+              <div className='spinner-border text-primary' role='status'>
+                <span className='visually-hidden'>Loading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className='banner'>
+        <div className='container container-lg'>
+          <div className='banner-item rounded-24 overflow-hidden position-relative arrow-center'>
+            <div className='d-flex justify-content-center align-items-center' style={{ height: '400px' }}>
+              <div className='text-center'>
+                <p className='text-danger'>Banner yuklashda xatolik yuz berdi</p>
+                <button 
+                  className='btn btn-outline-primary'
+                  onClick={() => window.location.reload()}
+                >
+                  Qayta urinish
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // No banners
+  if (!banners || banners.length === 0) {
+    return (
+      <div className='banner'>
+        <div className='container container-lg'>
+          <div className='banner-item rounded-24 overflow-hidden position-relative arrow-center'>
+            <div className='d-flex justify-content-center align-items-center' style={{ height: '400px' }}>
+              <div className='text-center'>
+                <p className='text-muted'>Bannerlar topilmadi</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='banner'>
       <div className='container container-lg'>
         <div className='banner-item rounded-24 overflow-hidden position-relative arrow-center'>
           <a
             href='#featureSection'
-            className='scroll-down w-84 h-84 text-center flex-center bg-main-600 rounded-circle border border-5 text-white border-white position-absolute start-50 translate-middle-x bottom-0 hover-bg-main-800'
+            className='scroll-down w-84 h-84 text-center flex-center bg-main-600 rounded-circle border-5 text-white border-white position-absolute start-50 translate-middle-x bottom-0 hover-bg-main-800'
           >
             <span className='icon line-height-0'>
               <i className='ph ph-caret-double-down' />
             </span>
           </a>
-          <img
-            src='/assets/images/bg/banner-bg.png'
-            alt=''
-            className='banner-img position-absolute inset-block-start-0 inset-inline-start-0 w-100 h-100 z-n1 object-fit-cover rounded-24'
-          />
-          <div className='flex-align'></div>
           <div className='banner-slider'>
             <Slider {...settings}>
-              <div className='banner-slider__item'>
-                <div className='banner-slider__inner flex-between position-relative'>
-                  <div className='banner-item__content'>
-                    <h1 className='banner-item__title bounce'>
-                      Daily Grocery Order and Get Express Delivery
-                    </h1>
-                    <Link
-                      href='/shop'
-                      className='btn btn-main d-inline-flex align-items-center rounded-pill gap-8'
-                    >
-                      Explore Shop{" "}
-                      <span className='icon text-xl d-flex'>
-                        <i className='ph ph-shopping-cart-simple' />{" "}
-                      </span>
-                    </Link>
-                  </div>
-                  <div className='banner-item__thumb'>
-                    <img src='assets/images/thumbs/banner-img1.png' alt='' />
-                  </div>
-                </div>
-              </div>
-              <div className='banner-slider__item'>
-                <div className='banner-slider__inner flex-between position-relative'>
-                  <div className='banner-item__content'>
-                    <h1 className='banner-item__title'>
-                      Daily Grocery Order and Get Express Delivery
-                    </h1>
-                    <Link
-                      href='/shop'
-                      className='btn btn-main d-inline-flex align-items-center rounded-pill gap-8'
-                    >
-                      Explore Shop{" "}
-                      <span className='icon text-xl d-flex'>
-                        <i className='ph ph-shopping-cart-simple' />{" "}
-                      </span>
-                    </Link>
-                  </div>
-                  <div className='banner-item__thumb'>
-                    <img src='assets/images/thumbs/banner-img3.png' alt='' />
+              {banners.map((banner, index) => (
+                <div key={banner.id || index} className='banner-slider__item'>
+                  <div className='banner-slider__inner flex-between position-relative'>
+                    <div className='banner-item__content'>
+                      <h1 className='banner-item__title bounce'>
+                        {banner.title || 'Daily Grocery Order and Get Express Delivery'}
+                      </h1>
+                      <Link
+                        href='/shop'
+                        className='btn btn-main d-inline-flex align-items-center rounded-pill gap-8'
+                      >
+                        Explore Shop{" "}
+                        <span className='icon text-xl d-flex'>
+                          <i className='ph ph-shopping-cart-simple' />{" "}
+                        </span>
+                      </Link>
+                    </div>
+                    <div className='banner-item__thumb'>
+                      <img 
+                        src={banner.picture || 'assets/images/thumbs/banner-img1.png'} 
+                        alt={banner.title || 'Banner'} 
+                        onError={(e) => {
+                          e.target.src = 'assets/images/thumbs/banner-img1.png';
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
             </Slider>
           </div>
         </div>

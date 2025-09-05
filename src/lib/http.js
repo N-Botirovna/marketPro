@@ -1,6 +1,6 @@
 import axios from "axios";
 import { API_BASE_URL, AUTH_TOKEN_STORAGE_KEY } from "@/config";
-import { getItem } from "@/utils/storage";
+import { getItem, removeItem } from "@/utils/storage";
 
 const httpClient = axios.create({
   baseURL: API_BASE_URL,
@@ -24,6 +24,13 @@ httpClient.interceptors.request.use((config) => {
 httpClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Handle 401 Unauthorized - clear token and redirect to login
+    if (error?.response?.status === 401) {
+      removeItem(AUTH_TOKEN_STORAGE_KEY);
+      // You can add redirect logic here if needed
+      window.location.href = '/login';
+    }
+
     const normalized = {
       status: error?.response?.status,
       message:

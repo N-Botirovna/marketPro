@@ -1,82 +1,96 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import Link from "next/link";
+import { sendContactMessage } from "@/services/contact";
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    phone: '',
+    message: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (!formData.phone || !formData.message) {
+      setError('Iltimos, barcha maydonlarni to\'ldiring');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await sendContactMessage({
+        phone: formData.phone,
+        message: formData.message
+      });
+
+      if (response.success) {
+        setSuccess('Xabaringiz muvaffaqiyatli yuborildi!');
+        setFormData({ phone: '', message: '' });
+      } else {
+        setError(response.message || 'Xabar yuborishda xatolik yuz berdi');
+      }
+    } catch (err) {
+      setError(err?.normalized?.message || 'Xabar yuborishda xatolik yuz berdi');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section className='contact py-80'>
       <div className='container container-lg'>
         <div className='row gy-5'>
           <div className='col-lg-8'>
             <div className='contact-box border border-gray-100 rounded-16 px-24 py-40'>
-              <form action='#'>
-                <h6 className='mb-32'>Make Custom Request</h6>
+              <form onSubmit={handleSubmit}>
+                <h6 className='mb-32'>Xabar yuborish</h6>
+                
+                {error && (
+                  <div className='alert alert-danger mb-24'>
+                    {error}
+                  </div>
+                )}
+                
+                {success && (
+                  <div className='alert alert-success mb-24'>
+                    {success}
+                  </div>
+                )}
+
                 <div className='row gy-4'>
-                  <div className='col-sm-6 col-xs-6'>
-                    <label
-                      htmlFor='name'
-                      className='flex-align gap-4 text-sm font-heading-two text-gray-900 fw-semibold mb-4'
-                    >
-                      Full Name{" "}
-                      <span className='text-danger text-xl line-height-1'>
-                        *
-                      </span>{" "}
-                    </label>
-                    <input
-                      type='text'
-                      className='common-input px-16'
-                      id='name'
-                      placeholder='Full name'
-                    />
-                  </div>
-                  <div className='col-sm-6 col-xs-6'>
-                    <label
-                      htmlFor='email'
-                      className='flex-align gap-4 text-sm font-heading-two text-gray-900 fw-semibold mb-4'
-                    >
-                      Email Address{" "}
-                      <span className='text-danger text-xl line-height-1'>
-                        *
-                      </span>{" "}
-                    </label>
-                    <input
-                      type='email'
-                      className='common-input px-16'
-                      id='email'
-                      placeholder='Email address'
-                    />
-                  </div>
-                  <div className='col-sm-6 col-xs-6'>
+                  <div className='col-sm-12'>
                     <label
                       htmlFor='phone'
                       className='flex-align gap-4 text-sm font-heading-two text-gray-900 fw-semibold mb-4'
                     >
-                      Phone Number
+                      Telefon raqam
                       <span className='text-danger text-xl line-height-1'>
                         *
                       </span>{" "}
                     </label>
                     <input
-                      type='number'
+                      type='tel'
                       className='common-input px-16'
                       id='phone'
-                      placeholder='Phone Number*'
-                    />
-                  </div>
-                  <div className='col-sm-6 col-xs-6'>
-                    <label
-                      htmlFor='subject'
-                      className='flex-align gap-4 text-sm font-heading-two text-gray-900 fw-semibold mb-4'
-                    >
-                      Subject
-                      <span className='text-danger text-xl line-height-1'>
-                        *
-                      </span>{" "}
-                    </label>
-                    <input
-                      type='text'
-                      className='common-input px-16'
-                      id='subject'
-                      placeholder='Subject'
+                      name='phone'
+                      placeholder='+998901234567'
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      required
                     />
                   </div>
                   <div className='col-sm-12'>
@@ -84,7 +98,7 @@ const Contact = () => {
                       htmlFor='message'
                       className='flex-align gap-4 text-sm font-heading-two text-gray-900 fw-semibold mb-4'
                     >
-                      Message
+                      Xabar
                       <span className='text-danger text-xl line-height-1'>
                         *
                       </span>{" "}
@@ -92,16 +106,21 @@ const Contact = () => {
                     <textarea
                       className='common-input px-16'
                       id='message'
-                      placeholder='Type your message'
-                      defaultValue={""}
+                      name='message'
+                      placeholder='Xabaringizni yozing'
+                      value={formData.message}
+                      onChange={handleInputChange}
+                      rows={5}
+                      required
                     />
                   </div>
                   <div className='col-sm-12 mt-32'>
                     <button
                       type='submit'
                       className='btn btn-main py-18 px-32 rounded-8'
+                      disabled={loading}
                     >
-                      Get a Quote
+                      {loading ? 'Yuborilmoqda...' : 'Xabar yuborish'}
                     </button>
                   </div>
                 </div>

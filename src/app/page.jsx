@@ -3,12 +3,15 @@ import BestSellsOne from "@/components/BestSellsOne";
 import BottomFooter from "@/components/BottomFooter";
 import BrandOne from "@/components/BrandOne";
 import DeliveryOne from "@/components/DeliveryOne";
+import ExchangeBooksSection from "@/components/ExchangeBooksSection";
 import FeatureOne from "@/components/FeatureOne";
 import FlashSalesOne from "@/components/FlashSalesOne";
 import FooterOne from "@/components/FooterOne";
+import GiftBooksSection from "@/components/GiftBooksSection";
 import HeaderOne from "@/components/HeaderOne";
 import HotDealsOne from "@/components/HotDealsOne";
 import NewArrivalOne from "@/components/NewArrivalOne";
+import NewBooksSection from "@/components/NewBooksSection";
 import NewsletterOne from "@/components/NewsletterOne";
 import OfferOne from "@/components/OfferOne";
 import OrganicOne from "@/components/OrganicOne";
@@ -17,7 +20,9 @@ import PromotionalOne from "@/components/PromotionalOne";
 import RecommendedOne from "@/components/RecommendedOne";
 import ShippingOne from "@/components/ShippingOne";
 import ShortProductOne from "@/components/ShortProductOne";
+import ShopsSection from "@/components/ShopsSection";
 import TopVendorsOne from "@/components/TopVendorsOne";
+import UsedBooksSection from "@/components/UsedBooksSection";
 import ColorInit from "@/helper/ColorInit";
 import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
@@ -48,6 +53,21 @@ const page = () => {
 
       {/* FeatureOne */}
       <FeatureOne />
+
+      {/* New Books Section */}
+      <NewBooksSection />
+
+      {/* Used Books Section */}
+      <UsedBooksSection />
+
+      {/* Gift Books Section */}
+      <GiftBooksSection />
+
+      {/* Exchange Books Section */}
+      <ExchangeBooksSection />
+
+      {/* Shops Section */}
+      <ShopsSection />
 
       {/* PromotionalOne */}
       <PromotionalOne />

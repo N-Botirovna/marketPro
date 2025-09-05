@@ -3,6 +3,7 @@ import RouteScrollToTop from "@/helper/RouteScrollToTop";
 import "./font.css";
 import "./globals.scss";
 import PhosphorIconInit from "@/helper/PhosphorIconInit";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 export const metadata = {
   title: "Digital Market Place NEXT Js Template",
@@ -17,7 +18,9 @@ export default function RootLayout({ children }) {
         <BootstrapInit />
         <PhosphorIconInit />
         <RouteScrollToTop />
-        {children}
+        <ProtectedRoute>
+          {children}
+        </ProtectedRoute>
       </body>
     </html>
   );
