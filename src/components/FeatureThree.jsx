@@ -1,12 +1,28 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { getBookCategories } from "@/services/categories";
 
 import dynamic from "next/dynamic";
 const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
 const FeatureThree = () => {
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await getBookCategories({ limit: 12 });
+        setCategories(response.categories);
+      } catch (err) {
+        console.error('Kategoriyalar yuklashda xatolik:', err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   const NextArrow = ({ onClick }) => (
     <button
       onClick={onClick}
@@ -98,132 +114,26 @@ const FeatureThree = () => {
         <div className='position-relative arrow-center'>
           <div className='feature-three-item-wrapper'>
             <Slider {...settings}>
-              <div className='feature-item text-center'>
-                <div className='feature-item__thumb bg-yellow-light max-w-260 max-h-260 rounded-circle w-100 h-100'>
-                  <Link href='/shop' className='w-100 h-100 flex-center'>
-                    <img
-                      src='assets/images/thumbs/features-three-img1.png'
-                      alt=''
-                    />
-                  </Link>
-                </div>
-                <div className='feature-item__content mt-20'>
-                  <h6 className='text-lg mb-8'>
-                    <Link href='/shop' className='text-inherit'>
-                      Men's Fashion
+              {categories.map((category) => (
+                <div key={category.id} className='feature-item text-center'>
+                  <div className='feature-item__thumb bg-yellow-light max-w-260 max-h-260 rounded-circle w-100 h-100'>
+                    <Link href={`/shop?category=${category.id}`} className='w-100 h-100 flex-center'>
+                      <img
+                        src={category.picture || 'assets/images/thumbs/features-three-img1.png'}
+                        alt={category.name}
+                      />
                     </Link>
-                  </h6>
-                  <span className='text-sm text-gray-900'>180 Items</span>
+                  </div>
+                  <div className='feature-item__content mt-20'>
+                    <h6 className='text-lg mb-8'>
+                      <Link href={`/shop?category=${category.id}`} className='text-inherit'>
+                        {category.name}
+                      </Link>
+                    </h6>
+                    <span className='text-sm text-gray-900'>180 Items</span>
+                  </div>
                 </div>
-              </div>
-              <div className='feature-item text-center'>
-                <div className='feature-item__thumb bg-danger-light max-w-260 max-h-260 rounded-circle w-100 h-100'>
-                  <Link href='/shop' className='w-100 h-100 flex-center'>
-                    <img
-                      src='assets/images/thumbs/features-three-img2.png'
-                      alt=''
-                    />
-                  </Link>
-                </div>
-                <div className='feature-item__content mt-20'>
-                  <h6 className='text-lg mb-8'>
-                    <Link href='/shop' className='text-inherit'>
-                      Women's Fashion
-                    </Link>
-                  </h6>
-                  <span className='text-sm text-gray-900'>220 Items</span>
-                </div>
-              </div>
-              <div className='feature-item text-center'>
-                <div className='feature-item__thumb bg-purple-light max-w-260 max-h-260 rounded-circle w-100 h-100'>
-                  <Link href='/shop' className='w-100 h-100 flex-center'>
-                    <img
-                      src='assets/images/thumbs/features-three-img3.png'
-                      alt=''
-                    />
-                  </Link>
-                </div>
-                <div className='feature-item__content mt-20'>
-                  <h6 className='text-lg mb-8'>
-                    <Link href='/shop' className='text-inherit'>
-                      Kid’s Fashion
-                    </Link>
-                  </h6>
-                  <span className='text-sm text-gray-900'>205 Items</span>
-                </div>
-              </div>
-              <div className='feature-item text-center'>
-                <div className='feature-item__thumb bg-danger-light max-w-260 max-h-260 rounded-circle w-100 h-100'>
-                  <Link href='/shop' className='w-100 h-100 flex-center'>
-                    <img
-                      src='assets/images/thumbs/features-three-img4.png'
-                      alt=''
-                    />
-                  </Link>
-                </div>
-                <div className='feature-item__content mt-20'>
-                  <h6 className='text-lg mb-8'>
-                    <Link href='/shop' className='text-inherit'>
-                      Fashion Glass
-                    </Link>
-                  </h6>
-                  <span className='text-sm text-gray-900'>68 Items</span>
-                </div>
-              </div>
-              <div className='feature-item text-center'>
-                <div className='feature-item__thumb bg-warning-light max-w-260 max-h-260 rounded-circle w-100 h-100'>
-                  <Link href='/shop' className='w-100 h-100 flex-center'>
-                    <img
-                      src='assets/images/thumbs/features-three-img5.png'
-                      alt=''
-                    />
-                  </Link>
-                </div>
-                <div className='feature-item__content mt-20'>
-                  <h6 className='text-lg mb-8'>
-                    <Link href='/shop' className='text-inherit'>
-                      Shoes Collection
-                    </Link>
-                  </h6>
-                  <span className='text-sm text-gray-900'>190 Items</span>
-                </div>
-              </div>
-              <div className='feature-item text-center'>
-                <div className='feature-item__thumb bg-success-light max-w-260 max-h-260 rounded-circle w-100 h-100'>
-                  <Link href='/shop' className='w-100 h-100 flex-center'>
-                    <img
-                      src='assets/images/thumbs/features-three-img6.png'
-                      alt=''
-                    />
-                  </Link>
-                </div>
-                <div className='feature-item__content mt-20'>
-                  <h6 className='text-lg mb-8'>
-                    <Link href='/shop' className='text-inherit'>
-                      Bag Collection
-                    </Link>
-                  </h6>
-                  <span className='text-sm text-gray-900'>128 Items</span>
-                </div>
-              </div>
-              <div className='feature-item text-center'>
-                <div className='feature-item__thumb max-w-260 max-h-260 rounded-circle w-100 h-100'>
-                  <Link href='/shop' className='w-100 h-100 flex-center'>
-                    <img
-                      src='assets/images/thumbs/features-three-img3.png'
-                      alt=''
-                    />
-                  </Link>
-                </div>
-                <div className='feature-item__content mt-20'>
-                  <h6 className='text-lg mb-8'>
-                    <Link href='/shop' className='text-inherit'>
-                      Men's Fashion
-                    </Link>
-                  </h6>
-                  <span className='text-sm text-gray-900'>180 Items</span>
-                </div>
-              </div>
+              ))}
             </Slider>
           </div>
         </div>

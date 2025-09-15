@@ -54,6 +54,7 @@ const AuthLogin = () => {
         setError("Kirish muvaffaqiyatsiz. OTP kodini tekshiring.");
       }
     } catch (err) {
+      console.error('Login error:', err);
       const message = err?.normalized?.message || err?.response?.data?.message || "Kirish muvaffaqiyatsiz";
       setError(message);
     } finally {

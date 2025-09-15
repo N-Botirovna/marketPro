@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { isAuthenticated, logoutUser, getAuthToken } from "@/services/auth";
+import { getBookCategories } from "@/services/categories";
 import CategoryDropdown from "./CategoryDropdown";
 
 import query from "jquery";
@@ -12,6 +13,7 @@ const HeaderOne = () => {
   const [scroll, setScroll] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userToken, setUserToken] = useState(null);
+  const [categories, setCategories] = useState([]);
   useEffect(() => {
     if (typeof window !== "undefined") {
       const handleScroll = () => {
@@ -46,6 +48,19 @@ const HeaderOne = () => {
         }
       };
     }
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await getBookCategories({ limit: 20 });
+        setCategories(response.categories);
+      } catch (err) {
+        console.error('Kategoriyalar yuklashda xatolik:', err);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   // Handle logout
@@ -246,16 +261,17 @@ const HeaderOne = () => {
               action='#'
               className='flex-align flex-wrap form-location-wrapper'
             >
-              <div className='search-category d-flex h-48 select-border-end-0 radius-end-0 search-form d-sm-flex d-none'>
+                <div className='search-category d-flex h-48 select-border-end-0 radius-end-0 search-form d-sm-flex d-none'>
                 <select
                   defaultValue={1}
                   className='js-example-basic-single border border-gray-200 border-end-0'
                 >
                   <option value={1}>All Categories</option>
-                    <option value={2}>Electronics</option>
-                    <option value={3}>Fashion</option>
-                    <option value={4}>Home & Garden</option>
-                    <option value={5}>Sports</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
                 </select>
                 </div>
                 <div className='search-form__wrapper position-relative'>

@@ -1,20 +1,22 @@
 import http from "@/lib/http";
+import { API_ENDPOINTS } from "@/config";
 
 // Get books with all filtering options
 export async function getBooks(params = {}) {
-  const { data } = await http.get("api/v1/book/list", { params });
+  const { data } = await http.get(API_ENDPOINTS.BOOKS.LIST, { params });
   return {
-    books: data?.results || [],
-    count: data?.count || 0,
+    books: data?.result || data?.results || [],
+    count: data?.count || (data?.result?.length || 0),
     next: data?.next || null,
     previous: data?.previous || null,
+    success: data?.success || false,
     raw: data,
   };
 }
 
 // Get single book by ID
 export async function getBookById(id) {
-  const { data } = await http.get(`api/v1/book/${id}`);
+  const { data } = await http.get(`${API_ENDPOINTS.BOOKS.DETAIL}/${id}`);
   return {
     book: data || null,
     raw: data,
@@ -33,8 +35,8 @@ export async function getHomePageBooks() {
 // Get new books
 export async function getNewBooks(limit = 8) {
   return await getBooks({ 
+    is_used: false,
     is_active: true, 
-    ordering: '-created_at',
     limit 
   });
 }

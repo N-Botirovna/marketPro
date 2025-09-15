@@ -2,10 +2,10 @@ import http from "@/lib/http";
 
 // Get shops with all filtering options
 export async function getShops(params = {}) {
-  const { data } = await http.get("api/v1/shop/list", { params });
+  const { data } = await http.get("api/v1/shop/list/", { params });
   return {
-    shops: data?.results || [],
-    count: data?.count || 0,
+    shops: data?.result || data?.results || [],
+    count: data?.count || (data?.result?.length || 0),
     next: data?.next || null,
     previous: data?.previous || null,
     raw: data,

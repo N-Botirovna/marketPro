@@ -3,10 +3,12 @@ import React, { useEffect, useState } from "react";
 import query from "jquery";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { getBookCategories } from "@/services/categories";
 import "select2/dist/css/select2.min.css";
 const HeaderTwo = ({ category }) => {
   let pathname = usePathname();
   const [scroll, setScroll] = useState(false);
+  const [categories, setCategories] = useState([]);
   useEffect(() => {
     if (typeof window !== "undefined") {
       const handleScroll = () => {
@@ -31,6 +33,19 @@ const HeaderTwo = ({ category }) => {
         }
       };
     }
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await getBookCategories({ limit: 20 });
+        setCategories(response.categories);
+      } catch (err) {
+        console.error('Kategoriyalar yuklashda xatolik:', err);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   // Set the default language
@@ -606,16 +621,11 @@ const HeaderTwo = ({ category }) => {
                     name='state'
                   >
                     <option value={1}>All Categories</option>
-                    <option value={1}>Grocery</option>
-                    <option value={1}>Breakfast &amp; Dairy</option>
-                    <option value={1}>Vegetables</option>
-                    <option value={1}>Milks and Dairies</option>
-                    <option value={1}>Pet Foods &amp; Toy</option>
-                    <option value={1}>Breads &amp; Bakery</option>
-                    <option value={1}>Fresh Seafood</option>
-                    <option value={1}>Fronzen Foods</option>
-                    <option value={1}>Noodles &amp; Rice</option>
-                    <option value={1}>Ice Cream</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
                   </select>
                   <div className='search-form__wrapper position-relative'>
                     <input

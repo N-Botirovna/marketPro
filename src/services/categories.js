@@ -1,11 +1,12 @@
 import http from "@/lib/http";
+import { API_ENDPOINTS } from "@/config";
 
 // Get book categories
 export async function getBookCategories(params = {}) {
-  const { data } = await http.get("api/v1/book/categories", { params });
+  const { data } = await http.get(API_ENDPOINTS.BOOKS.CATEGORIES, { params });
   return {
-    categories: data?.results || [],
-    count: data?.count || 0,
+    categories: data?.result || data?.results || [],
+    count: data?.count || (data?.result?.length || 0),
     next: data?.next || null,
     previous: data?.previous || null,
     raw: data,
