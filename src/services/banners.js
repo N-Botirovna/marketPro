@@ -4,8 +4,8 @@ import http from "@/lib/http";
 export async function getBanners(params = {}) {
   const { data } = await http.get("api/v1/base/banners/", { params });
   return {
-    banners: data?.results || [],
-    count: data?.count || 0,
+    banners: data?.result || data?.results || [],
+    count: data?.count || (data?.result?.length || 0),
     next: data?.next || null,
     previous: data?.previous || null,
     raw: data,

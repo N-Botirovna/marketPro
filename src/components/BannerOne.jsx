@@ -134,8 +134,8 @@ const BannerOne = () => {
             <Slider {...settings}>
               {banners.map((banner, index) => (
                 <div key={banner.id || index} className='banner-slider__item'>
-                  <div className='banner-slider__inner flex-between position-relative'>
-                    <div className='banner-item__content'>
+                  <div className='banner-slider__inner d-flex align-items-center justify-content-between position-relative'>
+                    <div className='banner-item__content' style={{ flex: '0 0 55%', paddingRight: '30px' }}>
                       <h1 className='banner-item__title bounce'>
                         {banner.title || 'Daily Grocery Order and Get Express Delivery'}
                       </h1>
@@ -149,10 +149,11 @@ const BannerOne = () => {
                         </span>
                       </Link>
                     </div>
-                    <div className='banner-item__thumb'>
+                    <div className='banner-item__thumb' style={{ flex: '0 0 45%' }}>
                       <img 
                         src={banner.picture || 'assets/images/thumbs/banner-img1.png'} 
                         alt={banner.title || 'Banner'} 
+                        style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
                         onError={(e) => {
                           e.target.src = 'assets/images/thumbs/banner-img1.png';
                         }}

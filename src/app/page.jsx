@@ -60,14 +60,14 @@ const page = () => {
       {/* Used Books Section */}
       <UsedBooksSection />
 
+      {/* TopVendorsOne */}
+      <TopVendorsOne />
+
       {/* Gift Books Section */}
       <GiftBooksSection />
 
       {/* Exchange Books Section */}
       <ExchangeBooksSection />
-
-      {/* Shops Section */}
-      <ShopsSection />
 
       {/* PromotionalOne */}
       <PromotionalOne />
@@ -86,9 +86,6 @@ const page = () => {
 
       {/* HotDealsOne */}
       <HotDealsOne />
-
-      {/* TopVendorsOne */}
-      <TopVendorsOne />
 
       {/* BestSellsOne */}
       <BestSellsOne />

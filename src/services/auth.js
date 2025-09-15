@@ -17,11 +17,23 @@ export async function requestOtp({ phone_number }) {
 export async function loginWithPhoneOtp({ phone_number, otp_code }) {
   const payload = { phone_number, otp_code };
   const { data } = await http.post(API_ENDPOINTS.AUTH.LOGIN, payload);
-  if (data?.token) {
-    setItem(AUTH_TOKEN_STORAGE_KEY, data.token);
+  
+  // Handle both token formats: 'token' and 'access_token'
+  const token = data?.token || data?.access_token;
+  const refreshToken = data?.refresh_token;
+  
+  if (token) {
+    setItem(AUTH_TOKEN_STORAGE_KEY, token);
   }
+  
+  // Store refresh token if available
+  if (refreshToken) {
+    setItem('refresh_token', refreshToken);
+  }
+  
   return {
-    token: data?.token || null,
+    token: token || null,
+    refreshToken: refreshToken || null,
     user: data?.user || null,
     raw: data,
   };
@@ -55,6 +67,7 @@ export async function logoutUser() {
     console.error('Logout error:', error);
   } finally {
     removeItem(AUTH_TOKEN_STORAGE_KEY);
+    removeItem('refresh_token');
   }
 }
 
@@ -67,6 +80,28 @@ export function isAuthenticated() {
 // Get current token
 export function getAuthToken() {
   return getItem(AUTH_TOKEN_STORAGE_KEY);
+}
+
+// Refresh access token
+export async function refreshAccessToken() {
+  const refreshToken = getItem('refresh_token');
+  if (!refreshToken) {
+    throw new Error('No refresh token available');
+  }
+  
+  const { data } = await http.post(API_ENDPOINTS.AUTH.REFRESH, {
+    refresh_token: refreshToken
+  });
+  
+  const newToken = data?.access_token || data?.token;
+  if (newToken) {
+    setItem(AUTH_TOKEN_STORAGE_KEY, newToken);
+  }
+  
+  return {
+    token: newToken || null,
+    raw: data,
+  };
 }
 
 
