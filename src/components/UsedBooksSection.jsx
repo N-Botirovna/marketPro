@@ -16,7 +16,7 @@ const UsedBooksSection = () => {
         const response = await getUsedBooks(8);
         setBooks(response.books);
       } catch (err) {
-        console.error('Ishlatilgan kitoblar yuklashda xatolik:', err);
+        console.error("Yangidek kitoblar yuklashda xatolik:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -45,7 +45,9 @@ const UsedBooksSection = () => {
       <section className="py-80 bg-gray-50">
         <div className="container container-lg">
           <div className="text-center">
-            <p className="text-danger">Ishlatilgan kitoblar yuklashda xatolik yuz berdi</p>
+            <p className="text-danger">
+              Yangidek kitoblar yuklashda xatolik yuz berdi
+            </p>
           </div>
         </div>
       </section>
@@ -57,7 +59,7 @@ const UsedBooksSection = () => {
       <section className="py-80 bg-gray-50">
         <div className="container container-lg">
           <div className="text-center">
-            <p className="text-muted">Ishlatilgan kitoblar topilmadi</p>
+            <p className="text-muted">Yangidek kitoblar topilmadi</p>
           </div>
         </div>
       </section>
@@ -68,12 +70,12 @@ const UsedBooksSection = () => {
     <section className="py-80 bg-gray-50">
       <div className="container container-lg">
         <div className="section-heading text-center mb-48">
-          <h2 className="section-heading__title">Ishlatilgan kitoblar</h2>
+          <h2 className="section-heading__title">Yangidek kitoblar</h2>
           <p className="section-heading__desc">
-            Arzon narxlarda ishlatilgan kitoblar
+            Arzon narxlarda Yangidek kitoblar
           </p>
         </div>
-        
+
         <div className="row gy-4">
           {books.map((book) => (
             <div key={book.id} className="col-xl-3 col-lg-4 col-md-6 col-sm-6">
@@ -84,7 +86,7 @@ const UsedBooksSection = () => {
 
         <div className="text-center mt-48">
           <Link href="/shop?type=used" className="btn btn-outline-main">
-            Barcha ishlatilgan kitoblarni ko'rish
+            Barcha Yangidek kitoblarni ko'rish
           </Link>
         </div>
       </div>
