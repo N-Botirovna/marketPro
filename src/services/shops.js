@@ -14,7 +14,7 @@ export async function getShops(params = {}) {
 
 // Get single shop by ID
 export async function getShopById(id) {
-  const { data } = await http.get(`api/v1/shop/${id}`);
+  const { data } = await http.get(`api/v1/shop/${id}/`);
   return {
     shop: data || null,
     raw: data,
