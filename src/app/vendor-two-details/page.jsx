@@ -14,7 +14,7 @@ export const metadata = {
     "MarketPro is a comprehensive and versatile Next JS template designed for e-commerce platforms, specifically tailored for multi vendor marketplaces. With its modern design and extensive feature set, MarketPro provides everything you need to create a robust and user-friendly online marketplace..",
 };
 
-const page = () => {
+const page = ({ searchParams }) => {
   return (
     <>
       {/* ColorInit */}
@@ -33,7 +33,7 @@ const page = () => {
       <Breadcrumb title={"Vendor Details"} />
 
       {/* VendorTwoDetails */}
-      <VendorTwoDetails />
+      <VendorTwoDetails searchParams={searchParams} />
 
       {/* ShippingOne */}
       <ShippingOne />

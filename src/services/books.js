@@ -16,10 +16,9 @@ export async function getBooks(params = {}) {
 
 // Get single book by ID
 export async function getBookById(id) {
-  const { data } = await http.get(`${API_ENDPOINTS.BOOKS.DETAIL}/${id}`);
+  const { data } = await http.get(`${API_ENDPOINTS.BOOKS.DETAIL}/${id}/`);
   return {
-    book: data || null,
-    raw: data,
+    book: data?.result || data || null,
   };
 }
 

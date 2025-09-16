@@ -5,6 +5,7 @@ import HeaderOne from "@/components/HeaderOne";
 import NewArrivalTwo from "@/components/NewArrivalTwo";
 import NewsletterOne from "@/components/NewsletterOne";
 import ProductDetailsOne from "@/components/ProductDetailsOne";
+import RecommendedOne from "@/components/RecommendedOne";
 import ShippingOne from "@/components/ShippingOne";
 import ColorInit from "@/helper/ColorInit";
 import Preloader from "@/helper/Preloader";
@@ -19,37 +20,16 @@ export const metadata = {
 const page = () => {
   return (
     <>
-      {/* ColorInit */}
       <ColorInit color={false} />
-
-      {/* ScrollToTop */}
       <ScrollToTopInit color='#299E60' />
-
-      {/* Preloader */}
       <Preloader />
-
-      {/* HeaderOne */}
       <HeaderOne />
-
-      {/* Breadcrumb */}
       <BreadcrumbTwo title={"Product Details"} />
-
-      {/* ProductDetailsOne */}
       <ProductDetailsOne />
-
-      {/* NewArrivalTwo */}
-      <NewArrivalTwo />
-
-      {/* ShippingOne */}
+      <RecommendedOne />
       <ShippingOne />
-
-      {/* NewsletterOne */}
       <NewsletterOne />
-
-      {/* FooterTwo */}
       <FooterOne />
-
-      {/* BottomFooter */}
       <BottomFooter />
     </>
   );
