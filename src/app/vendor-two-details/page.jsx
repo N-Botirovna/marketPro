@@ -33,7 +33,7 @@ const page = ({ searchParams }) => {
       <Breadcrumb title={"Vendor Details"} />
 
       {/* VendorTwoDetails */}
-      <VendorTwoDetails searchParams={searchParams} />
+      <VendorTwoDetails />
 
       {/* ShippingOne */}
       <ShippingOne />
