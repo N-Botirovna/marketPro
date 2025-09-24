@@ -40,7 +40,7 @@ const page = () => {
       <Preloader />
 
       {/* ScrollToTop */}
-      <ScrollToTopInit color='#299E60' />
+      <ScrollToTopInit color="#299E60" />
 
       {/* ColorInit */}
       <ColorInit color={false} />
@@ -53,15 +53,14 @@ const page = () => {
 
       {/* FeatureOne */}
       <FeatureOne />
+      {/* TopVendorsOne */}
+      <TopVendorsOne />
 
-      {/* New Books Section */}
-      <NewBooksSection />
+      {/* OrganicOne */}
+      <OrganicOne />
 
       {/* Used Books Section */}
       <UsedBooksSection />
-
-      {/* TopVendorsOne */}
-      <TopVendorsOne />
 
       {/* Gift Books Section */}
       <GiftBooksSection />
@@ -93,8 +92,7 @@ const page = () => {
       {/* DeliveryOne */}
       <DeliveryOne />
 
-      {/* OrganicOne */}
-      <OrganicOne />
+
 
       {/* ShortProductOne */}
       <ShortProductOne />
