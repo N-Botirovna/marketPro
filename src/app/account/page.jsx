@@ -1,4 +1,4 @@
-import Account from "@/components/Account";
+import ProfileDashboard from "@/components/ProfileDashboard";
 import BottomFooter from "@/components/BottomFooter";
 import Breadcrumb from "@/components/Breadcrumb";
 import FooterTwo from "@/components/FooterTwo";
@@ -9,9 +9,9 @@ import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
 
 export const metadata = {
-  title: "MarketPro - E-commerce Next JS Template",
+  title: "MarketPro - User Profile",
   description:
-    "MarketPro is a comprehensive and versatile Next JS template designed for e-commerce platforms, specifically tailored for multi vendor marketplaces. With its modern design and extensive feature set, MarketPro provides everything you need to create a robust and user-friendly online marketplace..",
+    "Manage your profile, orders, and account settings on MarketPro - your comprehensive e-commerce marketplace.",
 };
 
 const page = () => {
@@ -25,15 +25,13 @@ const page = () => {
 
       {/* Preloader */}
       <Preloader />
-
-      {/* HeaderTwo */}
       <HeaderTwo category={true} />
 
       {/* Breadcrumb */}
-      <Breadcrumb title={"Account"} />
+      <Breadcrumb title={"My Account"} />
 
-      {/* Account */}
-      <Account />
+      {/* ProfileDashboard */}
+      <ProfileDashboard />
 
       {/* ShippingOne */}
       <ShippingOne />

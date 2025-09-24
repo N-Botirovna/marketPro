@@ -52,9 +52,9 @@ export async function registerUser({ phone_number, name, email }) {
 
 // Get user profile
 export async function getUserProfile() {
-  const { data } = await http.get(API_ENDPOINTS.AUTH.PROFILE);
+  const { data } = await http.get('api/v1/auth/me');
   return {
-    user: data?.user || null,
+    user: data || null,
     raw: data,
   };
 }
