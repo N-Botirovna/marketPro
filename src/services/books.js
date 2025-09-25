@@ -131,3 +131,13 @@ export async function getBooksByUser(userId, limit = 12) {
     limit 
   });
 }
+
+// Get user's posted books (owner_type: user)
+export async function getUserPostedBooks(userId, limit = 12) {
+  return await getBooks({ 
+    owner_type: 'user',
+    posted_by: userId,
+    is_active: true, 
+    limit 
+  });
+}

@@ -1,18 +1,21 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getUserPostedBooks } from '@/services/books';
 
 const UserProfile = ({ userData }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({
-        first_name: userData?.first_name || '',
-        last_name: userData?.last_name || '',
-        app_phone_number: userData?.app_phone_number || '',
-        bio: userData?.bio || '',
-        region: userData?.region || '',
-        district: userData?.district || '',
-        location_text: userData?.location_text || '',
-    });
+  const [isEditing, setIsEditing] = useState(false);
+  const [userBooks, setUserBooks] = useState([]);
+  const [booksLoading, setBooksLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    first_name: userData?.first_name || '',
+    last_name: userData?.last_name || '',
+    app_phone_number: userData?.app_phone_number || '',
+    bio: userData?.bio || '',
+    region: userData?.region || '',
+    district: userData?.district || '',
+    location_text: userData?.location_text || '',
+  });
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -22,11 +25,30 @@ const UserProfile = ({ userData }) => {
         }));
     };
 
-    const handleSave = () => {
-        // TODO: Implement save functionality
-        console.log('Saving profile data:', formData);
-        setIsEditing(false);
+  const handleSave = () => {
+    // TODO: Implement save functionality
+    console.log('Saving profile data:', formData);
+    setIsEditing(false);
+  };
+
+  // Fetch user's posted books
+  useEffect(() => {
+    const fetchUserBooks = async () => {
+      if (userData?.id) {
+        try {
+          setBooksLoading(true);
+          const response = await getUserPostedBooks(userData.id, 6);
+          setUserBooks(response.books || []);
+        } catch (error) {
+          console.error('Error fetching user books:', error);
+        } finally {
+          setBooksLoading(false);
+        }
+      }
     };
+
+    fetchUserBooks();
+  }, [userData?.id]);
 
     return (
         <div className="p-32">
@@ -237,27 +259,87 @@ const UserProfile = ({ userData }) => {
                         </div>
                     </div>
 
-                    {isEditing && (
-                        <div className="mt-32 d-flex gap-16">
-                            <button
-                                onClick={handleSave}
-                                className="btn btn-main py-12 px-32 text-sm fw-medium"
-                            >
-                                <i className="ph ph-check me-2"></i>
-                                Save Changes
-                            </button>
-                            <button
-                                onClick={() => setIsEditing(false)}
-                                className="btn btn-outline-secondary py-12 px-32 text-sm fw-medium"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    )}
-                </div>
+          {isEditing && (
+            <div className="mt-32 d-flex gap-16">
+              <button 
+                onClick={handleSave}
+                className="btn btn-main py-12 px-32 text-sm fw-medium"
+              >
+                <i className="ph ph-check me-2"></i>
+                Save Changes
+              </button>
+              <button 
+                onClick={() => setIsEditing(false)}
+                className="btn btn-outline-secondary py-12 px-32 text-sm fw-medium"
+              >
+                Cancel
+              </button>
             </div>
+          )}
         </div>
-    );
+      </div>
+
+      {/* User's Posted Books Section */}
+      <div className="mt-48">
+        <div className="d-flex justify-content-between align-items-center mb-24">
+          <h4 className="text-xl fw-bold text-gray-900 mb-0">My Posted Books</h4>
+          <span className="badge bg-gray-100 text-gray-600 px-12 py-4 rounded-pill text-xs">
+            {userBooks.length} books
+          </span>
+        </div>
+        
+        {booksLoading ? (
+          <div className="text-center py-40">
+            <div className="spinner-border text-main-600" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p className="text-gray-500 mt-16 mb-0">Loading your books...</p>
+          </div>
+        ) : userBooks.length > 0 ? (
+          <div className="row g-3">
+            {userBooks.map((book, index) => (
+              <div key={book.id || index} className="col-md-4 col-sm-6">
+                <div className="border border-gray-200 rounded-12 p-16 hover-shadow-sm transition-1">
+                  <div className="d-flex gap-12">
+                    <img 
+                      src={book.cover_image || '/assets/images/icon/book-placeholder.png'} 
+                      alt={book.title}
+                      className="rounded-8"
+                      style={{width: '60px', height: '80px', objectFit: 'cover'}}
+                    />
+                    <div className="flex-grow-1">
+                      <h6 className="text-sm fw-semibold text-gray-900 mb-4 line-clamp-2">
+                        {book.title}
+                      </h6>
+                      <p className="text-xs text-gray-500 mb-8">
+                        {book.author || 'Unknown Author'}
+                      </p>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span className="text-sm fw-bold text-main-600">
+                          {book.price ? `${book.price} UZS` : 'Free'}
+                        </span>
+                        <span className={`badge px-8 py-2 rounded-pill text-xs ${
+                          book.is_used ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'
+                        }`}>
+                          {book.is_used ? 'Used' : 'New'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-40">
+            <i className="ph ph-book text-gray-300 text-4xl mb-16"></i>
+            <h5 className="text-gray-500 mb-8">No books posted yet</h5>
+            <p className="text-gray-400 text-sm">Start sharing your books with the community</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default UserProfile;
