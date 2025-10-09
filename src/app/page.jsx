@@ -57,48 +57,45 @@ const page = () => {
       <TopVendorsOne />
 
       {/* OrganicOne */}
-      <OrganicOne />
+      {/* <OrganicOne /> */}
 
       {/* Used Books Section */}
-      <UsedBooksSection />
+      {/* <UsedBooksSection /> */}
 
       {/* Gift Books Section */}
-      <GiftBooksSection />
+      {/* <GiftBooksSection /> */}
 
       {/* Exchange Books Section */}
-      <ExchangeBooksSection />
+      {/* <ExchangeBooksSection /> */}
 
       {/* PromotionalOne */}
-      <PromotionalOne />
+      {/* <PromotionalOne /> */}
 
       {/* FlashSalesOne */}
-      <FlashSalesOne />
+      {/* <FlashSalesOne /> */}
 
       {/* ProductListOne */}
-      <ProductListOne />
+      {/* <ProductListOne /> */}
 
       {/* OfferOne */}
-      <OfferOne />
+      {/* <OfferOne /> */}
 
       {/* RecommendedOne */}
-      <RecommendedOne />
-
+      {/* <RecommendedOne />   */}
+      <ShortProductOne />
       {/* HotDealsOne */}
       <HotDealsOne />
 
       {/* BestSellsOne */}
-      <BestSellsOne />
+      {/* <BestSellsOne /> */}
 
       {/* DeliveryOne */}
-      <DeliveryOne />
-
-
+      {/* <DeliveryOne /> */}
 
       {/* ShortProductOne */}
-      <ShortProductOne />
 
       {/* BrandOne */}
-      <BrandOne />
+      {/* <BrandOne />   */}
 
       {/* NewArrivalOne */}
       <NewArrivalOne />
