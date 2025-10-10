@@ -134,8 +134,6 @@ const ShortProductOne = () => {
 
       slides.push(group);
     }
-
-    // Slider infinite bo‘lishi uchun kamida 2ta slide qaytar
     if (slides.length === 1) slides.push(slides[0]);
 
     return slides;
