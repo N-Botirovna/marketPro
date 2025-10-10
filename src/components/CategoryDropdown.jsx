@@ -101,10 +101,21 @@ const CategoryDropdown = () => {
                 className="text-gray-500 text-15 py-12 px-16 flex-align gap-8 rounded-0"
                 onClick={() => setActiveIndexCat(null)}
               >
-                <span className="text-xl d-flex">
-                  <i className="ph ph-book" />
-                </span>
+                {/* Icon o‘rniga picture */}
+                {cat.picture ? (
+                  <img
+                    src={cat.picture}
+                    alt={cat.name}
+                    className="w-20 h-20 object-contain"
+                  />
+                ) : (
+                  <span className="text-xl d-flex">
+                    <i className="ph ph-book" />
+                  </span>
+                )}
+
                 <span>{cat.name}</span>
+
                 {cat.subcategories && cat.subcategories.length > 0 && (
                   <span className="icon text-md d-flex ms-auto">
                     <i className="ph ph-caret-right" />
