@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Slider from "react-slick";
 import { getBanners } from "@/services/banners";
-import Image from "next/image";
 const BannerOne = () => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,6 +13,7 @@ const BannerOne = () => {
       try {
         setLoading(true);
         const response = await getBanners({ limit: 10 });
+        console.log("Banner API response:", response);
         setBanners(response.banners);
       } catch (err) {
         console.error("Banner yuklashda xatolik:", err);
@@ -40,7 +40,6 @@ const BannerOne = () => {
   }
   function SamplePrevArrow(props) {
     const { className, onClick } = props;
-    console.log(banners);
     return (
       <button
         type="button"
@@ -100,12 +99,13 @@ const BannerOne = () => {
                       </Link>
                     </div>
                     <div className="banner-item__thumb">
-                      <Image
-                        src={banner.image}
-                        alt={banner.title}
-                        width={400}
-                        height={300}
-                        className="object-cover rounded-lg"
+                      <img
+                        src={banner.image || "/assets/images/bg/banner-bg.png"}
+                        alt={banner.title || "Banner"}
+                        className="object-cover rounded-lg w-100 h-auto"
+                        onError={(e) => {
+                          e.target.src = "/assets/images/bg/banner-bg.png";
+                        }}
                       />
                     </div>
                   </div>

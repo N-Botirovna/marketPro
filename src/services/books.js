@@ -151,3 +151,35 @@ export async function getUserArchivedBooks(userId, limit = 12) {
     limit 
   });
 }
+
+// Create new book
+export async function createBook(bookData) {
+  const { data } = await http.post(API_ENDPOINTS.BOOKS.CREATE, bookData);
+  return {
+    book: data?.result || data || null,
+    success: data?.success || false,
+    message: data?.message || 'Book created successfully',
+    raw: data,
+  };
+}
+
+// Update existing book
+export async function updateBook(bookId, bookData) {
+  const { data } = await http.put(`${API_ENDPOINTS.BOOKS.UPDATE}${bookId}/`, bookData);
+  return {
+    book: data?.result || data || null,
+    success: data?.success || false,
+    message: data?.message || 'Book updated successfully',
+    raw: data,
+  };
+}
+
+// Delete book
+export async function deleteBook(bookId) {
+  const { data } = await http.delete(`${API_ENDPOINTS.BOOKS.DETAIL}/${bookId}/`);
+  return {
+    success: data?.success || false,
+    message: data?.message || 'Book deleted successfully',
+    raw: data,
+  };
+}

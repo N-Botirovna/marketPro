@@ -143,7 +143,7 @@ const ShortProductOne = () => {
   const ProductCard = ({ product }) => (
     <div className="flex-align gap-16 mb-24" key={product.id}>
       <div className="w-90 h-90 rounded-12 border border-gray-100 flex-shrink-0 overflow-hidden">
-        <Link href="/product-details" className="link">
+        <Link href={`/product-details?id=${product.id}`} className="link">
           <img
             src={product.picture}
             alt="product"
@@ -160,7 +160,7 @@ const ShortProductOne = () => {
           <span className="text-xs fw-bold text-gray-500">({product.num})</span>
         </div>
         <h6 className="text-sm fw-semibold mt-8 mb-8 text-line-1">
-          <Link href="/product-details" className="link">
+          <Link href={`/product-details?id=${product.id}`} className="link">
             {product.desc}
           </Link>
         </h6>

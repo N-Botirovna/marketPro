@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 
-const BookCard = ({ book }) => {
+const BookCard = ({ book, onEdit, onDelete }) => {
   if (!book) return null;
 
   const formatPrice = (price) => {
@@ -14,6 +14,30 @@ const BookCard = ({ book }) => {
 
   return (
     <div className='product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2'>
+      {/* Action Buttons */}
+      {(onEdit || onDelete) && (
+        <div className="position-absolute top-0 end-0 p-8 d-flex gap-4">
+          {onEdit && (
+            <button 
+              className="btn btn-sm btn-outline-main rounded-circle p-8"
+              onClick={() => onEdit(book)}
+              title="Tahrirlash"
+            >
+              <i className="ph ph-pencil text-xs"></i>
+            </button>
+          )}
+          {onDelete && (
+            <button 
+              className="btn btn-sm btn-outline-danger rounded-circle p-8"
+              onClick={() => onDelete(book)}
+              title="O'chirish"
+            >
+              <i className="ph ph-trash text-xs"></i>
+            </button>
+          )}
+        </div>
+      )}
+      
       {book.percentage && (
         <span className='product-card__badge bg-danger-600 px-8 py-4 text-sm text-white'>
           -{book.percentage}%

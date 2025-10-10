@@ -1,10 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { getBookCategories } from "@/services/categories";
+import { getBookCategories, getBookSubcategories } from "@/services/categories";
 
 const CategoryDropdown = () => {
   const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
   const [activeIndexCat, setActiveIndexCat] = useState(null);
   const [activeCategory, setActiveCategory] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -18,17 +19,25 @@ const CategoryDropdown = () => {
   };
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const res = await getBookCategories({ limit: 20 });
-        setCategories(res.categories || []);
+        // Fetch categories
+        const categoriesRes = await getBookCategories({ limit: 20 });
+        setCategories(categoriesRes.categories || []);
+        console.log("Categories response:", categoriesRes);
+
+        // Fetch subcategories
+        const subcategoriesRes = await getBookSubcategories({ limit: 50 });
+        setSubcategories(subcategoriesRes.subcategories || []);
+        console.log("Subcategories response:", subcategoriesRes);
+        
       } catch (error) {
-        console.error("Kategoriya yuklashda xatolik:", error);
+        console.error("Ma'lumotlarni yuklashda xatolik:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchCategories();
+    fetchData();
   }, []);
 
   if (loading) {
@@ -116,14 +125,14 @@ const CategoryDropdown = () => {
 
                 <span>{cat.name}</span>
 
-                {cat.subcategories && cat.subcategories.length > 0 && (
+                {subcategories.filter(sub => sub.category === cat.id).length > 0 && (
                   <span className="icon text-md d-flex ms-auto">
                     <i className="ph ph-caret-right" />
                   </span>
                 )}
               </Link>
 
-              {cat.subcategories && cat.subcategories.length > 0 && (
+              {subcategories.filter(sub => sub.category === cat.id).length > 0 && (
                 <div
                   className={`submenus-submenu py-16 ${
                     activeIndexCat === index ? "open" : ""
@@ -133,13 +142,15 @@ const CategoryDropdown = () => {
                     {cat.name}
                   </h6>
                   <ul className="submenus-submenu__list max-h-300 overflow-y-auto scroll-sm">
-                    {cat.subcategories.map((sub) => (
-                      <li key={sub.id}>
-                        <Link href={`/shop?subcategory=${sub.id}`}>
-                          {sub.name}
-                        </Link>
-                      </li>
-                    ))}
+                    {subcategories
+                      .filter(sub => sub.category === cat.id)
+                      .map((sub) => (
+                        <li key={sub.id}>
+                          <Link href={`/shop?subcategory=${sub.id}`}>
+                            {sub.name}
+                          </Link>
+                        </li>
+                      ))}
                   </ul>
                 </div>
               )}
