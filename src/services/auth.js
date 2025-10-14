@@ -21,9 +21,16 @@ export async function loginWithPhoneOtp({ phone_number, otp_code }) {
   // Handle both token formats: 'token' and 'access_token'
   const token = data?.token || data?.access_token;
   const refreshToken = data?.refresh_token;
+  const expiresIn = data?.expires_in || data?.expires_in_seconds;
   
   if (token) {
     setItem(AUTH_TOKEN_STORAGE_KEY, token);
+    
+    // Store token expiration time if provided
+    if (expiresIn) {
+      const expirationTime = Date.now() + (expiresIn * 1000);
+      setItem('token_expires_at', expirationTime.toString());
+    }
   }
   
   // Store refresh token if available
@@ -31,10 +38,17 @@ export async function loginWithPhoneOtp({ phone_number, otp_code }) {
     setItem('refresh_token', refreshToken);
   }
   
+  console.log('🔐 Login successful:', {
+    hasToken: !!token,
+    hasRefreshToken: !!refreshToken,
+    expiresIn: expiresIn ? `${expiresIn}s` : 'unknown'
+  });
+  
   return {
     token: token || null,
     refreshToken: refreshToken || null,
     user: data?.user || null,
+    expiresIn: expiresIn || null,
     raw: data,
   };
 }
@@ -59,6 +73,77 @@ export async function getUserProfile() {
   };
 }
 
+// Update user profile
+export async function updateUserProfile(profileData) {
+  console.log('🚀 updateUserProfile called with:', profileData);
+  console.log('🎯 Making PATCH request to:', API_ENDPOINTS.AUTH.UPDATE_PROFILE);
+  console.log('🌐 Full URL will be:', `${process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.kitobzor.uz/'}${API_ENDPOINTS.AUTH.UPDATE_PROFILE}`);
+  
+  try {
+    const { data } = await http.patch(API_ENDPOINTS.AUTH.UPDATE_PROFILE, profileData);
+    
+    console.log('📨 API Response data:', data);
+    console.log('✅ PATCH request successful!');
+    
+    return {
+      success: data?.success !== false,
+      user: data?.user || data || null,
+      message: data?.message || 'Profile updated successfully',
+      raw: data,
+    };
+  } catch (error) {
+    console.error('❌ PATCH request failed:', error);
+    console.error('Error response:', error.response?.data);
+    console.error('Error status:', error.response?.status);
+    throw error;
+  }
+}
+
+// Check if token is expired or about to expire
+export function isTokenExpired() {
+  const expirationTime = getItem('token_expires_at');
+  if (!expirationTime) {
+    return false; // No expiration info, assume valid
+  }
+  
+  const now = Date.now();
+  const expiresAt = parseInt(expirationTime);
+  
+  // Consider token expired if it expires within the next 5 minutes
+  const bufferTime = 5 * 60 * 1000; // 5 minutes in milliseconds
+  return now >= (expiresAt - bufferTime);
+}
+
+// Check if token needs refresh
+export function shouldRefreshToken() {
+  const expirationTime = getItem('token_expires_at');
+  if (!expirationTime) {
+    return false;
+  }
+  
+  const now = Date.now();
+  const expiresAt = parseInt(expirationTime);
+  
+  // Refresh if token expires within the next 10 minutes
+  const refreshBuffer = 10 * 60 * 1000; // 10 minutes in milliseconds
+  return now >= (expiresAt - refreshBuffer);
+}
+
+// Proactive token refresh
+export async function refreshTokenIfNeeded() {
+  if (shouldRefreshToken()) {
+    try {
+      console.log('🔄 Proactively refreshing token...');
+      await refreshAccessToken();
+      return true;
+    } catch (error) {
+      console.error('❌ Proactive token refresh failed:', error);
+      return false;
+    }
+  }
+  return true;
+}
+
 // Logout user
 export async function logoutUser() {
   try {
@@ -68,6 +153,7 @@ export async function logoutUser() {
   } finally {
     removeItem(AUTH_TOKEN_STORAGE_KEY);
     removeItem('refresh_token');
+    removeItem('token_expires_at');
   }
 }
 
@@ -89,19 +175,44 @@ export async function refreshAccessToken() {
     throw new Error('No refresh token available');
   }
   
-  const { data } = await http.post(API_ENDPOINTS.AUTH.REFRESH, {
-    refresh_token: refreshToken
-  });
+  console.log('🔄 Refreshing access token...');
   
-  const newToken = data?.access_token || data?.token;
-  if (newToken) {
-    setItem(AUTH_TOKEN_STORAGE_KEY, newToken);
+  try {
+    const { data } = await http.post(API_ENDPOINTS.AUTH.REFRESH, {
+      refresh_token: refreshToken
+    });
+    
+    const newToken = data?.access_token || data?.token;
+    const newRefreshToken = data?.refresh_token;
+    const expiresIn = data?.expires_in || data?.expires_in_seconds;
+    
+    if (newToken) {
+      setItem(AUTH_TOKEN_STORAGE_KEY, newToken);
+      
+      // Update token expiration time
+      if (expiresIn) {
+        const expirationTime = Date.now() + (expiresIn * 1000);
+        setItem('token_expires_at', expirationTime.toString());
+      }
+    }
+    
+    // Update refresh token if new one provided
+    if (newRefreshToken) {
+      setItem('refresh_token', newRefreshToken);
+    }
+    
+    console.log('✅ Token refresh successful');
+    
+    return {
+      token: newToken || null,
+      refreshToken: newRefreshToken || refreshToken,
+      expiresIn: expiresIn || null,
+      raw: data,
+    };
+  } catch (error) {
+    console.error('❌ Token refresh failed:', error);
+    throw error;
   }
-  
-  return {
-    token: newToken || null,
-    raw: data,
-  };
 }
 
 

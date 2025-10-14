@@ -163,9 +163,20 @@ export async function createBook(bookData) {
   };
 }
 
-// Update existing book
+// Update existing book (PUT)
 export async function updateBook(bookId, bookData) {
   const { data } = await http.put(`${API_ENDPOINTS.BOOKS.UPDATE}${bookId}/`, bookData);
+  return {
+    book: data?.result || data || null,
+    success: data?.success || false,
+    message: data?.message || 'Book updated successfully',
+    raw: data,
+  };
+}
+
+// Update existing book (PATCH)
+export async function patchBook(bookId, bookData) {
+  const { data } = await http.patch(`${API_ENDPOINTS.BOOKS.DETAIL}/${bookId}/`, bookData);
   return {
     book: data?.result || data || null,
     success: data?.success || false,

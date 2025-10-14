@@ -2,14 +2,18 @@
 
 import React, { useEffect, useState } from 'react';
 import { getUserProfile } from '@/services/auth';
+import { useAuth } from '@/hooks/useAuth';
 import { getUserPostedBooks, getUserArchivedBooks } from '@/services/books';
 import { getUserPosts } from '@/services/posts';
+import http from '@/lib/http';
+import { API_ENDPOINTS } from '@/config';
 import BookCard from './BookCard';
 import BookCreateModal from './BookCreateModal';
 import PostCard from './PostCard';
 import PostCreateModal from './PostCreateModal';
 
 const ProfileDashboard = () => {
+  const { isAuthenticated, isLoading: authLoading, logout } = useAuth();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('books');
@@ -22,6 +26,12 @@ const ProfileDashboard = () => {
   const [postsLoading, setPostsLoading] = useState(false);
   const [showPostModal, setShowPostModal] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
+  
+  // Profile editing states
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileFormData, setProfileFormData] = useState({});
+  const [hasChanges, setHasChanges] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const fetchBooksData = async (userId) => {
     try {
@@ -95,12 +105,121 @@ const ProfileDashboard = () => {
     setEditingPost(null);
   };
 
+  // Profile editing functions
+  const initializeProfileForm = (user) => {
+    setProfileFormData({
+      first_name: user?.first_name || '',
+      last_name: user?.last_name || '',
+      app_phone_number: user?.app_phone_number || '',
+      bio: user?.bio || '',
+      region: user?.region || '',
+      district: user?.district || '',
+      location_text: user?.location_text || '',
+    });
+  };
+
+  const handleProfileInputChange = (e) => {
+    const { name, value } = e.target;
+    setProfileFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Check if there are changes
+    const originalValue = userData?.[name] || '';
+    const hasChanges = Object.keys(profileFormData).some(key => {
+      if (key === name) return value !== originalValue;
+      return profileFormData[key] !== (userData?.[key] || '');
+    });
+    setHasChanges(hasChanges || value !== originalValue);
+  };
+
+  const handleEditProfile = () => {
+    setIsEditingProfile(true);
+    initializeProfileForm(userData);
+    setHasChanges(false);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingProfile(false);
+    setProfileFormData({});
+    setHasChanges(false);
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      setSaving(true);
+      
+      // Prepare data for API (only include fields that can be updated)
+      const updateData = {
+        first_name: profileFormData.first_name,
+        last_name: profileFormData.last_name,
+        app_phone_number: profileFormData.app_phone_number,
+        bio: profileFormData.bio,
+        region: profileFormData.region,
+        district: profileFormData.district,
+        location_text: profileFormData.location_text,
+      };
+
+      // Remove empty/null values
+      const cleanedData = Object.fromEntries(
+        Object.entries(updateData).filter(([_, value]) => value !== null && value !== '')
+      );
+
+      console.log('🔄 Sending PATCH request to v1/auth/me/update with data:', cleanedData);
+      console.log('📡 API Endpoint:', API_ENDPOINTS.AUTH.UPDATE_PROFILE);
+      console.log('🌐 Full URL:', `${process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.kitobzor.uz/'}${API_ENDPOINTS.AUTH.UPDATE_PROFILE}`);
+
+      // Direct API call
+      const { data } = await http.patch(API_ENDPOINTS.AUTH.UPDATE_PROFILE, cleanedData);
+      
+      console.log('📥 API Response:', data);
+      
+      const success = data?.success !== false;
+      
+      if (success) {
+        console.log('✅ Profile updated successfully:', data?.message || 'Profile updated successfully');
+        // Update local user data
+        setUserData(prev => ({
+          ...prev,
+          ...cleanedData
+        }));
+        setIsEditingProfile(false);
+        setHasChanges(false);
+        
+        // Show success message
+        alert('Profil muvaffaqiyatli yangilandi!');
+      } else {
+        console.error('❌ Failed to update profile:', data?.message || 'Unknown error');
+        alert('Profilni yangilashda xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+      }
+    } catch (error) {
+      console.error('💥 Error updating profile:', error);
+      console.error('Error details:', error.response?.data || error.message);
+      console.error('Error status:', error.response?.status);
+      alert('Profilni yangilashda xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   useEffect(() => {
+    if (!isAuthenticated) {
+      if (!authLoading) {
+        // Redirect to login if not authenticated
+        window.location.href = '/login';
+      }
+      return;
+    }
+
     const fetchUserData = async () => {
       try {
         const response = await getUserProfile();
         const user = response.user || response.raw;
         setUserData(user);
+        
+        // Initialize profile form data
+        initializeProfileForm(user);
         
         // Fetch books data after user data is loaded
         if (user?.id) {
@@ -115,7 +234,7 @@ const ProfileDashboard = () => {
     };
 
     fetchUserData();
-  }, []);
+  }, [isAuthenticated, authLoading]);
 
   if (loading) {
     return (
@@ -159,7 +278,12 @@ const ProfileDashboard = () => {
               <div className='row g-4'>
                 {userBooks.map((book) => (
                   <div key={book.id} className='col-lg-4 col-md-6'>
-                    <BookCard book={book} onEdit={handleEditBook} />
+                    <BookCard 
+                      book={book} 
+                      onEdit={handleEditBook} 
+                      currentUserId={userData?.id}
+                      showEditForOwn={true}
+                    />
                   </div>
                 ))}
               </div>
@@ -189,7 +313,12 @@ const ProfileDashboard = () => {
               <div className='row g-4'>
                 {archivedBooks.map((book) => (
                   <div key={book.id} className='col-lg-4 col-md-6'>
-                    <BookCard book={book} onEdit={handleEditBook} />
+                    <BookCard 
+                      book={book} 
+                      onEdit={handleEditBook} 
+                      currentUserId={userData?.id}
+                      showEditForOwn={true}
+                    />
                   </div>
                 ))}
               </div>
@@ -287,10 +416,35 @@ const ProfileDashboard = () => {
                 {/* User Name */}
                 <div className='text-center mb-24'>
                   <h4 className='text-xl fw-bold text-gray-900 mb-4'>
-                    {userData?.first_name || 'Noma\'lum'} {userData?.last_name || ''}
+                    {isEditingProfile ? (
+                      <div className="d-flex gap-8 justify-content-center">
+                        <input 
+                          type="text" 
+                          name="first_name"
+                          className={`form-control form-control-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
+                          value={profileFormData.first_name || ''}
+                          onChange={handleProfileInputChange}
+                          placeholder="Ism"
+                          disabled={!isEditingProfile}
+                          style={{ width: '120px' }}
+                        />
+                        <input 
+                          type="text" 
+                          name="last_name"
+                          className={`form-control form-control-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
+                          value={profileFormData.last_name || ''}
+                          onChange={handleProfileInputChange}
+                          placeholder="Familiya"
+                          disabled={!isEditingProfile}
+                          style={{ width: '120px' }}
+                        />
+                      </div>
+                    ) : (
+                      `${userData?.first_name || 'Noma\'lum'} ${userData?.last_name || ''}`
+                    )}
                   </h4>
                   <p className='text-gray-500 text-sm mb-0'>
-                    {userData?.user_type || 'Foydalanuvchi'}
+                    {userData?.user_type === 'bookshop' ? 'Kitob do\'koni egasi' : 'Foydalanuvchi'}
                   </p>
                 </div>
 
@@ -321,33 +475,143 @@ const ProfileDashboard = () => {
                   <h6 className='text-sm fw-semibold text-gray-700 mb-12'>Ma'lumotlar</h6>
                   <div className='space-y-8'>
                     <div className='d-flex justify-content-between align-items-center py-8'>
+                      <span className='text-sm text-gray-600'>Telefon:</span>
+                      {isEditingProfile ? (
+                        <input 
+                          type="tel" 
+                          name="app_phone_number"
+                          className={`form-control form-control-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
+                          value={profileFormData.app_phone_number || ''}
+                          onChange={handleProfileInputChange}
+                          placeholder="Telefon raqam"
+                          disabled={!isEditingProfile}
+                          style={{ width: '150px' }}
+                        />
+                      ) : (
+                        <span className='text-sm fw-medium text-gray-900'>{userData?.app_phone_number || 'Ko\'rsatilmagan'}</span>
+                      )}
+                    </div>
+                    <div className='d-flex justify-content-between align-items-center py-8'>
                       <span className='text-sm text-gray-600'>Viloyat:</span>
-                      <span className='text-sm fw-medium text-gray-900'>{userData?.region || 'Ko\'rsatilmagan'}</span>
+                      {isEditingProfile ? (
+                        <input 
+                          type="text" 
+                          name="region"
+                          className={`form-control form-control-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
+                          value={profileFormData.region || ''}
+                          onChange={handleProfileInputChange}
+                          placeholder="Viloyat"
+                          disabled={!isEditingProfile}
+                          style={{ width: '150px' }}
+                        />
+                      ) : (
+                        <span className='text-sm fw-medium text-gray-900'>{userData?.region || 'Ko\'rsatilmagan'}</span>
+                      )}
                     </div>
                     <div className='d-flex justify-content-between align-items-center py-8'>
                       <span className='text-sm text-gray-600'>Tuman:</span>
-                      <span className='text-sm fw-medium text-gray-900'>{userData?.district || 'Ko\'rsatilmagan'}</span>
+                      {isEditingProfile ? (
+                        <input 
+                          type="text" 
+                          name="district"
+                          className={`form-control form-control-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
+                          value={profileFormData.district || ''}
+                          onChange={handleProfileInputChange}
+                          placeholder="Tuman"
+                          disabled={!isEditingProfile}
+                          style={{ width: '150px' }}
+                        />
+                      ) : (
+                        <span className='text-sm fw-medium text-gray-900'>{userData?.district || 'Ko\'rsatilmagan'}</span>
+                      )}
                     </div>
                     <div className='d-flex justify-content-between align-items-center py-8'>
                       <span className='text-sm text-gray-600'>Manzil:</span>
-                      <span className='text-sm fw-medium text-gray-900'>{userData?.location_text || 'Ko\'rsatilmagan'}</span>
+                      {isEditingProfile ? (
+                        <input 
+                          type="text" 
+                          name="location_text"
+                          className={`form-control form-control-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
+                          value={profileFormData.location_text || ''}
+                          onChange={handleProfileInputChange}
+                          placeholder="To'liq manzil"
+                          disabled={!isEditingProfile}
+                          style={{ width: '150px' }}
+                        />
+                      ) : (
+                        <span className='text-sm fw-medium text-gray-900'>{userData?.location_text || 'Ko\'rsatilmagan'}</span>
+                      )}
                     </div>
                   </div>
                 </div>
 
                 {/* Bio */}
-                {userData?.bio && (
-                  <div className='mb-24'>
-                    <h6 className='text-sm fw-semibold text-gray-700 mb-12'>Bio</h6>
-                    <p className='text-sm text-gray-600 mb-0'>{userData.bio}</p>
-                  </div>
-                )}
+                <div className='mb-24'>
+                  <h6 className='text-sm fw-semibold text-gray-700 mb-12'>Bio</h6>
+                  {isEditingProfile ? (
+                    <textarea 
+                      name="bio"
+                      className={`form-control form-control-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
+                      value={profileFormData.bio || ''}
+                      onChange={handleProfileInputChange}
+                      placeholder="O'zingiz haqingizda yozing..."
+                      disabled={!isEditingProfile}
+                      rows="3"
+                    />
+                  ) : (
+                    <p className='text-sm text-gray-600 mb-0'>{userData?.bio || 'Bio kiritilmagan'}</p>
+                  )}
+                </div>
 
                 {/* Edit Profile Button */}
-                <button className='btn btn-outline-main w-100 py-12'>
-                  <i className='ph ph-pencil me-8'></i>
-                  Profilni tahrirlash
-                </button>
+                {!isEditingProfile ? (
+                  <div className='d-flex flex-column gap-8'>
+                    <button 
+                      className='btn btn-outline-main w-100 py-12'
+                      onClick={handleEditProfile}
+                    >
+                      <i className='ph ph-pencil me-8'></i>
+                      Profilni tahrirlash
+                    </button>
+                    <button 
+                      className='btn btn-outline-danger w-100 py-12'
+                      onClick={logout}
+                    >
+                      <i className='ph ph-sign-out me-8'></i>
+                      Chiqish
+                    </button>
+                  </div>
+                ) : (
+                  <div className='d-flex gap-8'>
+                    <button 
+                      className='btn btn-main flex-fill py-12'
+                      onClick={handleSaveProfile}
+                      disabled={!hasChanges || saving}
+                    >
+                      {saving ? (
+                        <>
+                          <div className="spinner-border spinner-border-sm me-8" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                          </div>
+                          Saqlanmoqda...
+                        </>
+                      ) : (
+                        <>
+                          <i className='ph ph-check me-8'></i>
+                          Saqlash
+                        </>
+                      )}
+                    </button>
+                    <button 
+                      className='btn btn-outline-secondary py-12'
+                      onClick={handleCancelEdit}
+                      disabled={saving}
+                    >
+                      <i className='ph ph-x me-8'></i>
+                      Bekor qilish
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -406,6 +670,41 @@ const ProfileDashboard = () => {
         onSuccess={handlePostSuccess}
         editPost={editingPost}
       />
+
+      <style jsx>{`
+        .form-control.disabled {
+          background-color: #f8f9fa;
+          border: 1px solid #e9ecef;
+          color: #6c757d;
+          cursor: not-allowed;
+        }
+
+        .form-control.editable {
+          background-color: #ffffff;
+          border: 1px solid #ced4da;
+          color: #212529;
+        }
+
+        .form-control.editable:focus {
+          border-color: #0d6efd;
+          box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .form-control.disabled::placeholder {
+          color: #adb5bd;
+        }
+
+        .btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .spinner-border-sm {
+          width: 16px;
+          height: 16px;
+          border-width: 2px;
+        }
+      `}</style>
     </section>
   );
 };
