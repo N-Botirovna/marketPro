@@ -118,7 +118,7 @@ const OrganicOne = () => {
                   <div key={item.id}>
                     <div className='product-card px-8 py-16 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2'>
                       <Link
-                        href='/product-details'
+                        href={`/product-details?id=${item.id}`}
                         className='product-card__thumb flex-center'
                       >
                         <img
@@ -136,7 +136,7 @@ const OrganicOne = () => {
                           <span className='text-xs fw-bold text-gray-500'>(17k)</span>
                         </div>
                         <h6 className='title text-lg fw-semibold mt-12 mb-8'>
-                          <Link href='/product-details' className='link text-line-2'>
+                          <Link href={`/product-details?id=${item.id}`} className='link text-line-2'>
                             {title}
                           </Link>
                         </h6>

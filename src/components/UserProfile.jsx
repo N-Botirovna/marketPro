@@ -2,9 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { getUserPostedBooks, getUserArchivedBooks } from '@/services/books';
-import ProfileHeader from './ProfileHeader';
 import ProfileForm from './ProfileForm';
-import BooksTabs from './BooksTabs';
 
 const UserProfile = ({ userData }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -70,11 +68,11 @@ const UserProfile = ({ userData }) => {
 
   return (
     <div>
-      <ProfileHeader 
+      {/* <ProfileHeader 
         userData={userData}
         isEditing={isEditing}
         onEditToggle={handleEditToggle}
-      />
+      /> */}
       
       <div className="row g-5">
         <ProfileForm 
@@ -85,7 +83,7 @@ const UserProfile = ({ userData }) => {
           onSave={handleSave}
         />
       </div>
-      
+{/*       
       <BooksTabs 
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -93,7 +91,7 @@ const UserProfile = ({ userData }) => {
         archivedBooks={archivedBooks}
         booksLoading={booksLoading}
         archivedLoading={archivedLoading}
-      />
+      /> */}
     </div>
   );
 };

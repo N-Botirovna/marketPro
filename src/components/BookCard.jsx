@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 
-const BookCard = ({ book }) => {
+const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn = true }) => {
   if (!book) return null;
 
   const formatPrice = (price) => {
@@ -11,9 +11,35 @@ const BookCard = ({ book }) => {
   };
 
   const sellerName = book.shop?.name || `${book.posted_by?.first_name || 'Noma\'lum'} ${book.posted_by?.last_name || ''}`.trim();
+  const isOwnBook = currentUserId && book.posted_by?.id === currentUserId;
+  const showEditButton = showEditForOwn && isOwnBook && onEdit;
 
   return (
     <div className='product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2'>
+      {/* Action Buttons */}
+      {(showEditButton || onDelete) && (
+        <div className="position-absolute top-0 end-0 p-8 d-flex gap-4">
+          {showEditButton && (
+            <button 
+              className="btn btn-sm btn-outline-main rounded-circle p-8"
+              onClick={() => onEdit(book)}
+              title="Tahrirlash"
+            >
+              <i className="ph ph-pencil text-xs"></i>
+            </button>
+          )}
+          {onDelete && (
+            <button 
+              className="btn btn-sm btn-outline-danger rounded-circle p-8"
+              onClick={() => onDelete(book)}
+              title="O'chirish"
+            >
+              <i className="ph ph-trash text-xs"></i>
+            </button>
+          )}
+        </div>
+      )}
+      
       {book.percentage && (
         <span className='product-card__badge bg-danger-600 px-8 py-4 text-sm text-white'>
           -{book.percentage}%
@@ -74,6 +100,16 @@ const BookCard = ({ book }) => {
             </span>
             <span className='text-xs fw-bold text-gray-600'>
               ({book.view_count || 0}) {/* Using view_count as review count */}
+            </span>
+          </div>
+
+          {/* Seller Information */}
+          <div className='flex-align gap-4 mt-8'>
+            <span className='text-main-600 text-sm d-flex'>
+              <i className='ph-fill ph-storefront' />
+            </span>
+            <span className='text-gray-600 text-xs'>
+              by {sellerName}
             </span>
           </div>
 

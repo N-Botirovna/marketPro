@@ -15,7 +15,7 @@ const ProductListOne = () => {
                 Add <i className='ph ph-shopping-cart' />
               </Link>
               <Link
-                href='/product-details'
+                href='/product-details?id=2'
                 className='product-card__thumb flex-center'
               >
                 <img src='assets/images/thumbs/product-img1.png' alt='' />
@@ -37,7 +37,7 @@ const ProductListOne = () => {
                   <span className='text-xs fw-bold text-gray-600'>(17k)</span>
                 </div>
                 <h6 className='title text-lg fw-semibold mt-12 mb-8'>
-                  <Link href='/product-details' className='link text-line-2'>
+                  <Link href='/product-details?id=2' className='link text-line-2'>
                     Taylor Farms Broccoli Florets Vegetables
                   </Link>
                 </h6>
@@ -79,7 +79,7 @@ const ProductListOne = () => {
                 Add <i className='ph ph-shopping-cart' />
               </Link>
               <Link
-                href='/product-details'
+                href='/product-details?id=2'
                 className='product-card__thumb flex-center'
               >
                 <img src='assets/images/thumbs/product-img2.png' alt='' />
@@ -101,7 +101,7 @@ const ProductListOne = () => {
                   <span className='text-xs fw-bold text-gray-600'>(17k)</span>
                 </div>
                 <h6 className='title text-lg fw-semibold mt-12 mb-8'>
-                  <Link href='/product-details' className='link text-line-2'>
+                  <Link href='/product-details?id=2' className='link text-line-2'>
                     Taylor Farms Broccoli Florets Vegetables
                   </Link>
                 </h6>
@@ -143,7 +143,7 @@ const ProductListOne = () => {
                 Add <i className='ph ph-shopping-cart' />
               </Link>
               <Link
-                href='/product-details'
+                href='/product-details?id=3'
                 className='product-card__thumb flex-center'
               >
                 <img src='assets/images/thumbs/product-img3.png' alt='' />
@@ -165,7 +165,7 @@ const ProductListOne = () => {
                   <span className='text-xs fw-bold text-gray-600'>(17k)</span>
                 </div>
                 <h6 className='title text-lg fw-semibold mt-12 mb-8'>
-                  <Link href='/product-details' className='link text-line-2'>
+                  <Link href='/product-details?id=3' className='link text-line-2'>
                     Taylor Farms Broccoli Florets Vegetables
                   </Link>
                 </h6>
@@ -207,7 +207,7 @@ const ProductListOne = () => {
                 Add <i className='ph ph-shopping-cart' />
               </Link>
               <Link
-                href='/product-details'
+                href='/product-details?id=2'
                 className='product-card__thumb flex-center'
               >
                 <img src='assets/images/thumbs/product-img1.png' alt='' />
@@ -229,7 +229,7 @@ const ProductListOne = () => {
                   <span className='text-xs fw-bold text-gray-600'>(17k)</span>
                 </div>
                 <h6 className='title text-lg fw-semibold mt-12 mb-8'>
-                  <Link href='/product-details' className='link text-line-2'>
+                  <Link href='/product-details?id=2' className='link text-line-2'>
                     Taylor Farms Broccoli Florets Vegetables
                   </Link>
                 </h6>
@@ -271,7 +271,7 @@ const ProductListOne = () => {
                 Add <i className='ph ph-shopping-cart' />
               </Link>
               <Link
-                href='/product-details'
+                href='/product-details?id=5'
                 className='product-card__thumb flex-center'
               >
                 <img src='assets/images/thumbs/product-img5.png' alt='' />
@@ -293,7 +293,7 @@ const ProductListOne = () => {
                   <span className='text-xs fw-bold text-gray-600'>(17k)</span>
                 </div>
                 <h6 className='title text-lg fw-semibold mt-12 mb-8'>
-                  <Link href='/product-details' className='link text-line-2'>
+                  <Link href='/product-details?id=2' className='link text-line-2'>
                     Taylor Farms Broccoli Florets Vegetables
                   </Link>
                 </h6>
@@ -335,7 +335,7 @@ const ProductListOne = () => {
                 Add <i className='ph ph-shopping-cart' />
               </Link>
               <Link
-                href='/product-details'
+                href='/product-details?id=6'
                 className='product-card__thumb flex-center'
               >
                 <img src='assets/images/thumbs/product-img6.png' alt='' />
@@ -357,7 +357,7 @@ const ProductListOne = () => {
                   <span className='text-xs fw-bold text-gray-600'>(17k)</span>
                 </div>
                 <h6 className='title text-lg fw-semibold mt-12 mb-8'>
-                  <Link href='/product-details' className='link text-line-2'>
+                  <Link href='/product-details?id=2' className='link text-line-2'>
                     Taylor Farms Broccoli Florets Vegetables
                   </Link>
                 </h6>

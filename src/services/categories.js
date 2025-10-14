@@ -21,3 +21,15 @@ export async function getCategoryById(id) {
     raw: data,
   };
 }
+
+// Get book subcategories
+export async function getBookSubcategories(params = {}) {
+  const { data } = await http.get(API_ENDPOINTS.BOOKS.SUBCATEGORIES, { params });
+  return {
+    subcategories: data?.result || data?.results || [],
+    count: data?.count || (data?.result?.length || 0),
+    next: data?.next || null,
+    previous: data?.previous || null,
+    raw: data,
+  };
+}

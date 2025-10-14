@@ -2,12 +2,16 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { getBookById } from "@/services/books";
+import { useAuth } from "@/hooks/useAuth";
+import BookCreateModal from "./BookCreateModal";
 
 const BookDetails = ({ bookId }) => {
+  const { isAuthenticated, token } = useAuth();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     if (bookId) {
@@ -92,6 +96,14 @@ const BookDetails = ({ bookId }) => {
       default:
         return scriptType;
     }
+  };
+
+  const isOwnBook = () => {
+    if (!isAuthenticated || !book?.posted_by?.id) return false;
+    // You would need to get current user ID from auth context
+    // For now, we'll show edit button if user is authenticated
+    // In a real app, you'd compare with current user ID
+    return true;
   };
 
   if (loading) {
@@ -322,6 +334,28 @@ const BookDetails = ({ bookId }) => {
                 )}
               </div>
 
+              {/* Seller Information */}
+              <div className="mb-24 p-16 bg-gray-50 rounded-12">
+                <div className="d-flex align-items-center justify-content-between">
+                  <div className="d-flex align-items-center">
+                    <i className="ph ph-storefront text-main-600 me-8"></i>
+                    <span className="text-gray-600 me-8">Sotuvchi:</span>
+                    <span className="fw-medium">
+                      {book.shop?.name || `${book.posted_by?.first_name || 'Noma\'lum'} ${book.posted_by?.last_name || ''}`.trim()}
+                    </span>
+                  </div>
+                  {isOwnBook() && (
+                    <button 
+                      className="btn btn-sm btn-outline-main"
+                      onClick={() => setShowEditModal(true)}
+                    >
+                      <i className="ph ph-pencil me-4"></i>
+                      Tahrirlash
+                    </button>
+                  )}
+                </div>
+              </div>
+
               {/* Stats */}
               <div className="d-flex align-items-center gap-24 mb-24">
                 {book.like_count && (
@@ -476,6 +510,17 @@ const BookDetails = ({ bookId }) => {
             </div>
           </div>
         )}
+
+        {/* Edit Book Modal */}
+        <BookCreateModal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          onSuccess={(updatedBook) => {
+            setBook(updatedBook);
+            setShowEditModal(false);
+          }}
+          editBook={book}
+        />
       </div>
     </section>
   );

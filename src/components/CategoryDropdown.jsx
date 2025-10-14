@@ -1,161 +1,162 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { getBookCategories } from "@/services/categories";
+import { getBookCategories, getBookSubcategories } from "@/services/categories";
 
 const CategoryDropdown = () => {
   const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+  const [activeIndexCat, setActiveIndexCat] = useState(null);
+  const [activeCategory, setActiveCategory] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isOpen, setIsOpen] = useState(false);
+
+  const handleCategoryToggle = () => {
+    setActiveCategory((prev) => !prev);
+  };
+
+  const handleCatClick = (index) => {
+    setActiveIndexCat((prev) => (prev === index ? null : index));
+  };
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        setLoading(true);
-        const response = await getBookCategories({ limit: 20 });
-        setCategories(response.categories);
-      } catch (err) {
-        console.error('Kategoriyalar yuklashda xatolik:', err);
-        setError(err.message);
+        // Fetch categories
+        const categoriesRes = await getBookCategories({ limit: 20 });
+        setCategories(categoriesRes.categories || []);
+        console.log("Categories response:", categoriesRes);
+
+        // Fetch subcategories
+        const subcategoriesRes = await getBookSubcategories({ limit: 50 });
+        setSubcategories(subcategoriesRes.subcategories || []);
+        console.log("Subcategories response:", subcategoriesRes);
+        
+      } catch (error) {
+        console.error("Ma'lumotlarni yuklashda xatolik:", error);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchCategories();
+    fetchData();
   }, []);
-
-  const handleMouseEnter = () => {
-    setIsOpen(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsOpen(false);
-  };
 
   if (loading) {
     return (
-      <div className="nav-item dropdown">
-        <Link
-          href="#"
-          className="nav-link dropdown-toggle d-flex align-items-center gap-8"
+      <div className="category on-hover-item">
+        <button
+          type="button"
+          className="category__button flex-align gap-8 fw-medium p-16 border-end border-start border-gray-100 text-heading"
         >
-          <i className="ph ph-list-bullets"></i>
-          Kategoriyalar
-        </Link>
-      </div>
-    );
-  }
-
-  if (error || !categories || categories.length === 0) {
-    return (
-      <div className="nav-item dropdown">
-        <Link
-          href="#"
-          className="nav-link dropdown-toggle d-flex align-items-center gap-8"
-        >
-          <i className="ph ph-list-bullets"></i>
-          Kategoriyalar
-        </Link>
+          <span className="icon text-2xl d-xs-flex d-none">
+            <i className="ph ph-dots-nine" />
+          </span>
+          Loading...
+        </button>
       </div>
     );
   }
 
   return (
-    <div
-      className="nav-item dropdown"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <Link
-        href="#"
-        className="nav-link dropdown-toggle d-flex align-items-center gap-8"
+    <div className="category on-hover-item">
+      <button
+        onClick={handleCategoryToggle}
+        type="button"
+        className="category__button flex-align gap-8 fw-medium p-16 border-end border-start border-gray-100 text-heading"
       >
-        <i className="ph ph-list-bullets"></i>
-        Kategoriyalar
-      </Link>
+        <span className="icon text-2xl d-xs-flex d-none">
+          <i className="ph ph-dots-nine" />
+        </span>
+        <span className="d-sm-flex d-none">All</span> Categories
+        <span className="arrow-icon text-xl d-flex">
+          <i className="ph ph-caret-down" />
+        </span>
+      </button>
 
-      <div 
-        className={`dropdown-menu ${isOpen ? 'show' : ''}`} 
-        style={{ 
-          minWidth: '500px', 
-          maxWidth: '600px',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-          border: '1px solid #e9ecef',
-          borderRadius: '12px'
-        }}
+      <div
+        className={`responsive-dropdown cat on-hover-dropdown common-dropdown nav-submenu p-0 submenus-submenu-wrapper ${
+          activeCategory ? "active" : ""
+        }`}
       >
-        <div className="container-fluid p-16">
-          <div className="row g-2">
-            {categories.map((category) => (
-              <div key={category.id} className="col-lg-4 col-md-3 col-sm-6">
-                <Link
-                  href={`/shop?category=${category.id}`}
-                  className="dropdown-item d-flex align-items-center gap-12 p-12 rounded-8 text-decoration-none transition-1"
-                  onClick={() => setIsOpen(false)}
-                  style={{ 
-                    minHeight: '50px',
-                    border: '1px solid transparent',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#f8f9fa';
-                    e.target.style.borderColor = '#e9ecef';
-                    e.target.style.transform = 'translateY(-1px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'transparent';
-                    e.target.style.borderColor = 'transparent';
-                    e.target.style.transform = 'translateY(0)';
-                  }}
-                >
-                  <div className="category-icon flex-shrink-0">
-                    {category.picture ? (
-                      <img
-                        src={category.picture}
-                        alt={category.name}
-                        className="rounded-circle"
-                        style={{ 
-                          width: '40px', 
-                          height: '40px', 
-                          objectFit: 'cover',
-                          border: '2px solid #f8f9fa'
-                        }}
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'flex';
-                        }}
-                      />
-                    ) : (
-                      <div 
-                        className="rounded-circle bg-gray-100 d-flex align-items-center justify-content-center"
-                        style={{ width: '40px', height: '40px' }}
-                      >
-                        <i className="ph ph-book text-gray-500" style={{ fontSize: '20px' }}></i>
-                      </div>
-                    )}
-                  </div>
-                  <div className="category-info flex-grow-1">
-                    <div className="fw-medium text-gray-900 text-truncate" style={{ fontSize: '14px', lineHeight: '1.4' }}>
-                      {category.name}
-                    </div>
-                  </div>
-                </Link>
-              </div>
-            ))}
-          </div>
+        {/* Close btn (mobil uchun) */}
+        <button
+          onClick={() => {
+            handleCategoryToggle();
+            setActiveIndexCat(null);
+          }}
+          type="button"
+          className="close-responsive-dropdown rounded-circle text-xl position-absolute inset-inline-end-0 inset-block-start-0 mt-4 me-8 d-lg-none d-flex"
+        >
+          <i className="ph ph-x" />
+        </button>
 
-          <div className="text-center mt-24 pt-24 border-top border-gray-100">
-            <Link
-              href="/shop"
-              className="btn btn-outline-main btn-sm"
-              onClick={() => setIsOpen(false)}
-            >
-              Barcha kategoriyalarni ko'rish
-            </Link>
-          </div>
+        {/* Logo (mobil) */}
+        <div className="logo px-16 d-lg-none d-block">
+          <Link href="/" className="link">
+            <img src="assets/images/logo/logo.png" alt="Logo" />
+          </Link>
         </div>
+
+        <ul className="scroll-sm p-0 py-8 w-300 max-h-400 overflow-y-auto">
+          {categories.map((cat, index) => (
+            <li
+              key={cat.id}
+              onClick={() => handleCatClick(index)}
+              className={`has-submenus-submenu ${
+                activeIndexCat === index ? "active" : ""
+              }`}
+            >
+              <Link
+                href="#"
+                className="text-gray-500 text-15 py-12 px-16 flex-align gap-8 rounded-0"
+                onClick={() => setActiveIndexCat(null)}
+              >
+                {/* Icon o‘rniga picture */}
+                {cat.picture ? (
+                  <img
+                    src={cat.picture}
+                    alt={cat.name}
+                    className="w-20 h-20 object-contain"
+                  />
+                ) : (
+                  <span className="text-xl d-flex">
+                    <i className="ph ph-book" />
+                  </span>
+                )}
+
+                <span>{cat.name}</span>
+
+                {subcategories.filter(sub => sub.category === cat.id).length > 0 && (
+                  <span className="icon text-md d-flex ms-auto">
+                    <i className="ph ph-caret-right" />
+                  </span>
+                )}
+              </Link>
+
+              {subcategories.filter(sub => sub.category === cat.id).length > 0 && (
+                <div
+                  className={`submenus-submenu py-16 ${
+                    activeIndexCat === index ? "open" : ""
+                  }`}
+                >
+                  <h6 className="text-lg px-16 submenus-submenu__title">
+                    {cat.name}
+                  </h6>
+                  <ul className="submenus-submenu__list max-h-300 overflow-y-auto scroll-sm">
+                    {subcategories
+                      .filter(sub => sub.category === cat.id)
+                      .map((sub) => (
+                        <li key={sub.id}>
+                          <Link href={`/shop?subcategory=${sub.id}`}>
+                            {sub.name}
+                          </Link>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

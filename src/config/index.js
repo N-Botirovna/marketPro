@@ -14,6 +14,7 @@ export const API_ENDPOINTS = {
     REFRESH: "api/v1/auth/refresh",
     LOGOUT: "api/v1/auth/logout",
     PROFILE: "api/v1/auth/profile",
+    UPDATE_PROFILE: "api/v1/auth/me/update",
   },
   PRODUCTS: {
     LIST: "api/v1/products",
@@ -40,6 +41,18 @@ export const API_ENDPOINTS = {
     LIST: "api/v1/book/list/",
     DETAIL: "api/v1/book",
     CATEGORIES: "api/v1/book/categories/",
+    SUBCATEGORIES: "api/v1/book/subcategories/",
+    CREATE: "api/v1/book/create/",
+    UPDATE: "api/v1/book/update/",
+  },
+  COMMENTS: {
+    CREATE: "api/v1/comment/create/",
+  },
+  POSTS: {
+    LIST: "api/v1/post/list/",
+    CREATE: "api/v1/post/create/",
+    UPDATE: "api/v1/post/update/",
+    DELETE: "api/v1/post/delete/",
   },
 };
 
