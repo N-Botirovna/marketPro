@@ -14,22 +14,22 @@ const NewsletterOne = () => {
                         <div className="col-xl-6">
                             <div className="">
                                 <h1 className="text-white mb-12">
-                                    Don't Miss Out on Grocery Deals
+                                    Kitob takliflarini o'tkazib yubormang
                                 </h1>
                                 <p className="text-white h5 mb-0">
-                                    SING UP FOR THE UPDATE NEWSLETTER
+                                    YANGILIKLAR UCHUN RO'YXATDAN O'TING
                                 </p>
                                 <form action="#" className="position-relative mt-40">
                                     <input
                                         type="text"
                                         className="form-control common-input rounded-pill text-white py-22 px-16 pe-144"
-                                        placeholder="Your email address..."
+                                        placeholder="Email manzilingiz..."
                                     />
                                     <button
                                         type="submit"
                                         className="btn btn-main-two rounded-pill position-absolute top-50 translate-middle-y inset-inline-end-0 me-10"
                                     >
-                                        Subscribe
+                                        Obuna bo'lish
                                     </button>
                                 </form>
                             </div>

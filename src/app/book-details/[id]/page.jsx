@@ -1,7 +1,7 @@
 import Breadcrumb from "@/components/Breadcrumb";
 import BookDetails from "@/components/BookDetails";
-import FooterTwo from "@/components/FooterTwo";
-import HeaderTwo from "@/components/HeaderTwo";
+import FooterOne from "@/components/FooterOne";
+import HeaderOne from "@/components/HeaderOne";
 import ShippingTwo from "@/components/ShippingTwo";
 import ColorInit from "@/helper/ColorInit";
 import Preloader from "@/helper/Preloader";
@@ -24,8 +24,8 @@ const BookDetailsPage = ({ params }) => {
       {/* Preloader */}
       <Preloader />
 
-      {/* HeaderTwo */}
-      <HeaderTwo category={true} />
+      {/* HeaderOne */}
+      <HeaderOne category={true} />
 
       {/* Breadcrumb */}
       <Breadcrumb title={"Kitob tafsilotlari"} />
@@ -36,8 +36,8 @@ const BookDetailsPage = ({ params }) => {
       {/* ShippingTwo */}
       <ShippingTwo />
 
-      {/* FooterTwo */}
-      <FooterTwo />
+      {/* FooterOne */}
+      <FooterOne />
     </>
   );
 };

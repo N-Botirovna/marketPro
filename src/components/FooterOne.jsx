@@ -19,7 +19,7 @@ const FooterOne = () => {
               </Link>
             </div>
             <p className='mb-24'>
-              We're Grocery Shop, an innovative team of food supliers.
+              Biz Kitobzor - innovatsion kitob do'koni va kitob sotuvchilari jamoasi.
             </p>
             <div className='flex-align gap-16 mb-16'>
               <span className='w-32 h-32 flex-center rounded-circle bg-main-600 text-white text-md flex-shrink-0'>
@@ -54,6 +54,17 @@ const FooterOne = () => {
                 <i className='ph-fill ph-envelope' />
               </span>
               <Link
+                href='/t.me/kitobzoruz_bot'
+                className='text-md text-gray-900 hover-text-main-600'
+              >
+                @kitobzoruz_bot
+              </Link>
+            </div>
+            <div className='flex-align gap-16 mb-16'>
+              <span className='w-32 h-32 flex-center rounded-circle bg-main-600 text-white text-md flex-shrink-0'>
+                <i className='ph-fill ph-envelope' />
+              </span>
+              <Link
                 href='/mailto:support24@marketpro.com'
                 className='text-md text-gray-900 hover-text-main-600'
               >
@@ -62,14 +73,14 @@ const FooterOne = () => {
             </div>
           </div>
           <div className='footer-item'>
-            <h6 className='footer-item__title'>Information</h6>
+            <h6 className='footer-item__title'>Ma'lumot</h6>
             <ul className='footer-menu'>
               <li className='mb-16'>
                 <Link
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Become a Vendor
+                  Sotuvchi bo'lish
                 </Link>
               </li>
               <li className='mb-16'>
@@ -77,7 +88,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Affiliate Program
+                 Biz haqimizda
                 </Link>
               </li>
               <li className='mb-16'>
@@ -85,7 +96,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Privacy Policy
+                  Maxfiylik siyosati
                 </Link>
               </li>
               <li className='mb-16'>
@@ -93,44 +104,65 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Our Suppliers
-                </Link>
-              </li>
-              <li className='mb-16'>
-                <Link
-                  href='/shop'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  Extended Plan
-                </Link>
-              </li>
-              <li className=''>
-                <Link
-                  href='/shop'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  Community
+                 FAQ
                 </Link>
               </li>
             </ul>
           </div>
           <div className='footer-item'>
-            <h6 className='footer-item__title'>Customer Support</h6>
+            <h6 className='footer-item__title'>Kategoriyalar</h6>
             <ul className='footer-menu'>
               <li className='mb-16'>
                 <Link
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Help Center
+                  Diniy adabiyot
                 </Link>
               </li>
+              <li className='mb-16'>
+                <Link
+                  href='/shop'
+                  className='text-gray-600 hover-text-main-600'
+                >
+                  Badiiy adabiyot
+                </Link>
+              </li>
+              <li className='mb-16'>
+                <Link
+                  href='/shop'
+                  className='text-gray-600 hover-text-main-600'
+                >
+                  Bolalar adabiyoti
+                </Link>
+              </li>
+              <li className='mb-16'>
+                <Link
+                  href='/shop'
+                  className='text-gray-600 hover-text-main-600'
+                >
+                  O'quv adabiyoti
+                </Link>
+              </li>
+              <li className='mb-16'>
+                <Link
+                  href='/shop'
+                  className='text-gray-600 hover-text-main-600'
+                >
+                  Ilmiy adabiyot
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div className='footer-item'>
+            <h6 className='footer-item__title'>Mijozlar uchun yordam</h6>
+            <ul className='footer-menu'>
               <li className='mb-16'>
                 <Link
                   href='/contact'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Contact Us
+                  Biz bilan bog'lanish
                 </Link>
               </li>
               <li className='mb-16'>
@@ -138,144 +170,14 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Report Abuse
-                </Link>
-              </li>
-              <li className='mb-16'>
-                <Link
-                  href='/shop'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  Submit and Dispute
-                </Link>
-              </li>
-              <li className='mb-16'>
-                <Link
-                  href='/shop'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  Policies &amp; Rules
-                </Link>
-              </li>
-              <li className=''>
-                <Link
-                  href='/shop'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  Online Shopping
+                  Sotuvchi bo'lish
                 </Link>
               </li>
             </ul>
           </div>
           <div className='footer-item'>
-            <h6 className='footer-item__title'>My Account</h6>
-            <ul className='footer-menu'>
-              <li className='mb-16'>
-                <Link
-                  href='/shop'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  My Account
-                </Link>
-              </li>
-              <li className='mb-16'>
-                <Link
-                  href='/shop'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  Order History
-                </Link>
-              </li>
-              <li className='mb-16'>
-                <Link
-                  href='/shop'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  Shoping Cart
-                </Link>
-              </li>
-              <li className='mb-16'>
-                <Link
-                  href='/shop'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  Compare
-                </Link>
-              </li>
-              <li className='mb-16'>
-                <Link
-                  href='/shop'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  Help Ticket
-                </Link>
-              </li>
-              <li className=''>
-                <Link
-                  href='/wishlist'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  Wishlist
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div className='footer-item'>
-            <h6 className='footer-item__title'>Daily Groceries</h6>
-            <ul className='footer-menu'>
-              <li className='mb-16'>
-                <Link
-                  href='/shop'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  Dairy &amp; Eggs
-                </Link>
-              </li>
-              <li className='mb-16'>
-                <Link
-                  href='/shop'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  Meat &amp; Seafood
-                </Link>
-              </li>
-              <li className='mb-16'>
-                <Link
-                  href='/shop'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  Breakfast Food
-                </Link>
-              </li>
-              <li className='mb-16'>
-                <Link
-                  href='/shop'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  Household Supplies
-                </Link>
-              </li>
-              <li className='mb-16'>
-                <Link
-                  href='/shop'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  Bread &amp; Bakery
-                </Link>
-              </li>
-              <li className=''>
-                <Link
-                  href='/shop'
-                  className='text-gray-600 hover-text-main-600'
-                >
-                  Pantry Staples
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div className='footer-item'>
-            <h6 className=''>Shop on The Go</h6>
-            <p className='mb-16'>Marketpro App is available. Get it now</p>
+            <h6 className=''>Yangiliklar  </h6>
+            <p className='mb-16'>Ijtimoiy tarmoqlarda kuzatib boring</p>
             <div className='flex-align gap-8 my-32'>
               <Link href='/https://www.apple.com/store' className=''>
                 <img src='assets/images/thumbs/store-img1.png' alt='' />

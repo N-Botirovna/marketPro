@@ -1,5 +1,4 @@
 import BannerOne from "@/components/BannerOne";
-import BestSellsOne from "@/components/BestSellsOne";
 import BottomFooter from "@/components/BottomFooter";
 import BrandOne from "@/components/BrandOne";
 import DeliveryOne from "@/components/DeliveryOne";
@@ -26,6 +25,7 @@ import UsedBooksSection from "@/components/UsedBooksSection";
 import ColorInit from "@/helper/ColorInit";
 import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
+import BannerThree from "@/components/BannerThree";
 
 export const metadata = {
   title: "MarketPro - E-commerce Next JS Template",
@@ -86,8 +86,6 @@ const page = () => {
       {/* HotDealsOne */}
       <HotDealsOne />
 
-      {/* BestSellsOne */}
-      {/* <BestSellsOne /> */}
 
       {/* DeliveryOne */}
       {/* <DeliveryOne /> */}

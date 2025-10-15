@@ -159,12 +159,12 @@ const HeaderOne = () => {
               <ul className='mobile-menu__list'>
                 <li className='mobile-menu__item'>
                   <Link href='/' className='mobile-menu__link'>
-                    Home
+                    Bosh sahifa
                     </Link>
                   </li>
                 <li className='mobile-menu__item'>
                   <Link href='/shop' className='mobile-menu__link'>
-                      Shop
+                      Do'kon
                     </Link>
                   </li>
                 <li className='mobile-menu__item'>
@@ -174,26 +174,26 @@ const HeaderOne = () => {
                   </li>
                 <li className='mobile-menu__item'>
                   <Link href='/contact' className='mobile-menu__link'>
-                    Contact
+                    Aloqa
                     </Link>
                   </li>
                 {isLoggedIn ? (
                   <>
                     <li className='mobile-menu__item'>
                       <Link href='/account' className='mobile-menu__link'>
-                        My Account
+                        Mening hisobim
                     </Link>
                   </li>
                     <li className='mobile-menu__item'>
                       <button onClick={handleLogout} className='mobile-menu__link w-100 text-start'>
-                        Logout
+                        Chiqish
                       </button>
                   </li>
                   </>
                 ) : (
                   <li className='mobile-menu__item'>
                     <Link href='/login' className='mobile-menu__link'>
-                      Login
+                      Kirish
                     </Link>
                   </li>
                 )}
@@ -323,39 +323,39 @@ const HeaderOne = () => {
                 <ul className='nav-menu flex-align '>
                   <li className='on-hover-item nav-menu__item has-submenu'>
                   <Link href='/' className='nav-menu__link'>
-                      Home
+                      Kitoblar
                     </Link>
                     <ul className='on-hover-dropdown common-dropdown nav-submenu scroll-sm'>
                       <li className='common-dropdown__item nav-submenu__item'>
-                      <Link href='/' className='common-dropdown__link nav-submenu__link'>
-                        Home One
+                      <Link href='/vendor-two' className='common-dropdown__link nav-submenu__link'>
+                        Yangi kitoblar
                         </Link>
                       </li>
                       <li className='common-dropdown__item nav-submenu__item'>
-                      <Link href='/index-two' className='common-dropdown__link nav-submenu__link'>
-                        Home Two
+                      <Link href='/vendor-two' className='common-dropdown__link nav-submenu__link'>
+                        Yangidek kitoblar 
                         </Link>
                       </li>
                       <li className='common-dropdown__item nav-submenu__item'>
-                      <Link href='/index-three' className='common-dropdown__link nav-submenu__link'>
-                        Home Three
+                      <Link href='/vendor-two' className='common-dropdown__link nav-submenu__link'>
+                      Sovg'a kitoblar
                         </Link>
                       </li>
                     </ul>
                   </li>
                 <li className='nav-menu__item'>
-                  <Link href='/shop' className='nav-menu__link'>
-                          Shop
+                  <Link href='/vendor' className='nav-menu__link'>
+                          Do'konlar
                         </Link>
                       </li>
                 <li className='nav-menu__item'>
-                  <Link href='/blog' className='nav-menu__link'>
-                          Blog
+                  <Link href='/become-seller' className='nav-menu__link'>
+                          Ariza qoldirish
                         </Link>
                   </li>
                   <li className='nav-menu__item'>
                   <Link href='/contact' className='nav-menu__link'>
-                    Contact
+                    Aloqa
                     </Link>
                   </li>
                 </ul>
@@ -397,19 +397,19 @@ const HeaderOne = () => {
                     data-bs-toggle='dropdown'
                   >
                     <i className='ph ph-user text-2xl' />
-                    <span className='d-none d-sm-block'>My Account</span>
+                    <span className='d-none d-sm-block'>Mening hisobim</span>
                   </Link>
                   <ul className='dropdown-menu'>
                     <li>
                       <Link href='/account' className='dropdown-item'>
                         <i className='ph ph-user me-8'></i>
-                        Profile
+                        Profil
                       </Link>
                     </li>
                     <li>
                       <button onClick={handleLogout} className='dropdown-item'>
                         <i className='ph ph-sign-out me-8'></i>
-                        Logout
+                        Chiqish
                       </button>
                     </li>
                   </ul>
@@ -417,7 +417,7 @@ const HeaderOne = () => {
               ) : (
                 <Link href='/login' className='user-icon flex-align gap-4 item-hover'>
                   <i className='ph ph-user text-2xl' />
-                  <span className='d-none d-sm-block'>Login</span>
+                  <span className='d-none d-sm-block'>Kirish</span>
                 </Link>
               )}
               {/* User Icon End */}

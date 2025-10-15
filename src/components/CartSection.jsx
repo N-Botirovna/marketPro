@@ -15,11 +15,11 @@ const CartSection = () => {
                 <table className='table style-three'>
                   <thead>
                     <tr>
-                      <th className='h6 mb-0 text-lg fw-bold'>Delete</th>
-                      <th className='h6 mb-0 text-lg fw-bold'>Product Name</th>
-                      <th className='h6 mb-0 text-lg fw-bold'>Price</th>
-                      <th className='h6 mb-0 text-lg fw-bold'>Quantity</th>
-                      <th className='h6 mb-0 text-lg fw-bold'>Subtotal</th>
+                      <th className='h6 mb-0 text-lg fw-bold'>O'chirish</th>
+                      <th className='h6 mb-0 text-lg fw-bold'>Mahsulot nomi</th>
+                      <th className='h6 mb-0 text-lg fw-bold'>Narx</th>
+                      <th className='h6 mb-0 text-lg fw-bold'>Miqdor</th>
+                      <th className='h6 mb-0 text-lg fw-bold'>Jami</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -30,7 +30,7 @@ const CartSection = () => {
                           className='remove-tr-btn flex-align gap-12 hover-text-danger-600'
                         >
                           <i className='ph ph-x-circle text-2xl d-flex' />
-                          Remove
+                          O'chirish
                         </button>
                       </td>
                       <td>
@@ -108,7 +108,7 @@ const CartSection = () => {
                           className='remove-tr-btn flex-align gap-12 hover-text-danger-600'
                         >
                           <i className='ph ph-x-circle text-2xl d-flex' />
-                          Remove
+                          O'chirish
                         </button>
                       </td>
                       <td>
@@ -186,7 +186,7 @@ const CartSection = () => {
                           className='remove-tr-btn flex-align gap-12 hover-text-danger-600'
                         >
                           <i className='ph ph-x-circle text-2xl d-flex' />
-                          Remove
+                          O'chirish
                         </button>
                       </td>
                       <td>
@@ -264,7 +264,7 @@ const CartSection = () => {
                           className='remove-tr-btn flex-align gap-12 hover-text-danger-600'
                         >
                           <i className='ph ph-x-circle text-2xl d-flex' />
-                          Remove
+                          O'chirish
                         </button>
                       </td>
                       <td>
@@ -343,31 +343,31 @@ const CartSection = () => {
                   <input
                     type='text'
                     className='common-input'
-                    placeholder='Coupon Code'
+                    placeholder='Kupon kodi'
                   />
                   <button
                     type='submit'
                     className='btn btn-main py-18 w-100 rounded-8'
                   >
-                    Apply Coupon
+                    Kupon qo'llash
                   </button>
                 </div>
                 <button
                   type='submit'
                   className='text-lg text-gray-500 hover-text-main-600'
                 >
-                  Update Cart
+                  Savatni yangilash
                 </button>
               </div>
             </div>
           </div>
           <div className='col-xl-3 col-lg-4'>
             <div className='cart-sidebar border border-gray-100 rounded-8 px-24 py-40'>
-              <h6 className='text-xl mb-32'>Cart Totals</h6>
+              <h6 className='text-xl mb-32'>Savat jami</h6>
               <div className='bg-color-three rounded-8 p-24'>
                 <div className='mb-32 flex-between gap-8'>
                   <span className='text-gray-900 font-heading-two'>
-                    Subtotal
+                    Kichik jami
                   </span>
                   <span className='text-gray-900 fw-semibold'>$250.00</span>
                 </div>
@@ -379,7 +379,7 @@ const CartSection = () => {
                 </div>
                 <div className='mb-0 flex-between gap-8'>
                   <span className='text-gray-900 font-heading-two'>
-                    Extimated Taxs
+                    Soliq
                   </span>
                   <span className='text-gray-900 fw-semibold'>USD 10.00</span>
                 </div>
@@ -387,7 +387,7 @@ const CartSection = () => {
               <div className='bg-color-three rounded-8 p-24 mt-24'>
                 <div className='flex-between gap-8'>
                   <span className='text-gray-900 text-xl fw-semibold'>
-                    Total
+                    Jami
                   </span>
                   <span className='text-gray-900 text-xl fw-semibold'>
                     $250.00
@@ -398,7 +398,7 @@ const CartSection = () => {
                 href='/checkout'
                 className='btn btn-main mt-40 py-18 w-100 rounded-8'
               >
-                Proceed to checkout
+                Buyurtma berish
               </Link>
             </div>
           </div>

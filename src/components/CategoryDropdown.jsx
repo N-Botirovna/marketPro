@@ -50,7 +50,7 @@ const CategoryDropdown = () => {
           <span className="icon text-2xl d-xs-flex d-none">
             <i className="ph ph-dots-nine" />
           </span>
-          Loading...
+          Yuklanmoqda...
         </button>
       </div>
     );
@@ -66,7 +66,7 @@ const CategoryDropdown = () => {
         <span className="icon text-2xl d-xs-flex d-none">
           <i className="ph ph-dots-nine" />
         </span>
-        <span className="d-sm-flex d-none">All</span> Categories
+        <span className="d-sm-flex d-none">Barcha</span> Kategoriyalar
         <span className="arrow-icon text-xl d-flex">
           <i className="ph ph-caret-down" />
         </span>
