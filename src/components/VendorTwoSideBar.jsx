@@ -47,7 +47,7 @@ const VendorTwoSideBar = ({ shop, onCategorySelect }) => {
               type="button"
               className="text-uppercase group border border-white px-16 py-8 rounded-pill text-white text-sm hover-bg-main-two-600 hover-text-white hover-border-main-two-600 transition-2 flex-center gap-8 w-100"
             >
-              FOLLOW
+              KUZATISH
               <span className="text-xl d-flex text-main-two-600 group-item-white transition-2">
                 {" "}
                 <i className="ph ph-storefront" />
@@ -57,7 +57,7 @@ const VendorTwoSideBar = ({ shop, onCategorySelect }) => {
               type="button"
               className="text-uppercase group border border-white px-16 py-8 rounded-pill text-white text-sm hover-bg-main-two-600 hover-text-white hover-border-main-two-600 transition-2 flex-center gap-8 w-100"
             >
-              Chat Now
+              Xabar Yuborish
               <span className="text-xl d-flex text-main-two-600 group-item-white transition-2">
                 {" "}
                 <i className="ph ph-storefront" />
@@ -74,7 +74,7 @@ const VendorTwoSideBar = ({ shop, onCategorySelect }) => {
           <span className="text-xs text-white mb-12">
             {typeof shop?.book_count !== "undefined" && (
               <span className="text-xs fw-medium text-white">
-                {shop.book_count} Books
+                {shop.book_count} ta Kitob
               </span>
             )}
           </span>
@@ -125,7 +125,7 @@ const VendorTwoSideBar = ({ shop, onCategorySelect }) => {
               <div className="d-flex gap-8 align-items-center">
                 <i className="ph ph-clock" />
                 <span className="text-sm">
-                  {shop?.working_days || "Working Days"}
+                  {shop?.working_days || "Ish kunlari"}
                   {shop?.working_hours ? ` • ${shop.working_hours}` : ""}
                 </span>
               </div>
@@ -137,25 +137,25 @@ const VendorTwoSideBar = ({ shop, onCategorySelect }) => {
             href="#"
             className="px-16 py-12 border text-white border-neutral-500 w-100 rounded-4 hover-bg-main-600 hover-border-main-600"
           >
-            About Store
+            Do'kon haqida
           </Link>
           <Link
             href="#"
             className="px-16 py-12 border text-white border-neutral-500 w-100 rounded-4 hover-bg-main-600 hover-border-main-600"
           >
-            Products
+            Mahsulotlar
           </Link>
           <Link
             href="#"
             className="px-16 py-12 border text-white border-neutral-500 w-100 rounded-4 hover-bg-main-600 hover-border-main-600"
           >
-            Contact Seller
+            Sotuvchi bilan bog'lanish
           </Link>
         </div>
       </div>
       <div className="border border-gray-50 rounded-8 p-24">
         <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">
-          Product Category
+          Mahsulot kategoriyasi
         </h6>
         <ul className="max-h-540 overflow-y-auto scroll-sm">
           {categories.map((cat) => (

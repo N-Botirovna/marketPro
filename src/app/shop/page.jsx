@@ -1,7 +1,7 @@
 import Breadcrumb from "@/components/Breadcrumb";
 import BookShopSection from "@/components/BookShopSection";
 import FooterTwo from "@/components/FooterTwo";
-import HeaderTwo from "@/components/HeaderTwo";
+import HeaderOne from "@/components/HeaderOne";
 import ShippingTwo from "@/components/ShippingTwo";
 import ColorInit from "@/helper/ColorInit";
 import Preloader from "@/helper/Preloader";
@@ -26,7 +26,7 @@ const page = () => {
       <Preloader />
 
       {/* HeaderOne */}
-      <HeaderTwo category={true} />
+      <HeaderOne category={true} />
 
       {/* Breadcrumb */}
       <Breadcrumb title={"Shop"} />

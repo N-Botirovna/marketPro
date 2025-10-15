@@ -2,11 +2,11 @@ import ProfileDashboard from "@/components/ProfileDashboard";
 import BottomFooter from "@/components/BottomFooter";
 import Breadcrumb from "@/components/Breadcrumb";
 import FooterTwo from "@/components/FooterTwo";
-import HeaderTwo from "@/components/HeaderTwo";
 import ShippingOne from "@/components/ShippingOne";
 import ColorInit from "@/helper/ColorInit";
 import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
+import HeaderOne from "@/components/HeaderOne";
 
 export const metadata = {
   title: "MarketPro - User Profile",
@@ -25,7 +25,7 @@ const page = () => {
 
       {/* Preloader */}
       <Preloader />
-      <HeaderTwo category={true} />
+      <HeaderOne category={true} />
 
       {/* Breadcrumb */}
       <Breadcrumb title={"My Account"} />

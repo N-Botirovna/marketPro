@@ -19,7 +19,7 @@ const FooterOne = () => {
               </Link>
             </div>
             <p className='mb-24'>
-              We're Grocery Shop, an innovative team of food supliers.
+              Biz Kitobzor - innovatsion kitob do'koni va kitob sotuvchilari jamoasi.
             </p>
             <div className='flex-align gap-16 mb-16'>
               <span className='w-32 h-32 flex-center rounded-circle bg-main-600 text-white text-md flex-shrink-0'>
@@ -62,14 +62,14 @@ const FooterOne = () => {
             </div>
           </div>
           <div className='footer-item'>
-            <h6 className='footer-item__title'>Information</h6>
+            <h6 className='footer-item__title'>Ma'lumot</h6>
             <ul className='footer-menu'>
               <li className='mb-16'>
                 <Link
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Become a Vendor
+                  Sotuvchi bo'lish
                 </Link>
               </li>
               <li className='mb-16'>
@@ -77,7 +77,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Affiliate Program
+                  Hamkorlik dasturi
                 </Link>
               </li>
               <li className='mb-16'>
@@ -85,7 +85,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Privacy Policy
+                  Maxfiylik siyosati
                 </Link>
               </li>
               <li className='mb-16'>
@@ -93,7 +93,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Our Suppliers
+                  Bizning yetkazib beruvchilar
                 </Link>
               </li>
               <li className='mb-16'>
@@ -101,7 +101,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Extended Plan
+                  Kengaytirilgan reja
                 </Link>
               </li>
               <li className=''>
@@ -109,20 +109,20 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Community
+                  Jamiyat
                 </Link>
               </li>
             </ul>
           </div>
           <div className='footer-item'>
-            <h6 className='footer-item__title'>Customer Support</h6>
+            <h6 className='footer-item__title'>Mijozlar uchun yordam</h6>
             <ul className='footer-menu'>
               <li className='mb-16'>
                 <Link
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Help Center
+                  Yordam markazi
                 </Link>
               </li>
               <li className='mb-16'>
@@ -130,7 +130,7 @@ const FooterOne = () => {
                   href='/contact'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Contact Us
+                  Biz bilan bog'lanish
                 </Link>
               </li>
               <li className='mb-16'>
@@ -138,7 +138,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Report Abuse
+                  Shikoyat qilish
                 </Link>
               </li>
               <li className='mb-16'>
@@ -146,7 +146,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Submit and Dispute
+                  Ariza va nizolar
                 </Link>
               </li>
               <li className='mb-16'>
@@ -154,7 +154,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Policies &amp; Rules
+                  Qoidalar va tartib
                 </Link>
               </li>
               <li className=''>
@@ -162,20 +162,20 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Online Shopping
+                  Onlayn xarid
                 </Link>
               </li>
             </ul>
           </div>
           <div className='footer-item'>
-            <h6 className='footer-item__title'>My Account</h6>
+            <h6 className='footer-item__title'>Mening hisobim</h6>
             <ul className='footer-menu'>
               <li className='mb-16'>
                 <Link
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  My Account
+                  Mening hisobim
                 </Link>
               </li>
               <li className='mb-16'>
@@ -183,7 +183,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Order History
+                  Buyurtmalar tarixi
                 </Link>
               </li>
               <li className='mb-16'>
@@ -191,7 +191,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Shoping Cart
+                  Savat
                 </Link>
               </li>
               <li className='mb-16'>
@@ -199,7 +199,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Compare
+                  Taqqoslash
                 </Link>
               </li>
               <li className='mb-16'>

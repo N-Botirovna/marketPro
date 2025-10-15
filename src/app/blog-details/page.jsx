@@ -2,7 +2,8 @@ import BlogDetails from "@/components/BlogDetails";
 import BottomFooter from "@/components/BottomFooter";
 import Breadcrumb from "@/components/Breadcrumb";
 import FooterTwo from "@/components/FooterTwo";
-import HeaderTwo from "@/components/HeaderTwo";
+import HeaderOne from "@/components/HeaderOne";
+import HeaderOne from "@/components/HeaderOne";
 import ShippingOne from "@/components/ShippingOne";
 import ColorInit from "@/helper/ColorInit";
 import Preloader from "@/helper/Preloader";
@@ -26,8 +27,8 @@ const page = () => {
       {/* Preloader */}
       <Preloader />
 
-      {/* HeaderTwo */}
-      <HeaderTwo category={true} />
+      {/* HeaderOne */}
+      <HeaderOne  />
 
       {/* Breadcrumb */}
       <Breadcrumb title={"Blog Details"} />

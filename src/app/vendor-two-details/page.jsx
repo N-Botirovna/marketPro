@@ -1,7 +1,7 @@
 import BottomFooter from "@/components/BottomFooter";
 import Breadcrumb from "@/components/Breadcrumb";
 import FooterTwo from "@/components/FooterTwo";
-import HeaderTwo from "@/components/HeaderTwo";
+import HeaderOne from "@/components/HeaderOne";
 import ShippingOne from "@/components/ShippingOne";
 import VendorTwoDetails from "@/components/VendorTwoDetails";
 import ColorInit from "@/helper/ColorInit";
@@ -26,8 +26,8 @@ const page = ({ searchParams }) => {
       {/* Preloader */}
       <Preloader />
 
-      {/* HeaderTwo */}
-      <HeaderTwo category={true} />
+      {/* HeaderOne */}
+      <HeaderOne category={true} />
 
       {/* Breadcrumb */}
       <Breadcrumb title={"Vendor Details"} />

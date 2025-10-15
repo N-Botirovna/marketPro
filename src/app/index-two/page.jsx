@@ -6,7 +6,7 @@ import DealsOne from "@/components/DealsOne";
 import DiscountOne from "@/components/DiscountOne";
 import FeaturedOne from "@/components/FeaturedOne";
 import FooterTwo from "@/components/FooterTwo";
-import HeaderTwo from "@/components/HeaderTwo";
+import HeaderOne from "@/components/HeaderOne";
 import NewsletterTwo from "@/components/NewsletterTwo";
 import PopularProductsOne from "@/components/PopularProductsOne";
 import PromotionalTwo from "@/components/PromotionalTwo";
@@ -38,8 +38,8 @@ const page = () => {
       {/* Preloader */}
       <Preloader />
 
-      {/* HeaderTwo */}
-      <HeaderTwo category={false} />
+      {/* HeaderOne */}
+      <HeaderOne category={false} />
 
       {/* BannerTwo */}
       <BannerTwo />

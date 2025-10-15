@@ -3,7 +3,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import BreadcrumbImage from "@/components/BreadcrumbImage";
 import CounterSection from "@/components/CounterSection";
 import FooterTwo from "@/components/FooterTwo";
-import HeaderTwo from "@/components/HeaderTwo";
+import HeaderOne from "@/components/HeaderOne";
 import ShippingOne from "@/components/ShippingOne";
 import StepsSection from "@/components/StepsSection";
 import TestimonialOne from "@/components/TestimonialOne";
@@ -29,8 +29,7 @@ const page = () => {
       {/* Preloader */}
       <Preloader />
 
-      {/* HeaderTwo */}
-      <HeaderTwo category={true} />
+      <HeaderOne category={true} />
 
       {/* Breadcrumb */}
       <Breadcrumb title={"Become Seller"} />
