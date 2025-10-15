@@ -129,7 +129,7 @@ const Contact = () => {
           </div>
           <div className='col-lg-4'>
             <div className='contact-box border border-gray-100 rounded-16 px-24 py-40'>
-              <h6 className='mb-48'>Get In Touch</h6>
+              <h6 className='mb-48'>Bog'lanish</h6>
               <div className='flex-align gap-16 mb-16'>
                 <span className='w-40 h-40 flex-center rounded-circle border border-gray-100 text-main-two-600 text-2xl flex-shrink-0'>
                   <i className='ph-fill ph-phone-call' />
@@ -167,7 +167,7 @@ const Contact = () => {
                 className='bg-neutral-600 hover-bg-main-600 rounded-8 p-10 px-16 flex-between flex-wrap gap-8 flex-grow-1'
               >
                 <span className='text-white fw-medium'>
-                  Get Support On Call
+                  Qo'llab-quvvatlash
                 </span>
                 <span className='w-36 h-36 bg-main-600 rounded-8 flex-center text-xl text-white'>
                   <i className='ph ph-headset' />
@@ -177,7 +177,7 @@ const Contact = () => {
                 href='#'
                 className='bg-neutral-600 hover-bg-main-600 rounded-8 p-10 px-16 flex-between flex-wrap gap-8 flex-grow-1'
               >
-                <span className='text-white fw-medium'>Get Direction</span>
+                <span className='text-white fw-medium'>Yo'l ko'rsatish</span>
                 <span className='w-36 h-36 bg-main-600 rounded-8 flex-center text-xl text-white'>
                   <i className='ph ph-map-pin' />
                 </span>
