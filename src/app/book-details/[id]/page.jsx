@@ -1,6 +1,6 @@
 import Breadcrumb from "@/components/Breadcrumb";
 import BookDetails from "@/components/BookDetails";
-import FooterTwo from "@/components/FooterTwo";
+import FooterOne from "@/components/FooterOne";
 import HeaderOne from "@/components/HeaderOne";
 import ShippingTwo from "@/components/ShippingTwo";
 import ColorInit from "@/helper/ColorInit";
@@ -36,8 +36,8 @@ const BookDetailsPage = ({ params }) => {
       {/* ShippingTwo */}
       <ShippingTwo />
 
-      {/* FooterTwo */}
-      <FooterTwo />
+      {/* FooterOne */}
+      <FooterOne />
     </>
   );
 };

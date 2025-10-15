@@ -2,7 +2,7 @@ import BottomFooter from "@/components/BottomFooter";
 import Breadcrumb from "@/components/Breadcrumb";
 import Contact from "@/components/Contact";
 import FaqSection from "@/components/FaqSection";
-import FooterTwo from "@/components/FooterTwo";
+import FooterOne from "@/components/FooterOne";
 import HeaderOne from "@/components/HeaderOne";
 import ShippingOne from "@/components/ShippingOne";
 import ColorInit from "@/helper/ColorInit";
@@ -42,8 +42,8 @@ const page = () => {
       {/* ShippingOne */}
       <ShippingOne />
 
-      {/* FooterTwo */}
-      <FooterTwo />
+      {/* FooterOne */}
+      <FooterOne />
 
       {/* BottomFooter */}
       <BottomFooter />

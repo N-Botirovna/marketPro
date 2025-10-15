@@ -9,11 +9,6 @@ const BottomFooter = () => {
             Kitobzor © 2024. Barcha huquqlar himoyalangan{" "}
           </p>
           <div className='flex-align gap-8 flex-wrap'>
-            <span className='text-heading text-sm'>Biz qabul qilamiz</span>
-            <img
-              src='assets/images/thumbs/payment-method.png'
-              alt='marketpro'
-            />
           </div>
         </div>
       </div>
