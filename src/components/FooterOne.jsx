@@ -207,7 +207,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Help Ticket
+                  Yordam chiptasi
                 </Link>
               </li>
               <li className=''>
@@ -215,20 +215,20 @@ const FooterOne = () => {
                   href='/wishlist'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Wishlist
+                  Sevimlilar
                 </Link>
               </li>
             </ul>
           </div>
           <div className='footer-item'>
-            <h6 className='footer-item__title'>Daily Groceries</h6>
+            <h6 className='footer-item__title'>Kategoriyalar</h6>
             <ul className='footer-menu'>
               <li className='mb-16'>
                 <Link
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Dairy &amp; Eggs
+                  Diniy adabiyot
                 </Link>
               </li>
               <li className='mb-16'>
@@ -236,7 +236,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Meat &amp; Seafood
+                  Badiiy adabiyot
                 </Link>
               </li>
               <li className='mb-16'>
@@ -244,7 +244,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Breakfast Food
+                  Bolalar adabiyoti
                 </Link>
               </li>
               <li className='mb-16'>
@@ -252,7 +252,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Household Supplies
+                  O'quv adabiyoti
                 </Link>
               </li>
               <li className='mb-16'>
@@ -260,7 +260,7 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Bread &amp; Bakery
+                  Ilmiy adabiyot
                 </Link>
               </li>
               <li className=''>
@@ -268,14 +268,14 @@ const FooterOne = () => {
                   href='/shop'
                   className='text-gray-600 hover-text-main-600'
                 >
-                  Pantry Staples
+                  Texnika adabiyoti
                 </Link>
               </li>
             </ul>
           </div>
           <div className='footer-item'>
-            <h6 className=''>Shop on The Go</h6>
-            <p className='mb-16'>Marketpro App is available. Get it now</p>
+            <h6 className=''>Har joyda xarid qiling</h6>
+            <p className='mb-16'>Kitobzor ilovasi mavjud. Hozir oling</p>
             <div className='flex-align gap-8 my-32'>
               <Link href='/https://www.apple.com/store' className=''>
                 <img src='assets/images/thumbs/store-img1.png' alt='' />

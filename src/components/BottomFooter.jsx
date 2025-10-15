@@ -6,10 +6,10 @@ const BottomFooter = () => {
       <div className='container container-lg'>
         <div className='bottom-footer__inner flex-between flex-wrap gap-16 py-16'>
           <p className='bottom-footer__text '>
-            Marketpro eCommerce © 2024. All Rights Reserved{" "}
+            Kitobzor © 2024. Barcha huquqlar himoyalangan{" "}
           </p>
           <div className='flex-align gap-8 flex-wrap'>
-            <span className='text-heading text-sm'>We Are Acepting</span>
+            <span className='text-heading text-sm'>Biz qabul qilamiz</span>
             <img
               src='assets/images/thumbs/payment-method.png'
               alt='marketpro'
