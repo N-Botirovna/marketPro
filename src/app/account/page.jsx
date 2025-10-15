@@ -7,7 +7,6 @@ import ColorInit from "@/helper/ColorInit";
 import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
 import HeaderOne from "@/components/HeaderOne";
-import FooterOne from "@/components/FooterOne";
 
 export const metadata = {
   title: "MarketPro - User Profile",
