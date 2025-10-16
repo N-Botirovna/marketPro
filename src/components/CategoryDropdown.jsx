@@ -1,11 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { getBookCategories, getBookSubcategories } from "@/services/categories";
+import { getBookCategories } from "@/services/categories";
 
 const CategoryDropdown = () => {
   const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
   const [activeIndexCat, setActiveIndexCat] = useState(null);
   const [activeCategory, setActiveCategory] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -19,25 +18,18 @@ const CategoryDropdown = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCategories = async () => {
       try {
-        // Fetch categories
-        const categoriesRes = await getBookCategories({ limit: 20 });
-        setCategories(categoriesRes.categories || []);
-        console.log("Categories response:", categoriesRes);
-
-        // Fetch subcategories
-        const subcategoriesRes = await getBookSubcategories({ limit: 50 });
-        setSubcategories(subcategoriesRes.subcategories || []);
-        console.log("Subcategories response:", subcategoriesRes);
-        
+        const res = await getBookCategories();
+        setCategories(res?.result || []);
       } catch (error) {
-        console.error("Ma'lumotlarni yuklashda xatolik:", error);
+        console.error("Kategoriya ma'lumotlarini olishda xatolik:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
+
+    fetchCategories();
   }, []);
 
   if (loading) {
@@ -58,6 +50,7 @@ const CategoryDropdown = () => {
 
   return (
     <div className="category on-hover-item">
+      {/* Tugma */}
       <button
         onClick={handleCategoryToggle}
         type="button"
@@ -72,12 +65,13 @@ const CategoryDropdown = () => {
         </span>
       </button>
 
+      {/* Dropdown menyu */}
       <div
         className={`responsive-dropdown cat on-hover-dropdown common-dropdown nav-submenu p-0 submenus-submenu-wrapper ${
           activeCategory ? "active" : ""
         }`}
       >
-        {/* Close btn (mobil uchun) */}
+        {/* Mobil yopish tugmasi */}
         <button
           onClick={() => {
             handleCategoryToggle();
@@ -89,28 +83,25 @@ const CategoryDropdown = () => {
           <i className="ph ph-x" />
         </button>
 
-        {/* Logo (mobil) */}
+        {/* Mobil logo */}
         <div className="logo px-16 d-lg-none d-block">
           <Link href="/" className="link">
-            <img src="assets/images/logo/logo.png" alt="Logo" />
+            <img src="/assets/images/logo/logo.png" alt="Logo" />
           </Link>
         </div>
 
+        {/* Kategoriyalar ro'yxati */}
         <ul className="scroll-sm p-0 py-8 w-300 max-h-400 overflow-y-auto">
           {categories.map((cat, index) => (
             <li
               key={cat.id}
-              onClick={() => handleCatClick(index)}
+              onMouseEnter={() => setActiveIndexCat(index)}
+              onMouseLeave={() => setActiveIndexCat(null)}
               className={`has-submenus-submenu ${
                 activeIndexCat === index ? "active" : ""
               }`}
             >
-              <Link
-                href="#"
-                className="text-gray-500 text-15 py-12 px-16 flex-align gap-8 rounded-0"
-                onClick={() => setActiveIndexCat(null)}
-              >
-                {/* Icon o‘rniga picture */}
+              <div className="text-gray-500 text-15 py-12 px-16 flex-align gap-8 cursor-pointer rounded-0">
                 {cat.picture ? (
                   <img
                     src={cat.picture}
@@ -122,35 +113,35 @@ const CategoryDropdown = () => {
                     <i className="ph ph-book" />
                   </span>
                 )}
-
                 <span>{cat.name}</span>
-
-                {subcategories.filter(sub => sub.category === cat.id).length > 0 && (
+                {cat.subcategories?.length > 0 && (
                   <span className="icon text-md d-flex ms-auto">
                     <i className="ph ph-caret-right" />
                   </span>
                 )}
-              </Link>
+              </div>
 
-              {subcategories.filter(sub => sub.category === cat.id).length > 0 && (
+              {/* Yon paneldagi subkategoriya */}
+              {cat.subcategories?.length > 0 && (
                 <div
                   className={`submenus-submenu py-16 ${
                     activeIndexCat === index ? "open" : ""
                   }`}
                 >
-                  <h6 className="text-lg px-16 submenus-submenu__title">
+                  <h6 className="text-lg px-16 submenus-submenu__title mb-8">
                     {cat.name}
                   </h6>
                   <ul className="submenus-submenu__list max-h-300 overflow-y-auto scroll-sm">
-                    {subcategories
-                      .filter(sub => sub.category === cat.id)
-                      .map((sub) => (
-                        <li key={sub.id}>
-                          <Link href={`/shop?subcategory=${sub.id}`}>
-                            {sub.name}
-                          </Link>
-                        </li>
-                      ))}
+                    {cat.subcategories.map((sub) => (
+                      <li key={sub.id}>
+                        <Link
+                          href={`/books?subcategory=${sub.id}`}
+                          className="block px-16 py-8 hover:bg-gray-50"
+                        >
+                          {sub.name}
+                        </Link>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               )}
@@ -163,3 +154,4 @@ const CategoryDropdown = () => {
 };
 
 export default CategoryDropdown;
+

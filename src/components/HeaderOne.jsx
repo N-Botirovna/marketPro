@@ -312,7 +312,7 @@ const HeaderOne = () => {
       >
         <div className='container container-lg'>
           <nav className='header-inner d-flex justify-content-between gap-8'>
-            <div className='flex-align menu-category-wrapper'>
+            <div className='flex-align menu-category-wrapper z-30'>
               {/* Category Dropdown Start */}
               <CategoryDropdown />
               {/* Category Dropdown End  */}
