@@ -3,7 +3,16 @@ import { API_ENDPOINTS } from "@/config";
 
 // Get regions with districts
 export async function getRegions(params = {}) {
-  const { data } = await http.get(API_ENDPOINTS.BASE.REGIONS, { params });
+  // Filter out empty parameters
+  const cleanParams = {};
+  Object.keys(params).forEach(key => {
+    const value = params[key];
+    if (value !== '' && value !== null && value !== undefined) {
+      cleanParams[key] = value;
+    }
+  });
+  
+  const { data } = await http.get(API_ENDPOINTS.BASE.REGIONS, { params: cleanParams });
   return {
     regions: data?.result || [],
     count: data?.count || 0,

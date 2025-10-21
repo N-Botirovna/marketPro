@@ -14,6 +14,15 @@ const httpClient = axios.create({
 });
 
 httpClient.interceptors.request.use(async (config) => {
+  console.log('🚀 HTTP Request:', {
+    method: config.method?.toUpperCase(),
+    url: config.url,
+    baseURL: config.baseURL,
+    fullURL: `${config.baseURL}${config.url}`,
+    params: config.params,
+    data: config.data
+  });
+  
   // Proactively refresh token if needed before making request
   await refreshTokenIfNeeded();
   
@@ -48,8 +57,21 @@ const processQueue = (error, token = null) => {
 };
 
 httpClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('✅ HTTP Response:', {
+      status: response.status,
+      url: response.config.url,
+      data: response.data
+    });
+    return response;
+  },
   async (error) => {
+    console.log('❌ HTTP Error:', {
+      status: error?.response?.status,
+      url: error?.config?.url,
+      message: error?.message,
+      data: error?.response?.data
+    });
     const originalRequest = error.config;
 
     // Handle 401 Unauthorized with token refresh
