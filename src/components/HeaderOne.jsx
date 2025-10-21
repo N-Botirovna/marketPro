@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { isAuthenticated, logoutUser, getAuthToken } from "@/services/auth";
 import { getBookCategories } from "@/services/categories";
+import { getRegions } from "@/services/regions";
 import CategoryDropdown from "./CategoryDropdown";
 
 import query from "jquery";
@@ -14,6 +15,26 @@ const HeaderOne = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userToken, setUserToken] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [regions, setRegions] = useState([]);
+  const [hoveredRegionId, setHoveredRegionId] = useState(null);
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showLocationDropdown && !event.target.closest('.location-dropdown')) {
+        setShowLocationDropdown(false);
+      }
+    };
+    
+    if (showLocationDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showLocationDropdown]);
   useEffect(() => {
     if (typeof window !== "undefined") {
       const handleScroll = () => {
@@ -51,16 +72,20 @@ const HeaderOne = () => {
   }, []);
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const response = await getBookCategories({ limit: 20 });
-        setCategories(response.categories);
+        const [categoriesRes, regionsRes] = await Promise.all([
+          getBookCategories({ limit: 20 }),
+          getRegions({ limit: 50 })
+        ]);
+        setCategories(categoriesRes.categories || []);
+        setRegions(regionsRes.regions || []);
       } catch (err) {
-        console.error('Kategoriyalar yuklashda xatolik:', err);
+        console.error('Ma\'lumotlarni yuklashda xatolik:', err);
       }
     };
 
-    fetchCategories();
+    fetchData();
   }, []);
 
   // Handle logout
@@ -260,19 +285,89 @@ const HeaderOne = () => {
             <form
               action='#'
               className='flex-align flex-wrap form-location-wrapper'
+              style={{overflow: 'visible'}}
             >
-                <div className='search-category d-flex h-48 select-border-end-0 radius-end-0 search-form d-sm-flex d-none'>
-                <select
-                  defaultValue={1}
-                  className='js-example-basic-single border border-gray-200 border-end-0'
-                >
-                  <option value={1}>By Location</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
+                <div className='search-category d-flex h-48 select-border-end-0 radius-end-0 search-form d-sm-flex d-none position-relative' style={{overflow: 'visible'}}>
+                  <div className='location-dropdown w-100' style={{overflow: 'visible'}}>
+                    <div 
+                      className='location-dropdown__button d-flex align-items-center justify-content-between px-16 py-12 border border-gray-200 border-end-0 cursor-pointer'
+                      onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+                    >
+                      <span className='text-gray-700'>By Location</span>
+                      <i className='ph ph-caret-down text-gray-500'></i>
+                    </div>
+                    
+                    <div 
+                      className='location-dropdown__menu position-absolute top-100 start-0 w-300 bg-white border border-gray-200 shadow-lg' 
+                      style={{
+                        zIndex: 1000, 
+                        display: showLocationDropdown ? 'block' : 'none',
+                        borderRadius: '8px',
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                        transition: 'all 0.3s ease',
+                        opacity: showLocationDropdown ? 1 : 0,
+                        transform: showLocationDropdown ? 'translateY(0)' : 'translateY(-10px)'
+                      }}
+                    >
+                      <ul className='scroll-sm p-0 py-8 max-h-400 overflow-y-auto'>
+                        {regions.map((region) => (
+                          <li 
+                            key={region.id} 
+                            className='position-relative'
+                            onMouseEnter={() => setHoveredRegionId(region.id)}
+                            onMouseLeave={() => setHoveredRegionId(null)}
+                          >
+                            <div className='text-gray-600 text-15 py-12 px-16 flex-align gap-8 cursor-pointer rounded-8 hover:bg-gray-50 transition-all duration-200' style={{transition: 'all 0.2s ease'}}>
+                              <span className='text-xl d-flex text-gray-400'>
+                                <i className='ph ph-map-pin' />
+                              </span>
+                              <span className='font-medium'>{region.name}</span>
+                              {region.districts && region.districts.length > 0 && (
+                                <span className='icon text-md d-flex ms-auto text-gray-400'>
+                                  <i className='ph ph-caret-right' />
+                                </span>
+                              )}
+                            </div>
+                            
+                            {/* Districts dropdown on hover */}
+                            {hoveredRegionId === region.id && region.districts && region.districts.length > 0 && (
+                              <div 
+                                className='submenus-submenu py-16 position-absolute top-0 start-100'
+                                style={{
+                                  zIndex: 1001,
+                                  minWidth: '200px',
+                                  background: 'white',
+                                  border: '1px solid #e5e7eb',
+                                  borderRadius: '8px',
+                                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                                  transition: 'all 0.3s ease',
+                                  opacity: 1,
+                                  transform: 'translateX(0)'
+                                }}
+                              >
+                                <h6 className='text-lg px-16 submenus-submenu__title mb-8 font-semibold text-gray-800'>
+                                  {region.name}
+                                </h6>
+                                <ul className='submenus-submenu__list max-h-300 overflow-y-auto scroll-sm'>
+                                  {region.districts.map((district) => (
+                                    <li key={district.id}>
+                                      <Link 
+                                        href={`/vendor-two?region=${region.id}&district=${district.id}`}
+                                        className='block px-16 py-8 hover:bg-gray-50 rounded-4 transition-all duration-10 text-gray-600 hover:text-gray-800'
+                                        style={{transition: 'all 0.02s ease'}}
+                                      >
+                                        {district.name}
+                                      </Link>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
                 <div className='search-form__wrapper position-relative'>
                   <input
@@ -435,6 +530,33 @@ const HeaderOne = () => {
         </div>
       </header>
       {/* ==================== Header End Here ==================== */}
+      
+      <style jsx>{`
+        .form-location-wrapper {
+          overflow: visible !important;
+        }
+        
+        .search-category {
+          overflow: visible !important;
+        }
+        
+        .location-dropdown {
+          position: relative;
+          overflow: visible !important;
+        }
+        
+        .location-dropdown__menu {
+          border-radius: 8px;
+        }
+        
+        .location-dropdown__button:hover {
+          background-color: #f8f9fa;
+        }
+        
+        .submenus-submenu {
+          border-radius: 8px;
+        }
+      `}</style>
     </>
   );
 };
