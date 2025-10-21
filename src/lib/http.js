@@ -82,19 +82,26 @@ httpClient.interceptors.response.use(
           refresh_token: refreshToken
         });
 
-        const newToken = response.data?.access_token || response.data?.token;
-        if (newToken) {
-          setItem(AUTH_TOKEN_STORAGE_KEY, newToken);
-          httpClient.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+        const newAccessToken = response.data?.access_token;
+        const newRefreshToken = response.data?.refresh_token;
+        
+        if (newAccessToken) {
+          setItem(AUTH_TOKEN_STORAGE_KEY, newAccessToken);
+          httpClient.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+          
+          // Update refresh token if new one provided
+          if (newRefreshToken) {
+            setItem('refresh_token', newRefreshToken);
+          }
           
           console.log('✅ Access token refreshed successfully');
-          processQueue(null, newToken);
+          processQueue(null, newAccessToken);
           
           // Retry the original request with new token
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return httpClient(originalRequest);
         } else {
-          throw new Error('No new token received');
+          throw new Error('No new access token received');
         }
       } catch (refreshError) {
         console.error('❌ Token refresh failed:', refreshError);

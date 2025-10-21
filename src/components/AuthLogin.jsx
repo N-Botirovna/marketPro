@@ -45,13 +45,13 @@ const AuthLogin = () => {
         otp_code: password,
       });
       
-      if (res.token) {
+      if (res.access_token || res.token) {
         setSuccess("Muvaffaqiyatli kirildi! Yo'naltirilmoqda...");
         setTimeout(() => {
           router.push('/');
         }, 1500);
       } else {
-        setError("Kirish muvaffaqiyatsiz. OTP kodini tekshiring.");
+        setError("Kirish muvaffaqiyatsiz. Parolni tekshiring.");
       }
     } catch (err) {
       console.error('Login error:', err);
