@@ -20,7 +20,8 @@ httpClient.interceptors.request.use(async (config) => {
     baseURL: config.baseURL,
     fullURL: `${config.baseURL}${config.url}`,
     params: config.params,
-    data: config.data
+    data: config.data,
+    headers: config.headers
   });
   
   // Proactively refresh token if needed before making request

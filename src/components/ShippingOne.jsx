@@ -11,9 +11,9 @@ const ShippingOne = () => {
                                 <i className="ph-fill ph-car-profile" />
                             </span>
                             <div className="">
-                                <h6 className="mb-0">Free Shipping</h6>
+                                <h6 className="mb-0">Bepul Yetkazib Berish</h6>
                                 <span className="text-sm text-heading">
-                                    Free shipping all over the US
+                                    O'zbekiston bo'ylab bepul yetkazib berish
                                 </span>
                             </div>
                         </div>
@@ -24,9 +24,9 @@ const ShippingOne = () => {
                                 <i className="ph-fill ph-hand-heart" />
                             </span>
                             <div className="">
-                                <h6 className="mb-0"> 100% Satisfaction</h6>
+                                <h6 className="mb-0">100% Mijozlar Mamnunligi</h6>
                                 <span className="text-sm text-heading">
-                                    Free shipping all over the US
+                                    Sifatli kitoblar va xizmat kafolati
                                 </span>
                             </div>
                         </div>
@@ -37,9 +37,9 @@ const ShippingOne = () => {
                                 <i className="ph-fill ph-credit-card" />
                             </span>
                             <div className="">
-                                <h6 className="mb-0"> Secure Payments</h6>
+                                <h6 className="mb-0">Xavfsiz To'lov</h6>
                                 <span className="text-sm text-heading">
-                                    Free shipping all over the US
+                                    Turli xil to'lov usullari qo'llab-quvvatlanadi
                                 </span>
                             </div>
                         </div>
@@ -50,9 +50,9 @@ const ShippingOne = () => {
                                 <i className="ph-fill ph-chats" />
                             </span>
                             <div className="">
-                                <h6 className="mb-0"> 24/7 Support</h6>
+                                <h6 className="mb-0">24/7 Qo'llab-quvvatlash</h6>
                                 <span className="text-sm text-heading">
-                                    Free shipping all over the US
+                                    Doimiy qo'llab-quvvatlash xizmati
                                 </span>
                             </div>
                         </div>

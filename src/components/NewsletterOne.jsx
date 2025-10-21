@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from 'next/link'
 
 const NewsletterOne = () => {
     return (
@@ -14,28 +15,26 @@ const NewsletterOne = () => {
                         <div className="col-xl-6">
                             <div className="">
                                 <h1 className="text-white mb-12">
-                                    Kitob takliflarini o'tkazib yubormang
+                                    Kitobzor takliflarini o'tkazib yubormang!
                                 </h1>
                                 <p className="text-white h5 mb-0">
-                                    YANGILIKLAR UCHUN RO'YXATDAN O'TING
+                                    SOTUVCHI BO'LING VA FOYDA OLING
                                 </p>
-                                <form action="#" className="position-relative mt-40">
-                                    <input
-                                        type="text"
-                                        className="form-control common-input rounded-pill text-white py-22 px-16 pe-144"
-                                        placeholder="Email manzilingiz..."
-                                    />
-                                    <button
-                                        type="submit"
-                                        className="btn btn-main-two rounded-pill position-absolute top-50 translate-middle-y inset-inline-end-0 me-10"
-                                    >
-                                        Obuna bo'lish
-                                    </button>
-                                </form>
+                                <p className="text-white mb-24 mt-16">
+                                    Kitoblaringizni sotish orqali oylik 200,000$ dan ortiq foyda oling. 
+                                    Bepul ro'yxatdan o'ting va darhol sotishni boshlang!
+                                </p>
+                                <Link
+                                    href="/become-seller"
+                                    className="btn btn-main-two rounded-pill d-inline-flex align-items-center gap-8 py-22 px-32"
+                                >
+                                    <i className="ph ph-store text-xl"></i>
+                                    Sotuvchi Bo'lish
+                                </Link>
                             </div>
                         </div>
                         <div className="col-xl-6 text-center d-xl-block d-none">
-                            <img src="assets/images/thumbs/newsletter-img.png" alt="" />
+                            <img src="assets/images/thumbs/newsletter-img.png" alt="Kitoblar" />
                         </div>
                     </div>
                 </div>
