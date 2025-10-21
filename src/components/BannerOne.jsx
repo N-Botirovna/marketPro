@@ -87,7 +87,7 @@ const BannerOne = () => {
                         {banner.title}
                       </h1>
                       <Link
-                        href="/shop"
+                        href="/vendor-two"
                         className="btn btn-main d-inline-flex align-items-center rounded-pill gap-8"
                       >
                         Explore Shop{" "}

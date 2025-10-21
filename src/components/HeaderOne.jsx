@@ -18,6 +18,7 @@ const HeaderOne = () => {
   const [regions, setRegions] = useState([]);
   const [hoveredRegionId, setHoveredRegionId] = useState(null);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -112,7 +113,7 @@ const HeaderOne = () => {
 
   // Search control support
   const [activeSearch, setActiveSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  // const [searchQuery, setSearchQuery] = useState("");
   const handleSearchToggle = () => {
     setActiveSearch(!activeSearch);
   };
@@ -283,7 +284,12 @@ const HeaderOne = () => {
             </div>
             <div className='col-lg-6'>
             <form
-              action='#'
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (searchQuery.trim()) {
+                  router.push(`/vendor-two?search=${encodeURIComponent(searchQuery.trim())}`);
+                }
+              }}
               className='flex-align flex-wrap form-location-wrapper'
               style={{overflow: 'visible'}}
             >
@@ -374,6 +380,8 @@ const HeaderOne = () => {
                     type='text'
                     className='search-form__input common-input py-13 ps-16 pe-18 rounded-end-pill pe-44'
                     placeholder="Kitob nomi, muallif yoki kalit so'z qidiring..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                   <button
                     type='submit'

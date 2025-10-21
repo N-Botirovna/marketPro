@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import BookCard from "./BookCard";
 import { getBooks } from "@/services/books";
 import { getBookCategories } from "@/services/categories";
@@ -9,6 +10,7 @@ import { getShops } from "@/services/shops";
 import { getRegions } from "@/services/regions";
 
 const BookShop = () => {
+  const searchParams = useSearchParams();
   const [books, setBooks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [shops, setShops] = useState([]);
@@ -20,6 +22,7 @@ const BookShop = () => {
   const [hoveredRegionId, setHoveredRegionId] = useState(null);
   const [filters, setFilters] = useState({
     category: "",
+    subcategory: "",
     region: "",
     district: "",
     cover_type: "",
@@ -35,6 +38,29 @@ const BookShop = () => {
   const sidebarController = () => {
     setActive(!active);
   };
+
+  // Initialize filters from URL parameters
+  useEffect(() => {
+    const category = searchParams.get('category') || '';
+    const subcategory = searchParams.get('subcategory') || '';
+    const region = searchParams.get('region') || '';
+    const district = searchParams.get('district') || '';
+    const search = searchParams.get('search') || '';
+    const type = searchParams.get('type') || '';
+
+    setFilters(prev => ({
+      ...prev,
+      category: category,
+      subcategory: subcategory,
+      region: region,
+      district: district,
+      type: type,
+    }));
+
+    if (search) {
+      setSearchQuery(search);
+    }
+  }, [searchParams]);
 
   // Fetch data
   useEffect(() => {
@@ -69,6 +95,7 @@ const BookShop = () => {
       book.author?.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesCategory = !filters.category || book.category?.id === parseInt(filters.category);
+    const matchesSubcategory = !filters.subcategory || book.subcategory?.id === parseInt(filters.subcategory);
     const matchesRegion = !filters.region || book.region?.id === parseInt(filters.region);
     const matchesDistrict = !filters.district || book.district?.id === parseInt(filters.district);
     const matchesCoverType = !filters.cover_type || book.cover_type === filters.cover_type;
@@ -84,7 +111,7 @@ const BookShop = () => {
     const matchesPriceMin = !filters.price_min || price >= parseInt(filters.price_min);
     const matchesPriceMax = !filters.price_max || price <= parseInt(filters.price_max);
 
-    return matchesSearch && matchesCategory && matchesRegion && matchesDistrict && matchesCoverType && 
+    return matchesSearch && matchesCategory && matchesSubcategory && matchesRegion && matchesDistrict && matchesCoverType && 
            matchesIsUsed && matchesType && matchesShop && matchesYearMin && 
            matchesYearMax && matchesPriceMin && matchesPriceMax;
   });
@@ -96,6 +123,7 @@ const BookShop = () => {
   const clearFilters = () => {
     setFilters({
       category: "",
+      subcategory: "",
       region: "",
       district: "",
       cover_type: "",
