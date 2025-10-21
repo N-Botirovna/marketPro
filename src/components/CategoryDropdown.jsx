@@ -17,11 +17,11 @@ const CategoryDropdown = () => {
     setActiveIndexCat((prev) => (prev === index ? null : index));
   };
 
+
    useEffect(() => {
      const fetchCategories = async () => {
        try {
          const res = await getBookCategories({ limit: 20 });
-         console.log("API response:", res);
          setCategories(res.categories || []);
        } catch (error) {
          console.error("Kategoriya ma'lumotlarini olishda xatolik:", error);

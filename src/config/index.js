@@ -54,6 +54,9 @@ export const API_ENDPOINTS = {
     UPDATE: "api/v1/post/update/",
     DELETE: "api/v1/post/delete/",
   },
+  BASE: {
+    REGIONS: "api/v1/base/regions/",
+  },
 };
 
 

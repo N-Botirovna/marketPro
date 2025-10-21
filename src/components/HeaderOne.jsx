@@ -266,7 +266,7 @@ const HeaderOne = () => {
                   defaultValue={1}
                   className='js-example-basic-single border border-gray-200 border-end-0'
                 >
-                  <option value={1}>All Categories</option>
+                  <option value={1}>By Location</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
