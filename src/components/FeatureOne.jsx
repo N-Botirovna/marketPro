@@ -130,7 +130,7 @@ const FeatureOne = () => {
             <Slider {...settings}>
               {categories.map((category) => (
                 <div key={category.id} className='feature-item text-center'>
-                  <div className='feature-item__thumb rounded-circle'>
+                  <div className='feature-item__thumb rounded-circle overflow-hidden w-[100px] h-[100px] mx-auto'>
                     <Link href={`/shop?category=${category.id}`} className='w-100 h-100 flex-center'>
                       <img 
                         src={category.picture || 'assets/images/thumbs/feature-img1.png'} 

@@ -13,10 +13,8 @@ const BannerOne = () => {
       try {
         setLoading(true);
         const response = await getBanners({ limit: 10 });
-        console.log("Banner API response:", response);
         setBanners(response.banners);
       } catch (err) {
-        console.error("Banner yuklashda xatolik:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -67,7 +65,7 @@ const BannerOne = () => {
         <div className="banner-item rounded-24 overflow-hidden position-relative arrow-center">
           <a
             href="#featureSection"
-            className="scroll-down w-84 h-84 text-center flex-center bg-main-600 rounded-circle border border-5 text-white border-white position-absolute start-50 translate-middle-x bottom-0 hover-bg-main-800"
+            className="scroll-down w-84 h-84 text-center flex-center bg-main-600 rounded-circle  border-5 text-white border-white position-absolute start-50 translate-middle-x bottom-0 hover-bg-main-800"
           >
             <span className="icon line-height-0">
               <i className="ph ph-caret-double-down" />
@@ -82,14 +80,14 @@ const BannerOne = () => {
           <div className="banner-slider">
             <Slider {...settings}>
               {banners.map((banner, index) => (
-                <div className="banner-slider__item">
+                <div className="banner-slider__item" key={banner.id || index}>  
                   <div className="banner-slider__inner flex-between position-relative">
                     <div className="banner-item__content">
                       <h1 className="banner-item__title bounce">
                         {banner.title}
                       </h1>
                       <Link
-                        href="/shop"
+                        href="/vendor-two"
                         className="btn btn-main d-inline-flex align-items-center rounded-pill gap-8"
                       >
                         Explore Shop{" "}

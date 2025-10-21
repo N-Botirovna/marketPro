@@ -31,12 +31,6 @@ const page = () => {
 
       <HeaderOne category={true} />
 
-      {/* Breadcrumb */}
-      <Breadcrumb title={"Become Seller"} />
-
-      {/* BreadcrumbImage */}
-      <BreadcrumbImage />
-
       {/* WhyBecomeSeller */}
       <WhyBecomeSeller />
 
@@ -45,11 +39,6 @@ const page = () => {
 
       {/* StepsSection */}
       <StepsSection />
-
-      {/* TestimonialOne */}
-      <section className="pb-120">
-        <TestimonialOne />
-      </section>
 
       {/* ShippingOne */}
       <ShippingOne />

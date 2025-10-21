@@ -14,6 +14,16 @@ const httpClient = axios.create({
 });
 
 httpClient.interceptors.request.use(async (config) => {
+  console.log('🚀 HTTP Request:', {
+    method: config.method?.toUpperCase(),
+    url: config.url,
+    baseURL: config.baseURL,
+    fullURL: `${config.baseURL}${config.url}`,
+    params: config.params,
+    data: config.data,
+    headers: config.headers
+  });
+  
   // Proactively refresh token if needed before making request
   await refreshTokenIfNeeded();
   
@@ -48,8 +58,21 @@ const processQueue = (error, token = null) => {
 };
 
 httpClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('✅ HTTP Response:', {
+      status: response.status,
+      url: response.config.url,
+      data: response.data
+    });
+    return response;
+  },
   async (error) => {
+    console.log('❌ HTTP Error:', {
+      status: error?.response?.status,
+      url: error?.config?.url,
+      message: error?.message,
+      data: error?.response?.data
+    });
     const originalRequest = error.config;
 
     // Handle 401 Unauthorized with token refresh
@@ -82,19 +105,26 @@ httpClient.interceptors.response.use(
           refresh_token: refreshToken
         });
 
-        const newToken = response.data?.access_token || response.data?.token;
-        if (newToken) {
-          setItem(AUTH_TOKEN_STORAGE_KEY, newToken);
-          httpClient.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+        const newAccessToken = response.data?.access_token;
+        const newRefreshToken = response.data?.refresh_token;
+        
+        if (newAccessToken) {
+          setItem(AUTH_TOKEN_STORAGE_KEY, newAccessToken);
+          httpClient.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+          
+          // Update refresh token if new one provided
+          if (newRefreshToken) {
+            setItem('refresh_token', newRefreshToken);
+          }
           
           console.log('✅ Access token refreshed successfully');
-          processQueue(null, newToken);
+          processQueue(null, newAccessToken);
           
           // Retry the original request with new token
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return httpClient(originalRequest);
         } else {
-          throw new Error('No new token received');
+          throw new Error('No new access token received');
         }
       } catch (refreshError) {
         console.error('❌ Token refresh failed:', refreshError);

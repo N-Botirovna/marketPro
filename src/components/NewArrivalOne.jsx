@@ -82,7 +82,7 @@ const NewArrivalOne = () => {
             <h5 className='mb-0'>New Arrivals</h5>
             <div className='flex-align mr-point gap-16'>
               <Link
-                href='/shop'
+                href='/vendor-two?type=new'
                 className='text-sm fw-medium text-gray-700 hover-text-main-600 hover-text-decoration-underline'
               >
                 View All Deals

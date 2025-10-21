@@ -18,13 +18,14 @@ export async function loginWithPhoneOtp({ phone_number, otp_code }) {
   const payload = { phone_number, otp_code };
   const { data } = await http.post(API_ENDPOINTS.AUTH.LOGIN, payload);
   
-  // Handle both token formats: 'token' and 'access_token'
-  const token = data?.token || data?.access_token;
+  // Handle new token format: access_token and refresh_token
+  const accessToken = data?.access_token;
   const refreshToken = data?.refresh_token;
   const expiresIn = data?.expires_in || data?.expires_in_seconds;
   
-  if (token) {
-    setItem(AUTH_TOKEN_STORAGE_KEY, token);
+  if (accessToken) {
+    // Store access_token in localStorage
+    setItem(AUTH_TOKEN_STORAGE_KEY, accessToken);
     
     // Store token expiration time if provided
     if (expiresIn) {
@@ -33,20 +34,20 @@ export async function loginWithPhoneOtp({ phone_number, otp_code }) {
     }
   }
   
-  // Store refresh token if available
+  // Store refresh_token in localStorage (in production, this should be httpOnly cookie)
   if (refreshToken) {
     setItem('refresh_token', refreshToken);
   }
   
   console.log('🔐 Login successful:', {
-    hasToken: !!token,
+    hasAccessToken: !!accessToken,
     hasRefreshToken: !!refreshToken,
     expiresIn: expiresIn ? `${expiresIn}s` : 'unknown'
   });
   
   return {
-    token: token || null,
-    refreshToken: refreshToken || null,
+    access_token: accessToken || null,
+    refresh_token: refreshToken || null,
     user: data?.user || null,
     expiresIn: expiresIn || null,
     raw: data,
@@ -182,12 +183,12 @@ export async function refreshAccessToken() {
       refresh_token: refreshToken
     });
     
-    const newToken = data?.access_token || data?.token;
+    const newAccessToken = data?.access_token;
     const newRefreshToken = data?.refresh_token;
     const expiresIn = data?.expires_in || data?.expires_in_seconds;
     
-    if (newToken) {
-      setItem(AUTH_TOKEN_STORAGE_KEY, newToken);
+    if (newAccessToken) {
+      setItem(AUTH_TOKEN_STORAGE_KEY, newAccessToken);
       
       // Update token expiration time
       if (expiresIn) {
@@ -204,8 +205,8 @@ export async function refreshAccessToken() {
     console.log('✅ Token refresh successful');
     
     return {
-      token: newToken || null,
-      refreshToken: newRefreshToken || refreshToken,
+      access_token: newAccessToken || null,
+      refresh_token: newRefreshToken || refreshToken,
       expiresIn: expiresIn || null,
       raw: data,
     };

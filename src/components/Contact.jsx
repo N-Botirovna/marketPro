@@ -161,7 +161,7 @@ const Contact = () => {
                 </span>
               </div>
             </div>
-            <div className='mt-24 flex-align flex-wrap gap-16'>
+            {/* <div className='mt-24 flex-align flex-wrap gap-16'>
               <Link
                 href='#'
                 className='bg-neutral-600 hover-bg-main-600 rounded-8 p-10 px-16 flex-between flex-wrap gap-8 flex-grow-1'
@@ -182,7 +182,7 @@ const Contact = () => {
                   <i className='ph ph-map-pin' />
                 </span>
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

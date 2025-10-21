@@ -3,15 +3,15 @@ import Breadcrumb from "@/components/Breadcrumb";
 import FooterOne from "@/components/FooterOne";
 import HeaderOne from "@/components/HeaderOne";
 import ShippingOne from "@/components/ShippingOne";
-import VendorTwo from "@/components/VendorTwo";
+import BookShop from "@/components/BookShop";
 import ColorInit from "@/helper/ColorInit";
 import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
 
 export const metadata = {
-  title: "MarketPro - E-commerce Next JS Template",
+  title: "Kitoblar Do'koni - MarketPro",
   description:
-    "MarketPro is a comprehensive and versatile Next JS template designed for e-commerce platforms, specifically tailored for multi vendor marketplaces. With its modern design and extensive feature set, MarketPro provides everything you need to create a robust and user-friendly online marketplace..",
+    "Kitoblar do'konida turli kategoriyalardagi kitoblarni toping. Muallif, nashriyot, narx va boshqa mezonlar bo'yicha qidiring va kerakli kitobni toping.",
 };
 
 const page = () => {
@@ -30,10 +30,10 @@ const page = () => {
       <HeaderOne category={true} />
 
       {/* Breadcrumb */}
-      <Breadcrumb title={"All Vendors"} />
+      <Breadcrumb title={"Kitoblar Do'koni"} />
 
-      {/* VendorTwo */}
-      <VendorTwo />
+      {/* BookShop */}
+      <BookShop />
 
       {/* ShippingOne */}
       <ShippingOne />
