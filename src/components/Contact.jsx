@@ -2,15 +2,17 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { sendContactMessage } from "@/services/contact";
+import Spin from "./Spin";
+import { useToast } from "./Toast";
 
 const Contact = () => {
+  const { showToast, ToastContainer } = useToast();
   const [formData, setFormData] = useState({
     phone: '',
     message: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -23,7 +25,6 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
 
     if (!formData.phone || !formData.message) {
       setError('Iltimos, barcha maydonlarni to\'ldiring');
@@ -38,7 +39,12 @@ const Contact = () => {
       });
 
       if (response.success) {
-        setSuccess('Xabaringiz muvaffaqiyatli yuborildi!');
+        showToast({
+          type: 'success',
+          title: 'Muvaffaqiyatli!',
+          message: 'Xabaringiz muvaffaqiyatli yuborildi',
+          duration: 3000
+        });
         setFormData({ phone: '', message: '' });
       } else {
         setError(response.message || 'Xabar yuborishda xatolik yuz berdi');
@@ -65,11 +71,6 @@ const Contact = () => {
                   </div>
                 )}
                 
-                {success && (
-                  <div className='alert alert-success mb-24'>
-                    {success}
-                  </div>
-                )}
 
                 <div className='row gy-4'>
                   <div className='col-sm-12'>
@@ -120,7 +121,14 @@ const Contact = () => {
                       className='btn btn-main py-18 px-32 rounded-8'
                       disabled={loading}
                     >
-                      {loading ? 'Yuborilmoqda...' : 'Xabar yuborish'}
+                      {loading ? (
+                        <>
+                          <Spin size="sm" text="Yuborilmoqda..." />
+                          Yuborilmoqda...
+                        </>
+                      ) : (
+                        'Xabar yuborish'
+                      )}
                     </button>
                   </div>
                 </div>
@@ -186,6 +194,7 @@ const Contact = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </section>
   );
 };

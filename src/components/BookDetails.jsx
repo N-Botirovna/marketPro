@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getBookById } from "@/services/books";
 import { useAuth } from "@/hooks/useAuth";
 import BookCreateModal from "./BookCreateModal";
+import Spin from "./Spin";
 
 const BookDetails = ({ bookId }) => {
   const { isAuthenticated, token } = useAuth();
@@ -111,9 +112,7 @@ const BookDetails = ({ bookId }) => {
       <section className="py-80">
         <div className="container container-lg">
           <div className="text-center">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
+            <Spin text="Kitob ma'lumotlari yuklanmoqda..." />
           </div>
         </div>
       </section>

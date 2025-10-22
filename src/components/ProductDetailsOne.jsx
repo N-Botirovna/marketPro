@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from 'next/navigation';
 import { getBookById } from "@/services/books";
 import Slider from "react-slick";
+import Spin from "./Spin";
 
 const ProductDetailsOne = () => {
   const searchParams = useSearchParams();
@@ -84,7 +85,11 @@ const ProductDetailsOne = () => {
     focusOnSelect: true,
   };
 
-  if (loading) return <div className="text-center py-80">Loading...</div>;
+  if (loading) return (
+    <div className="text-center py-80">
+      <Spin text="Kitob ma'lumotlari yuklanmoqda..." />
+    </div>
+  );
   if (error) return <div className="text-center py-80 text-danger">{error}</div>;
   if (!book) return <div className="text-center py-80">Book not found.</div>;
 

@@ -2,14 +2,16 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { loginWithPhoneOtp } from "@/services/auth";
+import Spin from "./Spin";
+import { useToast } from "./Toast";
 
 const AuthLogin = () => {
   const router = useRouter();
+  const { showToast, ToastContainer } = useToast();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   // Validate phone number format
   const validatePhoneNumber = (phone) => {
@@ -21,7 +23,6 @@ const AuthLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
 
     if (!phoneNumber || !password) {
       setError("Iltimos, barcha maydonlarni to'ldiring");
@@ -46,10 +47,15 @@ const AuthLogin = () => {
       });
       
       if (res.access_token || res.token) {
-        setSuccess("Muvaffaqiyatli kirildi! Yo'naltirilmoqda...");
+        showToast({
+          type: 'success',
+          title: 'Muvaffaqiyatli!',
+          message: 'Tizimga muvaffaqiyatli kirdingiz',
+          duration: 2000
+        });
         setTimeout(() => {
           router.push('/');
-        }, 1500);
+        }, 2000);
       } else {
         setError("Kirish muvaffaqiyatsiz. Parolni tekshiring.");
       }
@@ -204,14 +210,6 @@ const AuthLogin = () => {
                     </div>
                   )}
                   
-                  {success && (
-                    <div className='mb-24'>
-                      <div className='alert alert-success d-flex align-items-center gap-8'>
-                        <i className='ph ph-check-circle text-lg'></i>
-                        {success}
-                      </div>
-                    </div>
-                  )}
                   {/* Submit Button */}
                   <div className='mb-24 mt-40'>
                     <button 
@@ -219,7 +217,14 @@ const AuthLogin = () => {
                       className='btn btn-main w-100 py-18 px-40' 
                       disabled={loading || !phoneNumber || !password}
                     >
-                      {loading ? "Kirinmoqda..." : "Kirish"}
+                      {loading ? (
+                        <>
+                          <Spin size="sm" text="Kirinmoqda..." />
+                          Kirinmoqda...
+                        </>
+                      ) : (
+                        "Kirish"
+                      )}
                     </button>
                   </div>
                 </div>
@@ -228,6 +233,7 @@ const AuthLogin = () => {
           </div>
         </div>
       </section>
+      <ToastContainer />
     </>
   );
 };
