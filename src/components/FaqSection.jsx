@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { getFaqs } from "@/services/faqs";
+import Spin from "./Spin";
 
 const FaqSection = () => {
   const [faqs, setFaqs] = useState([]);
@@ -36,9 +37,7 @@ const FaqSection = () => {
       <section className='faq py-80'>
         <div className='container container-lg'>
           <div className='text-center py-80'>
-            <div className='spinner-border text-main-600' role='status'>
-              <span className='visually-hidden'>Yuklanmoqda...</span>
-            </div>
+            <Spin text="FAQ ma'lumotlari yuklanmoqda..." />
             <p className='mt-16 text-gray-600'>FAQ ma'lumotlari yuklanmoqda...</p>
           </div>
         </div>

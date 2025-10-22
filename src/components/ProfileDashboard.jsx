@@ -8,6 +8,7 @@ import { getUserPosts } from '@/services/posts';
 import http from '@/lib/http';
 import { API_ENDPOINTS } from '@/config';
 import BookCard from './BookCard';
+import Spin from './Spin';
 import BookCreateModal from './BookCreateModal';
 import PostCard from './PostCard';
 import PostCreateModal from './PostCreateModal';
@@ -241,9 +242,7 @@ const ProfileDashboard = () => {
       <section className='account py-80'>
         <div className='container container-lg'>
           <div className='d-flex justify-content-center align-items-center py-80'>
-            <div className='spinner-border text-main-600' role='status'>
-              <span className='visually-hidden'>Loading...</span>
-            </div>
+            <Spin text="Ma'lumotlar yuklanmoqda..." />
           </div>
         </div>
       </section>
@@ -270,9 +269,7 @@ const ProfileDashboard = () => {
             </div>
             {booksLoading ? (
               <div className='text-center py-60'>
-                <div className='spinner-border text-main-600' role='status'>
-                  <span className='visually-hidden'>Loading...</span>
-                </div>
+                <Spin text="Kitoblar yuklanmoqda..." />
               </div>
             ) : userBooks.length > 0 ? (
               <div className='row g-4'>
@@ -305,9 +302,7 @@ const ProfileDashboard = () => {
             </div>
             {booksLoading ? (
               <div className='text-center py-60'>
-                <div className='spinner-border text-main-600' role='status'>
-                  <span className='visually-hidden'>Loading...</span>
-                </div>
+                <Spin text="Kitoblar yuklanmoqda..." />
               </div>
             ) : archivedBooks.length > 0 ? (
               <div className='row g-4'>
@@ -349,9 +344,7 @@ const ProfileDashboard = () => {
             </div>
             {postsLoading ? (
               <div className='text-center py-60'>
-                <div className='spinner-border text-main-600' role='status'>
-                  <span className='visually-hidden'>Loading...</span>
-                </div>
+                <Spin text="Kitoblar yuklanmoqda..." />
               </div>
             ) : userPosts.length > 0 ? (
               <div className='row g-4'>
@@ -590,9 +583,7 @@ const ProfileDashboard = () => {
                     >
                       {saving ? (
                         <>
-                          <div className="spinner-border spinner-border-sm me-8" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                          </div>
+                          <Spin size="sm" text="Saqlanmoqda..." />
                           Saqlanmoqda...
                         </>
                       ) : (

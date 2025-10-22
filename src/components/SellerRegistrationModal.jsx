@@ -2,8 +2,11 @@
 import React, { useState, useEffect } from "react";
 import { getRegions } from "@/services/regions";
 import { createShop } from "@/services/shopCreate";
+import Spin from "./Spin";
+import { useToast } from "./Toast";
 
 const SellerRegistrationModal = ({ show, onHide }) => {
+  const { showToast, ToastContainer } = useToast();
   const [formData, setFormData] = useState({
     point: "",
     name: "",
@@ -74,7 +77,12 @@ const SellerRegistrationModal = ({ show, onHide }) => {
       const result = await createShop(apiData);
 
       if (result.success) {
-        setSuccess(result.message);
+        showToast({
+          type: 'success',
+          title: 'Muvaffaqiyatli!',
+          message: 'Sotuvchi arizasi muvaffaqiyatli jo\'natildi',
+          duration: 3000
+        });
         setFormData({
           point: "",
           name: "",
@@ -361,12 +369,20 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                 className="btn btn-primary"
                 disabled={loading}
               >
-                {loading ? "Yaratilmoqda..." : "Hisob yaratish"}
+                {loading ? (
+                  <>
+                    <Spin size="sm" text="Yaratilmoqda..." />
+                    Yaratilmoqda...
+                  </>
+                ) : (
+                  "Hisob yaratish"
+                )}
               </button>
             </div>
           </form>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

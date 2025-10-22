@@ -8,6 +8,7 @@ import { getBooks } from "@/services/books";
 import { getBookCategories } from "@/services/categories";
 import { getShops } from "@/services/shops";
 import { getRegions } from "@/services/regions";
+import Spin from "./Spin";
 
 const BookShop = () => {
   const searchParams = useSearchParams();
@@ -143,9 +144,7 @@ const BookShop = () => {
       <section className='book-shop py-80'>
         <div className='container container-lg'>
           <div className='text-center py-80'>
-            <div className='spinner-border text-main-600' role='status'>
-              <span className='visually-hidden'>Yuklanmoqda...</span>
-            </div>
+            <Spin text="Kitoblar yuklanmoqda..." />
             <p className='mt-16'>Kitoblar yuklanmoqda...</p>
           </div>
         </div>
@@ -421,7 +420,7 @@ const BookShop = () => {
                          </li>
                        )) : (
                          <li className='mb-16 text-center text-gray-500'>
-                           Joylashuvlar yuklanmoqda...
+                           <Spin size="sm" text="Joylashuvlar yuklanmoqda..." />
                          </li>
                        )}
                      </ul>

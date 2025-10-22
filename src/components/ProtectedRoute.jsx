@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { isAuthenticated } from "@/services/auth";
+import Spin from "./Spin";
 
 const ProtectedRoute = ({ children }) => {
   const router = useRouter();
@@ -32,9 +33,7 @@ const ProtectedRoute = ({ children }) => {
   if (isLoading) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
+        <Spin text="Tekshirilmoqda..." />
       </div>
     );
   }

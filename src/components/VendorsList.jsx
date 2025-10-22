@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { getShops } from "@/services/shops";
 import { getRegions } from "@/services/regions";
+import Spin from "./Spin";
 
 const VendorsList = () => {
   const searchParams = useSearchParams();
@@ -118,9 +119,7 @@ const VendorsList = () => {
       <section className='vendors-list py-80'>
         <div className='container container-lg'>
           <div className='text-center py-80'>
-            <div className='spinner-border text-main-600' role='status'>
-              <span className='visually-hidden'>Yuklanmoqda...</span>
-            </div>
+            <Spin text="Ma'lumotlar yuklanmoqda..." />
             <p className='mt-16'>Ma'lumotlar yuklanmoqda...</p>
           </div>
         </div>

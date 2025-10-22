@@ -3,8 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { createBook, updateBook, patchBook } from '@/services/books';
 import { getBookCategories } from '@/services/categories';
+import Spin from './Spin';
+import { useToast } from './Toast';
 
 const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
+  const { showToast, ToastContainer } = useToast();
   const [activeLanguage, setActiveLanguage] = useState('uz');
   const [formData, setFormData] = useState({
     // Required fields
@@ -180,6 +183,12 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
       }
 
       if (response.success) {
+        showToast({
+          type: 'success',
+          title: 'Muvaffaqiyatli!',
+          message: editBook ? 'Kitob muvaffaqiyatli yangilandi' : 'Kitob muvaffaqiyatli yaratildi',
+          duration: 3000
+        });
         onSuccess(response.book);
         onClose();
         // Reset form
@@ -565,12 +574,20 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                 Bekor qilish
               </button>
               <button type="submit" className="btn btn-main" disabled={loading}>
-                {loading ? 'Saqlanmoqda...' : (editBook ? 'Yangilash' : 'Qo\'shish')}
+                {loading ? (
+                  <>
+                    <Spin size="sm" text="Saqlanmoqda..." />
+                    Saqlanmoqda...
+                  </>
+                ) : (
+                  editBook ? 'Yangilash' : 'Qo\'shish'
+                )}
               </button>
             </div>
           </form>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

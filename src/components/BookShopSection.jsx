@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import BookCard from "./BookCard";
 import { getBooks } from "@/services/books";
+import Spin from "./Spin";
 
 const BookShopSection = () => {
   const searchParams = useSearchParams();
@@ -58,9 +59,7 @@ const BookShopSection = () => {
       <section className="shop py-80">
         <div className="container container-lg">
           <div className="text-center">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
+            <Spin text="Kitoblar yuklanmoqda..." />
           </div>
         </div>
       </section>

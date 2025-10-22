@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import UserProfile from '@/components/UserProfile';
 import { handleUserProfileResponse } from '@/utils/apiResponse';
+import Spin from '@/components/Spin';
 
 const UserProfileExample = () => {
   const [userData, setUserData] = useState(null);
@@ -44,9 +45,7 @@ const UserProfileExample = () => {
     return (
       <div className="container py-32">
         <div className="text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
+          <Spin text="Loading user profile..." />
           <p className="text-gray-600 mt-16">Loading user profile...</p>
         </div>
       </div>

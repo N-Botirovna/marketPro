@@ -1,6 +1,7 @@
 // Example component showing how to display books list
 import React, { useState, useEffect } from 'react';
 import { handleBooksListResponse } from '@/utils/apiResponse';
+import Spin from '@/components/Spin';
 
 const BooksListExample = () => {
   const [booksData, setBooksData] = useState(null);
@@ -56,9 +57,7 @@ const BooksListExample = () => {
     return (
       <div className="container py-32">
         <div className="text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
+          <Spin text="Loading books..." />
           <p className="text-gray-600 mt-16">Loading books...</p>
         </div>
       </div>
