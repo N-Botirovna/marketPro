@@ -4,6 +4,7 @@ import "./font.css";
 import "./globals.scss";
 import PhosphorIconInit from "@/helper/PhosphorIconInit";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import MaterialThemeProvider from "@/components/MaterialThemeProvider";
 
 export const metadata = {
   title: "Digital Market Place NEXT Js Template",
@@ -15,12 +16,14 @@ export default function RootLayout({ children }) {
   return (
     <html lang='en'>
       <body suppressHydrationWarning={true}>
-        <BootstrapInit />
-        <PhosphorIconInit />
-        <RouteScrollToTop />
-        <ProtectedRoute>
-          {children}
-        </ProtectedRoute>
+        <MaterialThemeProvider>
+          <BootstrapInit />
+          <PhosphorIconInit />
+          <RouteScrollToTop />
+          <ProtectedRoute>
+            {children}
+          </ProtectedRoute>
+        </MaterialThemeProvider>
       </body>
     </html>
   );

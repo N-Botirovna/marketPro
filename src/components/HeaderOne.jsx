@@ -6,6 +6,8 @@ import { isAuthenticated, logoutUser, getAuthToken } from "@/services/auth";
 import { getBookCategories } from "@/services/categories";
 import { getRegions } from "@/services/regions";
 import CategoryDropdown from "./CategoryDropdown";
+import MaterialCategoryDropdown from "./MaterialCategoryDropdown";
+import MaterialLocationDropdown from "./MaterialLocationDropdown";
 
 import query from "jquery";
 const HeaderOne = () => {
@@ -294,86 +296,7 @@ const HeaderOne = () => {
               style={{overflow: 'visible'}}
             >
                 <div className='search-category d-flex h-48 select-border-end-0 radius-end-0 search-form d-sm-flex d-none position-relative' style={{overflow: 'visible'}}>
-                  <div className='location-dropdown w-100' style={{overflow: 'visible'}}>
-                    <div 
-                      className='location-dropdown__button d-flex align-items-center justify-content-between px-16 py-12 border border-gray-200 border-end-0 cursor-pointer'
-                      onClick={() => setShowLocationDropdown(!showLocationDropdown)}
-                    >
-                      <span className='text-gray-700'>By Location</span>
-                      <i className='ph ph-caret-down text-gray-500'></i>
-                    </div>
-                    
-                    <div 
-                      className='location-dropdown__menu position-absolute top-100 start-0 w-300 bg-white border border-gray-200 shadow-lg' 
-                      style={{
-                        zIndex: 1000, 
-                        display: showLocationDropdown ? 'block' : 'none',
-                        borderRadius: '8px',
-                        boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                        transition: 'all 0.3s ease',
-                        opacity: showLocationDropdown ? 1 : 0,
-                        transform: showLocationDropdown ? 'translateY(0)' : 'translateY(-10px)'
-                      }}
-                    >
-                      <ul className='scroll-sm p-0 py-8 max-h-400 overflow-y-auto'>
-                        {regions.map((region) => (
-                          <li 
-                            key={region.id} 
-                            className='position-relative'
-                            onMouseEnter={() => setHoveredRegionId(region.id)}
-                            onMouseLeave={() => setHoveredRegionId(null)}
-                          >
-                            <div className='text-gray-600 text-15 py-12 px-16 flex-align gap-8 cursor-pointer rounded-8 hover:bg-gray-50 transition-all duration-200' style={{transition: 'all 0.2s ease'}}>
-                              <span className='text-xl d-flex text-gray-400'>
-                                <i className='ph ph-map-pin' />
-                              </span>
-                              <span className='font-medium'>{region.name}</span>
-                              {region.districts && region.districts.length > 0 && (
-                                <span className='icon text-md d-flex ms-auto text-gray-400'>
-                                  <i className='ph ph-caret-right' />
-                                </span>
-                              )}
-                            </div>
-                            
-                            {/* Districts dropdown on hover */}
-                            {hoveredRegionId === region.id && region.districts && region.districts.length > 0 && (
-                              <div 
-                                className='submenus-submenu py-16 position-absolute top-0 start-100'
-                                style={{
-                                  zIndex: 1001,
-                                  minWidth: '200px',
-                                  background: 'white',
-                                  border: '1px solid #e5e7eb',
-                                  borderRadius: '8px',
-                                  boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                                  transition: 'all 0.3s ease',
-                                  opacity: 1,
-                                  transform: 'translateX(0)'
-                                }}
-                              >
-                                <h6 className='text-lg px-16 submenus-submenu__title mb-8 font-semibold text-gray-800'>
-                                  {region.name}
-                                </h6>
-                                <ul className='submenus-submenu__list max-h-300 overflow-y-auto scroll-sm'>
-                                  {region.districts.map((district) => (
-                                    <li key={district.id}>
-                                      <Link 
-                                        href={`/vendor-two?region=${region.id}&district=${district.id}`}
-                                        className='block px-16 py-8 hover:bg-gray-50 rounded-4 transition-all duration-10 text-gray-600 hover:text-gray-800'
-                                        style={{transition: 'all 0.02s ease'}}
-                                      >
-                                        {district.name}
-                                      </Link>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
+                  <MaterialLocationDropdown />
                 </div>
                 <div className='search-form__wrapper position-relative'>
                   <input
@@ -416,9 +339,9 @@ const HeaderOne = () => {
         <div className='container container-lg'>
           <nav className='header-inner d-flex justify-content-between gap-8'>
             <div className='flex-align menu-category-wrapper z-30'>
-              {/* Category Dropdown Start */}
-              <CategoryDropdown />
-              {/* Category Dropdown End  */}
+              {/* Material UI Category Dropdown Start */}
+              <MaterialCategoryDropdown />
+              {/* Material UI Category Dropdown End  */}
             </div>
               {/* Menu Start  */}
               <div className='header-menu d-lg-block d-none'>
@@ -563,6 +486,48 @@ const HeaderOne = () => {
         
         .submenus-submenu {
           border-radius: 8px;
+        }
+        
+        /* Material UI Menu Overrides */
+        .MuiMenu-paper {
+          border-radius: 12px !important;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.12) !important;
+        }
+        
+        .MuiMenuItem-root {
+          border-radius: 8px !important;
+          margin: 2px 8px !important;
+        }
+        
+        .MuiMenuItem-root:hover {
+          background-color: #f5f5f5 !important;
+        }
+        
+        .MuiButton-root {
+          text-transform: none !important;
+          border-radius: 8px !important;
+        }
+        
+        @keyframes slideInUp {
+          from {
+            opacity: 0;
+            transform: translateY(10px) scale(0.98);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+        
+        @keyframes fadeInScale {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
         }
       `}</style>
     </>
