@@ -27,11 +27,10 @@ export async function loginWithPhoneOtp({ phone_number, otp_code }) {
     // Store access_token in localStorage
     setItem(AUTH_TOKEN_STORAGE_KEY, accessToken);
     
-    // Store token expiration time if provided
-    if (expiresIn) {
-      const expirationTime = Date.now() + (expiresIn * 1000);
-      setItem('token_expires_at', expirationTime.toString());
-    }
+    // Store token expiration time (1 hour 20 minutes = 4800 seconds)
+    const tokenExpiry = expiresIn || 4800; // Default to 1h 20m if not provided
+    const expirationTime = Date.now() + (tokenExpiry * 1000);
+    setItem('token_expires_at', expirationTime.toString());
   }
   
   // Store refresh_token in localStorage (in production, this should be httpOnly cookie)
@@ -110,8 +109,8 @@ export function isTokenExpired() {
   const now = Date.now();
   const expiresAt = parseInt(expirationTime);
   
-  // Consider token expired if it expires within the next 5 minutes
-  const bufferTime = 5 * 60 * 1000; // 5 minutes in milliseconds
+  // Consider token expired if it expires within the next 2 minutes
+  const bufferTime = 2 * 60 * 1000; // 2 minutes in milliseconds
   return now >= (expiresAt - bufferTime);
 }
 
@@ -125,8 +124,8 @@ export function shouldRefreshToken() {
   const now = Date.now();
   const expiresAt = parseInt(expirationTime);
   
-  // Refresh if token expires within the next 10 minutes
-  const refreshBuffer = 10 * 60 * 1000; // 10 minutes in milliseconds
+  // Refresh if token expires within the next 5 minutes
+  const refreshBuffer = 5 * 60 * 1000; // 5 minutes in milliseconds
   return now >= (expiresAt - refreshBuffer);
 }
 
@@ -190,11 +189,10 @@ export async function refreshAccessToken() {
     if (newAccessToken) {
       setItem(AUTH_TOKEN_STORAGE_KEY, newAccessToken);
       
-      // Update token expiration time
-      if (expiresIn) {
-        const expirationTime = Date.now() + (expiresIn * 1000);
-        setItem('token_expires_at', expirationTime.toString());
-      }
+      // Update token expiration time (1 hour 20 minutes = 4800 seconds)
+      const tokenExpiry = expiresIn || 4800; // Default to 1h 20m if not provided
+      const expirationTime = Date.now() + (tokenExpiry * 1000);
+      setItem('token_expires_at', expirationTime.toString());
     }
     
     // Update refresh token if new one provided
@@ -202,17 +200,42 @@ export async function refreshAccessToken() {
       setItem('refresh_token', newRefreshToken);
     }
     
-    console.log('✅ Token refresh successful');
+    console.log('✅ Token refresh successful', {
+      expiresIn: `${tokenExpiry}s`,
+      expiresAt: new Date(expirationTime).toLocaleString()
+    });
     
     return {
       access_token: newAccessToken || null,
       refresh_token: newRefreshToken || refreshToken,
-      expiresIn: expiresIn || null,
+      expiresIn: tokenExpiry,
       raw: data,
     };
   } catch (error) {
     console.error('❌ Token refresh failed:', error);
     throw error;
+  }
+}
+
+// Check if refresh token is expired (14 days)
+export function isRefreshTokenExpired() {
+  const refreshToken = getItem('refresh_token');
+  if (!refreshToken) {
+    return true;
+  }
+  
+  // Parse JWT to get expiration time
+  try {
+    const payload = JSON.parse(atob(refreshToken.split('.')[1]));
+    const exp = payload.exp * 1000; // Convert to milliseconds
+    const now = Date.now();
+    
+    // Consider expired if expires within next 24 hours
+    const bufferTime = 24 * 60 * 60 * 1000; // 24 hours
+    return now >= (exp - bufferTime);
+  } catch (error) {
+    console.error('Error parsing refresh token:', error);
+    return true; // If can't parse, consider expired
   }
 }
 
