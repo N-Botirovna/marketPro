@@ -5,6 +5,7 @@ import {
   isTokenExpired, 
   shouldRefreshToken,
   refreshTokenIfNeeded,
+  isRefreshTokenExpired,
   logoutUser 
 } from '@/services/auth';
 
@@ -19,9 +20,18 @@ export const useAuth = () => {
       const currentToken = getAuthToken();
       
       if (hasToken && currentToken) {
-        // Check if token is expired
+        // Check if refresh token is expired first
+        if (isRefreshTokenExpired()) {
+          console.log('⚠️ Refresh token is expired, logging out...');
+          await logoutUser();
+          setToken(null);
+          setIsAuth(false);
+          return;
+        }
+        
+        // Check if access token is expired
         if (isTokenExpired()) {
-          console.log('⚠️ Token is expired, attempting refresh...');
+          console.log('⚠️ Access token is expired, attempting refresh...');
           const refreshSuccess = await refreshTokenIfNeeded();
           
           if (refreshSuccess) {
@@ -70,6 +80,14 @@ export const useAuth = () => {
     if (!isAuth) return;
 
     const interval = setInterval(async () => {
+      // Check if refresh token is expired first
+      if (isRefreshTokenExpired()) {
+        console.log('⚠️ Refresh token expired during periodic check, logging out...');
+        await logout();
+        return;
+      }
+      
+      // Check if access token needs refresh
       if (shouldRefreshToken()) {
         console.log('🔄 Periodic token refresh check...');
         const refreshSuccess = await refreshTokenIfNeeded();
@@ -81,7 +99,7 @@ export const useAuth = () => {
           await logout();
         }
       }
-    }, 60000); // Check every minute
+    }, 30000); // Check every 30 seconds
 
     return () => clearInterval(interval);
   }, [isAuth, logout]);
