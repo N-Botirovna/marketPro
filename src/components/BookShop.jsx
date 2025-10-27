@@ -233,7 +233,7 @@ const BookShop = () => {
                           !filters.category ? 'text-main-600 fw-semibold' : ''
                         }`}
                       >
-                        Barcha kategoriyalar
+                        Barcha kategoriya
                       </button>
                     </li>
                     {categories.map((category) => (

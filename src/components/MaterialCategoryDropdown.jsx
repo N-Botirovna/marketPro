@@ -5,29 +5,20 @@ import {
   Box,
   Button,
   Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-  Divider,
-  Paper,
-  Fade,
-  IconButton,
-  Chip,
-  Stack,
-  Collapse,
   List,
   ListItem,
   ListItemButton,
-  ListItemContent,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+  Stack,
+  Fade,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
   ExpandMore,
-  ExpandLess,
   Book,
   ChevronRight,
-  Close,
 } from "@mui/icons-material";
 import { getBookCategories } from "@/services/categories";
 
@@ -36,24 +27,23 @@ const MaterialCategoryDropdown = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isMenuHovered, setIsMenuHovered] = useState(false);
 
   const open = Boolean(anchorEl);
 
-  const handleMouseEnter = (event) => {
+  const handleMouseEnterButton = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMouseLeave = () => {
+  const handleMenuMouseEnter = () => setIsMenuHovered(true);
+  const handleMenuMouseLeave = () => {
+    setIsMenuHovered(false);
     setAnchorEl(null);
     setHoveredCategory(null);
   };
 
   const handleCategoryHover = (categoryId) => {
     setHoveredCategory(categoryId);
-  };
-
-  const handleCategoryLeave = () => {
-    setHoveredCategory(null);
   };
 
   useEffect(() => {
@@ -84,10 +74,6 @@ const MaterialCategoryDropdown = () => {
           fontWeight: 500,
           borderColor: "#e0e0e0",
           color: "#333",
-          "&:hover": {
-            borderColor: "#1976d2",
-            backgroundColor: "#f5f5f5",
-          },
         }}
         disabled
       >
@@ -101,7 +87,7 @@ const MaterialCategoryDropdown = () => {
       <Button
         variant="outlined"
         startIcon={<MenuIcon />}
-        onMouseEnter={handleMouseEnter}
+        onMouseEnter={handleMouseEnterButton}
         endIcon={<ExpandMore />}
         sx={{
           minWidth: 200,
@@ -112,7 +98,6 @@ const MaterialCategoryDropdown = () => {
           borderColor: "transparent",
           backgroundColor: "#fefefe",
           color: "#333",
-          transition: "all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
           "&:hover": {
             backgroundColor: "#f8f8f8",
             transform: "translateY(-1px) scale(1.01)",
@@ -126,7 +111,7 @@ const MaterialCategoryDropdown = () => {
       <Menu
         anchorEl={anchorEl}
         open={open}
-        onClose={handleMouseLeave}
+        onClose={handleMenuMouseLeave}
         TransitionComponent={Fade}
         transitionDuration={300}
         PaperProps={{
@@ -140,213 +125,157 @@ const MaterialCategoryDropdown = () => {
             overflow: "hidden",
             backdropFilter: "blur(12px)",
             backgroundColor: "rgba(255,255,255,0.95)",
-            animation: "slideInUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
           },
         }}
         MenuListProps={{
           sx: { p: 0 },
+          onMouseEnter: handleMenuMouseEnter,
+          onMouseLeave: handleMenuMouseLeave,
         }}
         transformOrigin={{ horizontal: "left", vertical: "top" }}
         anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
-        onMouseLeave={handleMouseLeave}
       >
-        <Box sx={{ display: "flex", height: 500, overflow: "hidden" }}>
-          {/* Left Panel - Categories */}
+        <Box sx={{ display: "flex", height: 500 }}>
+          {/* Left categories */}
           <Box
             sx={{
               width: 300,
               borderRight: "1px solid rgba(0,0,0,0.05)",
               overflowY: "auto",
-              overflowX: "hidden",
               backgroundColor: "rgba(254,254,254,0.9)",
-              "&::-webkit-scrollbar": {
-                width: "4px",
-              },
-              "&::-webkit-scrollbar-track": {
-                background: "transparent",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                background: "rgba(0,0,0,0.1)",
-                borderRadius: "2px",
-              },
-              "&::-webkit-scrollbar-thumb:hover": {
-                background: "rgba(0,0,0,0.15)",
-              },
             }}
           >
-            {/* <Box sx={{ p: 2, borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, color: "#333" }}>
-                Kategoriyalar
-              </Typography>
-            </Box> */}
             <List sx={{ p: 0 }}>
-              {categories.map((category, index) => (
+              {categories.map((category) => (
                 <ListItem
                   key={category.id}
                   disablePadding
                   onMouseEnter={() => handleCategoryHover(category.id)}
-                  onMouseLeave={handleCategoryLeave}
                   sx={{
-                    "&:hover": {
-                      backgroundColor: "rgba(0,0,0,0.02)",
-                      transform: "translateX(2px)",
-                    },
+                    "&:hover": { backgroundColor: "rgba(0,0,0,0.02)" },
                     backgroundColor:
-                      hoveredCategory === category.id ? "rgba(25,118,210,0.05)" : "transparent",
+                      hoveredCategory === category.id
+                        ? "rgba(25,118,210,0.05)"
+                        : "transparent",
                     borderLeft:
                       hoveredCategory === category.id
                         ? "3px solid #1976d2"
                         : "3px solid transparent",
-                    transition: "all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                    transition: "all 0.3s",
                   }}
                 >
-                  <ListItemButton
-                    sx={{
-                      py: 1.5,
-                      px: 2,
-                      "&:hover": {
-                        backgroundColor: "transparent",
-                      },
-                    }}
+                  <Link
+                    href={`/vendor-two?category=${encodeURIComponent(category.name)}`}
+                    style={{ width: "100%", textDecoration: "none" }}
                   >
-                    <ListItemIcon sx={{ minWidth: 40 }}>
-                      {category.picture ? (
-                        <Box
-                          component="img"
-                          src={category.picture}
-                          alt={category.name}
-                          sx={{
-                            width: 24,
-                            height: 24,
-                            objectFit: "contain",
-                            borderRadius: 0.5,
-                          }}
-                        />
-                      ) : (
-                        <Book sx={{ color: "#666", fontSize: 20 }} />
+                    <ListItemButton sx={{ py: 1.5, px: 2 }}>
+                      <ListItemIcon sx={{ minWidth: 40 }}>
+                        {category.picture ? (
+                          <Box
+                            component="img"
+                            src={category.picture}
+                            alt={category.name}
+                            sx={{ width: 24, height: 24, objectFit: "contain" }}
+                          />
+                        ) : (
+                          <Book sx={{ color: "#666", fontSize: 20 }} />
+                        )}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={category.name}
+                        primaryTypographyProps={{
+                          fontSize: 14,
+                          fontWeight: 500,
+                          color: "#333",
+                        }}
+                      />
+                      {category.subcategories?.length > 0 && (
+                        <ChevronRight sx={{ color: "#666", fontSize: 16 }} />
                       )}
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={category.name}
-                      primaryTypographyProps={{
-                        fontSize: 14,
-                        fontWeight: 500,
-                        color: "#333",
-                      }}
-                    />
-                    {category.subcategories?.length > 0 && (
-                      <ChevronRight sx={{ color: "#666", fontSize: 16 }} />
-                    )}
-                  </ListItemButton>
+                    </ListItemButton>
+                  </Link>
                 </ListItem>
               ))}
             </List>
           </Box>
 
-          {/* Right Panel - Subcategories */}
+          {/* Right subcategories */}
           <Box
             sx={{
               flex: 1,
               overflowY: "auto",
-              overflowX: "hidden",
               backgroundColor: "#fff",
-              "&::-webkit-scrollbar": {
-                width: "4px",
-              },
-              "&::-webkit-scrollbar-track": {
-                background: "transparent",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                background: "rgba(0,0,0,0.1)",
-                borderRadius: "2px",
-              },
-              "&::-webkit-scrollbar-thumb:hover": {
-                background: "rgba(0,0,0,0.15)",
-              },
             }}
           >
-            {hoveredCategory && (
-              <Box>
-                {(() => {
-                  const category = categories.find(
-                    (cat) => cat.id === hoveredCategory
-                  );
-                  if (!category || !category.subcategories?.length) {
-                    return (
-                      <Box sx={{ p: 3, textAlign: "center" }}>
-                        <Typography color="text.secondary">
-                          Ushbu kategoriyada kichik kategoriyalar yo'q
-                        </Typography>
-                      </Box>
-                    );
-                  }
-
+            {hoveredCategory ? (
+              (() => {
+                const category = categories.find(
+                  (cat) => cat.id === hoveredCategory
+                );
+                if (!category?.subcategories?.length) {
                   return (
-                    <>
-                      <Box sx={{ p: 2, borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                          {category.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {category.subcategories.length} ta kichik kategoriya
-                        </Typography>
-                      </Box>
-                      <Box sx={{ p: 1, maxHeight: 400, overflowY: "auto", overflowX: "hidden",
-                        "&::-webkit-scrollbar": {
-                          width: "4px",
-                        },
-                        "&::-webkit-scrollbar-track": {
-                          background: "transparent",
-                        },
-                        "&::-webkit-scrollbar-thumb": {
-                          background: "rgba(0,0,0,0.1)",
-                          borderRadius: "2px",
-                        },
-                        "&::-webkit-scrollbar-thumb:hover": {
-                          background: "rgba(0,0,0,0.15)",
-                        },
-                      }}>
-                        <Stack spacing={0.5}>
-                          {category.subcategories.map((subcategory) => (
-                            <Link
-                              key={subcategory.id}
-                              href={`/vendor-two?subcategory=${subcategory.id}`}
-                              style={{ textDecoration: "none" }}
-                            >
-                              <Button
-                                fullWidth
-                                sx={{
-                                  justifyContent: "flex-start",
-                                  textTransform: "none",
-                                  py: 1.5,
-                                  px: 2,
-                                  color: "#333",
-                                  borderRadius: 2,
-                                  transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                                  "&:hover": {
-                                    backgroundColor: "rgba(25,118,210,0.06)",
-                                    color: "#1976d2",
-                                    transform: "translateX(4px) scale(1.01)",
-                                    boxShadow: "0 2px 8px rgba(25,118,210,0.1)",
-                                  },
-                                }}
-                                onClick={handleMouseLeave}
-                              >
-                                <Typography variant="body2">
-                                  {subcategory.name}
-                                </Typography>
-                              </Button>
-                            </Link>
-                          ))}
-                        </Stack>
-                      </Box>
-                    </>
+                    <Box sx={{ p: 3, textAlign: "center" }}>
+                      <Typography color="text.secondary">
+                        Ushbu kategoriyada kichik kategoriyalar yo‘q
+                      </Typography>
+                    </Box>
                   );
-                })()}
-              </Box>
-            )}
+                }
 
-            {!hoveredCategory && (
+                return (
+                  <>
+                    <Box
+                      sx={{
+                        p: 2,
+                        borderBottom: "1px solid rgba(0,0,0,0.05)",
+                      }}
+                    >
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        {category.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {category.subcategories.length} ta kichik kategoriya
+                      </Typography>
+                    </Box>
+                    <Box sx={{ p: 1 }}>
+                      <Stack spacing={0.5}>
+                        {category.subcategories.map((subcategory) => (
+                          <Link
+                            key={subcategory.id}
+                            href={`/vendor-two?subcategory=${subcategory.id}`}
+                            style={{ textDecoration: "none" }}
+                          >
+                            <Button
+                              fullWidth
+                              sx={{
+                                justifyContent: "flex-start",
+                                textTransform: "none",
+                                py: 1.5,
+                                px: 2,
+                                color: "#333",
+                                borderRadius: 2,
+                                "&:hover": {
+                                  backgroundColor: "rgba(25,118,210,0.06)",
+                                  color: "#1976d2",
+                                  transform: "translateX(4px)",
+                                  boxShadow:
+                                    "0 2px 8px rgba(25,118,210,0.1)",
+                                },
+                              }}
+                              onClick={handleMenuMouseLeave}
+                            >
+                              <Typography variant="body2">
+                                {subcategory.name}
+                              </Typography>
+                            </Button>
+                          </Link>
+                        ))}
+                      </Stack>
+                    </Box>
+                  </>
+                );
+              })()
+            ) : (
               <Box sx={{ p: 3, textAlign: "center" }}>
                 <Typography color="text.secondary">
                   Kategoriyani tanlang
