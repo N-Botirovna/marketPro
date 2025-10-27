@@ -179,7 +179,7 @@ const BannerOne = () => {
             <Slider {...settings}>
               {slides.map((banner, index) => {
                 const idKey = banner.id ?? index;
-                const href = `/vendor-two?id=${encodeURIComponent(banner.id ?? "")}`;
+                const href = `/vendor-two-details?id=${encodeURIComponent(banner.id ?? "")}`;
 
                 return (
                   <div className="banner-slider__item" key={idKey}>
