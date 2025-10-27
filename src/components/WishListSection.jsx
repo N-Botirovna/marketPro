@@ -77,13 +77,13 @@ const WishListSection = () => {
                             </div>
                             <div className='flex-align gap-16'>
                               <Link
-                                href='/cart'
+                                href='#'
                                 className='product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium'
                               >
                                 Camera
                               </Link>
                               <Link
-                                href='/cart'
+                                href='#'
                                 className='product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium'
                               >
                                 Videos
@@ -103,12 +103,6 @@ const WishListSection = () => {
                         </span>
                       </td>
                       <td className='px-40 py-32'>
-                        <Link
-                          href='/cart'
-                          className='btn btn-main-two rounded-8 px-64'
-                        >
-                          Add To Cart <i className='ph ph-shopping-cart' />
-                        </Link>
                       </td>
                     </tr>
                     <tr className=''>
@@ -160,13 +154,13 @@ const WishListSection = () => {
                             </div>
                             <div className='flex-align gap-16'>
                               <Link
-                                href='/cart'
+                                href='#'
                                 className='product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium'
                               >
                                 Camera
                               </Link>
                               <Link
-                                href='/cart'
+                                href='#'
                                 className='product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium'
                               >
                                 Videos
@@ -186,12 +180,6 @@ const WishListSection = () => {
                         </span>
                       </td>
                       <td className='px-40 py-32'>
-                        <Link
-                          href='/cart'
-                          className='btn btn-main-two rounded-8 px-64'
-                        >
-                          Add To Cart <i className='ph ph-shopping-cart' />
-                        </Link>
                       </td>
                     </tr>
                     <tr className=''>
@@ -243,13 +231,13 @@ const WishListSection = () => {
                             </div>
                             <div className='flex-align gap-16'>
                               <Link
-                                href='/cart'
+                                href='#'
                                 className='product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium'
                               >
                                 Camera
                               </Link>
                               <Link
-                                href='/cart'
+                                href='#'
                                 className='product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium'
                               >
                                 Videos
@@ -269,12 +257,6 @@ const WishListSection = () => {
                         </span>
                       </td>
                       <td className='px-40 py-32'>
-                        <Link
-                          href='/cart'
-                          className='btn btn-main-two rounded-8 px-64'
-                        >
-                          Add To Cart <i className='ph ph-shopping-cart' />
-                        </Link>
                       </td>
                     </tr>
                     <tr className=''>
@@ -326,13 +308,13 @@ const WishListSection = () => {
                             </div>
                             <div className='flex-align gap-16'>
                               <Link
-                                href='/cart'
+                                href='#'
                                 className='product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium'
                               >
                                 Camera
                               </Link>
                               <Link
-                                href='/cart'
+                                href='#'
                                 className='product-card__cart btn bg-gray-50 text-heading text-sm hover-bg-main-600 hover-text-white py-7 px-8 rounded-8 flex-center gap-8 fw-medium'
                               >
                                 Videos
@@ -352,12 +334,6 @@ const WishListSection = () => {
                         </span>
                       </td>
                       <td className='px-40 py-32'>
-                        <Link
-                          href='/cart'
-                          className='btn btn-main-two rounded-8 px-64'
-                        >
-                          Add To Cart <i className='ph ph-shopping-cart' />
-                        </Link>
                       </td>
                     </tr>
                   </tbody>

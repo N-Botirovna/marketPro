@@ -355,13 +355,6 @@ const ProductDetailsTwo = () => {
               </div>
               <Link
                 href='#'
-                className='btn btn-main flex-center gap-8 rounded-8 py-16 fw-normal mt-48'
-              >
-                <i className='ph ph-shopping-cart-simple text-lg' />
-                Add To Cart
-              </Link>
-              <Link
-                href='#'
                 className='btn btn-outline-main rounded-8 py-16 fw-normal mt-16 w-100'
               >
                 Buy Now
