@@ -173,8 +173,8 @@ const BookShop = () => {
               <i className='ph ph-magnifying-glass' />
             </button>
           </form>
-          <div className='d-flex align-items-center justify-content-between justify-content-sm-end gap-16 flex-grow-1'>
-            <div className='text-gray-600 text-md flex-shrink-0'>
+          <div className='d-flex align-items-center justify-content-between justify-content-sm-end gap-16 grow'>
+            <div className='text-gray-600 text-md shrink-0'>
               <span className='text-neutral-900 fw-semibold'>{filteredBooks.length}</span> ta kitob topildi
             </div>
             <div className='d-flex align-items-center gap-8 d-sm-flex d-none'>

@@ -353,17 +353,17 @@ const HeaderOne = () => {
                     </Link>
                     <ul className='on-hover-dropdown common-dropdown nav-submenu scroll-sm'>
                       <li className='common-dropdown__item nav-submenu__item'>
-                      <Link href='/vendor-two' className='common-dropdown__link nav-submenu__link'>
+                      <Link href='/vendor-two?is_used=false' className='common-dropdown__link nav-submenu__link'>
                         Yangi kitoblar
                         </Link>
                       </li>
                       <li className='common-dropdown__item nav-submenu__item'>
-                      <Link href='/vendor-two' className='common-dropdown__link nav-submenu__link'>
+                      <Link href='/vendor-two?is_used=true' className='common-dropdown__link nav-submenu__link'>
                         Yangidek kitoblar 
                         </Link>
                       </li>
                       <li className='common-dropdown__item nav-submenu__item'>
-                      <Link href='/vendor-two' className='common-dropdown__link nav-submenu__link'>
+                      <Link href='/vendor-two?type=gift' className='common-dropdown__link nav-submenu__link'>
                       Sovg'a kitoblar
                         </Link>
                       </li>
