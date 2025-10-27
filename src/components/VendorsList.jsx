@@ -191,8 +191,9 @@ const VendorsList = () => {
               placeholder='Min star'
               value={filters.star_min}
               onChange={(e) => handleFilterChange('star_min', e.target.value)}
-              min='1'
+              min='0'
               max='5'
+              step='0.1'
             />
           </div>
           <div className='col-lg-2 col-md-6 mb-16'>
@@ -202,8 +203,9 @@ const VendorsList = () => {
               placeholder='Max star'
               value={filters.star_max}
               onChange={(e) => handleFilterChange('star_max', e.target.value)}
-              min='1'
+              min='0'
               max='5'
+              step='0.1'
             />
           </div>
           <div className='col-lg-2 col-md-6 mb-16'>
@@ -221,64 +223,68 @@ const VendorsList = () => {
               <div key={shop.id} className='col-xxl-3 col-lg-4 col-sm-6'>
                 <div className='vendor-card text-center px-16 pb-24'>
                   <div className=''>
-                    <img
-                      src={shop.logo || 'assets/images/thumbs/vendor-logo1.png'}
-                      alt={shop.name}
-                      className='vendor-card__logo m-12'
-                    />
-                    <h6 className='title mt-32'>
-                      <Link href={`/vendor-details?id=${shop.id}`} className=''>
-                        {shop.name}
-                      </Link>
-                    </h6>
-                    <span className='text-heading text-sm d-block'>
-                      {shop.description || 'Do\'kon haqida ma\'lumot'}
-                    </span>
-                    {shop.rating && (
-                      <div className='flex-center gap-4 mt-8'>
-                        <span className='text-warning'>
-                          {'★'.repeat(Math.floor(shop.rating))}
-                        </span>
-                        <span className='text-sm text-gray-600'>
-                          ({shop.rating})
-                        </span>
-                      </div>
-                    )}
-                    <Link
-                      href={`/vendor-two-details?id=${shop.id}`}
-                      className='bg-white text-neutral-600 hover-bg-main-600 hover-text-white rounded-pill py-6 px-16 text-12 mt-8'
-                    >
-                      Do'konni ko'rish
+                  <img
+                    src={shop.picture || shop.logo || 'assets/images/thumbs/vendor-logo1.png'}
+                    alt={shop.name}
+                    className='vendor-card__logo m-12'
+                    style={{
+                      height: "80px",
+                      width: "80px",
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                    }}
+                  />
+                  <h6 className='title mt-32'>
+                    <Link href={`/vendor-two-details?id=${shop.id}`} className=''>
+                      {shop.name}
                     </Link>
-                  </div>
-                  <div className='vendor-card__list mt-22 flex-center flex-wrap gap-8'>
-                    {shop.products && shop.products.slice(0, 5).map((product, index) => (
-                      <div key={index} className='vendor-card__item bg-white rounded-circle flex-center'>
-                        <img 
-                          src={product.image || 'assets/images/thumbs/vendor-img1.png'} 
-                          alt={product.name || 'Product'} 
-                        />
-                      </div>
-                    ))}
-                    {(!shop.products || shop.products.length === 0) && (
-                      <>
-                        <div className='vendor-card__item bg-white rounded-circle flex-center'>
-                          <img src='assets/images/thumbs/vendor-img1.png' alt='' />
-                        </div>
-                        <div className='vendor-card__item bg-white rounded-circle flex-center'>
-                          <img src='assets/images/thumbs/vendor-img2.png' alt='' />
-                        </div>
-                        <div className='vendor-card__item bg-white rounded-circle flex-center'>
-                          <img src='assets/images/thumbs/vendor-img3.png' alt='' />
-                        </div>
-                        <div className='vendor-card__item bg-white rounded-circle flex-center'>
-                          <img src='assets/images/thumbs/vendor-img4.png' alt='' />
-                        </div>
-                        <div className='vendor-card__item bg-white rounded-circle flex-center'>
-                          <img src='assets/images/thumbs/vendor-img5.png' alt='' />
-                        </div>
-                      </>
-                    )}
+                  </h6>
+                  
+                  {/* Star Rating */}
+                  {shop.star && (
+                    <div className="flex-center gap-4 mt-8 mb-8">
+                      <span className="text-warning-600 text-sm fw-bold">
+                        {parseFloat(shop.star).toFixed(1)}
+                      </span>
+                      <i className="ph-fill ph-star text-warning-600 text-sm" />
+                    </div>
+                  )}
+                  
+                  {/* Product Count */}
+                  <span className='text-heading text-sm d-block'>
+                    {shop.book_count} mahsulot
+                  </span>
+                  
+                  {/* Location */}
+                  {(shop.region || shop.district) && (
+                    <span className="text-gray-600 text-xs d-block mt-4">
+                      {shop.region?.name && shop.district?.name
+                        ? `${shop.district.name}, ${shop.region.name}`
+                        : shop.region?.name || shop.district?.name}
+                    </span>
+                  )}
+                  
+                  {/* Working Hours */}
+                  {shop.working_days && shop.working_hours && (
+                    <span className="text-gray-600 text-xs d-block mt-4">
+                      {shop.working_days} {shop.working_hours}
+                    </span>
+                  )}
+                  
+                  {/* Post Service Badge */}
+                  {shop.has_post_service && (
+                    <span className="bg-main-50 text-main-600 px-12 py-4 rounded-pill text-xs d-inline-block mt-8 mb-8">
+                      <i className="ph ph-truck d-inline mr-4" />
+                      Yetkazib berish
+                    </span>
+                  )}
+                  
+                  <Link
+                    href={`/vendor-two-details?id=${shop.id}`}
+                    className='bg-white text-neutral-600 hover-bg-main-600 hover-text-white rounded-pill py-6 px-16 text-12 mt-8 inline-block'
+                  >
+                    Do'konga o'tish
+                  </Link>
                   </div>
                 </div>
               </div>

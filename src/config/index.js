@@ -22,12 +22,6 @@ export const API_ENDPOINTS = {
     SEARCH: "api/v1/products/search",
     CATEGORIES: "api/v1/categories",
   },
-  CART: {
-    LIST: "api/v1/cart",
-    ADD: "api/v1/cart/add",
-    UPDATE: "api/v1/cart/update",
-    REMOVE: "api/v1/cart/remove",
-  },
   ORDERS: {
     LIST: "api/v1/orders",
     CREATE: "api/v1/orders",

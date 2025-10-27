@@ -167,12 +167,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -226,12 +220,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -285,12 +273,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -344,12 +326,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -400,12 +376,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -459,12 +429,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -515,12 +479,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -574,12 +532,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -633,12 +585,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -692,12 +638,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -751,12 +691,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -810,12 +744,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -876,12 +804,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -935,12 +857,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -994,12 +910,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1053,12 +963,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1109,12 +1013,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1168,12 +1066,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1224,12 +1116,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1283,12 +1169,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1342,12 +1222,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1401,12 +1275,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1460,12 +1328,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1519,12 +1381,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1585,12 +1441,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1644,12 +1494,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1703,12 +1547,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1762,12 +1600,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1818,12 +1650,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1877,12 +1703,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1933,12 +1753,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -1992,12 +1806,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -2051,12 +1859,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -2110,12 +1912,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -2169,12 +1965,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -2228,12 +2018,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -2294,12 +2078,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -2353,12 +2131,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -2412,12 +2184,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -2471,12 +2237,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -2527,12 +2287,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -2586,12 +2340,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -2642,12 +2390,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -2701,12 +2443,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -2760,12 +2496,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -2819,12 +2549,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -2878,12 +2602,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -2937,12 +2655,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3003,12 +2715,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3062,12 +2768,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3121,12 +2821,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3180,12 +2874,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3236,12 +2924,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3295,12 +2977,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3351,12 +3027,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3410,12 +3080,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3469,12 +3133,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3528,12 +3186,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3587,12 +3239,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3646,12 +3292,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3712,12 +3352,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3771,12 +3405,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3830,12 +3458,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3889,12 +3511,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -3945,12 +3561,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4004,12 +3614,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4060,12 +3664,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4119,12 +3717,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4178,12 +3770,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4237,12 +3823,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4296,12 +3876,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4355,12 +3929,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4421,12 +3989,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4480,12 +4042,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4539,12 +4095,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4598,12 +4148,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4654,12 +4198,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4713,12 +4251,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4769,12 +4301,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4828,12 +4354,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4887,12 +4407,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -4946,12 +4460,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -5005,12 +4513,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -5064,12 +4566,6 @@ const RecommendedOne = () => {
                           (17k)
                         </span>
                       </div>
-                      <Link
-                        href='/cart'
-                        className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-24 w-100 justify-content-center'
-                      >
-                        Add To Cart <i className='ph ph-shopping-cart' />
-                      </Link>
                     </div>
                   </div>
                 </div>

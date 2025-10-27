@@ -54,32 +54,52 @@ const TopVendorsOne = () => {
                     }}
                   />
                   <h6 className="title mt-32">{shop.name}</h6>
+                  
+                  {/* Star Rating */}
+                  {shop.star && (
+                    <div className="flex-center gap-4 mt-8 mb-8">
+                      <span className="text-warning-600 text-sm fw-bold">
+                        {parseFloat(shop.star).toFixed(1)}
+                      </span>
+                      <i className="ph-fill ph-star text-warning-600 text-sm" />
+                    </div>
+                  )}
+                  
+                  {/* Product Count */}
                   <span className="text-heading text-sm d-block">
                     {shop.book_count} mahsulot
                   </span>
+                  
+                  {/* Location */}
+                  {(shop.region || shop.district) && (
+                    <span className="text-gray-600 text-xs d-block mt-4">
+                      {shop.region?.name && shop.district?.name
+                        ? `${shop.district.name}, ${shop.region.name}`
+                        : shop.region?.name || shop.district?.name}
+                    </span>
+                  )}
+                  
+                  {/* Working Hours */}
+                  {shop.working_days && shop.working_hours && (
+                    <span className="text-gray-600 text-xs d-block mt-4">
+                      {shop.working_days} {shop.working_hours}
+                    </span>
+                  )}
+                  
+                  {/* Post Service Badge */}
+                  {shop.has_post_service && (
+                    <span className="bg-main-50 text-main-600 px-12 py-4 rounded-pill text-xs d-inline-block mt-8 mb-8">
+                      <i className="ph ph-truck d-inline mr-4" />
+                      Yetkazib berish
+                    </span>
+                  )}
+                  
                   <Link
                     href={`/vendor-two-details?id=${shop.id}`}
                     className="btn btn-main-two rounded-pill py-6 px-16 text-12 mt-8"
                   >
                     Do'konga o'tish
                   </Link>
-                </div>
-                <div className="vendor-card__list mt-22 flex-center flex-wrap gap-8">
-                  <div className="vendor-card__item bg-white rounded-circle flex-center">
-                    <img src="assets/images/thumbs/vendor-img1.png" alt="" />
-                  </div>
-                  <div className="vendor-card__item bg-white rounded-circle flex-center">
-                    <img src="assets/images/thumbs/vendor-img2.png" alt="" />
-                  </div>
-                  <div className="vendor-card__item bg-white rounded-circle flex-center">
-                    <img src="assets/images/thumbs/vendor-img3.png" alt="" />
-                  </div>
-                  <div className="vendor-card__item bg-white rounded-circle flex-center">
-                    <img src="assets/images/thumbs/vendor-img4.png" alt="" />
-                  </div>
-                  <div className="vendor-card__item bg-white rounded-circle flex-center">
-                    <img src="assets/images/thumbs/vendor-img5.png" alt="" />
-                  </div>
                 </div>
               </div>
             </div>

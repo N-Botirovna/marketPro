@@ -398,14 +398,6 @@ const HeaderOne = () => {
                 <i className='ph ph-magnifying-glass text-2xl' />
                   </button>
               {/* Search Icon End */}
-              {/* Cart Icon Start */}
-              <Link href='/cart' className='cart-icon flex-align gap-4 item-hover'>
-                <i className='ph ph-shopping-cart text-2xl' />
-                <span className='cart-count bg-main-600 text-white rounded-circle flex-center'>
-                  0
-                    </span>
-                  </Link>
-              {/* Cart Icon End */}
               {/* Wishlist Icon Start */}
               <Link href='/wishlist' className='wishlist-icon flex-align gap-4 item-hover'>
                 <i className='ph ph-heart text-2xl' />

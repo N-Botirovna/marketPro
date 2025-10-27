@@ -131,7 +131,7 @@ const FeatureOne = () => {
               {categories.map((category) => (
                 <div key={category.id} className='feature-item text-center'>
                   <div className='feature-item__thumb rounded-circle overflow-hidden w-[100px] h-[100px] mx-auto'>
-                    <Link href={`/shop?category=${category.id}`} className='w-100 h-100 flex-center'>
+                    <Link href={`/vendor-two?category=${category.name}`} className='w-100 h-100 flex-center'>
                       <img 
                         src={category.picture || 'assets/images/thumbs/feature-img1.png'} 
                         alt={category.name}
@@ -140,7 +140,7 @@ const FeatureOne = () => {
                   </div>
                   <div className='feature-item__content mt-16'>
                     <h6 className='text-lg mb-8'>
-                      <Link href={`/shop?category=${category.id}`} className='text-inherit'>
+                      <Link href={`/vendor-two?category=${category.name}`} className='text-inherit'>
                         {category.name}
                       </Link>
                     </h6>

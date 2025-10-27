@@ -132,7 +132,7 @@ const NewArrivalOne = () => {
                       </span>
                     </div>
                     <Link
-                      href='/cart'
+                      href='#'
                       className='product-card__cart btn btn-main py-11 px-24 rounded-pill flex-align gap-8'
                     >
                       Add <i className='ph ph-shopping-cart' />
@@ -181,7 +181,7 @@ const NewArrivalOne = () => {
                       </span>
                     </div>
                     <Link
-                      href='/cart'
+                      href='#'
                       className='product-card__cart btn btn-main py-11 px-24 rounded-pill flex-align gap-8'
                     >
                       Add <i className='ph ph-shopping-cart' />
@@ -230,7 +230,7 @@ const NewArrivalOne = () => {
                       </span>
                     </div>
                     <Link
-                      href='/cart'
+                      href='#'
                       className='product-card__cart btn btn-main py-11 px-24 rounded-pill flex-align gap-8'
                     >
                       Add <i className='ph ph-shopping-cart' />
@@ -279,7 +279,7 @@ const NewArrivalOne = () => {
                       </span>
                     </div>
                     <Link
-                      href='/cart'
+                      href='#'
                       className='product-card__cart btn btn-main py-11 px-24 rounded-pill flex-align gap-8'
                     >
                       Add <i className='ph ph-shopping-cart' />
@@ -328,7 +328,7 @@ const NewArrivalOne = () => {
                       </span>
                     </div>
                     <Link
-                      href='/cart'
+                      href='#'
                       className='product-card__cart btn btn-main py-11 px-24 rounded-pill flex-align gap-8'
                     >
                       Add <i className='ph ph-shopping-cart' />
@@ -377,7 +377,7 @@ const NewArrivalOne = () => {
                       </span>
                     </div>
                     <Link
-                      href='/cart'
+                      href='#'
                       className='product-card__cart btn btn-main py-11 px-24 rounded-pill flex-align gap-8'
                     >
                       Add <i className='ph ph-shopping-cart' />
@@ -426,7 +426,7 @@ const NewArrivalOne = () => {
                       </span>
                     </div>
                     <Link
-                      href='/cart'
+                      href='#'
                       className='product-card__cart btn btn-main py-11 px-24 rounded-pill flex-align gap-8'
                     >
                       Add <i className='ph ph-shopping-cart' />
