@@ -5,12 +5,8 @@ import {
   Box,
   Button,
   Menu,
-  MenuItem,
   Typography,
   Fade,
-  ListItemIcon,
-  ListItemText,
-  Paper,
   Stack,
 } from "@mui/material";
 import {
@@ -25,25 +21,19 @@ const MaterialLocationDropdown = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [hoveredRegionId, setHoveredRegionId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isMenuHovered, setIsMenuHovered] = useState(false);
 
   const open = Boolean(anchorEl);
 
-  const handleMouseEnter = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMouseLeave = () => {
+  const handleMouseEnterButton = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuMouseEnter = () => setIsMenuHovered(true);
+  const handleMenuMouseLeave = () => {
+    setIsMenuHovered(false);
     setAnchorEl(null);
     setHoveredRegionId(null);
   };
 
-  const handleRegionHover = (regionId) => {
-    setHoveredRegionId(regionId);
-  };
-
-  const handleRegionLeave = () => {
-    setHoveredRegionId(null);
-  };
+  const handleRegionHover = (regionId) => setHoveredRegionId(regionId);
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -56,7 +46,6 @@ const MaterialLocationDropdown = () => {
         setLoading(false);
       }
     };
-
     fetchRegions();
   }, []);
 
@@ -64,7 +53,7 @@ const MaterialLocationDropdown = () => {
     <>
       <Button
         variant="outlined"
-        onMouseEnter={handleMouseEnter}
+        onMouseEnter={handleMouseEnterButton}
         endIcon={<ExpandMore />}
         startIcon={<LocationOn />}
         sx={{
@@ -76,7 +65,6 @@ const MaterialLocationDropdown = () => {
           borderColor: "transparent",
           backgroundColor: "#fefefe",
           color: "#333",
-          transition: "all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
           "&:hover": {
             backgroundColor: "#f8f8f8",
             transform: "translateY(-1px) scale(1.01)",
@@ -91,7 +79,7 @@ const MaterialLocationDropdown = () => {
       <Menu
         anchorEl={anchorEl}
         open={open}
-        onClose={handleMouseLeave}
+        onClose={handleMenuMouseLeave}
         TransitionComponent={Fade}
         transitionDuration={300}
         PaperProps={{
@@ -105,15 +93,15 @@ const MaterialLocationDropdown = () => {
             overflow: "hidden",
             backdropFilter: "blur(12px)",
             backgroundColor: "rgba(255,255,255,0.95)",
-            animation: "slideInUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
           },
         }}
         MenuListProps={{
           sx: { p: 0 },
+          onMouseEnter: handleMenuMouseEnter,
+          onMouseLeave: handleMenuMouseLeave,
         }}
         transformOrigin={{ horizontal: "left", vertical: "top" }}
         anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
-        onMouseLeave={handleMouseLeave}
       >
         <Box sx={{ display: "flex", height: 400, overflow: "hidden" }}>
           {/* Left Panel - Regions */}
@@ -122,21 +110,7 @@ const MaterialLocationDropdown = () => {
               width: 250,
               borderRight: "1px solid rgba(0,0,0,0.05)",
               overflowY: "auto",
-              overflowX: "hidden",
               backgroundColor: "rgba(254,254,254,0.9)",
-              "&::-webkit-scrollbar": {
-                width: "4px",
-              },
-              "&::-webkit-scrollbar-track": {
-                background: "transparent",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                background: "rgba(0,0,0,0.1)",
-                borderRadius: "2px",
-              },
-              "&::-webkit-scrollbar-thumb:hover": {
-                background: "rgba(0,0,0,0.15)",
-              },
             }}
           >
             <Box sx={{ p: 2, borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
@@ -146,50 +120,48 @@ const MaterialLocationDropdown = () => {
             </Box>
             <Stack spacing={0.5} sx={{ p: 1 }}>
               {regions.map((region) => (
-                <Box
+                <Link
                   key={region.id}
-                  onMouseEnter={() => handleRegionHover(region.id)}
-                  onMouseLeave={handleRegionLeave}
-                  sx={{
-                    position: "relative",
-                    "&:hover": {
-                      backgroundColor: "rgba(0,0,0,0.02)",
-                      transform: "translateX(2px)",
-                    },
-                    backgroundColor:
-                      hoveredRegionId === region.id ? "rgba(25,118,210,0.05)" : "transparent",
-                    borderLeft:
-                      hoveredRegionId === region.id
-                        ? "3px solid #1976d2"
-                        : "3px solid transparent",
-                    transition: "all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                    borderRadius: 1,
-                  }}
+                  href={`/vendor-two?region=${region.id}`}
+                  style={{ textDecoration: "none" }}
                 >
-                  <Button
-                    fullWidth
-                    startIcon={<LocationOn sx={{ fontSize: 18 }} />}
-                    endIcon={
-                      region.districts && region.districts.length > 0 ? (
-                        <ChevronRight sx={{ fontSize: 16 }} />
-                      ) : null
-                    }
+                  <Box
+                    onMouseEnter={() => handleRegionHover(region.id)}
                     sx={{
-                      justifyContent: "flex-start",
-                      textTransform: "none",
-                      py: 1.5,
+                      position: "relative",
+                      py: 1,
                       px: 2,
-                      color: "#333",
+                      borderRadius: 1,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      cursor: "pointer",
+                      backgroundColor:
+                        hoveredRegionId === region.id
+                          ? "rgba(25,118,210,0.05)"
+                          : "transparent",
+                      borderLeft:
+                        hoveredRegionId === region.id
+                          ? "3px solid #1976d2"
+                          : "3px solid transparent",
+                      transition: "all 0.3s",
                       "&:hover": {
-                        backgroundColor: "transparent",
+                        backgroundColor: "rgba(0,0,0,0.02)",
+                        transform: "translateX(2px)",
                       },
                     }}
                   >
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 500, color: "#333" }}
+                    >
                       {region.name}
                     </Typography>
-                  </Button>
-                </Box>
+                    {region.districts?.length > 0 && (
+                      <ChevronRight sx={{ fontSize: 16, color: "#666" }} />
+                    )}
+                  </Box>
+                </Link>
               ))}
             </Stack>
           </Box>
@@ -199,105 +171,78 @@ const MaterialLocationDropdown = () => {
             sx={{
               flex: 1,
               overflowY: "auto",
-              overflowX: "hidden",
               backgroundColor: "#fff",
-              "&::-webkit-scrollbar": {
-                width: "4px",
-              },
-              "&::-webkit-scrollbar-track": {
-                background: "transparent",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                background: "rgba(0,0,0,0.1)",
-                borderRadius: "2px",
-              },
-              "&::-webkit-scrollbar-thumb:hover": {
-                background: "rgba(0,0,0,0.15)",
-              },
             }}
           >
-            {hoveredRegionId && (
-              <Box>
-                {(() => {
-                  const region = regions.find(
-                    (reg) => reg.id === hoveredRegionId
-                  );
-                  if (!region || !region.districts?.length) {
-                    return (
-                      <Box sx={{ p: 3, textAlign: "center" }}>
-                        <Typography color="text.secondary">
-                          Ushbu viloyatda tumanlar yo'q
-                        </Typography>
-                      </Box>
-                    );
-                  }
-
+            {hoveredRegionId ? (
+              (() => {
+                const region = regions.find(
+                  (r) => r.id === hoveredRegionId
+                );
+                if (!region || !region.districts?.length) {
                   return (
-                    <>
-                      <Box sx={{ p: 2, borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                          {region.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {region.districts.length} ta tuman
-                        </Typography>
-                      </Box>
-                      <Box sx={{ p: 1, maxHeight: 300, overflowY: "auto", overflowX: "hidden",
-                        "&::-webkit-scrollbar": {
-                          width: "4px",
-                        },
-                        "&::-webkit-scrollbar-track": {
-                          background: "transparent",
-                        },
-                        "&::-webkit-scrollbar-thumb": {
-                          background: "rgba(0,0,0,0.1)",
-                          borderRadius: "2px",
-                        },
-                        "&::-webkit-scrollbar-thumb:hover": {
-                          background: "rgba(0,0,0,0.15)",
-                        },
-                      }}>
-                        <Stack spacing={0.5}>
-                          {region.districts.map((district) => (
-                            <Link
-                              key={district.id}
-                              href={`/vendor-two?region=${region.id}&district=${district.id}`}
-                              style={{ textDecoration: "none" }}
-                            >
-                              <Button
-                                fullWidth
-                                sx={{
-                                  justifyContent: "flex-start",
-                                  textTransform: "none",
-                                  py: 1.5,
-                                  px: 2,
-                                  color: "#333",
-                                  borderRadius: 2,
-                                  transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                                  "&:hover": {
-                                    backgroundColor: "rgba(25,118,210,0.06)",
-                                    color: "#1976d2",
-                                    transform: "translateX(4px) scale(1.01)",
-                                    boxShadow: "0 2px 8px rgba(25,118,210,0.1)",
-                                  },
-                                }}
-                                onClick={handleMouseLeave}
-                              >
-                                <Typography variant="body2">
-                                  {district.name}
-                                </Typography>
-                              </Button>
-                            </Link>
-                          ))}
-                        </Stack>
-                      </Box>
-                    </>
+                    <Box sx={{ p: 3, textAlign: "center" }}>
+                      <Typography color="text.secondary">
+                        Ushbu viloyatda tumanlar yo‘q
+                      </Typography>
+                    </Box>
                   );
-                })()}
-              </Box>
-            )}
+                }
 
-            {!hoveredRegionId && (
+                return (
+                  <>
+                    <Box
+                      sx={{
+                        p: 2,
+                        borderBottom: "1px solid rgba(0,0,0,0.05)",
+                      }}
+                    >
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        {region.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {region.districts.length} ta tuman
+                      </Typography>
+                    </Box>
+                    <Box sx={{ p: 1 }}>
+                      <Stack spacing={0.5}>
+                        {region.districts.map((district) => (
+                          <Link
+                            key={district.id}
+                            href={`/vendor-two?region=${region.id}&district=${district.id}`}
+                            style={{ textDecoration: "none" }}
+                          >
+                            <Button
+                              fullWidth
+                              sx={{
+                                justifyContent: "flex-start",
+                                textTransform: "none",
+                                py: 1.5,
+                                px: 2,
+                                color: "#333",
+                                borderRadius: 2,
+                                "&:hover": {
+                                  backgroundColor: "rgba(25,118,210,0.06)",
+                                  color: "#1976d2",
+                                  transform: "translateX(4px)",
+                                  boxShadow:
+                                    "0 2px 8px rgba(25,118,210,0.1)",
+                                },
+                              }}
+                              onClick={handleMenuMouseLeave}
+                            >
+                              <Typography variant="body2">
+                                {district.name}
+                              </Typography>
+                            </Button>
+                          </Link>
+                        ))}
+                      </Stack>
+                    </Box>
+                  </>
+                );
+              })()
+            ) : (
               <Box sx={{ p: 3, textAlign: "center" }}>
                 <Typography color="text.secondary">
                   Viloyatni tanlang
@@ -312,3 +257,4 @@ const MaterialLocationDropdown = () => {
 };
 
 export default MaterialLocationDropdown;
+
