@@ -8,6 +8,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 const ShortProductOne = () => {
+  // 🔹 Slick navigation arrows
   const SampleNextArrow = (props) => {
     const { className, onClick } = props;
     return (
@@ -65,7 +66,7 @@ const ShortProductOne = () => {
           getNewBooks(8),
           getUsedBooks(8),
           getBooksByType("gift", 8),
-          getBooksByType("bestseller", 8),
+          getBooksByType("exchange", 8),
         ]);
 
         setNewBooks(
@@ -84,9 +85,8 @@ const ShortProductOne = () => {
     fetchAllBooks();
   }, []);
 
-  // 🔹 Helper — format books into 4 per slide
+  // 🔹 Helper — format books into slides (4 per slide)
   const formatBooksToSlides = (books = []) => {
-    // Agar bo'sh bo‘lsa, placeholder qaytar
     if (!Array.isArray(books) || books.length === 0) {
       return [
         [
@@ -104,7 +104,6 @@ const ShortProductOne = () => {
     }
 
     const slides = [];
-
     for (let i = 0; i < books.length; i += 4) {
       const group = books.slice(i, i + 4).map((book, idx) => ({
         id: book.id || book._id || `book-${i}-${idx}`,
@@ -119,7 +118,6 @@ const ShortProductOne = () => {
         price2: book.originalPrice ? `$${book.originalPrice}` : "",
       }));
 
-      // Agar 4 tadan kam bo‘lsa — joyni to‘ldirish
       while (group.length < 4) {
         group.push({
           id: `placeholder-${i}-${group.length}`,
@@ -142,7 +140,7 @@ const ShortProductOne = () => {
   // 🔹 Product card
   const ProductCard = ({ product }) => (
     <div className="flex-align gap-16 mb-24" key={product.id}>
-      <div className="w-90 h-90 rounded-12 border border-gray-100 flex-shrink-0 overflow-hidden">
+      <div className="w-90 h-90 rounded-12 border border-gray-100 shrink-0 overflow-hidden">
         <Link href={`/product-details?id=${product.id}`} className="link">
           <img
             src={product.picture}
@@ -176,13 +174,13 @@ const ShortProductOne = () => {
     </div>
   );
 
-  // 🔹 Categories
+  // 🔹 Categories (title + data)
   const productCategories = [
-    { title: "Yangidek kitoblar", slides: formatBooksToSlides(usedBooks) },
-    { title: "Yangi kitoblar", slides: formatBooksToSlides(newBooks) },
+    { title: "Yangi kitoblar", slides: formatBooksToSlides(usedBooks) },
+    { title: "Yangidek kitoblar", slides: formatBooksToSlides(newBooks) },
     { title: "Sovg'a kitoblar", slides: formatBooksToSlides(giftBooks) },
     {
-      title: "Eng saralangan kitoblar",
+      title: "Almashtirish kitoblar",
       slides: formatBooksToSlides(topRatedBooks),
     },
   ];
@@ -191,29 +189,55 @@ const ShortProductOne = () => {
     <div className="short-product">
       <div className="container container-lg">
         <div className="row gy-4">
-          {productCategories.map((category, categoryIndex) => (
-            <div key={category.title} className="col-xxl-3 col-lg-4 col-sm-6">
-              <div className="p-16 border border-gray-100 hover-border-main-600 rounded-16 transition-2">
-                <div className="p-16 bg-main-50 rounded-16 mb-24">
-                  <h6 className="underlined-line mb-0 pb-16 d-inline-block">
-                    {category.title}
-                  </h6>
-                </div>
+          {productCategories.map((category, categoryIndex) => {
+            // 🔹 Yo‘naltirish uchun filter query
+            let filterQuery = "";
+            if (category.title === "Yangi kitoblar") filterQuery = "?is_used=false";
+            else if (category.title === "Yangidek kitoblar") filterQuery = "?is_used=true";
+            else if (category.title === "Sovg'a kitoblar") filterQuery = "?type=gift";
+            else if (category.title === "Almashtirish kitoblar")
+              filterQuery = "?type=exchange";
 
-                <div className="short-product-list arrow-style-two">
-                  <Slider {...settings} key={`slider-${categoryIndex}`}>
-                    {category.slides.map((slideProducts, slideIndex) => (
-                      <div key={`${categoryIndex}-${slideIndex}`}>
-                        {slideProducts.map((product) => (
-                          <ProductCard key={product.id} product={product} />
-                        ))}
-                      </div>
-                    ))}
-                  </Slider>
+            return (
+              <div key={category.title} className="col-xxl-3 col-lg-4 col-sm-6">
+                <div className="p-16 border border-gray-100 hover-border-main-600 rounded-16 transition-2">
+                  <div className="p-16 bg-main-50 rounded-16 mb-24 flex items-center justify-between">
+                    <Link
+                      href={{
+                        pathname: "/vendor-two",
+                        query:
+                          category.title === "Yangi kitoblar"
+                            ? { is_used: "false" }
+                            : category.title === "Yangidek kitoblar"
+                              ? { is_used: "true" }
+                              : category.title === "Sovg'a kitoblar"
+                                ? { type: "gift" }
+                                : category.title === "Almashtirish kitoblar"
+                                  ? { type: "exchange" }
+                                  : {},
+                      }}
+                      className="underlined-line mb-0 pb-16 d-inline-block text-main-600 hover:text-main-700 font-semibold transition"
+                    >
+                      {category.title}
+                    </Link>
+                    <i className="ph ph-arrow-up-right text-main-600 text-lg"></i>
+                  </div>
+
+                  <div className="short-product-list arrow-style-two">
+                    <Slider {...settings} key={`slider-${categoryIndex}`}>
+                      {category.slides.map((slideProducts, slideIndex) => (
+                        <div key={`${categoryIndex}-${slideIndex}`}>
+                          {slideProducts.map((product) => (
+                            <ProductCard key={product.id} product={product} />
+                          ))}
+                        </div>
+                      ))}
+                    </Slider>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
@@ -221,3 +245,4 @@ const ShortProductOne = () => {
 };
 
 export default ShortProductOne;
+
