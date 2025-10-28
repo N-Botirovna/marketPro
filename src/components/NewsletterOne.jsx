@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 const NewsletterOne = () => {
     return (
-        <div className="newsletter">
+        <div className="newsletter my-18">
             <div className="container container-lg">
                 <div className="newsletter-box position-relative rounded-16 flex-align gap-16 flex-wrap z-1">
                     <img

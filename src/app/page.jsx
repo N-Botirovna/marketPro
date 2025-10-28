@@ -5,7 +5,6 @@ import FeatureOne from "@/components/FeatureOne";
 import FooterOne from "@/components/FooterOne";
 import HeaderOne from "@/components/HeaderOne";
 import HotDealsOne from "@/components/HotDealsOne";
-import NewArrivalOne from "@/components/NewArrivalOne";
 import NewsletterOne from "@/components/NewsletterOne";
 import ShippingOne from "@/components/ShippingOne";
 import ShortProductOne from "@/components/ShortProductOne";
@@ -46,14 +45,12 @@ const page = () => {
       <ShortProductOne />
       {/* HotDealsOne */}
       <HotDealsOne />
-      <NewArrivalOne />
-
-      {/* ShippingOne */}
-      <ShippingOne />
 
       {/* NewsletterOne */}
       <NewsletterOne />
-      <FaqSection/>
+      {/* ShippingOne */}
+      <ShippingOne />
+      <FaqSection />
 
       {/* FooterOne */}
       <FooterOne />

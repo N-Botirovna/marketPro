@@ -23,20 +23,22 @@ const TopVendorsOne = () => {
       }
     };
     fetchShops();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (
     <section className="top-vendors py-80">
       <div className="container container-lg">
         <div className="section-heading">
-          <div className="flex-between flex-wrap gap-8">
-            <h5 className="mb-0">Weekly Top Vendors</h5>
+          <div className="flex items-center justify-between w-full mb-6">
+            <h5 className="mb-0 font-semibold">Do'konlar</h5>
             <Link
-              href="/shops"
-              className="text-sm fw-medium text-gray-700 hover-text-main-600 hover-text-decoration-underline"
+              href="/vendor-two-details"
+              className="text-green-600 text-sm font-medium hover:underline border border-green-600 px-3 py-1 rounded-lg"
             >
-              All Vendors
+              Barchasini ko‘rish →
             </Link>
           </div>
         </div>
@@ -45,9 +47,20 @@ const TopVendorsOne = () => {
             <div key={shop.id} className="col-xxl-3 col-lg-4 col-sm-6">
               <div className="vendor-card text-center px-16 pb-24">
                 <div className="">
-                  <div style={{ position: "relative", width: 80, height: 80, margin: "12px auto", borderRadius: "50%", overflow: "hidden" }}>
+                  <div
+                    style={{
+                      position: "relative",
+                      width: 90,
+                      height: 90,
+                      margin: "12px auto",
+                      borderRadius: "50%",
+                      overflow: "hidden",
+                    }}
+                  >
                     <Image
-                      src={shop.picture || "/assets/images/thumbs/vendor-logo1.png"}
+                      src={
+                        shop.picture || "/assets/images/thumbs/vendor-logo1.png"
+                      }
                       alt={shop.name}
                       fill
                       sizes="80px"
@@ -56,7 +69,7 @@ const TopVendorsOne = () => {
                     />
                   </div>
                   <h6 className="title mt-32">{shop.name}</h6>
-                  
+
                   {/* Star Rating */}
                   {shop.star && (
                     <div className="flex-center gap-4 mt-8 mb-8">
@@ -66,12 +79,12 @@ const TopVendorsOne = () => {
                       <i className="ph-fill ph-star text-warning-600 text-sm" />
                     </div>
                   )}
-                  
+
                   {/* Product Count */}
                   <span className="text-heading text-sm d-block">
                     {shop.book_count} mahsulot
                   </span>
-                  
+
                   {/* Location */}
                   {(shop.region || shop.district) && (
                     <span className="text-gray-600 text-xs d-block mt-4">
@@ -80,14 +93,14 @@ const TopVendorsOne = () => {
                         : shop.region?.name || shop.district?.name}
                     </span>
                   )}
-                  
+
                   {/* Working Hours */}
                   {shop.working_days && shop.working_hours && (
                     <span className="text-gray-600 text-xs d-block mt-4">
                       {shop.working_days} {shop.working_hours}
                     </span>
                   )}
-                  
+
                   {/* Post Service Badge */}
                   {shop.has_post_service && (
                     <span className="bg-main-50 text-main-600 px-12 py-4 rounded-pill text-xs d-inline-block mt-8 mb-8">
@@ -95,7 +108,7 @@ const TopVendorsOne = () => {
                       Yetkazib berish
                     </span>
                   )}
-                  
+
                   <Link
                     href={`/vendor-two-details?id=${shop.id}`}
                     className="btn btn-main-two rounded-pill py-6 px-16 text-12 mt-8"

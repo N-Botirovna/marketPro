@@ -84,60 +84,154 @@ const FaqSection = () => {
   }
 
   return (
-    <section className='faq py-80'>
-      <div className='container container-lg'>
-        <div className='row justify-content-center'>
-          <div className='col-xl-8 col-lg-10'>
-            <div className='section-heading text-center mb-48'>
-              <h2 className='section-heading__title'>Tez-tez so'raladigan savollar</h2>
-              <p className='section-heading__desc'>
-                Bizga tez-tez beriladigan savollarga javoblar
-              </p>
-            </div>
-            
-            <div className='accordion' id='faqAccordion'>
-              {faqs.map((faq, index) => (
-                <div key={faq.id || index} className='accordion-item border border-gray-100 rounded-12 mb-16 shadow-sm'>
-                  <h2 className='accordion-header'>
+    <>
+      <style jsx>{`
+        .faq-section {
+          background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
+        }
+        
+        .faq-title {
+          font-size: 2.25rem;
+          font-weight: 600;
+          color: #1a1a1a;
+          margin-bottom: 12px;
+        }
+        
+        .faq-subtitle {
+          color: #666;
+          font-size: 16px;
+          line-height: 1.6;
+        }
+        
+        .faq-collapse {
+          background: #fff;
+          border: 1px solid #e8e8e8;
+          border-radius: 10px;
+          overflow: hidden;
+          transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .faq-collapse + .faq-collapse {
+          margin-top: 14px;
+        }
+        
+        .faq-collapse:hover {
+          border-color: #FA6400;
+          box-shadow: 0 4px 12px rgba(250, 100, 0, 0.1);
+        }
+        
+        .faq-header {
+          width: 100%;
+          padding: 20px 24px;
+          border: none;
+          background: transparent;
+          cursor: pointer;
+          text-align: left;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 17px;
+          font-weight: 500;
+          color: #1a1a1a;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .faq-header:hover {
+          color: #FA6400;
+        }
+        
+        .faq-header:hover .faq-arrow {
+          color: #FA6400;
+        }
+        
+        .faq-question {
+          flex: 1;
+          padding-right: 20px;
+        }
+        
+        .faq-arrow {
+          font-size: 20px;
+          color: #999;
+          transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .faq-arrow.active {
+          transform: rotate(180deg);
+          color: #FA6400;
+        }
+        
+        .faq-content {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+                      opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                      padding 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+          opacity: 0;
+          padding: 0 24px;
+        }
+        
+        .faq-content.show {
+          max-height: 1000px;
+          opacity: 1;
+          padding: 0 24px 24px 24px;
+        }
+        
+        .faq-body {
+          color: #555;
+          font-size: 15px;
+          line-height: 1.8;
+          padding-top: 4px;
+          border-top: 1px solid #f5f5f5;
+          padding-top: 16px;
+        }
+      `}</style>
+      
+      <section className='faq py-80 faq-section'>
+        <div className='container container-lg'>
+          <div className='row justify-content-center'>
+            <div className='col-xl-8 col-lg-10'>
+              <div className='text-center mb-48'>
+                <h2 className='faq-title'>
+                  Tez-tez so'raladigan savollar
+                </h2>
+                <p className='faq-subtitle'>
+                  Bizga tez-tez beriladigan savollarga javoblar
+                </p>
+              </div>
+              
+              <div>
+                {faqs.map((faq, index) => (
+                  <div 
+                    key={faq.id || index} 
+                    className='faq-collapse'
+                  >
                     <button
-                      className={`accordion-button fw-medium text-start ${activeIndex !== index ? 'collapsed' : ''}`}
+                      className='faq-header'
                       type='button'
                       onClick={() => toggleFaq(index)}
                       aria-expanded={activeIndex === index}
-                      style={{
-                        backgroundColor: activeIndex === index ? '#FA6400' : '#fff',
-                        color: activeIndex === index ? '#fff' : '#333',
-                        border: 'none',
-                        boxShadow: 'none'
-                      }}
                     >
-                      <i className={`ph ph-${activeIndex === index ? 'minus' : 'plus'} text-lg me-12`}></i>
-                      {faq.question}
+                      <span className='faq-question'>{faq.question}</span>
+                      <i className={`ph-bold ph-caret-down faq-arrow ${activeIndex === index ? 'active' : ''}`}></i>
                     </button>
-                  </h2>
-                  <div
-                    className={`accordion-collapse collapse ${activeIndex === index ? 'show' : ''}`}
-                    data-bs-parent='#faqAccordion'
-                    style={{
-                      transition: 'all 0.3s ease'
-                    }}
-                  >
-                    <div className='accordion-body bg-gray-50 text-gray-700'>
-                      <div className='d-flex align-items-start gap-12'>
-                        <i className='ph ph-info text-main-600 text-lg mt-2 flex-shrink-0'></i>
-                        <div className='flex-grow-1'>
-                          {faq.answer}
-                        </div>
+                    
+                    <div className={`faq-content ${activeIndex === index ? 'show' : ''}`}>
+                      <div className='faq-body'>
+                        {faq.answer}
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };
 

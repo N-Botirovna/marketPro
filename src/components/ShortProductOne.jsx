@@ -38,23 +38,25 @@ function SamplePrevArrow(props) {
 }
 
 const ShortProductOne = () => {
-
   // 🔹 Memoized Slick settings
-  const settings = useMemo(() => ({
-    dots: false,
-    arrows: true,
-    infinite: true,
-    speed: 800,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    nextArrow: <SampleNextArrow />,
-    prevArrow: <SamplePrevArrow />,
-    responsive: [
-      { breakpoint: 768, settings: { arrows: false } },
-      { breakpoint: 575, settings: { arrows: true } },
-    ],
-  }), []);
+  const settings = useMemo(
+    () => ({
+      dots: false,
+      arrows: true,
+      infinite: true,
+      speed: 800,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      autoplay: true,
+      nextArrow: <SampleNextArrow />,
+      prevArrow: <SamplePrevArrow />,
+      responsive: [
+        { breakpoint: 768, settings: { arrows: false } },
+        { breakpoint: 575, settings: { arrows: true } },
+      ],
+    }),
+    []
+  );
 
   // 🔹 State
   const [newBooks, setNewBooks] = useState([]);
@@ -111,10 +113,7 @@ const ShortProductOne = () => {
     for (let i = 0; i < books.length; i += 4) {
       const group = books.slice(i, i + 4).map((book, idx) => ({
         id: book.id || book._id || `book-${i}-${idx}`,
-        picture:
-          book.image ||
-          book.coverImage ||
-          "/assets/images/thumbs/short-product-img3.png",
+        picture: book.picture || "/assets/images/thumbs/short-product-img3.png",
         star: book.rating || book.averageRating || "4.8",
         num: book.reviewCount || book.numReviews || "17k",
         desc: book.title || book.name || "No title",
@@ -145,25 +144,32 @@ const ShortProductOne = () => {
   const ProductCard = memo(({ product }) => {
     return (
       <div className="flex-align gap-16 mb-24" key={product.id}>
-        <div className="w-90 h-90 rounded-12 border border-gray-100 shrink-0 overflow-hidden" style={{ position: 'relative', width: 90, height: 90 }}>
+        <div
+          className="w-90 h-90 rounded-12 border border-gray-100 shrink-0 overflow-hidden"
+          style={{ position: "relative", width: 90, height: 90 }}
+        >
           <Link href={`/product-details?id=${product.id}`} className="link">
             <Image
               src={product.picture}
               alt="product"
               fill
               sizes="90px"
-              style={{ objectFit: 'cover' }}
+              style={{ objectFit: "cover" }}
               loading="lazy"
             />
           </Link>
         </div>
         <div className="flex-1">
           <div className="flex-align gap-6">
-            <span className="text-xs fw-bold text-gray-500">{product.star}</span>
+            <span className="text-xs fw-bold text-gray-500">
+              {product.star}
+            </span>
             <span className="text-warning-600 text-xs">
               <i className="ph-fill ph-star" />
             </span>
-            <span className="text-xs fw-bold text-gray-500">({product.num})</span>
+            <span className="text-xs fw-bold text-gray-500">
+              ({product.num})
+            </span>
           </div>
           <h6 className="text-sm fw-semibold mt-8 mb-8 text-line-1">
             <Link href={`/product-details?id=${product.id}`} className="link">
@@ -183,7 +189,7 @@ const ShortProductOne = () => {
     );
   });
 
-  ProductCard.displayName = 'ProductCard';
+  ProductCard.displayName = "ProductCard";
 
   // 🔹 Categories (title + data)
   const productCategories = [
@@ -203,16 +209,19 @@ const ShortProductOne = () => {
           {productCategories.map((category, categoryIndex) => {
             // 🔹 Yo‘naltirish uchun filter query
             let filterQuery = "";
-            if (category.title === "Yangi kitoblar") filterQuery = "?is_used=false";
-            else if (category.title === "Yangidek kitoblar") filterQuery = "?is_used=true";
-            else if (category.title === "Sovg'a kitoblar") filterQuery = "?type=gift";
+            if (category.title === "Yangi kitoblar")
+              filterQuery = "?is_used=false";
+            else if (category.title === "Yangidek kitoblar")
+              filterQuery = "?is_used=true";
+            else if (category.title === "Sovg'a kitoblar")
+              filterQuery = "?type=gift";
             else if (category.title === "Almashtirish kitoblar")
               filterQuery = "?type=exchange";
 
             return (
               <div key={category.title} className="col-xxl-3 col-lg-4 col-sm-6">
                 <div className="p-16 border border-gray-100 hover-border-main-600 rounded-16 transition-2">
-                  <div className="p-16 bg-main-50 rounded-16 mb-24 flex items-center justify-between">
+                  <div className="p-16 bg-main-50 rounded-16 mb-24 flex items-center w-full justify-between">
                     <Link
                       href={{
                         pathname: "/vendor-two",
@@ -220,14 +229,14 @@ const ShortProductOne = () => {
                           category.title === "Yangi kitoblar"
                             ? { is_used: "false" }
                             : category.title === "Yangidek kitoblar"
-                              ? { is_used: "true" }
-                              : category.title === "Sovg'a kitoblar"
-                                ? { type: "gift" }
-                                : category.title === "Almashtirish kitoblar"
-                                  ? { type: "exchange" }
-                                  : {},
+                            ? { is_used: "true" }
+                            : category.title === "Sovg'a kitoblar"
+                            ? { type: "gift" }
+                            : category.title === "Almashtirish kitoblar"
+                            ? { type: "exchange" }
+                            : {},
                       }}
-                      className="underlined-line mb-0 pb-16 d-inline-block text-main-600 hover:text-main-700 font-semibold transition"
+                      className="underlined-line mb-0 pb-16 d-inline-block text-main-600 hover:text-main-700 font-bold transition"
                     >
                       {category.title}
                     </Link>
@@ -256,4 +265,3 @@ const ShortProductOne = () => {
 };
 
 export default memo(ShortProductOne);
-
