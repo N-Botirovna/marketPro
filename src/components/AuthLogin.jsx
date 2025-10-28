@@ -73,36 +73,36 @@ const AuthLogin = () => {
       <style jsx>{`
         .telegram-section {
           background: linear-gradient(135deg, #0088cc 0%, #229ED9 100%);
-          border-radius: 12px;
-          padding: 22px;
-          margin-bottom: 22px;
+          border-radius: 10px;
+          padding: 18px;
+          margin-bottom: 18px;
         }
         
         .telegram-icon {
-          width: 44px;
-          height: 44px;
+          width: 38px;
+          height: 38px;
           background: white;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          margin: 0 auto 14px;
-          box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3);
+          margin: 0 auto 10px;
+          box-shadow: 0 3px 10px rgba(0, 136, 204, 0.3);
         }
         
         .telegram-button {
           background: white;
           color: #0088cc;
           border: 2px solid white;
-          border-radius: 8px;
-          padding: 11px 22px;
+          border-radius: 7px;
+          padding: 9px 18px;
           font-weight: 600;
           text-decoration: none;
           display: inline-flex;
           align-items: center;
-          gap: 7px;
+          gap: 6px;
           transition: all 0.3s ease;
-          font-size: 15px;
+          font-size: 14px;
         }
         
         .telegram-button:hover {
@@ -132,29 +132,29 @@ const AuthLogin = () => {
           background-clip: text;
         }
       `}</style>
-      <section className='account py-80'>
+      <section className='account' style={{ minHeight: '90vh', display: 'flex', alignItems: 'center', paddingTop: '40px', paddingBottom: '40px' }}>
         <div className='container container-lg'>
           <div className='row justify-content-center'>
-            <div className='col-xl-5 col-lg-7 col-md-9'>
-              <div className='text-center mb-40'>
-                <h2 className='fw-bold mb-16 welcome-title' style={{ fontSize: '2rem' }}>
+            <div className='col-xl-4 col-lg-5 col-md-7 col-sm-9'>
+              <div className='text-center mb-28'>
+                <h2 className='fw-bold mb-12 welcome-title' style={{ fontSize: '1.75rem' }}>
                   Kitobzorga xush kelibsiz!
                 </h2>
-                <p className='text-gray-600' style={{ fontSize: '1rem' }}>
+                <p className='text-gray-600' style={{ fontSize: '0.95rem' }}>
                   Kirish uchun quyidagi ma'lumotlarni to'ldiring
                 </p>
               </div>
 
               <form onSubmit={handleSubmit}>
-                <div className='form-container px-28 py-40'>
+                <div className='form-container px-24 py-28'>
                   {/* Telegram Bot Section */}
-                  <div className='text-center mb-28'>
+                  <div className='text-center mb-20'>
                     <div className='telegram-section'>
                       <div className='telegram-icon'>
-                        <i className='ph ph-telegram-logo text-xl text-blue-600'></i>
+                        <i className='ph ph-telegram-logo text-lg text-blue-600'></i>
                       </div>
-                      <h5 className='text-white fw-bold mb-8'>@kitobzoruz_bot</h5>
-                      <p className='text-white mb-14 opacity-90' style={{ fontSize: '15px' }}>
+                      <h6 className='text-white fw-bold mb-6' style={{ fontSize: '1rem' }}>@kitobzoruz_bot</h6>
+                      <p className='text-white mb-10 opacity-90' style={{ fontSize: '13px' }}>
                         Parolni olish uchun Telegram botga o'ting
                       </p>
                       <a 
@@ -169,8 +169,8 @@ const AuthLogin = () => {
                     </div>
                   </div>
                   {/* Form Fields */}
-                  <div className='mb-22'>
-                    <label htmlFor='phone' className='text-neutral-900 mb-8 fw-medium d-block' style={{ fontSize: '1rem' }}>
+                  <div className='mb-18'>
+                    <label htmlFor='phone' className='text-neutral-900 mb-6 fw-medium d-block' style={{ fontSize: '0.95rem' }}>
                       Telefon raqam <span className='text-danger'>*</span>
                     </label>
                     <input
@@ -181,12 +181,12 @@ const AuthLogin = () => {
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
                       required
-                      style={{ padding: '14px 18px', fontSize: '15px' }}
+                      style={{ padding: '12px 16px', fontSize: '14px' }}
                     />
                   </div>
 
-                  <div className='mb-22'>
-                    <label htmlFor='password' className='text-neutral-900 mb-8 fw-medium d-block' style={{ fontSize: '1rem' }}>
+                  <div className='mb-18'>
+                    <label htmlFor='password' className='text-neutral-900 mb-6 fw-medium d-block' style={{ fontSize: '0.95rem' }}>
                       Parol <span className='text-danger'>*</span>
                     </label>
                     <input
@@ -197,28 +197,28 @@ const AuthLogin = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      style={{ padding: '14px 18px', fontSize: '15px' }}
+                      style={{ padding: '12px 16px', fontSize: '14px' }}
                     />
-                    <small className='text-gray-500 mt-8 d-block' style={{ fontSize: '14px' }}>
+                    <small className='text-gray-500 mt-6 d-block' style={{ fontSize: '13px' }}>
                       @kitobzoruz_bot dan olingan parolni kiriting
                     </small>
                   </div>
                   {/* Error/Success Messages */}
                   {error && (
-                    <div className='mb-22'>
-                      <div className='alert alert-danger d-flex align-items-center gap-8' style={{ padding: '14px 18px' }}>
-                        <i className='ph ph-warning' style={{ fontSize: '1.1rem' }}></i>
-                        <span style={{ fontSize: '15px' }}>{error}</span>
+                    <div className='mb-18'>
+                      <div className='alert alert-danger d-flex align-items-center gap-6' style={{ padding: '12px 16px' }}>
+                        <i className='ph ph-warning' style={{ fontSize: '1rem' }}></i>
+                        <span style={{ fontSize: '14px' }}>{error}</span>
                       </div>
                     </div>
                   )}
                   
                   {/* Submit Button */}
-                  <div className='mb-22 mt-32'>
+                  <div className='mb-16 mt-24'>
                     <button 
                       type='submit' 
                       className='btn btn-main w-100' 
-                      style={{ padding: '16px 36px', fontSize: '16px' }}
+                      style={{ padding: '14px 32px', fontSize: '15px' }}
                       disabled={loading || !phoneNumber || !password}
                     >
                       {loading ? (
