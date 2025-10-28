@@ -3,6 +3,11 @@ import { API_BASE_URL, AUTH_TOKEN_STORAGE_KEY } from "@/config";
 import { getItem, removeItem, setItem } from "@/utils/storage";
 import { refreshTokenIfNeeded } from "@/services/auth";
 
+// Simple in-memory cache for GET requests
+const cache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const pendingRequests = new Map();
+
 const httpClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -14,18 +19,42 @@ const httpClient = axios.create({
 });
 
 httpClient.interceptors.request.use(async (config) => {
-  console.log('🚀 HTTP Request:', {
-    method: config.method?.toUpperCase(),
-    url: config.url,
-    baseURL: config.baseURL,
-    fullURL: `${config.baseURL}${config.url}`,
-    params: config.params,
-    data: config.data,
-    headers: config.headers
-  });
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🚀 HTTP Request:', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      fullURL: `${config.baseURL}${config.url}`,
+    });
+  }
+
+  // Cache GET requests
+  if (config.method === 'get') {
+    const cacheKey = `${config.url}?${JSON.stringify(config.params)}`;
+    const cached = cache.get(cacheKey);
+    
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      config.adapter = () => Promise.resolve({
+        data: cached.data,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config,
+        request: {},
+      });
+      return config;
+    }
+
+    // Request deduplication
+    if (pendingRequests.has(cacheKey)) {
+      config.adapter = () => pendingRequests.get(cacheKey);
+      return config;
+    }
+  }
   
-  // Proactively refresh token if needed before making request
-  await refreshTokenIfNeeded();
+  // Skip token refresh for refresh endpoint to prevent infinite loop
+  if (!config.skipAuthRefresh) {
+    await refreshTokenIfNeeded();
+  }
   
   const token = getItem(AUTH_TOKEN_STORAGE_KEY);
   if (token) {
@@ -59,20 +88,40 @@ const processQueue = (error, token = null) => {
 
 httpClient.interceptors.response.use(
   (response) => {
-    console.log('✅ HTTP Response:', {
-      status: response.status,
-      url: response.config.url,
-      data: response.data
-    });
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ HTTP Response:', {
+        status: response.status,
+        url: response.config.url,
+      });
+    }
+
+    // Cache GET responses
+    if (response.config.method === 'get') {
+      const cacheKey = `${response.config.url}?${JSON.stringify(response.config.params)}`;
+      cache.set(cacheKey, {
+        data: response.data,
+        timestamp: Date.now(),
+      });
+      pendingRequests.delete(cacheKey);
+    }
+
     return response;
   },
   async (error) => {
-    console.log('❌ HTTP Error:', {
-      status: error?.response?.status,
-      url: error?.config?.url,
-      message: error?.message,
-      data: error?.response?.data
-    });
+    if (process.env.NODE_ENV === 'development') {
+      console.log('❌ HTTP Error:', {
+        status: error?.response?.status,
+        url: error?.config?.url,
+        message: error?.message,
+      });
+    }
+
+    // Clear pending request on error
+    if (error?.config?.method === 'get') {
+      const cacheKey = `${error.config.url}?${JSON.stringify(error.config.params)}`;
+      pendingRequests.delete(cacheKey);
+    }
+
     const originalRequest = error.config;
 
     // Handle 401 Unauthorized with token refresh
@@ -98,7 +147,9 @@ httpClient.interceptors.response.use(
           throw new Error('No refresh token available');
         }
 
-        console.log('🔄 Attempting to refresh access token...');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔄 Attempting to refresh access token...');
+        }
         
         // Call refresh endpoint
         const response = await axios.post(`${API_BASE_URL}api/v1/auth/refresh`, {
@@ -117,7 +168,9 @@ httpClient.interceptors.response.use(
             setItem('refresh_token', newRefreshToken);
           }
           
-          console.log('✅ Access token refreshed successfully');
+          if (process.env.NODE_ENV === 'development') {
+            console.log('✅ Access token refreshed successfully');
+          }
           processQueue(null, newAccessToken);
           
           // Retry the original request with new token
@@ -127,7 +180,9 @@ httpClient.interceptors.response.use(
           throw new Error('No new access token received');
         }
       } catch (refreshError) {
-        console.error('❌ Token refresh failed:', refreshError);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('❌ Token refresh failed:', refreshError);
+        }
         processQueue(refreshError, null);
         
         // Clear tokens and redirect to login

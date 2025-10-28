@@ -1,26 +1,33 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo, useMemo } from "react";
 import Link from "next/link";
-import Slider from "react-slick";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import { getBookCategories } from "@/services/categories";
+
+const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
 const FeatureOne = () => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
+    let mounted = true;
     const fetchCategories = async () => {
       try {
         const response = await getBookCategories({ limit: 12 });
-        setCategories(response.categories);
+        if (mounted) {
+          setCategories(response.categories || []);
+        }
       } catch (err) {
         console.error('Kategoriyalar yuklashda xatolik:', err);
       }
     };
 
     fetchCategories();
+    return () => { mounted = false; };
   }, []);
 
-  function SampleNextArrow(props) {
+  const SampleNextArrow = memo((props) => {
     const { className, onClick } = props;
     return (
       <button
@@ -31,10 +38,10 @@ const FeatureOne = () => {
         <i className='ph ph-caret-right' />
       </button>
     );
-  }
-  function SamplePrevArrow(props) {
+  });
+  
+  const SamplePrevArrow = memo((props) => {
     const { className, onClick } = props;
-
     return (
       <button
         type='button'
@@ -44,8 +51,9 @@ const FeatureOne = () => {
         <i className='ph ph-caret-left' />
       </button>
     );
-  }
-  const settings = {
+  });
+
+  const settings = useMemo(() => ({
     dots: false,
     arrows: true,
     infinite: true,
@@ -105,7 +113,7 @@ const FeatureOne = () => {
         },
       },
     ],
-  };
+  }), []);
   return (
     <div className='feature' id='featureSection'>
       <div className='container container-lg'>
@@ -130,11 +138,15 @@ const FeatureOne = () => {
             <Slider {...settings}>
               {categories.map((category) => (
                 <div key={category.id} className='feature-item text-center'>
-                  <div className='feature-item__thumb rounded-circle overflow-hidden w-[100px] h-[100px] mx-auto'>
+                  <div className='feature-item__thumb rounded-circle overflow-hidden' style={{ width: 100, height: 100, margin: '0 auto', position: 'relative' }}>
                     <Link href={`/vendor-two?category=${category.name}`} className='w-100 h-100 flex-center'>
-                      <img 
-                        src={category.picture || 'assets/images/thumbs/feature-img1.png'} 
+                      <Image 
+                        src={category.picture || '/assets/images/thumbs/feature-img1.png'} 
                         alt={category.name}
+                        fill
+                        sizes="100px"
+                        style={{ objectFit: 'cover' }}
+                        loading="lazy"
                       />
                     </Link>
                   </div>
@@ -156,4 +168,4 @@ const FeatureOne = () => {
   );
 };
 
-export default FeatureOne;
+export default memo(FeatureOne);

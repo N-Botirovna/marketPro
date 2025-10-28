@@ -1,0 +1,61 @@
+/* Performance Optimizations */
+
+/* Lazy loading for images */
+img[loading="lazy"] {
+  content-visibility: auto;
+}
+
+/* Optimize animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Prevent layout shifts */
+.preloader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  z-index: 9999;
+}
+
+/* Optimize sliders */
+.slick-slider {
+  will-change: transform;
+}
+
+.slick-track {
+  will-change: transform;
+}
+
+/* Optimize hover effects */
+.hover-border-main-600:hover,
+.hover-bg-main-600:hover {
+  will-change: background-color, border-color;
+}
+
+/* Optimize product cards */
+.product-card {
+  content-visibility: auto;
+  contain-intrinsic-size: 300px;
+}
+
+.vendor-card {
+  content-visibility: auto;
+  contain-intrinsic-size: 200px;
+}
+
+/* Critical CSS - Prevent FOUC */
+html {
+  visibility: visible;
+  opacity: 1;
+}
+

@@ -22,16 +22,20 @@ export const useAuth = () => {
       if (hasToken && currentToken) {
         // Check if refresh token is expired first
         if (isRefreshTokenExpired()) {
-          console.log('⚠️ Refresh token is expired, logging out...');
+          if (process.env.NODE_ENV === 'development') {
+            console.log('⚠️ Refresh token expired, logging out...');
+          }
           await logoutUser();
           setToken(null);
           setIsAuth(false);
           return;
         }
         
-        // Check if access token is expired
+        // If access token is expired, try to refresh
         if (isTokenExpired()) {
-          console.log('⚠️ Access token is expired, attempting refresh...');
+          if (process.env.NODE_ENV === 'development') {
+            console.log('⚠️ Access token expired, refreshing...');
+          }
           const refreshSuccess = await refreshTokenIfNeeded();
           
           if (refreshSuccess) {
@@ -39,12 +43,15 @@ export const useAuth = () => {
             setToken(newToken);
             setIsAuth(true);
           } else {
-            console.log('❌ Token refresh failed, logging out...');
+            if (process.env.NODE_ENV === 'development') {
+              console.log('❌ Refresh failed, logging out...');
+            }
             await logoutUser();
             setToken(null);
             setIsAuth(false);
           }
         } else {
+          // Token is valid, use it
           setToken(currentToken);
           setIsAuth(true);
         }
@@ -53,7 +60,9 @@ export const useAuth = () => {
         setIsAuth(false);
       }
     } catch (error) {
-      console.error('Error checking auth status:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error checking auth status:', error);
+      }
       setToken(null);
       setIsAuth(false);
     } finally {
@@ -75,31 +84,38 @@ export const useAuth = () => {
     checkAuthStatus();
   }, [checkAuthStatus]);
 
-  // Set up periodic token refresh check
+  // Set up periodic token refresh check (only when close to expiry)
   useEffect(() => {
     if (!isAuth) return;
 
+    // Check every 5 minutes instead of 30 seconds
     const interval = setInterval(async () => {
       // Check if refresh token is expired first
       if (isRefreshTokenExpired()) {
-        console.log('⚠️ Refresh token expired during periodic check, logging out...');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('⚠️ Refresh token expired, logging out...');
+        }
         await logout();
         return;
       }
       
-      // Check if access token needs refresh
+      // Only refresh if actually needed (within 1 minute of expiry)
       if (shouldRefreshToken()) {
-        console.log('🔄 Periodic token refresh check...');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔄 Token expiring soon, refreshing...');
+        }
         const refreshSuccess = await refreshTokenIfNeeded();
         if (refreshSuccess) {
           const newToken = getAuthToken();
           setToken(newToken);
         } else {
-          console.log('❌ Periodic refresh failed, logging out...');
+          if (process.env.NODE_ENV === 'development') {
+            console.log('❌ Refresh failed, logging out...');
+          }
           await logout();
         }
       }
-    }, 30000); // Check every 30 seconds
+    }, 5 * 60 * 1000); // Check every 5 minutes
 
     return () => clearInterval(interval);
   }, [isAuth, logout]);
