@@ -27,22 +27,27 @@ export async function loginWithPhoneOtp({ phone_number, otp_code }) {
     // Store access_token in localStorage
     setItem(AUTH_TOKEN_STORAGE_KEY, accessToken);
     
-    // Store token expiration time (1 hour 20 minutes = 4800 seconds)
+    // Store token expiration time
     const tokenExpiry = expiresIn || 4800; // Default to 1h 20m if not provided
     const expirationTime = Date.now() + (tokenExpiry * 1000);
-    setItem('token_expires_at', expirationTime.toString());
+    setItem('token_expires_at', expirationTime);
+    
+    // Store login time for refresh token validation
+    setItem('login_time', Date.now());
   }
   
-  // Store refresh_token in localStorage (in production, this should be httpOnly cookie)
+  // Store refresh_token in localStorage
   if (refreshToken) {
     setItem('refresh_token', refreshToken);
   }
   
-  console.log('🔐 Login successful:', {
-    hasAccessToken: !!accessToken,
-    hasRefreshToken: !!refreshToken,
-    expiresIn: expiresIn ? `${expiresIn}s` : 'unknown'
-  });
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔐 Login successful:', {
+      hasAccessToken: !!accessToken,
+      hasRefreshToken: !!refreshToken,
+      expiresIn: expiresIn ? `${expiresIn}s` : 'unknown'
+    });
+  }
   
   return {
     access_token: accessToken || null,
@@ -99,49 +104,103 @@ export async function updateUserProfile(profileData) {
   }
 }
 
-// Check if token is expired or about to expire
+// Check if token is expired
 export function isTokenExpired() {
+  const token = getItem(AUTH_TOKEN_STORAGE_KEY);
+  if (!token) {
+    return true; // No token means expired
+  }
+  
   const expirationTime = getItem('token_expires_at');
   if (!expirationTime) {
-    return false; // No expiration info, assume valid
+    // If no expiration time, try to decode JWT token
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.exp) {
+        const expiry = payload.exp * 1000; // Convert to milliseconds
+        return Date.now() >= expiry;
+      }
+    } catch (e) {
+      // If can't decode, assume not expired
+      return false;
+    }
+    return false;
   }
   
   const now = Date.now();
-  const expiresAt = parseInt(expirationTime);
+  const expiresAt = parseInt(expirationTime, 10);
   
-  // Consider token expired if it expires within the next 2 minutes
-  const bufferTime = 2 * 60 * 1000; // 2 minutes in milliseconds
-  return now >= (expiresAt - bufferTime);
+  // Token is expired if current time is past expiration
+  return now >= expiresAt;
 }
 
-// Check if token needs refresh
+// Global flag to prevent infinite refresh loop
+let isCurrentlyRefreshing = false;
+let refreshPromise = null;
+
+// Check if token needs refresh (only when expired or about to expire)
 export function shouldRefreshToken() {
+  const token = getItem(AUTH_TOKEN_STORAGE_KEY);
+  const refreshToken = getItem('refresh_token');
+  
+  // Don't refresh if no tokens exist
+  if (!token || !refreshToken) {
+    return false;
+  }
+  
+  // Only refresh if token is actually expired or about to expire in 1 minute
   const expirationTime = getItem('token_expires_at');
   if (!expirationTime) {
     return false;
   }
   
   const now = Date.now();
-  const expiresAt = parseInt(expirationTime);
+  const expiresAt = parseInt(expirationTime, 10);
   
-  // Refresh if token expires within the next 5 minutes
-  const refreshBuffer = 5 * 60 * 1000; // 5 minutes in milliseconds
+  // Refresh only if token expires within the next 1 minute
+  const refreshBuffer = 1 * 60 * 1000; // 1 minute
   return now >= (expiresAt - refreshBuffer);
 }
 
-// Proactive token refresh
+// Proactive token refresh (single instance)
 export async function refreshTokenIfNeeded() {
-  if (shouldRefreshToken()) {
-    try {
-      console.log('🔄 Proactively refreshing token...');
+  // Return existing promise if already refreshing
+  if (isCurrentlyRefreshing && refreshPromise) {
+    return refreshPromise;
+  }
+  
+  // Don't refresh if no access token exists
+  const token = getItem(AUTH_TOKEN_STORAGE_KEY);
+  if (!token) {
+    return true;
+  }
+  
+  // Don't refresh if not needed
+  if (!shouldRefreshToken()) {
+    return true;
+  }
+  
+  try {
+    isCurrentlyRefreshing = true;
+    
+    refreshPromise = (async () => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 Token refresh needed, refreshing...');
+      }
       await refreshAccessToken();
       return true;
-    } catch (error) {
-      console.error('❌ Proactive token refresh failed:', error);
-      return false;
+    })();
+    
+    return await refreshPromise;
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('❌ Token refresh failed:', error);
     }
+    return false;
+  } finally {
+    isCurrentlyRefreshing = false;
+    refreshPromise = null;
   }
-  return true;
 }
 
 // Logout user
@@ -149,11 +208,16 @@ export async function logoutUser() {
   try {
     await http.post(API_ENDPOINTS.AUTH.LOGOUT);
   } catch (error) {
-    console.error('Logout error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Logout error:', error);
+    }
   } finally {
+    // Clear all auth data
     removeItem(AUTH_TOKEN_STORAGE_KEY);
     removeItem('refresh_token');
     removeItem('token_expires_at');
+    removeItem('login_time');
+    removeItem('user_data');
   }
 }
 
@@ -168,18 +232,23 @@ export function getAuthToken() {
   return getItem(AUTH_TOKEN_STORAGE_KEY);
 }
 
-// Refresh access token
+// Refresh access token (without triggering interceptor)
 export async function refreshAccessToken() {
   const refreshToken = getItem('refresh_token');
   if (!refreshToken) {
     throw new Error('No refresh token available');
   }
   
-  console.log('🔄 Refreshing access token...');
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔄 Refreshing access token...');
+  }
   
   try {
+    // Mark this as refresh request to skip interceptor
     const { data } = await http.post(API_ENDPOINTS.AUTH.REFRESH, {
       refresh_token: refreshToken
+    }, {
+      skipAuthRefresh: true // Custom flag to skip token refresh in interceptor
     });
     
     const newAccessToken = data?.access_token;
@@ -189,10 +258,17 @@ export async function refreshAccessToken() {
     if (newAccessToken) {
       setItem(AUTH_TOKEN_STORAGE_KEY, newAccessToken);
       
-      // Update token expiration time (1 hour 20 minutes = 4800 seconds)
-      const tokenExpiry = expiresIn || 4800; // Default to 1h 20m if not provided
+      // Update token expiration time
+      const tokenExpiry = expiresIn || 4800;
       const expirationTime = Date.now() + (tokenExpiry * 1000);
-      setItem('token_expires_at', expirationTime.toString());
+      setItem('token_expires_at', expirationTime);
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Token refresh successful', {
+          expiresIn: `${tokenExpiry}s`,
+          expiresAt: new Date(expirationTime).toLocaleString()
+        });
+      }
     }
     
     // Update refresh token if new one provided
@@ -200,24 +276,25 @@ export async function refreshAccessToken() {
       setItem('refresh_token', newRefreshToken);
     }
     
-    console.log('✅ Token refresh successful', {
-      expiresIn: `${tokenExpiry}s`,
-      expiresAt: new Date(expirationTime).toLocaleString()
-    });
-    
     return {
       access_token: newAccessToken || null,
       refresh_token: newRefreshToken || refreshToken,
-      expiresIn: tokenExpiry,
+      expiresIn: expiresIn || 4800,
       raw: data,
     };
   } catch (error) {
-    console.error('❌ Token refresh failed:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('❌ Token refresh failed:', error);
+    }
+    // Clear tokens on refresh failure
+    removeItem(AUTH_TOKEN_STORAGE_KEY);
+    removeItem('refresh_token');
+    removeItem('token_expires_at');
     throw error;
   }
 }
 
-// Check if refresh token is expired (14 days)
+// Check if refresh token is expired
 export function isRefreshTokenExpired() {
   const refreshToken = getItem('refresh_token');
   if (!refreshToken) {
@@ -226,16 +303,33 @@ export function isRefreshTokenExpired() {
   
   // Parse JWT to get expiration time
   try {
-    const payload = JSON.parse(atob(refreshToken.split('.')[1]));
+    const parts = refreshToken.split('.');
+    if (parts.length !== 3) {
+      return true; // Invalid JWT format
+    }
+    
+    const payload = JSON.parse(atob(parts[1]));
+    if (!payload.exp) {
+      // No expiration in token, assume valid
+      return false;
+    }
+    
     const exp = payload.exp * 1000; // Convert to milliseconds
     const now = Date.now();
     
-    // Consider expired if expires within next 24 hours
-    const bufferTime = 24 * 60 * 60 * 1000; // 24 hours
-    return now >= (exp - bufferTime);
+    // Consider expired if already past expiration (no buffer for refresh token)
+    return now >= exp;
   } catch (error) {
-    console.error('Error parsing refresh token:', error);
-    return true; // If can't parse, consider expired
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error parsing refresh token:', error);
+    }
+    // If can't parse, check if it's been more than 14 days since login
+    const loginTime = getItem('login_time');
+    if (loginTime) {
+      const daysSinceLogin = (Date.now() - parseInt(loginTime, 10)) / (1000 * 60 * 60 * 24);
+      return daysSinceLogin > 14; // Assume 14 days max
+    }
+    return true; // If no info, consider expired
   }
 }
 

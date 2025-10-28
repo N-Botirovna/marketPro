@@ -9,16 +9,21 @@ const ProtectedRoute = ({ children }) => {
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuth, setIsAuth] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
 
   // Pages that don't require authentication
   const publicPages = ['/login', '/register', '/forgot-password'];
   const isPublicPage = publicPages.includes(pathname);
 
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
+      // Small delay to prevent flickering
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const authenticated = isAuthenticated();
       setIsAuth(authenticated);
       setIsLoading(false);
+      setIsChecking(false);
 
       // If not authenticated and not on a public page, redirect to login
       if (!authenticated && !isPublicPage) {
@@ -29,22 +34,48 @@ const ProtectedRoute = ({ children }) => {
     checkAuth();
   }, [router, pathname, isPublicPage]);
 
-  // Show loading spinner while checking authentication
-  if (isLoading) {
+  // Always show loading spinner for protected pages during initial check
+  if (isChecking || (isLoading && !isPublicPage)) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
-        <Spin text="Tekshirilmoqda..." />
+      <div 
+        className="d-flex justify-content-center align-items-center" 
+        style={{ 
+          height: '100vh',
+          width: '100vw',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          backgroundColor: '#fff',
+          zIndex: 9999
+        }}
+      >
+        <Spin text="Yuklanmoqda..." />
       </div>
     );
   }
 
   // If not authenticated and not on public page, don't render children
   if (!isAuth && !isPublicPage) {
-    return null;
+    return (
+      <div 
+        className="d-flex justify-content-center align-items-center" 
+        style={{ 
+          height: '100vh',
+          width: '100vw',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          backgroundColor: '#fff',
+          zIndex: 9999
+        }}
+      >
+        <Spin text="Yo'naltirilmoqda..." />
+      </div>
+    );
   }
 
   // Render children for authenticated users or public pages
-  return children;
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;

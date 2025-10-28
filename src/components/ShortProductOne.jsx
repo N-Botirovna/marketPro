@@ -1,42 +1,46 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, memo } from "react";
 import Link from "next/link";
-import Slider from "react-slick";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import { getBooksByType, getNewBooks, getUsedBooks } from "@/services/books";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
+const Slider = dynamic(() => import("react-slick"), { ssr: false });
+
+// Slick navigation arrows as separate components
+function SampleNextArrow(props) {
+  const { className, onClick } = props;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${className} slick-next slick-arrow flex-center rounded-circle border border-gray-100 hover-border-main-600 text-xl hover-bg-main-600 hover-text-white transition-1`}
+    >
+      <i className="ph ph-caret-right" />
+    </button>
+  );
+}
+
+function SamplePrevArrow(props) {
+  const { className, onClick } = props;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${className} slick-prev slick-arrow flex-center rounded-circle border border-gray-100 hover-border-main-600 text-xl hover-bg-main-600 hover-text-white transition-1`}
+    >
+      <i className="ph ph-caret-left" />
+    </button>
+  );
+}
+
 const ShortProductOne = () => {
-  // 🔹 Slick navigation arrows
-  const SampleNextArrow = (props) => {
-    const { className, onClick } = props;
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        className={`${className} slick-next slick-arrow flex-center rounded-circle border border-gray-100 hover-border-main-600 text-xl hover-bg-main-600 hover-text-white transition-1`}
-      >
-        <i className="ph ph-caret-right" />
-      </button>
-    );
-  };
 
-  const SamplePrevArrow = (props) => {
-    const { className, onClick } = props;
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        className={`${className} slick-prev slick-arrow flex-center rounded-circle border border-gray-100 hover-border-main-600 text-xl hover-bg-main-600 hover-text-white transition-1`}
-      >
-        <i className="ph ph-caret-left" />
-      </button>
-    );
-  };
-
-  // 🔹 Slick settings
-  const settings = {
+  // 🔹 Memoized Slick settings
+  const settings = useMemo(() => ({
     dots: false,
     arrows: true,
     infinite: true,
@@ -50,7 +54,7 @@ const ShortProductOne = () => {
       { breakpoint: 768, settings: { arrows: false } },
       { breakpoint: 575, settings: { arrows: true } },
     ],
-  };
+  }), []);
 
   // 🔹 State
   const [newBooks, setNewBooks] = useState([]);
@@ -138,41 +142,48 @@ const ShortProductOne = () => {
   };
 
   // 🔹 Product card
-  const ProductCard = ({ product }) => (
-    <div className="flex-align gap-16 mb-24" key={product.id}>
-      <div className="w-90 h-90 rounded-12 border border-gray-100 shrink-0 overflow-hidden">
-        <Link href={`/product-details?id=${product.id}`} className="link">
-          <img
-            src={product.picture}
-            alt="product"
-            className="w-full h-full object-cover"
-          />
-        </Link>
-      </div>
-      <div className="flex-1">
-        <div className="flex-align gap-6">
-          <span className="text-xs fw-bold text-gray-500">{product.star}</span>
-          <span className="text-warning-600 text-xs">
-            <i className="ph-fill ph-star" />
-          </span>
-          <span className="text-xs fw-bold text-gray-500">({product.num})</span>
-        </div>
-        <h6 className="text-sm fw-semibold mt-8 mb-8 text-line-1">
+  const ProductCard = memo(({ product }) => {
+    return (
+      <div className="flex-align gap-16 mb-24" key={product.id}>
+        <div className="w-90 h-90 rounded-12 border border-gray-100 shrink-0 overflow-hidden" style={{ position: 'relative', width: 90, height: 90 }}>
           <Link href={`/product-details?id=${product.id}`} className="link">
-            {product.desc}
+            <Image
+              src={product.picture}
+              alt="product"
+              fill
+              sizes="90px"
+              style={{ objectFit: 'cover' }}
+              loading="lazy"
+            />
           </Link>
-        </h6>
-        <div className="flex-align gap-8">
-          <span className="text-heading text-md fw-semibold">
-            {product.price1}
-          </span>
-          <span className="text-gray-400 text-md fw-semibold">
-            {product.price2}
-          </span>
+        </div>
+        <div className="flex-1">
+          <div className="flex-align gap-6">
+            <span className="text-xs fw-bold text-gray-500">{product.star}</span>
+            <span className="text-warning-600 text-xs">
+              <i className="ph-fill ph-star" />
+            </span>
+            <span className="text-xs fw-bold text-gray-500">({product.num})</span>
+          </div>
+          <h6 className="text-sm fw-semibold mt-8 mb-8 text-line-1">
+            <Link href={`/product-details?id=${product.id}`} className="link">
+              {product.desc}
+            </Link>
+          </h6>
+          <div className="flex-align gap-8">
+            <span className="text-heading text-md fw-semibold">
+              {product.price1}
+            </span>
+            <span className="text-gray-400 text-md fw-semibold">
+              {product.price2}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  });
+
+  ProductCard.displayName = 'ProductCard';
 
   // 🔹 Categories (title + data)
   const productCategories = [
@@ -244,5 +255,5 @@ const ShortProductOne = () => {
   );
 };
 
-export default ShortProductOne;
+export default memo(ShortProductOne);
 

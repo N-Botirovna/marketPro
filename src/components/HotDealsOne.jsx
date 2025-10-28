@@ -1,7 +1,9 @@
 "use client";
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useEffect, useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import Image from "next/image";
+
 const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
 const SampleNextArrow = memo((props) => {
@@ -51,7 +53,7 @@ const HotDealsOne = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const settings = {
+  const settings = useMemo(() => ({
     dots: false,
     arrows: true,
     infinite: true,
@@ -82,7 +84,7 @@ const HotDealsOne = () => {
         },
       },
     ],
-  };
+  }), []);
   return (
     <section className='hot-deals pt-80'>
       <div className='container container-lg'>
@@ -102,15 +104,24 @@ const HotDealsOne = () => {
         <div className='row g-12'>
           <div className='col-md-4'>
             <div className='hot-deals position-relative rounded-16 bg-main-600 overflow-hidden p-28 z-1 text-center'>
-              <img
-                src='assets/images/shape/offer-shape.png'
-                alt='marketpro'
-                className='position-absolute inset-block-start-0 inset-inline-start-0 z-n1 w-100 h-100 opacity-6'
-              />
-              <div className='hot-deals__thumb'>
-                <img
-                  src='assets/images/thumbs/hot-deals-img.png'
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1, opacity: 0.6 }}>
+                <Image
+                  src='/assets/images/shape/offer-shape.png'
                   alt='marketpro'
+                  fill
+                  sizes="400px"
+                  style={{ objectFit: 'cover' }}
+                  loading="lazy"
+                />
+              </div>
+              <div className='hot-deals__thumb' style={{ position: 'relative', width: '100%', height: 200 }}>
+                <Image
+                  src='/assets/images/thumbs/hot-deals-img.png'
+                  alt='marketpro'
+                  fill
+                  sizes="300px"
+                  style={{ objectFit: 'contain' }}
+                  loading="lazy"
                 />
               </div>
               <div className='py-xl-4'>
@@ -159,10 +170,16 @@ const HotDealsOne = () => {
                       href='/product-details'
                       className='product-card__thumb flex-center'
                     >
-                      <img
-                        src='assets/images/thumbs/product-img8.png'
-                        alt='marketpro'
-                      />
+                      <div style={{ position: 'relative', width: '100%', height: 180 }}>
+                        <Image
+                          src='/assets/images/thumbs/product-img8.png'
+                          alt='marketpro'
+                          fill
+                          sizes="200px"
+                          style={{ objectFit: 'contain' }}
+                          loading="lazy"
+                        />
+                      </div>
                     </Link>
                     <div className='product-card__content p-sm-2'>
                       <h6 className='title text-lg fw-semibold mt-12 mb-8'>
@@ -275,10 +292,16 @@ const HotDealsOne = () => {
                       href='/product-details'
                       className='product-card__thumb flex-center'
                     >
-                      <img
-                        src='assets/images/thumbs/product-img10.png'
-                        alt='marketpro'
-                      />
+                      <div style={{ position: 'relative', width: '100%', height: 180 }}>
+                        <Image
+                          src='/assets/images/thumbs/product-img10.png'
+                          alt='marketpro'
+                          fill
+                          sizes="200px"
+                          style={{ objectFit: 'contain' }}
+                          loading="lazy"
+                        />
+                      </div>
                     </Link>
                     <div className='product-card__content p-sm-2'>
                       <h6 className='title text-lg fw-semibold mt-12 mb-8'>
@@ -333,10 +356,16 @@ const HotDealsOne = () => {
                       href='/product-details'
                       className='product-card__thumb flex-center'
                     >
-                      <img
-                        src='assets/images/thumbs/product-img18.png'
-                        alt='marketpro'
-                      />
+                      <div style={{ position: 'relative', width: '100%', height: 180 }}>
+                        <Image
+                          src='/assets/images/thumbs/product-img18.png'
+                          alt='marketpro'
+                          fill
+                          sizes="200px"
+                          style={{ objectFit: 'contain' }}
+                          loading="lazy"
+                        />
+                      </div>
                     </Link>
                     <div className='product-card__content p-sm-2'>
                       <h6 className='title text-lg fw-semibold mt-12 mb-8'>
@@ -449,4 +478,4 @@ const HotDealsOne = () => {
   );
 };
 
-export default HotDealsOne;
+export default memo(HotDealsOne);

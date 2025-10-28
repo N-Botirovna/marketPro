@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, memo } from "react";
 import Link from "next/link";
 import Slider from "react-slick";
 import { getBanners } from "@/services/banners";
@@ -9,19 +9,27 @@ import Image from "next/image";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-/**
- * BannerOne — yaxshilangan versiya
- * - next/image bilan ishlaydi (fallback qo'llab-quvvatlanadi)
- * - Link href to'g'ri formatda (/vendor-two?id=...)
- * - loading, empty-state va error handling qo'shildi
- */
+// Separate BannerImage component (no hooks inside parent component)
+const BannerImage = memo(({ src, alt, priority, fallbackSrc }) => (
+  <div style={{ position: "relative", width: "100%", height: 380 }}>
+    <Image
+      src={src || fallbackSrc}
+      alt={alt || "Banner"}
+      fill
+      sizes="(max-width: 768px) 100vw, 1200px"
+      style={{ objectFit: "cover", borderRadius: 12 }}
+      priority={priority}
+    />
+  </div>
+));
+
+BannerImage.displayName = "BannerImage";
 
 const BannerOne = () => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // local fallback image (public papkada bo'lishi kerak)
   const FALLBACK_SRC = "/assets/images/bg/banner-bg.png";
 
   useEffect(() => {
@@ -31,7 +39,6 @@ const BannerOne = () => {
         setLoading(true);
         const response = await getBanners({ limit: 10 });
         if (!mounted) return;
-        // normalize (agar API boshqa kalit bilan qaytarsa)
         const items = response?.banners || response?.data || [];
         setBanners(Array.isArray(items) ? items : []);
       } catch (err) {
@@ -48,7 +55,7 @@ const BannerOne = () => {
     };
   }, []);
 
-  // Slick arrows (stylingni saqlab qoldim)
+  // Slick arrows
   function SampleNextArrow({ className, onClick }) {
     return (
       <button
@@ -61,6 +68,7 @@ const BannerOne = () => {
       </button>
     );
   }
+  
   function SamplePrevArrow({ className, onClick }) {
     return (
       <button
@@ -74,10 +82,11 @@ const BannerOne = () => {
     );
   }
 
-  const settings = {
+  // Memoized settings
+  const settings = useMemo(() => ({
     dots: false,
     arrows: true,
-    infinite: banners.length > 1, // 1 taga teng bo'lsa infinite false bo'lsa better UX
+    infinite: banners.length > 1,
     speed: 800,
     slidesToShow: 1,
     slidesToScroll: 1,
@@ -90,36 +99,15 @@ const BannerOne = () => {
       { breakpoint: 992, settings: { arrows: false } },
       { breakpoint: 576, settings: { arrows: false, dots: true } },
     ],
-  };
+  }), [banners.length]);
 
-  // BannerImage helper - next/image bilan fallback qilish
-  const BannerImage = ({ src, alt, priority = false }) => {
-    const [imgSrc, setImgSrc] = useState(src || FALLBACK_SRC);
+  // Memoized slides
+  const slides = useMemo(() => 
+    banners.length ? banners : [{ id: "empty-1", title: "Welcome", image: FALLBACK_SRC }],
+    [banners, FALLBACK_SRC]
+  );
 
-    useEffect(() => {
-      setImgSrc(src || FALLBACK_SRC);
-    }, [src]);
-
-    return (
-      <div style={{ position: "relative", width: "100%", height: 380 }}>
-        {/* Using fill ensures responsive cover-like behaviour */}
-        <Image
-          src={imgSrc}
-          alt={alt || "Banner"}
-          fill
-          sizes="(max-width: 768px) 100vw, 1200px"
-          style={{ objectFit: "cover", borderRadius: 12 }}
-          onError={() => {
-            // agar rasm yuklanmasa fallbackga o'tadi
-            if (imgSrc !== FALLBACK_SRC) setImgSrc(FALLBACK_SRC);
-          }}
-          priority={priority}
-        />
-      </div>
-    );
-  };
-
-  // Empty / loading state
+  // Early returns AFTER all hooks
   if (loading) {
     return (
       <div className="banner">
@@ -148,14 +136,10 @@ const BannerOne = () => {
     );
   }
 
-  // Agar bannerlar bo'lmasa - fallback single slide
-  const slides = banners.length ? banners : [{ id: "empty-1", title: "Welcome", image: FALLBACK_SRC }];
-
   return (
     <div className="banner">
       <div className="container container-lg">
         <div className="banner-item rounded-24 overflow-hidden position-relative arrow-center">
-          {/* scroll button (saqladim) */}
           <a
             href="#featureSection"
             className="scroll-down w-84 h-84 text-center flex-center bg-main-600 rounded-circle border-5 text-white border-white position-absolute start-50 translate-middle-x bottom-0 hover-bg-main-800"
@@ -166,13 +150,14 @@ const BannerOne = () => {
             </span>
           </a>
 
-          {/* background fallback image (absolute) */}
-          <img
+          <Image
             src={FALLBACK_SRC}
             alt=""
+            fill
             className="banner-img position-absolute inset-block-start-0 inset-inline-start-0 w-100 h-100 z-n1 object-fit-cover rounded-24"
             aria-hidden="true"
             style={{ zIndex: -1 }}
+            priority={false}
           />
 
           <div className="banner-slider">
@@ -184,7 +169,6 @@ const BannerOne = () => {
                 return (
                   <div className="banner-slider__item" key={idKey}>
                     <div className="banner-slider__inner flex-between position-relative" style={{ gap: 24 }}>
-                      {/* Left content */}
                       <div className="banner-item__content" style={{ flex: 1, minWidth: 260 }}>
                         <h1 className="banner-item__title bounce" style={{ marginBottom: 16 }}>
                           {banner.title || banner.heading || "Shop"}
@@ -203,13 +187,12 @@ const BannerOne = () => {
                         </div>
                       </div>
 
-                      {/* Right thumbnail */}
                       <div className="banner-item__thumb" style={{ width: "45%", minWidth: 320 }}>
-                        {/* BannerImage uses next/image with fallback */}
                         <BannerImage
-                          src={banner.picture || banner.imageUrl || FALLBACK_SRC}
+                          src={banner.picture || banner.imageUrl}
                           alt={banner.title || "Banner image"}
                           priority={index === 0}
+                          fallbackSrc={FALLBACK_SRC}
                         />
                       </div>
                     </div>
@@ -224,5 +207,4 @@ const BannerOne = () => {
   );
 };
 
-export default BannerOne;
-
+export default memo(BannerOne);

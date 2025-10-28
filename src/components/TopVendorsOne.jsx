@@ -1,6 +1,7 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { getShops } from "@/services/shops";
 
 const TopVendorsOne = () => {
@@ -8,17 +9,21 @@ const TopVendorsOne = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
     const fetchShops = async () => {
       try {
         const response = await getShops({ limit: 8 });
-        setShops(response.shops);
+        if (mounted) {
+          setShops(response.shops || []);
+        }
       } catch (error) {
         console.error("Failed to fetch shops:", error);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
     fetchShops();
+    return () => { mounted = false; };
   }, []);
 
   return (
@@ -40,19 +45,16 @@ const TopVendorsOne = () => {
             <div key={shop.id} className="col-xxl-3 col-lg-4 col-sm-6">
               <div className="vendor-card text-center px-16 pb-24">
                 <div className="">
-                  <img
-                    src={
-                      shop.picture || "assets/images/thumbs/vendor-logo1.png"
-                    }
-                    alt={shop.name}
-                    className="vendor-card__logo m-12"
-                    style={{
-                      height: "80px",
-                      width: "80px",
-                      objectFit: "cover",
-                      borderRadius: "50%",
-                    }}
-                  />
+                  <div style={{ position: "relative", width: 80, height: 80, margin: "12px auto", borderRadius: "50%", overflow: "hidden" }}>
+                    <Image
+                      src={shop.picture || "/assets/images/thumbs/vendor-logo1.png"}
+                      alt={shop.name}
+                      fill
+                      sizes="80px"
+                      style={{ objectFit: "cover" }}
+                      loading="lazy"
+                    />
+                  </div>
                   <h6 className="title mt-32">{shop.name}</h6>
                   
                   {/* Star Rating */}
@@ -110,4 +112,4 @@ const TopVendorsOne = () => {
   );
 };
 
-export default TopVendorsOne;
+export default memo(TopVendorsOne);

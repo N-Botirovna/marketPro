@@ -1,11 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { memo, useMemo } from "react";
 import Link from "next/link";
-import Slider from "react-slick";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+
+const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
 const NewArrivalOne = () => {
-  function SampleNextArrow(props) {
+  const SampleNextArrow = memo((props) => {
     const { className, onClick } = props;
     return (
       <button
@@ -16,10 +19,10 @@ const NewArrivalOne = () => {
         <i className='ph ph-caret-right' />
       </button>
     );
-  }
-  function SamplePrevArrow(props) {
-    const { className, onClick } = props;
+  });
 
+  const SamplePrevArrow = memo((props) => {
+    const { className, onClick } = props;
     return (
       <button
         type='button'
@@ -29,8 +32,9 @@ const NewArrivalOne = () => {
         <i className='ph ph-caret-left' />
       </button>
     );
-  }
-  const settings = {
+  });
+
+  const settings = useMemo(() => ({
     dots: false,
     arrows: true,
     infinite: true,
@@ -73,7 +77,7 @@ const NewArrivalOne = () => {
         },
       },
     ],
-  };
+  }), []);
   return (
     <section className='new-arrival pb-80'>
       <div className='container container-lg'>
@@ -98,7 +102,9 @@ const NewArrivalOne = () => {
                   href='/product-details'
                   className='product-card__thumb flex-center'
                 >
-                  <img src='assets/images/thumbs/product-img20.png' alt='' />
+                  <div style={{ position: 'relative', width: '100%', height: 200 }}>
+                    <Image src='/assets/images/thumbs/product-img20.png' alt='' fill sizes="200px" style={{ objectFit: 'contain' }} loading="lazy" />
+                  </div>
                 </Link>
                 <div className='product-card__content mt-12'>
                   <div className='flex-align gap-6'>
@@ -196,7 +202,9 @@ const NewArrivalOne = () => {
                   href='/product-details'
                   className='product-card__thumb flex-center'
                 >
-                  <img src='assets/images/thumbs/product-img22.png' alt='' />
+                  <div style={{ position: 'relative', width: '100%', height: 200 }}>
+                    <Image src='/assets/images/thumbs/product-img22.png' alt='' fill sizes="200px" style={{ objectFit: 'contain' }} loading="lazy" />
+                  </div>
                 </Link>
                 <div className='product-card__content mt-12'>
                   <div className='flex-align gap-6'>
@@ -245,7 +253,9 @@ const NewArrivalOne = () => {
                   href='/product-details'
                   className='product-card__thumb flex-center'
                 >
-                  <img src='assets/images/thumbs/product-img23.png' alt='' />
+                  <div style={{ position: 'relative', width: '100%', height: 200 }}>
+                    <Image src='/assets/images/thumbs/product-img23.png' alt='' fill sizes="200px" style={{ objectFit: 'contain' }} loading="lazy" />
+                  </div>
                 </Link>
                 <div className='product-card__content mt-12'>
                   <div className='flex-align gap-6'>
@@ -294,7 +304,9 @@ const NewArrivalOne = () => {
                   href='/product-details'
                   className='product-card__thumb flex-center'
                 >
-                  <img src='assets/images/thumbs/product-img24.png' alt='' />
+                  <div style={{ position: 'relative', width: '100%', height: 200 }}>
+                    <Image src='/assets/images/thumbs/product-img24.png' alt='' fill sizes="200px" style={{ objectFit: 'contain' }} loading="lazy" />
+                  </div>
                 </Link>
                 <div className='product-card__content mt-12'>
                   <div className='flex-align gap-6'>
@@ -343,7 +355,9 @@ const NewArrivalOne = () => {
                   href='/product-details'
                   className='product-card__thumb flex-center'
                 >
-                  <img src='assets/images/thumbs/product-img25.png' alt='' />
+                  <div style={{ position: 'relative', width: '100%', height: 200 }}>
+                    <Image src='/assets/images/thumbs/product-img25.png' alt='' fill sizes="200px" style={{ objectFit: 'contain' }} loading="lazy" />
+                  </div>
                 </Link>
                 <div className='product-card__content mt-12'>
                   <div className='flex-align gap-6'>
@@ -442,4 +456,4 @@ const NewArrivalOne = () => {
   );
 };
 
-export default NewArrivalOne;
+export default memo(NewArrivalOne);
