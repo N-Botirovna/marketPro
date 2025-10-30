@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { sendContactMessage } from "@/services/contact";
 import Spin from "./Spin";
 import { useToast } from "./Toast";
@@ -8,26 +8,26 @@ import { useToast } from "./Toast";
 const Contact = () => {
   const { showToast, ToastContainer } = useToast();
   const [formData, setFormData] = useState({
-    phone: '',
-    message: ''
+    phone: "",
+    message: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!formData.phone || !formData.message) {
-      setError('Iltimos, barcha maydonlarni to\'ldiring');
+      setError("Iltimos, barcha maydonlarni to'ldiring");
       return;
     }
 
@@ -35,90 +35,89 @@ const Contact = () => {
     try {
       const response = await sendContactMessage({
         phone: formData.phone,
-        message: formData.message
+        message: formData.message,
       });
 
       if (response.success) {
         showToast({
-          type: 'success',
-          title: 'Muvaffaqiyatli!',
-          message: 'Xabaringiz muvaffaqiyatli yuborildi',
-          duration: 3000
+          type: "success",
+          title: "Muvaffaqiyatli!",
+          message: "Xabaringiz muvaffaqiyatli yuborildi",
+          duration: 3000,
         });
-        setFormData({ phone: '', message: '' });
+        setFormData({ phone: "", message: "" });
       } else {
-        setError(response.message || 'Xabar yuborishda xatolik yuz berdi');
+        setError(response.message || "Xabar yuborishda xatolik yuz berdi");
       }
     } catch (err) {
-      setError(err?.normalized?.message || 'Xabar yuborishda xatolik yuz berdi');
+      setError(
+        err?.normalized?.message || "Xabar yuborishda xatolik yuz berdi"
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section className='contact py-80'>
-      <div className='container container-lg'>
-        <div className='row gy-5'>
-          <div className='col-lg-8'>
-            <div className='contact-box border border-gray-100 rounded-16 px-24 py-40'>
+    <section className="contact py-80">
+      <div className="container container-lg">
+        <div className="row gy-5">
+          <div className="col-lg-8">
+            <div className="contact-box border border-gray-100 rounded-16 px-24 py-40">
               <form onSubmit={handleSubmit}>
-                <h6 className='mb-32'>Xabar yuborish</h6>
-                
-                {error && (
-                  <div className='alert alert-danger mb-24'>
-                    {error}
-                  </div>
-                )}
-                
+                <h6 className="mb-32">Xabar yuborish</h6>
 
-                <div className='row gy-4'>
-                  <div className='col-sm-12'>
+                {error && (
+                  <div className="alert alert-danger mb-24">{error}</div>
+                )}
+
+                <div className="row gy-4">
+                  <div className="col-sm-12">
                     <label
-                      htmlFor='phone'
-                      className='flex-align gap-4 text-sm font-heading-two text-gray-900 fw-semibold mb-4'
+                      htmlFor="phone"
+                      className="flex-align gap-4 text-sm font-heading-two text-gray-900 fw-semibold mb-4"
                     >
                       Telefon raqam
-                      <span className='text-danger text-xl line-height-1'>
+                      <span className="text-danger text-xl line-height-1">
                         *
                       </span>{" "}
                     </label>
                     <input
-                      type='tel'
-                      className='common-input px-16'
-                      id='phone'
-                      name='phone'
-                      placeholder='+998901234567'
+                      type="tel"
+                      className="common-input px-16"
+                      id="phone"
+                      name="phone"
+                      placeholder="+998901234567"
                       value={formData.phone}
                       onChange={handleInputChange}
                       required
                     />
                   </div>
-                  <div className='col-sm-12'>
+                  <div className="col-sm-12">
                     <label
-                      htmlFor='message'
-                      className='flex-align gap-4 text-sm font-heading-two text-gray-900 fw-semibold mb-4'
+                      htmlFor="message"
+                      className="flex-align gap-4 text-sm font-heading-two text-gray-900 fw-semibold mb-4"
                     >
                       Xabar
-                      <span className='text-danger text-xl line-height-1'>
+                      <span className="text-danger text-xl line-height-1">
                         *
                       </span>{" "}
                     </label>
                     <textarea
-                      className='common-input px-16'
-                      id='message'
-                      name='message'
-                      placeholder='Xabaringizni yozing'
+                      className="common-input px-16"
+                      id="message"
+                      name="message"
+                      placeholder="Xabaringizni yozing"
                       value={formData.message}
                       onChange={handleInputChange}
                       rows={5}
                       required
                     />
                   </div>
-                  <div className='col-sm-12 mt-32'>
+                  <div className="col-sm-12 mt-32">
                     <button
-                      type='submit'
-                      className='btn btn-main py-18 px-32 rounded-8'
+                      type="submit"
+                      className="btn btn-main py-18 px-32 rounded-8"
                       disabled={loading}
                     >
                       {loading ? (
@@ -127,7 +126,7 @@ const Contact = () => {
                           Yuborilmoqda...
                         </>
                       ) : (
-                        'Xabar yuborish'
+                        "Xabar yuborish"
                       )}
                     </button>
                   </div>
@@ -135,36 +134,36 @@ const Contact = () => {
               </form>
             </div>
           </div>
-          <div className='col-lg-4'>
-            <div className='contact-box border border-gray-100 rounded-16 px-24 py-40'>
-              <h6 className='mb-48'>Bog'lanish</h6>
-              <div className='flex-align gap-16 mb-16'>
-                <span className='w-40 h-40 flex-center rounded-circle border border-gray-100 text-main-two-600 text-2xl flex-shrink-0'>
-                  <i className='ph-fill ph-phone-call' />
+          <div className="col-lg-4">
+            <div className="contact-box border border-gray-100 rounded-16 px-24 py-40">
+              <h6 className="mb-48">Bog'lanish</h6>
+              <div className="flex-align gap-16 mb-16">
+                <span className="w-40 h-40 flex-center rounded-circle border border-gray-100 text-main-two-600 text-2xl flex-shrink-0">
+                  <i className="ph-fill ph-phone-call" />
                 </span>
                 <a
-                  href='tel:+00123456789'
-                  className='text-md text-gray-900 hover-text-main-600'
+                  href="tel:+00123456789"
+                  className="text-md text-gray-900 hover-text-main-600"
                 >
                   +00 123 456 789
                 </a>
               </div>
-              <div className='flex-align gap-16 mb-16'>
-                <span className='w-40 h-40 flex-center rounded-circle border border-gray-100 text-main-two-600 text-2xl flex-shrink-0'>
-                  <i className='ph-fill ph-envelope' />
+              <div className="flex-align gap-16 mb-16">
+                <span className="w-40 h-40 flex-center rounded-circle border border-gray-100 text-main-two-600 text-2xl flex-shrink-0">
+                  <i className="ph-fill ph-envelope" />
                 </span>
                 <Link
-                  href='/mailto:support24@marketpro.com'
-                  className='text-md text-gray-900 hover-text-main-600'
+                  href="/mailto:support24@marketpro.com"
+                  className="text-md text-gray-900 hover-text-main-600"
                 >
                   support24@marketpro.com
                 </Link>
               </div>
-              <div className='flex-align gap-16 mb-0'>
-                <span className='w-40 h-40 flex-center rounded-circle border border-gray-100 text-main-two-600 text-2xl flex-shrink-0'>
-                  <i className='ph-fill ph-map-pin' />
+              <div className="flex-align gap-16 mb-0">
+                <span className="w-40 h-40 flex-center rounded-circle border border-gray-100 text-main-two-600 text-2xl flex-shrink-0">
+                  <i className="ph-fill ph-map-pin" />
                 </span>
-                <span className='text-md text-gray-900 '>
+                <span className="text-md text-gray-900 ">
                   789 Inner Lane, California, USA
                 </span>
               </div>

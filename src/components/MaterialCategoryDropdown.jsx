@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import {
   Box,
   Button,
@@ -165,7 +165,9 @@ const MaterialCategoryDropdown = () => {
                   }}
                 >
                   <Link
-                    href={`/vendor-two?category=${encodeURIComponent(category.name)}`}
+                    href={`/vendor-two?category=${encodeURIComponent(
+                      category.name
+                    )}`}
                     style={{ width: "100%", textDecoration: "none" }}
                   >
                     <ListItemButton sx={{ py: 1.5, px: 2 }}>
@@ -258,8 +260,7 @@ const MaterialCategoryDropdown = () => {
                                   backgroundColor: "rgba(25,118,210,0.06)",
                                   color: "#1976d2",
                                   transform: "translateX(4px)",
-                                  boxShadow:
-                                    "0 2px 8px rgba(25,118,210,0.1)",
+                                  boxShadow: "0 2px 8px rgba(25,118,210,0.1)",
                                 },
                               }}
                               onClick={handleMenuMouseLeave}

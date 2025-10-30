@@ -1,7 +1,7 @@
 "use client";
 
+import { Link } from '@/i18n/navigation';
 import React from 'react';
-import Link from 'next/link';
 
 const PostCard = ({ post, onEdit, onDelete }) => {
   if (!post) return null;

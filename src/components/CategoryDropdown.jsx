@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { getBookCategories } from "@/services/categories";
 
 const CategoryDropdown = () => {
@@ -9,29 +9,28 @@ const CategoryDropdown = () => {
   const [activeCategory, setActiveCategory] = useState(false);
   const [loading, setLoading] = useState(true);
 
-   const handleCategoryToggle = () => {
-     setActiveCategory((prev) => !prev);
-   };
+  const handleCategoryToggle = () => {
+    setActiveCategory((prev) => !prev);
+  };
 
   const handleCatClick = (index) => {
     setActiveIndexCat((prev) => (prev === index ? null : index));
   };
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getBookCategories({ limit: 20 });
+        setCategories(res.categories || []);
+      } catch (error) {
+        console.error("Kategoriya ma'lumotlarini olishda xatolik:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-   useEffect(() => {
-     const fetchCategories = async () => {
-       try {
-         const res = await getBookCategories({ limit: 20 });
-         setCategories(res.categories || []);
-       } catch (error) {
-         console.error("Kategoriya ma'lumotlarini olishda xatolik:", error);
-       } finally {
-         setLoading(false);
-       }
-     };
-
-     fetchCategories();
-   }, []);
+    fetchCategories();
+  }, []);
 
   if (loading) {
     return (
@@ -66,23 +65,23 @@ const CategoryDropdown = () => {
         </span>
       </button>
 
-       {/* Dropdown menyu */}
-       <div
-         className={`responsive-dropdown cat on-hover-dropdown common-dropdown nav-submenu p-0 submenus-submenu-wrapper ${
-           activeCategory ? "active" : ""
-         }`}
-         style={{
-           zIndex: 99999, 
-           display: activeCategory ? 'block' : 'none',
-           backgroundColor: 'white',
-           border: '1px solid #e5e7eb',
-           borderRadius: '12px',
-           boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-           transition: 'all 0.3s ease',
-           opacity: activeCategory ? 1 : 0,
-           transform: activeCategory ? 'translateY(0)' : 'translateY(-10px)'
-         }}
-       >
+      {/* Dropdown menyu */}
+      <div
+        className={`responsive-dropdown cat on-hover-dropdown common-dropdown nav-submenu p-0 submenus-submenu-wrapper ${
+          activeCategory ? "active" : ""
+        }`}
+        style={{
+          zIndex: 99999,
+          display: activeCategory ? "block" : "none",
+          backgroundColor: "white",
+          border: "1px solid #e5e7eb",
+          borderRadius: "12px",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+          transition: "all 0.3s ease",
+          opacity: activeCategory ? 1 : 0,
+          transform: activeCategory ? "translateY(0)" : "translateY(-10px)",
+        }}
+      >
         {/* Mobil yopish tugmasi */}
         <button
           onClick={() => {
@@ -102,9 +101,9 @@ const CategoryDropdown = () => {
           </Link>
         </div>
 
-         {/* Kategoriyalar ro'yxati */}
-         <ul className="scroll-sm p-0 py-8 w-300 max-h-400 overflow-y-auto">
-           {categories.map((cat, index) => (
+        {/* Kategoriyalar ro'yxati */}
+        <ul className="scroll-sm p-0 py-8 w-300 max-h-400 overflow-y-auto">
+          {categories.map((cat, index) => (
             <li
               key={cat.id}
               onMouseEnter={() => setActiveIndexCat(index)}
@@ -113,55 +112,61 @@ const CategoryDropdown = () => {
                 activeIndexCat === index ? "active" : ""
               }`}
             >
-               <div className="text-gray-600 text-15 py-12 px-16 flex-align gap-8 cursor-pointer rounded-8 hover:bg-gray-50 transition-all duration-200" style={{transition: 'all 0.2s ease'}}>
-                 {cat.picture ? (
-                   <img
-                     src={cat.picture}
-                     alt={cat.name}
-                     className="w-20 h-20 object-contain rounded-4"
-                   />
-                 ) : (
-                   <span className="text-xl d-flex text-gray-400">
-                     <i className="ph ph-book" />
-                   </span>
-                 )}
-                 <span className="font-medium">{cat.name}</span>
-                 {cat.subcategories?.length > 0 && (
-                   <span className="icon text-md d-flex ms-auto text-gray-400">
-                     <i className="ph ph-caret-right" />
-                   </span>
-                 )}
-               </div>
+              <div
+                className="text-gray-600 text-15 py-12 px-16 flex-align gap-8 cursor-pointer rounded-8 hover:bg-gray-50 transition-all duration-200"
+                style={{ transition: "all 0.2s ease" }}
+              >
+                {cat.picture ? (
+                  <img
+                    src={cat.picture}
+                    alt={cat.name}
+                    className="w-20 h-20 object-contain rounded-4"
+                  />
+                ) : (
+                  <span className="text-xl d-flex text-gray-400">
+                    <i className="ph ph-book" />
+                  </span>
+                )}
+                <span className="font-medium">{cat.name}</span>
+                {cat.subcategories?.length > 0 && (
+                  <span className="icon text-md d-flex ms-auto text-gray-400">
+                    <i className="ph ph-caret-right" />
+                  </span>
+                )}
+              </div>
 
               {/* Yon paneldagi subkategoriya */}
               {cat.subcategories?.length > 0 && (
-                 <div
-                   className={`submenus-submenu py-16 ${
-                     activeIndexCat === index ? "open" : ""
-                   }`}
-                   style={{
-                     transition: 'all 0.3s ease',
-                     opacity: activeIndexCat === index ? 1 : 0,
-                     transform: activeIndexCat === index ? 'translateX(0)' : 'translateX(-10px)'
-                   }}
-                 >
-                   <h6 className="text-lg px-16 submenus-submenu__title mb-8 font-semibold text-gray-800">
-                     {cat.name}
-                   </h6>
-                   <ul className="submenus-submenu__list max-h-300 overflow-y-auto scroll-sm">
-                     {cat.subcategories.map((sub) => (
-                       <li key={sub.id}>
-                         <Link
-                           href={`/vendor-two?subcategory=${sub.id}`}
-                           className="block px-16 py-8 hover:bg-gray-50 rounded-4 transition-all duration-10 text-gray-600 hover:text-gray-800"
-                           style={{transition: 'all 0.02s ease'}}
-                         >
-                           {sub.name}
-                         </Link>
-                       </li>
-                     ))}
-                   </ul>
-                 </div>
+                <div
+                  className={`submenus-submenu py-16 ${
+                    activeIndexCat === index ? "open" : ""
+                  }`}
+                  style={{
+                    transition: "all 0.3s ease",
+                    opacity: activeIndexCat === index ? 1 : 0,
+                    transform:
+                      activeIndexCat === index
+                        ? "translateX(0)"
+                        : "translateX(-10px)",
+                  }}
+                >
+                  <h6 className="text-lg px-16 submenus-submenu__title mb-8 font-semibold text-gray-800">
+                    {cat.name}
+                  </h6>
+                  <ul className="submenus-submenu__list max-h-300 overflow-y-auto scroll-sm">
+                    {cat.subcategories.map((sub) => (
+                      <li key={sub.id}>
+                        <Link
+                          href={`/vendor-two?subcategory=${sub.id}`}
+                          className="block px-16 py-8 hover:bg-gray-50 rounded-4 transition-all duration-10 text-gray-600 hover:text-gray-800"
+                          style={{ transition: "all 0.02s ease" }}
+                        >
+                          {sub.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </li>
           ))}
@@ -172,4 +177,3 @@ const CategoryDropdown = () => {
 };
 
 export default CategoryDropdown;
-

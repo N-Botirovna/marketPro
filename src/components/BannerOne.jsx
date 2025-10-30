@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo, memo } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Slider from "react-slick";
 import { getBanners } from "@/services/banners";
 import Image from "next/image";
@@ -68,7 +68,7 @@ const BannerOne = () => {
       </button>
     );
   }
-  
+
   function SamplePrevArrow({ className, onClick }) {
     return (
       <button
@@ -83,27 +83,33 @@ const BannerOne = () => {
   }
 
   // Memoized settings
-  const settings = useMemo(() => ({
-    dots: false,
-    arrows: true,
-    infinite: banners.length > 1,
-    speed: 800,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    initialSlide: 0,
-    nextArrow: <SampleNextArrow />,
-    prevArrow: <SamplePrevArrow />,
-    autoplay: banners.length > 1,
-    autoplaySpeed: 6000,
-    responsive: [
-      { breakpoint: 992, settings: { arrows: false } },
-      { breakpoint: 576, settings: { arrows: false, dots: true } },
-    ],
-  }), [banners.length]);
+  const settings = useMemo(
+    () => ({
+      dots: false,
+      arrows: true,
+      infinite: banners.length > 1,
+      speed: 800,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      initialSlide: 0,
+      nextArrow: <SampleNextArrow />,
+      prevArrow: <SamplePrevArrow />,
+      autoplay: banners.length > 1,
+      autoplaySpeed: 6000,
+      responsive: [
+        { breakpoint: 992, settings: { arrows: false } },
+        { breakpoint: 576, settings: { arrows: false, dots: true } },
+      ],
+    }),
+    [banners.length]
+  );
 
   // Memoized slides
-  const slides = useMemo(() => 
-    banners.length ? banners : [{ id: "empty-1", title: "Welcome", image: FALLBACK_SRC }],
+  const slides = useMemo(
+    () =>
+      banners.length
+        ? banners
+        : [{ id: "empty-1", title: "Welcome", image: FALLBACK_SRC }],
     [banners, FALLBACK_SRC]
   );
 
@@ -113,7 +119,10 @@ const BannerOne = () => {
       <div className="banner">
         <div className="container container-lg">
           <div className="banner-item rounded-24 overflow-hidden position-relative">
-            <div className="d-flex align-items-center justify-content-center" style={{ height: 380 }}>
+            <div
+              className="d-flex align-items-center justify-content-center"
+              style={{ height: 380 }}
+            >
               <div>Yuklanmoqda...</div>
             </div>
           </div>
@@ -164,13 +173,24 @@ const BannerOne = () => {
             <Slider {...settings}>
               {slides.map((banner, index) => {
                 const idKey = banner.id ?? index;
-                const href = `/vendor-two-details?id=${encodeURIComponent(banner.id ?? "")}`;
+                const href = `/vendor-two-details?id=${encodeURIComponent(
+                  banner.id ?? ""
+                )}`;
 
                 return (
                   <div className="banner-slider__item" key={idKey}>
-                    <div className="banner-slider__inner flex-between position-relative" style={{ gap: 24 }}>
-                      <div className="banner-item__content" style={{ flex: 1, minWidth: 260 }}>
-                        <h1 className="banner-item__title bounce" style={{ marginBottom: 16 }}>
+                    <div
+                      className="banner-slider__inner flex-between position-relative"
+                      style={{ gap: 24 }}
+                    >
+                      <div
+                        className="banner-item__content"
+                        style={{ flex: 1, minWidth: 260 }}
+                      >
+                        <h1
+                          className="banner-item__title bounce"
+                          style={{ marginBottom: 16 }}
+                        >
                           {banner.title || banner.heading || "Shop"}
                         </h1>
 
@@ -187,7 +207,10 @@ const BannerOne = () => {
                         </div>
                       </div>
 
-                      <div className="banner-item__thumb" style={{ width: "45%", minWidth: 320 }}>
+                      <div
+                        className="banner-item__thumb"
+                        style={{ width: "45%", minWidth: 320 }}
+                      >
                         <BannerImage
                           src={banner.picture || banner.imageUrl}
                           alt={banner.title || "Banner image"}
