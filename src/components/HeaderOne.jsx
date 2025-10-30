@@ -9,6 +9,7 @@ import MaterialLocationDropdown from "./MaterialLocationDropdown";
 import { useTranslations } from "next-intl";
 import query from "jquery";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import LanguageSwitcher from "./LanguageSwitcher";
 const HeaderOne = () => {
   let pathname = usePathname();
   const router = useRouter();
@@ -437,6 +438,7 @@ const HeaderOne = () => {
                 </span>
               </Link>
               {/* Wishlist Icon End */}
+              <LanguageSwitcher />
               {/* User Icon Start */}
               {isLoggedIn ? (
                 <div className="dropdown">
