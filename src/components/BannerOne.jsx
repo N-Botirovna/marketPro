@@ -184,20 +184,21 @@ const BannerOne = () => {
                       style={{ gap: 24 }}
                     >
                       <div
-                        className="banner-item__content"
+                        className="banner-item__content "
                         style={{ flex: 1, minWidth: 260 }}
                       >
                         <h1
                           className="banner-item__title bounce"
-                          style={{ marginBottom: 16 }}
+                          style={{ marginBottom: 24 }}
                         >
-                          {banner.title || banner.heading || "Shop"}
+                          {/* {banner.title  || "Shop"} */}
+                          Bu yerda uzunroq tekst tursin!
                         </h1>
 
                         <div style={{ marginTop: 12 }}>
                           <Link
                             href={href}
-                            className="btn btn-main d-inline-flex align-items-center rounded-pill gap-8"
+                            className="btn btn-main d-inline-flex align-items-center rounded-pill pt-8 gap-8"
                           >
                             Explore Shop
                             <span className="icon text-xl d-flex">
