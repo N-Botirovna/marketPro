@@ -1,6 +1,8 @@
 {
     "hello": "Hello world!",
     "welcome": "Welcome to our platform",
-    "logout": "Logout",
-    "profile": "Profile"
+    "Header": {
+        "logout": "Chiqish",
+    "profile": "Profil"
+      }
   }

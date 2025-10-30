@@ -1,7 +1,10 @@
 {
     "hello": "Hello world!",
     "welcome": "Welcome to our platform",
-    "logout": "Logout",
+    "Header": {
+        "logout": "Logout",
     "profile": "Profile"
+      }
   }
+
 

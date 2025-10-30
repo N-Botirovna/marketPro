@@ -5,3 +5,4 @@ export const routing = defineRouting({
   defaultLocale: 'uz',
   localePrefix: 'always'
 });
+

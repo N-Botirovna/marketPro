@@ -6,7 +6,7 @@ import { getRegions } from "@/services/regions";
 import CategoryDropdown from "./CategoryDropdown";
 import MaterialCategoryDropdown from "./MaterialCategoryDropdown";
 import MaterialLocationDropdown from "./MaterialLocationDropdown";
-
+import { useTranslations } from "next-intl";
 import query from "jquery";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 const HeaderOne = () => {
@@ -20,6 +20,7 @@ const HeaderOne = () => {
   const [hoveredRegionId, setHoveredRegionId] = useState(null);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const t = useTranslations("Header")
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -457,7 +458,7 @@ const HeaderOne = () => {
                     <li>
                       <button onClick={handleLogout} className="dropdown-item">
                         <i className="ph ph-sign-out me-8"></i>
-                        Chiqish
+                        {t("logout")}
                       </button>
                     </li>
                   </ul>
