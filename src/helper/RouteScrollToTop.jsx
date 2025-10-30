@@ -1,6 +1,6 @@
 "use client";
+import { usePathname } from "@/i18n/navigation";
 import { useEffect } from "react";
-import { usePathname } from "next/navigation";
 
 const RouteScrollToTop = () => {
   const pathname = usePathname();

@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "market_pro",
   "version": "0.1.0",
   "private": true,
@@ -22,6 +23,7 @@
     "isotope-layout": "^3.0.6",
     "jquery": "^3.7.1",
     "next": "^15.0.2",
+    "next-intl": "^4.4.0",
     "react": "^18",
     "react-dom": "^18",
     "react-fast-marquee": "^1.6.5",

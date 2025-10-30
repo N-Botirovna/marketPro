@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import React, { useEffect, useState } from "react";
 import { getBookCategories } from "@/services/categories";
 
@@ -163,7 +163,9 @@ const VendorTwoSideBar = ({ shop, onCategorySelect }) => {
               <a
                 href="#"
                 onClick={(e) => handleCategoryClick(e, cat.id)}
-                className={`text-gray-900 hover-text-main-600 ${activeCategoryId === cat.id ? "text-main-600" : ""}`}
+                className={`text-gray-900 hover-text-main-600 ${
+                  activeCategoryId === cat.id ? "text-main-600" : ""
+                }`}
               >
                 {cat.name}
               </a>

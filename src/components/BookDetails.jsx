@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { getBookById } from "@/services/books";
 import { useAuth } from "@/hooks/useAuth";
 import BookCreateModal from "./BookCreateModal";
@@ -340,11 +340,14 @@ const BookDetails = ({ bookId }) => {
                     <i className="ph ph-storefront text-main-600 me-8"></i>
                     <span className="text-gray-600 me-8">Sotuvchi:</span>
                     <span className="fw-medium">
-                      {book.shop?.name || `${book.posted_by?.first_name || 'Noma\'lum'} ${book.posted_by?.last_name || ''}`.trim()}
+                      {book.shop?.name ||
+                        `${book.posted_by?.first_name || "Noma'lum"} ${
+                          book.posted_by?.last_name || ""
+                        }`.trim()}
                     </span>
                   </div>
                   {isOwnBook() && (
-                    <button 
+                    <button
                       className="btn btn-sm btn-outline-main"
                       onClick={() => setShowEditModal(true)}
                     >

@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
 import { isAuthenticated } from "@/services/auth";
 import Spin from "./Spin";
+import { usePathname, useRouter } from "@/i18n/navigation";
 
 const ProtectedRoute = ({ children }) => {
   const router = useRouter();

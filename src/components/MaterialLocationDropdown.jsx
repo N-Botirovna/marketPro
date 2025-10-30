@@ -1,19 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import {
-  Box,
-  Button,
-  Menu,
-  Typography,
-  Fade,
-  Stack,
-} from "@mui/material";
-import {
-  ExpandMore,
-  LocationOn,
-  ChevronRight,
-} from "@mui/icons-material";
+import { Link } from "@/i18n/navigation";
+import { Box, Button, Menu, Typography, Fade, Stack } from "@mui/material";
+import { ExpandMore, LocationOn, ChevronRight } from "@mui/icons-material";
 import { getRegions } from "@/services/regions";
 
 const MaterialLocationDropdown = () => {
@@ -176,9 +165,7 @@ const MaterialLocationDropdown = () => {
           >
             {hoveredRegionId ? (
               (() => {
-                const region = regions.find(
-                  (r) => r.id === hoveredRegionId
-                );
+                const region = regions.find((r) => r.id === hoveredRegionId);
                 if (!region || !region.districts?.length) {
                   return (
                     <Box sx={{ p: 3, textAlign: "center" }}>
@@ -225,8 +212,7 @@ const MaterialLocationDropdown = () => {
                                   backgroundColor: "rgba(25,118,210,0.06)",
                                   color: "#1976d2",
                                   transform: "translateX(4px)",
-                                  boxShadow:
-                                    "0 2px 8px rgba(25,118,210,0.1)",
+                                  boxShadow: "0 2px 8px rgba(25,118,210,0.1)",
                                 },
                               }}
                               onClick={handleMenuMouseLeave}
@@ -257,4 +243,3 @@ const MaterialLocationDropdown = () => {
 };
 
 export default MaterialLocationDropdown;
-
