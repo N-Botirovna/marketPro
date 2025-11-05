@@ -31,6 +31,12 @@ export default function LanguageSwitcher({ className = "" }) {
     if (code !== activeLocale) {
       // Use the correct next-intl API to switch locale while preserving pathname
       // pathname from usePathname() already excludes locale, so we pass it with locale option
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('NEXT_LOCALE', code);
+          localStorage.setItem('locale', code);
+        }
+      } catch {}
       router.replace(pathname, { locale: code });
     }
   };

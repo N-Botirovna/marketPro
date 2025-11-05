@@ -7,7 +7,7 @@ import CategoryDropdown from "./CategoryDropdown";
 import MaterialCategoryDropdown from "./MaterialCategoryDropdown";
 import MaterialLocationDropdown from "./MaterialLocationDropdown";
 import { useTranslations } from "next-intl";
-import query from "jquery";
+ 
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import LanguageSwitcher from "./LanguageSwitcher";
 const HeaderOne = () => {
@@ -58,9 +58,25 @@ const HeaderOne = () => {
       // Attach the scroll event listener
       window.addEventListener("scroll", handleScroll);
 
-      // Initialize Select2
-      const selectElement = query(".js-example-basic-single");
-      selectElement.select2();
+      // Initialize Select2 safely (dynamic import to ensure plugin is loaded)
+      let $instance = null;
+      (async () => {
+        try {
+          const $ = (await import("jquery")).default;
+          if (!window.jQuery) {
+            window.jQuery = $;
+            window.$ = $;
+          }
+          await import("select2");
+          const $el = $(".js-example-basic-single");
+          if ($el.length && typeof $el.select2 === "function") {
+            $el.select2();
+            $instance = $el;
+          }
+        } catch (e) {
+          console.error("Select2 init error:", e);
+        }
+      })();
 
       // Cleanup function
       return () => {
@@ -68,8 +84,8 @@ const HeaderOne = () => {
         window.removeEventListener("scroll", handleScroll);
 
         // Destroy Select2 instance if it exists
-        if (selectElement.data("select2")) {
-          selectElement.select2("destroy");
+        if ($instance && $instance.length && $instance.data("select2")) {
+          $instance.select2("destroy");
         }
       };
     }

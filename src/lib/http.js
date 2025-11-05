@@ -27,9 +27,12 @@ httpClient.interceptors.request.use(async (config) => {
     });
   }
 
+  // Determine locale early for cache key and headers
+  const currentLocale = getCurrentLocale() || 'uz';
+
   // Cache GET requests
   if (config.method === 'get') {
-    const cacheKey = `${config.url}?${JSON.stringify(config.params)}`;
+    const cacheKey = `${config.url}?${JSON.stringify(config.params)}::${currentLocale}`;
     const cached = cache.get(cacheKey);
     
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
@@ -63,9 +66,8 @@ httpClient.interceptors.request.use(async (config) => {
   }
   
   // Attach locale header
-  const locale = getCurrentLocale() || 'uz';
   config.headers = config.headers || {};
-  config.headers['Accept-Language'] = locale;
+  config.headers['Accept-Language'] = currentLocale;
 
   // If data is FormData, remove Content-Type to let browser set it with boundary
   if (config.data instanceof FormData) {
@@ -102,7 +104,8 @@ httpClient.interceptors.response.use(
 
     // Cache GET responses
     if (response.config.method === 'get') {
-      const cacheKey = `${response.config.url}?${JSON.stringify(response.config.params)}`;
+      const localeFromHeader = response.config.headers?.['Accept-Language'] || getCurrentLocale() || 'uz';
+      const cacheKey = `${response.config.url}?${JSON.stringify(response.config.params)}::${localeFromHeader}`;
       cache.set(cacheKey, {
         data: response.data,
         timestamp: Date.now(),
@@ -123,7 +126,8 @@ httpClient.interceptors.response.use(
 
     // Clear pending request on error
     if (error?.config?.method === 'get') {
-      const cacheKey = `${error.config.url}?${JSON.stringify(error.config.params)}`;
+      const localeFromHeader = error.config.headers?.['Accept-Language'] || getCurrentLocale() || 'uz';
+      const cacheKey = `${error.config.url}?${JSON.stringify(error.config.params)}::${localeFromHeader}`;
       pendingRequests.delete(cacheKey);
     }
 
