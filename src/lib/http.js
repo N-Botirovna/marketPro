@@ -1,6 +1,6 @@
 import axios from "axios";
 import { API_BASE_URL, AUTH_TOKEN_STORAGE_KEY } from "@/config";
-import { getItem, removeItem, setItem } from "@/utils/storage";
+import { getItem, removeItem, setItem, getCurrentLocale } from "@/utils/storage";
 import { refreshTokenIfNeeded } from "@/services/auth";
 
 // Simple in-memory cache for GET requests
@@ -62,6 +62,11 @@ httpClient.interceptors.request.use(async (config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   
+  // Attach locale header
+  const locale = getCurrentLocale() || 'uz';
+  config.headers = config.headers || {};
+  config.headers['Accept-Language'] = locale;
+
   // If data is FormData, remove Content-Type to let browser set it with boundary
   if (config.data instanceof FormData) {
     delete config.headers['Content-Type'];

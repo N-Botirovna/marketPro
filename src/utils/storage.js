@@ -62,6 +62,23 @@ export function clearAuthStorage() {
   }
 }
 
+export function getCurrentLocale() {
+  if (typeof window === "undefined") return 'uz';
+  
+  // Try to get locale from URL pathname first (next-intl format: /en/..., /uz/..., /ru/...)
+  if (typeof window !== 'undefined' && window.location?.pathname) {
+    const pathMatch = window.location.pathname.match(/^\/(en|ru|uz)(\/|$)/);
+    if (pathMatch && pathMatch[1]) {
+      return pathMatch[1];
+    }
+  }
+  
+  // Fallback to localStorage
+  let locale = localStorage.getItem('NEXT_LOCALE') || localStorage.getItem('locale');
+  if (!locale) locale = 'uz';
+  return locale;
+}
+
 
 
 

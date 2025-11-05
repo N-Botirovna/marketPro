@@ -28,7 +28,11 @@ export default function LanguageSwitcher({ className = "" }) {
 
   const handleChange = (code) => {
     setOpen(false);
-    if (code !== activeLocale) router.replace(pathname, { locale: code });
+    if (code !== activeLocale) {
+      // Use the correct next-intl API to switch locale while preserving pathname
+      // pathname from usePathname() already excludes locale, so we pass it with locale option
+      router.replace(pathname, { locale: code });
+    }
   };
 
   return (
