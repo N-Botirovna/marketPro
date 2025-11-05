@@ -1,6 +1,6 @@
 import axios from "axios";
 import { API_BASE_URL, AUTH_TOKEN_STORAGE_KEY } from "@/config";
-import { getItem, removeItem, setItem } from "@/utils/storage";
+import { getItem, removeItem, setItem, getCurrentLocale } from "@/utils/storage";
 import { refreshTokenIfNeeded } from "@/services/auth";
 
 // Simple in-memory cache for GET requests
@@ -27,9 +27,12 @@ httpClient.interceptors.request.use(async (config) => {
     });
   }
 
+  // Determine locale early for cache key and headers
+  const currentLocale = getCurrentLocale() || 'uz';
+
   // Cache GET requests
   if (config.method === 'get') {
-    const cacheKey = `${config.url}?${JSON.stringify(config.params)}`;
+    const cacheKey = `${config.url}?${JSON.stringify(config.params)}::${currentLocale}`;
     const cached = cache.get(cacheKey);
     
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
@@ -62,6 +65,10 @@ httpClient.interceptors.request.use(async (config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   
+  // Attach locale header
+  config.headers = config.headers || {};
+  config.headers['Accept-Language'] = currentLocale;
+
   // If data is FormData, remove Content-Type to let browser set it with boundary
   if (config.data instanceof FormData) {
     delete config.headers['Content-Type'];
@@ -97,7 +104,8 @@ httpClient.interceptors.response.use(
 
     // Cache GET responses
     if (response.config.method === 'get') {
-      const cacheKey = `${response.config.url}?${JSON.stringify(response.config.params)}`;
+      const localeFromHeader = response.config.headers?.['Accept-Language'] || getCurrentLocale() || 'uz';
+      const cacheKey = `${response.config.url}?${JSON.stringify(response.config.params)}::${localeFromHeader}`;
       cache.set(cacheKey, {
         data: response.data,
         timestamp: Date.now(),
@@ -118,7 +126,8 @@ httpClient.interceptors.response.use(
 
     // Clear pending request on error
     if (error?.config?.method === 'get') {
-      const cacheKey = `${error.config.url}?${JSON.stringify(error.config.params)}`;
+      const localeFromHeader = error.config.headers?.['Accept-Language'] || getCurrentLocale() || 'uz';
+      const cacheKey = `${error.config.url}?${JSON.stringify(error.config.params)}::${localeFromHeader}`;
       pendingRequests.delete(cacheKey);
     }
 
