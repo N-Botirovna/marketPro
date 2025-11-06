@@ -33,6 +33,7 @@ const BannerOne = () => {
 
   const FALLBACK_SRC = "/assets/images/bg/banner-bg.png";
   const tCommon = useTranslations("Common")
+  const tBread = useTranslations("Breadcrumb")
 
   useEffect(() => {
     let mounted = true;
@@ -202,7 +203,7 @@ const BannerOne = () => {
                             href={href}
                             className="btn btn-main d-inline-flex align-items-center rounded-pill pt-8 gap-8"
                           >
-                            {tCommon("viewShop")}
+                            {tBread("exploreShop")}
                             <span className="icon text-xl d-flex">
                               <i className="ph ph-shopping-cart-simple" />
                             </span>

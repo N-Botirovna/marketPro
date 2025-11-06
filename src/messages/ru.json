@@ -23,13 +23,13 @@
         "seller": "Продавец",
         "shop": "Магазин",
         "shops": "Магазины",
-        "exploreShop": "Explore Shop Ru",
         "viewAll": "Barchasini ko‘rish Ru →"
     },
     "Breadcrumb": {
         "home": "Главная",
         "vendorDetails": "Детали магазина",
-        "bookShop": "Книжный магазин"
+        "bookShop": "Книжный магазин",
+        "exploreShop": "Explore Shop Ru"
     },
     "Categories": {
         "allCat":"vse kategorii",

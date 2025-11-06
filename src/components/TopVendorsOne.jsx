@@ -9,7 +9,7 @@ const TopVendorsOne = () => {
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
   const tCommon = useTranslations("Common");
-  const tBread = useTranslations("BreadCrumb")
+  const tBread = useTranslations("Breadcrumb")
 
   useEffect(() => {
     let mounted = true;
