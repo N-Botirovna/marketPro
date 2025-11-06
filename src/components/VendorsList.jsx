@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { getShops } from "@/services/shops";
 import { getRegions } from "@/services/regions";
 import Spin from "./Spin";
+import { useTranslations } from "next-intl";
 
 const VendorsList = () => {
   const searchParams = useSearchParams();
@@ -12,6 +13,7 @@ const VendorsList = () => {
   const [regions, setRegions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const tBread = useTranslations("Breadcrumb")
   const [filters, setFilters] = useState({
     region: "",
     district: "",
@@ -299,7 +301,7 @@ const VendorsList = () => {
                       href={`/vendor-two-details?id=${shop.id}`}
                       className="bg-white text-neutral-600 hover-bg-main-600 hover-text-white rounded-pill py-6 px-16 text-12 mt-8 inline-block"
                     >
-                      Do'konga o'tish
+                      {tBread("Breadcrumb")}
                     </Link>
                   </div>
                 </div>

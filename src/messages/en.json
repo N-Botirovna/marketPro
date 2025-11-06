@@ -2,11 +2,142 @@
     "hello": "Hello world!",
     "welcome": "Welcome to our platform",
     "Header": {
+        "home": "Home",
+        "shop": "Books",
+        "shops": "Shops",
+        "blog": "Blog",
+        "contact": "Contact",
+        "becomeSeller": "Become a seller",
+        "wishlist": "Wishlist",
+        "myAccount": "My account",
+        "login": "Login",
         "logout": "Logout",
-    "profile": "Profile"
-      }
-  }
-
-
-
-
+        "profile": "Profile",
+        "searchPlaceholder": "Search by book, author or keyword...",
+        "customerService": "Customer Service",
+        "freeShipping": "Free shipping on orders over $50",
+        "workHours": "Mon - Fri: 8:00 - 18:00"
+    },
+    "Common": {
+        "location": "Location",
+        "seller": "Seller",
+        "shop": "Shop",
+        "shops": "Shops",
+        "viewAll":"View All →"
+    },
+    "Breadcrumb": {
+        "home": "Home",
+        "vendorDetails": "Shop details",
+        "bookShop": "Book Shop",
+        "exploreShop": "Explore shop"
+    },
+    "Categories": {
+        "allCat":"All Categories",
+        "newBooks": "New books",
+        "likeNewBooks": "Like new books",
+        "giftBooks": "Gift books",
+        "new": "New",
+        "likeNew": "Like new",
+        "gift": "Gift"
+    },
+    "Buttons": {
+        "viewMore": "View more",
+        "goToBot": "Open Telegram bot",
+        "viewShop": "Go to shop",
+        "becomeSeller": "Become a seller",
+        "contactSeller": "Contact seller",
+        "save": "Save",
+        "edit": "Edit",
+        "cancel": "Cancel"
+    },
+    "Sections": {
+        "topVendors": {
+            "title": "Shops"
+        },
+        "newsletter": {
+            "title": "Newsletter"
+        }
+    },
+    "Footer": {
+        "about": {
+            "blurb": "We are Kitobzor – an innovative book store and sellers community.",
+            "address": "789 Inner Lane, Biyes Park, California, USA",
+            "or": "or",
+            "telegram": "@kitobzoruz_bot",
+            "email": "support24@marketpro.com"
+        },
+        "info": {
+            "title": "Information",
+            "becomeSeller": "Become a seller",
+            "aboutUs": "About us",
+            "privacy": "Privacy policy",
+            "faq": "FAQ"
+        },
+        "categories": {
+            "title": "Categories",
+            "religious": "Religious literature",
+            "fiction": "Fiction",
+            "children": "Children's books",
+            "education": "Educational",
+            "science": "Scientific"
+        },
+        "help": {
+            "title": "Help for customers",
+            "contact": "Contact us",
+            "becomeSeller": "Become a seller"
+        },
+        "newsletter": {
+            "title": "Newsletter",
+            "follow": "Follow us on social media"
+        },
+        "social": {
+            "facebook": "Facebook",
+            "twitter": "Twitter",
+            "instagram": "Instagram",
+            "linkedin": "LinkedIn"
+        }
+    },
+    "BottomFooter": {
+        "copyright": "Kitobzor © 2024. All rights reserved"
+    },
+    "Forms": {
+        "phone": "Phone number",
+        "password": "Password",
+        "passwordPlaceholder": "Enter your password",
+        "shopName": "Shop name",
+        "shopPhone": "Phone number",
+        "shopAboutPlaceholder": "Brief info about your shop",
+        "shopImage": "Shop image"
+    },
+    "Loading": {
+        "loading": "Loading...",
+        "redirecting": "Redirecting..."
+    },
+    "Seller": {
+        "createSuccess": "Seller account created successfully!",
+        "createError": "An error occurred while creating seller account",
+        "applicationSent": "Seller application sent successfully",
+        "createAccount": "Create seller account"
+    },
+    "Profile": {
+        "updated": "Profile updated successfully!",
+        "updateError": "An error occurred while updating profile. Please try again.",
+        "phone": "Phone",
+        "seller": "Seller:"
+    },
+    "Errors": {
+        "loginFailed": "Login failed",
+        "checkPassword": "Login failed. Please check the password.",
+        "passwordMin": "Password must be at least 6 characters"
+    },
+    "Search": {
+        "noResults": "No books match your search criteria",
+        "adjustCriteria": "Adjust your search criteria or clear all filters"
+    },
+    "Location": {
+        "regions": "Regions",
+        "noDistricts": "There are no districts in this region",
+        "selectRegion": "Select a region",
+        "districtCount": "districts"
+    }
+}

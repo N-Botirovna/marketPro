@@ -1,7 +1,9 @@
 import React from "react";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 const FooterOne = () => {
+  const tF = useTranslations('Footer');
   return (
     <footer className="footer py-120">
       <img
@@ -15,19 +17,18 @@ const FooterOne = () => {
             <div className="footer-item__logo">
               <Link href="/">
                 {" "}
-                <img src="assets/images/logo/logo.png" alt="" />
+                <img src="assets/images/logo1.png" alt="" />
               </Link>
             </div>
             <p className="mb-24">
-              Biz Kitobzor - innovatsion kitob do'koni va kitob sotuvchilari
-              jamoasi.
+              {tF('about.blurb')}
             </p>
             <div className="flex-align gap-16 mb-16">
               <span className="w-32 h-32 flex-center rounded-circle bg-main-600 text-white text-md flex-shrink-0">
                 <i className="ph-fill ph-map-pin" />
               </span>
               <span className="text-md text-gray-900 ">
-                789 Inner Lane, Biyes park, California, USA
+                {tF('about.address')}
               </span>
             </div>
             <div className="flex-align gap-16 mb-16">
@@ -41,7 +42,7 @@ const FooterOne = () => {
                 >
                   +00 123 456 789
                 </a>
-                <span className="text-md text-main-600 ">or</span>
+                <span className="text-md text-main-600 ">{tF('about.or')}</span>
                 <Link
                   href="tel:+00987654012"
                   className="text-md text-gray-900 hover-text-main-600"
@@ -58,7 +59,7 @@ const FooterOne = () => {
                 href="/t.me/kitobzoruz_bot"
                 className="text-md text-gray-900 hover-text-main-600"
               >
-                @kitobzoruz_bot
+                {tF('about.telegram')}
               </Link>
             </div>
             <div className="flex-align gap-16 mb-16">
@@ -69,19 +70,19 @@ const FooterOne = () => {
                 href="/mailto:support24@marketpro.com"
                 className="text-md text-gray-900 hover-text-main-600"
               >
-                support24@marketpro.com
+                {tF('about.email')}
               </Link>
             </div>
           </div>
           <div className="footer-item">
-            <h6 className="footer-item__title">Ma'lumot</h6>
+            <h6 className="footer-item__title">{tF('info.title')}</h6>
             <ul className="footer-menu">
               <li className="mb-16">
                 <Link
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  Sotuvchi bo'lish
+                  {tF('info.becomeSeller')}
                 </Link>
               </li>
               <li className="mb-16">
@@ -89,7 +90,7 @@ const FooterOne = () => {
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  Biz haqimizda
+                  {tF('info.aboutUs')}
                 </Link>
               </li>
               <li className="mb-16">
@@ -97,7 +98,7 @@ const FooterOne = () => {
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  Maxfiylik siyosati
+                  {tF('info.privacy')}
                 </Link>
               </li>
               <li className="mb-16">
@@ -105,20 +106,20 @@ const FooterOne = () => {
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  FAQ
+                  {tF('info.faq')}
                 </Link>
               </li>
             </ul>
           </div>
           <div className="footer-item">
-            <h6 className="footer-item__title">Kategoriyalar</h6>
+            <h6 className="footer-item__title">{tF('categories.title')}</h6>
             <ul className="footer-menu">
               <li className="mb-16">
                 <Link
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  Diniy adabiyot
+                  {tF('categories.religious')}
                 </Link>
               </li>
               <li className="mb-16">
@@ -126,7 +127,7 @@ const FooterOne = () => {
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  Badiiy adabiyot
+                  {tF('categories.fiction')}
                 </Link>
               </li>
               <li className="mb-16">
@@ -134,7 +135,7 @@ const FooterOne = () => {
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  Bolalar adabiyoti
+                  {tF('categories.children')}
                 </Link>
               </li>
               <li className="mb-16">
@@ -142,7 +143,7 @@ const FooterOne = () => {
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  O'quv adabiyoti
+                  {tF('categories.education')}
                 </Link>
               </li>
               <li className="mb-16">
@@ -150,20 +151,20 @@ const FooterOne = () => {
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  Ilmiy adabiyot
+                  {tF('categories.science')}
                 </Link>
               </li>
             </ul>
           </div>
           <div className="footer-item">
-            <h6 className="footer-item__title">Mijozlar uchun yordam</h6>
+            <h6 className="footer-item__title">{tF('help.title')}</h6>
             <ul className="footer-menu">
               <li className="mb-16">
                 <Link
                   href="/contact"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  Biz bilan bog'lanish
+                  {tF('help.contact')}
                 </Link>
               </li>
               <li className="mb-16">
@@ -171,14 +172,14 @@ const FooterOne = () => {
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  Sotuvchi bo'lish
+                  {tF('help.becomeSeller')}
                 </Link>
               </li>
             </ul>
           </div>
           <div className="footer-item">
-            <h6 className="">Yangiliklar </h6>
-            <p className="mb-16">Ijtimoiy tarmoqlarda kuzatib boring</p>
+            <h6 className="">{tF('newsletter.title')} </h6>
+            <p className="mb-16">{tF('newsletter.follow')}</p>
             <div className="flex-align gap-8 my-32">
               <Link href="/https://www.apple.com/store" className="">
                 <img src="assets/images/thumbs/store-img1.png" alt="" />

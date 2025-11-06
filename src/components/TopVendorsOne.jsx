@@ -3,10 +3,13 @@ import React, { useState, useEffect, memo, useCallback } from "react";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { getShops } from "@/services/shops";
+import { useTranslations } from "next-intl";
 
 const TopVendorsOne = () => {
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
+  const tCommon = useTranslations("Common");
+  const tBread = useTranslations("BreadCrumb")
 
   useEffect(() => {
     let mounted = true;
@@ -33,12 +36,12 @@ const TopVendorsOne = () => {
       <div className="container container-lg">
         <div className="section-heading">
           <div className="flex items-center justify-between w-full mb-6">
-            <h5 className="mb-0 font-semibold">Do'konlar</h5>
+            <h5 className="mb-0 font-semibold">{tCommon("shops")}</h5>
             <Link
               href="/vendor-two-details"
               className="text-green-600 text-sm font-medium hover:underline border border-green-600 px-3 py-1 rounded-lg"
             >
-              Barchasini ko‘rish →
+              {tCommon("viewAll")}
             </Link>
           </div>
         </div>
@@ -113,7 +116,7 @@ const TopVendorsOne = () => {
                     href={`/vendor-two-details?id=${shop.id}`}
                     className="btn btn-main-two rounded-pill py-6 px-16 text-12 mt-8"
                   >
-                    Do'konga o'tish
+                    {tBread("exploreShop")}
                   </Link>
                 </div>
               </div>

@@ -21,6 +21,7 @@ import {
   ChevronRight,
 } from "@mui/icons-material";
 import { getBookCategories } from "@/services/categories";
+import { useTranslations } from "next-intl";
 
 const MaterialCategoryDropdown = () => {
   const [categories, setCategories] = useState([]);
@@ -28,7 +29,7 @@ const MaterialCategoryDropdown = () => {
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isMenuHovered, setIsMenuHovered] = useState(false);
-
+  const tCat = useTranslations("Categories")
   const open = Boolean(anchorEl);
 
   const handleMouseEnterButton = (event) => {
@@ -105,7 +106,7 @@ const MaterialCategoryDropdown = () => {
           },
         }}
       >
-        Barcha Kategoriyalar
+        {tCat("allCat")}
       </Button>
 
       <Menu

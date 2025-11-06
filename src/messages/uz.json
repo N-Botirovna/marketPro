@@ -2,7 +2,143 @@
     "hello": "Hello world!",
     "welcome": "Welcome to our platform",
     "Header": {
+        "home": "Bosh sahifa",
+        "shop": "Kitoblar",
+        "shops": "Do'konlar",
+        "blog": "Blog",
+        "contact": "Aloqa",
+        "becomeSeller": "Ariza qoldirish",
+        "wishlist": "Saralanganlar",
+        "myAccount": "Mening hisobim",
+        "login": "Kirish",
         "logout": "Chiqish",
-        "profile": "Profil"
+        "profile": "Profil",
+        "searchPlaceholder": "Kitob nomi, muallif yoki kalit so'z qidiring...",
+        "customerService": "Mijozlarga xizmat",
+        "freeShipping": "50$ dan yuqori buyurtmalarga bepul yetkazib berish",
+        "workHours": "Du - Ju: 8:00 - 18:00"
+    },
+    "Common": {
+        "location": "Joylashuv",
+        "seller": "Sotuvchi",
+        "shop": "Kitoblar",
+        "shops": "Do'konlar",
+        "exploreShop":"Explore Shop",
+        "viewAll": "View All →"
+    },
+    "Breadcrumb": {
+        "home": "Bosh sahifa",
+        "vendorDetails": "Do'kon tafsilotlari",
+        "bookShop": "Kitoblar Do'koni",
+        "exploreShop": "Do'konga o'tish"
+    },
+    "Categories": {
+        "allCat":"Barcha Kategoriyalar",
+        "newBooks": "Yangi kitoblar",
+        "likeNewBooks": "Yangidek kitoblar",
+        "giftBooks": "Sovg'a kitoblar",
+        "new": "Yangi",
+        "likeNew": "Yangidek",
+        "gift": "Sovg'a"
+    },
+    "Buttons": {
+        "viewMore": "Ko'proq ko'rish",
+        "goToBot": "Telegram botga o'tish",
+        "viewShop": "Do'konga o'tish",
+        "becomeSeller": "Sotuvchi Bo'lish",
+        "contactSeller": "Sotuvchi bilan bog'lanish",
+        "save": "Saqlash",
+        "edit": "Tahrirlash",
+        "cancel": "Bekor qilish"
+    },
+    "Sections": {
+        "topVendors": {
+            "title": "Do'konlar"
+        },
+        "newsletter": {
+            "title": "Yangiliklar"
+        }
+    },
+    "Footer": {
+        "about": {
+            "blurb": "Biz Kitobzor - innovatsion kitob do'koni va kitob sotuvchilari jamoasi.",
+            "address": "789 Inner Lane, Biyes park, California, USA",
+            "or": "yoki",
+            "telegram": "@kitobzoruz_bot",
+            "email": "support24@marketpro.com"
+        },
+        "info": {
+            "title": "Ma'lumot",
+            "becomeSeller": "Sotuvchi bo'lish",
+            "aboutUs": "Biz haqimizda",
+            "privacy": "Maxfiylik siyosati",
+            "faq": "FAQ"
+        },
+        "categories": {
+            "title": "Kategoriyalar",
+            "religious": "Diniy adabiyot",
+            "fiction": "Badiiy adabiyot",
+            "children": "Bolalar adabiyoti",
+            "education": "O'quv adabiyoti",
+            "science": "Ilmiy adabiyot"
+        },
+        "help": {
+            "title": "Mijozlar uchun yordam",
+            "contact": "Biz bilan bog'lanish",
+            "becomeSeller": "Sotuvchi bo'lish"
+        },
+        "newsletter": {
+            "title": "Yangiliklar",
+            "follow": "Ijtimoiy tarmoqlarda kuzatib boring"
+        },
+        "social": {
+            "facebook": "Facebook",
+            "twitter": "Twitter",
+            "instagram": "Instagram",
+            "linkedin": "LinkedIn"
+        }
+    },
+    "BottomFooter": {
+        "copyright": "Kitobzor © 2024. Barcha huquqlar himoyalangan"
+    },
+    "Forms": {
+        "phone": "Telefon raqam",
+        "password": "Parol",
+        "passwordPlaceholder": "Parolingizni kiriting",
+        "shopName": "Do'kon nomi",
+        "shopPhone": "Telefon raqam",
+        "shopAboutPlaceholder": "Do'koningiz haqida qisqacha ma'lumot",
+        "shopImage": "Do'kon rasmi"
+    },
+    "Loading": {
+        "loading": "Yuklanmoqda...",
+        "redirecting": "Yo'naltirilmoqda..."
+    },
+    "Seller": {
+        "createSuccess": "Sotuvchi hisobi muvaffaqiyatli yaratildi!",
+        "createError": "Sotuvchi hisobi yaratishda xatolik yuz berdi",
+        "applicationSent": "Sotuvchi arizasi muvaffaqiyatli jo'natildi",
+        "createAccount": "Sotuvchi hisobi yaratish"
+    },
+    "Profile": {
+        "updated": "Profil muvaffaqiyatli yangilandi!",
+        "updateError": "Profilni yangilashda xatolik yuz berdi. Qaytadan urinib ko'ring.",
+        "phone": "Telefon",
+        "seller": "Sotuvchi:"
+    },
+    "Errors": {
+        "loginFailed": "Kirish muvaffaqiyatsiz",
+        "checkPassword": "Kirish muvaffaqiyatsiz. Parolni tekshiring.",
+        "passwordMin": "Parol kamida 6 belgidan iborat bo'lishi kerak"
+    },
+    "Search": {
+        "noResults": "Qidiruv mezonlariga mos kitoblar mavjud emas",
+        "adjustCriteria": "Qidiruv mezonlarini o'zgartiring yoki barcha filtrlarni"
+    },
+    "Location": {
+        "regions": "Viloyatlar",
+        "noDistricts": "Ushbu viloyatda tumanlar yo‘q",
+        "selectRegion": "Viloyatni tanlang",
+        "districtCount": "ta tuman"
     }
 }

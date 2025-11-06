@@ -13,10 +13,6 @@ const CategoryDropdown = () => {
     setActiveCategory((prev) => !prev);
   };
 
-  const handleCatClick = (index) => {
-    setActiveIndexCat((prev) => (prev === index ? null : index));
-  };
-
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -97,7 +93,7 @@ const CategoryDropdown = () => {
         {/* Mobil logo */}
         <div className="logo px-16 d-lg-none d-block">
           <Link href="/" className="link">
-            <img src="/assets/images/logo/logo.png" alt="Logo" />
+            <img src="/assets/images/logo1.png" alt="Logo" />
           </Link>
         </div>
 
