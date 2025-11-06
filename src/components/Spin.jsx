@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
 const Spin = ({ 
   size = 'default', 
@@ -9,6 +10,7 @@ const Spin = ({
   className = '',
   style = {}
 }) => {
+  const tLoad = useTranslations('Loading');
   const sizeClasses = {
     sm: 'spinner-border-sm',
     default: '',
@@ -25,7 +27,7 @@ const Spin = ({
       style={style}
     >
       <span className="visually-hidden">
-        {text || 'Yuklanmoqda...'}
+        {text || tLoad('loading')}
       </span>
     </div>
   );

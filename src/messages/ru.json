@@ -2,11 +2,142 @@
     "hello": "Hello world!",
     "welcome": "Welcome to our platform",
     "Header": {
-        "logout": "Logout",
-    "profile": "Profile"
-      }
-  }
-
-
-
-
+        "home": "Главная",
+        "shop": "Knigi",
+        "shops": "Магазины",
+        "blog": "Блог",
+        "contact": "Контакты",
+        "becomeSeller": "Стать продавцом",
+        "wishlist": "Избранное",
+        "myAccount": "Мой аккаунт",
+        "login": "Войти",
+        "logout": "Выйти",
+        "profile": "Профиль",
+        "searchPlaceholder": "Искать по книге, автору или ключевому слову...",
+        "customerService": "Служба поддержки",
+        "freeShipping": "Бесплатная доставка при заказе от $50",
+        "workHours": "Пн - Пт: 8:00 - 18:00"
+    },
+    "Common": {
+        "location": "Локация",
+        "seller": "Продавец",
+        "shop": "Магазин",
+        "shops": "Магазины",
+        "exploreShop": "Explore Shop Ru",
+        "viewAll": "Barchasini ko‘rish Ru →"
+    },
+    "Breadcrumb": {
+        "home": "Главная",
+        "vendorDetails": "Детали магазина",
+        "bookShop": "Книжный магазин"
+    },
+    "Categories": {
+        "allCat":"vse kategorii",
+        "newBooks": "Новые книги",
+        "likeNewBooks": "Почти новые книги",
+        "giftBooks": "Подарочные книги",
+        "new": "Новый",
+        "likeNew": "Почти новый",
+        "gift": "Подарок"
+    },
+    "Buttons": {
+        "viewMore": "Показать больше",
+        "goToBot": "Открыть бота Telegram",
+        "viewShop": "Перейти в магазин",
+        "becomeSeller": "Стать продавцом",
+        "contactSeller": "Связаться с продавцом",
+        "save": "Сохранить",
+        "edit": "Редактировать",
+        "cancel": "Отмена"
+    },
+    "Sections": {
+        "topVendors": {
+            "title": "Магазины"
+        },
+        "newsletter": {
+            "title": "Рассылка"
+        }
+    },
+    "Footer": {
+        "about": {
+            "blurb": "Мы Kitobzor – инновационный книжный магазин и сообщество продавцов.",
+            "address": "789 Inner Lane, Biyes Park, California, USA",
+            "or": "или",
+            "telegram": "@kitobzoruz_bot",
+            "email": "support24@marketpro.com"
+        },
+        "info": {
+            "title": "Информация",
+            "becomeSeller": "Стать продавцом",
+            "aboutUs": "О нас",
+            "privacy": "Политика конфиденциальности",
+            "faq": "FAQ"
+        },
+        "categories": {
+            "title": "Категории",
+            "religious": "Религиозная литература",
+            "fiction": "Художественная литература",
+            "children": "Детская литература",
+            "education": "Учебная литература",
+            "science": "Научная литература"
+        },
+        "help": {
+            "title": "Помощь клиентам",
+            "contact": "Связаться с нами",
+            "becomeSeller": "Стать продавцом"
+        },
+        "newsletter": {
+            "title": "Рассылка",
+            "follow": "Подписывайтесь на нас в соцсетях"
+        },
+        "social": {
+            "facebook": "Facebook",
+            "twitter": "Twitter",
+            "instagram": "Instagram",
+            "linkedin": "LinkedIn"
+        }
+    },
+    "BottomFooter": {
+        "copyright": "Kitobzor © 2024. Все права защищены"
+    },
+    "Forms": {
+        "phone": "Номер телефона",
+        "password": "Пароль",
+        "passwordPlaceholder": "Введите пароль",
+        "shopName": "Название магазина",
+        "shopPhone": "Номер телефона",
+        "shopAboutPlaceholder": "Краткая информация о вашем магазине",
+        "shopImage": "Изображение магазина"
+    },
+    "Loading": {
+        "loading": "Загрузка...",
+        "redirecting": "Перенаправление..."
+    },
+    "Seller": {
+        "createSuccess": "Аккаунт продавца успешно создан!",
+        "createError": "Произошла ошибка при создании аккаунта продавца",
+        "applicationSent": "Заявка продавца успешно отправлена",
+        "createAccount": "Создать аккаунт продавца"
+    },
+    "Profile": {
+        "updated": "Профиль успешно обновлён!",
+        "updateError": "Ошибка при обновлении профиля. Попробуйте ещё раз.",
+        "phone": "Телефон",
+        "seller": "Продавец:"
+    },
+    "Errors": {
+        "loginFailed": "Не удалось войти",
+        "checkPassword": "Не удалось войти. Проверьте пароль.",
+        "passwordMin": "Пароль должен содержать не менее 6 символов"
+    },
+    "Search": {
+        "noResults": "Нет книг, соответствующих критериям поиска",
+        "adjustCriteria": "Измените критерии поиска или очистите фильтры"
+    },
+    "Location": {
+        "regions": "Регионы",
+        "noDistricts": "В этом регионе нет районов",
+        "selectRegion": "Выберите регион",
+        "districtCount": "районов"
+    }
+}

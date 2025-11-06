@@ -21,7 +21,8 @@ const HeaderOne = () => {
   const [hoveredRegionId, setHoveredRegionId] = useState(null);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const t = useTranslations("Header")
+  const tHeader = useTranslations("Header");
+  const tCategories = useTranslations("Categories");
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -166,7 +167,7 @@ const HeaderOne = () => {
             <input
               type="text"
               className="form-control py-16 px-24 text-xl rounded-pill pe-64"
-              placeholder="Kitob nomi, muallif yoki kalit so'z qidiring..."
+              placeholder={tHeader('searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -191,7 +192,7 @@ const HeaderOne = () => {
             <div className="mobile-menu__header d-flex justify-content-between align-items-center">
               <div className="mobile-menu__logo">
                 <Link href="/" className="link">
-                  <img src="assets/images/logo/logo.png" alt="Logo" />
+                  <img src="assets/images/logo1.png" alt="Logo" />
                 </Link>
               </div>
               <button
@@ -205,29 +206,29 @@ const HeaderOne = () => {
               <ul className="mobile-menu__list">
                 <li className="mobile-menu__item">
                   <Link href="/" className="mobile-menu__link">
-                    Bosh sahifa
+                    {tHeader('home')}
                   </Link>
                 </li>
                 <li className="mobile-menu__item">
                   <Link href="/shop" className="mobile-menu__link">
-                    Do'kon
+                    {tHeader('shop')}
                   </Link>
                 </li>
                 <li className="mobile-menu__item">
                   <Link href="/blog" className="mobile-menu__link">
-                    Blog
+                    {tHeader('blog')}
                   </Link>
                 </li>
                 <li className="mobile-menu__item">
                   <Link href="/contact" className="mobile-menu__link">
-                    Aloqa
+                    {tHeader('contact')}
                   </Link>
                 </li>
                 {isLoggedIn ? (
                   <>
                     <li className="mobile-menu__item">
                       <Link href="/account" className="mobile-menu__link">
-                        Mening hisobim
+                        {tHeader('myAccount')}
                       </Link>
                     </li>
                     <li className="mobile-menu__item">
@@ -242,7 +243,7 @@ const HeaderOne = () => {
                 ) : (
                   <li className="mobile-menu__item">
                     <Link href="/login" className="mobile-menu__link">
-                      Kirish
+                      {tHeader('login')}
                     </Link>
                   </li>
                 )}
@@ -283,13 +284,13 @@ const HeaderOne = () => {
                 <div className="flex-align gap-8">
                   <i className="ph ph-truck text-white text-sm" />
                   <span className="text-white text-sm">
-                    Free shipping on orders over $50
+                    {tHeader('freeShipping')}
                   </span>
                 </div>
                 <div className="flex-align gap-8">
                   <i className="ph ph-clock text-white text-sm" />
                   <span className="text-white text-sm">
-                    Mon - Fri: 8:00 - 18:00
+                    {tHeader('workHours')}
                   </span>
                 </div>
               </div>
@@ -299,13 +300,13 @@ const HeaderOne = () => {
       </div>
       {/* ======================= Top Header End ========================= */}
       {/* ======================= Middle Header Start ========================= */}
-      <div className="middle-header py-16 d-none d-lg-block">
+      <div className="middle-header d-none d-lg-block">
         <div className="container container-lg">
           <div className="row align-items-center">
             <div className="col-lg-3">
               <div className="logo">
                 <Link href="/" className="link">
-                  <img src="assets/images/logo/logo.png" alt="Logo" />
+                  <img src="assets/images/logo1.png" alt="Logo" />
                 </Link>
               </div>
             </div>
@@ -334,7 +335,7 @@ const HeaderOne = () => {
                   <input
                     type="text"
                     className="search-form__input common-input py-13 ps-16 pe-18 rounded-end-pill pe-44"
-                    placeholder="Kitob nomi, muallif yoki kalit so'z qidiring..."
+                    placeholder={tHeader('searchPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -353,7 +354,7 @@ const HeaderOne = () => {
                   <i className="ph ph-headset text-main-600 text-2xl" />
                   <div>
                     <div className="text-sm text-gray-500">
-                      Customer Service
+                      {tHeader('customerService')}
                     </div>
                     <div className="fw-semibold text-gray-900">
                       +00 123 456 789
@@ -385,7 +386,7 @@ const HeaderOne = () => {
               <ul className="nav-menu flex-align ">
                 <li className="on-hover-item nav-menu__item has-submenu">
                   <Link href="/" className="nav-menu__link">
-                    Kitoblar
+                    {tHeader('shop')}
                   </Link>
                   <ul className="on-hover-dropdown common-dropdown nav-submenu scroll-sm">
                     <li className="common-dropdown__item nav-submenu__item">
@@ -393,7 +394,7 @@ const HeaderOne = () => {
                         href="/vendor-two?is_used=false"
                         className="common-dropdown__link nav-submenu__link"
                       >
-                        Yangi kitoblar
+                        {tCategories('newBooks')}
                       </Link>
                     </li>
                     <li className="common-dropdown__item nav-submenu__item">
@@ -401,7 +402,7 @@ const HeaderOne = () => {
                         href="/vendor-two?is_used=true"
                         className="common-dropdown__link nav-submenu__link"
                       >
-                        Yangidek kitoblar
+                        {tCategories('likeNewBooks')}
                       </Link>
                     </li>
                     <li className="common-dropdown__item nav-submenu__item">
@@ -409,24 +410,24 @@ const HeaderOne = () => {
                         href="/vendor-two?type=gift"
                         className="common-dropdown__link nav-submenu__link"
                       >
-                        Sovg'a kitoblar
+                        {tCategories('giftBooks')}
                       </Link>
                     </li>
                   </ul>
                 </li>
                 <li className="nav-menu__item">
                   <Link href="/vendor" className="nav-menu__link">
-                    Do'konlar
+                    {tHeader('shops')}
                   </Link>
                 </li>
                 <li className="nav-menu__item">
                   <Link href="/become-seller" className="nav-menu__link">
-                    Ariza qoldirish
+                    {tHeader('becomeSeller')}
                   </Link>
                 </li>
                 <li className="nav-menu__item">
                   <Link href="/contact" className="nav-menu__link">
-                    Aloqa
+                    {tHeader('contact')}
                   </Link>
                 </li>
               </ul>
@@ -464,19 +465,19 @@ const HeaderOne = () => {
                     data-bs-toggle="dropdown"
                   >
                     <i className="ph ph-user text-2xl" />
-                    <span className="d-none d-sm-block">Mening hisobim</span>
+                    <span className="d-none d-sm-block">{tHeader('myAccount')}</span>
                   </Link>
                   <ul className="dropdown-menu">
                     <li>
                       <Link href="/account" className="dropdown-item">
                         <i className="ph ph-user me-8"></i>
-                        Profil
+                        {tHeader('profile')}
                       </Link>
                     </li>
                     <li>
                       <button onClick={handleLogout} className="dropdown-item">
                         <i className="ph ph-sign-out me-8"></i>
-                        {t("logout")}
+                        {tHeader('logout')}
                       </button>
                     </li>
                   </ul>
@@ -487,7 +488,7 @@ const HeaderOne = () => {
                   className="user-icon flex-align gap-4 item-hover"
                 >
                   <i className="ph ph-user text-2xl" />
-                  <span className="d-none d-sm-block">Kirish</span>
+                  <span className="d-none d-sm-block">{tHeader('login')}</span>
                 </Link>
               )}
               {/* User Icon End */}

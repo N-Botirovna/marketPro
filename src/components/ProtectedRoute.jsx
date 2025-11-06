@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import { isAuthenticated } from "@/services/auth";
+import { useTranslations } from "next-intl";
 import Spin from "./Spin";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
 const ProtectedRoute = ({ children }) => {
   const router = useRouter();
+  const tLoad = useTranslations('Loading');
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuth, setIsAuth] = useState(false);
@@ -49,7 +51,7 @@ const ProtectedRoute = ({ children }) => {
           zIndex: 9999
         }}
       >
-        <Spin text="Yuklanmoqda..." />
+        <Spin text={tLoad('loading')} />
       </div>
     );
   }
@@ -69,7 +71,7 @@ const ProtectedRoute = ({ children }) => {
           zIndex: 9999
         }}
       >
-        <Spin text="Yo'naltirilmoqda..." />
+        <Spin text={tLoad('redirecting')} />
       </div>
     );
   }

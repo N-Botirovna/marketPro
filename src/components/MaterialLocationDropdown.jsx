@@ -1,12 +1,15 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { Box, Button, Menu, Typography, Fade, Stack } from "@mui/material";
 import { ExpandMore, LocationOn, ChevronRight } from "@mui/icons-material";
 import { getRegions } from "@/services/regions";
 
 const MaterialLocationDropdown = () => {
   const [regions, setRegions] = useState([]);
+  const tLoc = useTranslations('Location');
+  const tLoad = useTranslations('Loading');
   const [anchorEl, setAnchorEl] = useState(null);
   const [hoveredRegionId, setHoveredRegionId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -62,7 +65,7 @@ const MaterialLocationDropdown = () => {
         }}
         disabled={loading}
       >
-        {loading ? "Yuklanmoqda..." : "Joylashuv"}
+        {loading ? tLoad('loading') : tLoc('regions')}
       </Button>
 
       <Menu
@@ -104,7 +107,7 @@ const MaterialLocationDropdown = () => {
           >
             <Box sx={{ p: 2, borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
               <Typography variant="h6" sx={{ fontWeight: 600, color: "#333" }}>
-                Viloyatlar
+                {tLoc('regions')}
               </Typography>
             </Box>
             <Stack spacing={0.5} sx={{ p: 1 }}>
@@ -170,7 +173,7 @@ const MaterialLocationDropdown = () => {
                   return (
                     <Box sx={{ p: 3, textAlign: "center" }}>
                       <Typography color="text.secondary">
-                        Ushbu viloyatda tumanlar yo‘q
+                        {tLoc('noDistricts')}
                       </Typography>
                     </Box>
                   );
@@ -188,7 +191,7 @@ const MaterialLocationDropdown = () => {
                         {region.name}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {region.districts.length} ta tuman
+                        {region.districts.length} {tLoc('districtCount')}
                       </Typography>
                     </Box>
                     <Box sx={{ p: 1 }}>
@@ -231,7 +234,7 @@ const MaterialLocationDropdown = () => {
             ) : (
               <Box sx={{ p: 3, textAlign: "center" }}>
                 <Typography color="text.secondary">
-                  Viloyatni tanlang
+                  {tLoc('selectRegion')}
                 </Typography>
               </Box>
             )}

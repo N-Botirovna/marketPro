@@ -8,6 +8,7 @@ import Image from "next/image";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { useTranslations } from "next-intl";
 
 // Separate BannerImage component (no hooks inside parent component)
 const BannerImage = memo(({ src, alt, priority, fallbackSrc }) => (
@@ -31,6 +32,7 @@ const BannerOne = () => {
   const [error, setError] = useState(null);
 
   const FALLBACK_SRC = "/assets/images/bg/banner-bg.png";
+  const tCommon = useTranslations("Common")
 
   useEffect(() => {
     let mounted = true;
@@ -200,7 +202,7 @@ const BannerOne = () => {
                             href={href}
                             className="btn btn-main d-inline-flex align-items-center rounded-pill pt-8 gap-8"
                           >
-                            Explore Shop
+                            {tCommon("viewShop")}
                             <span className="icon text-xl d-flex">
                               <i className="ph ph-shopping-cart-simple" />
                             </span>
