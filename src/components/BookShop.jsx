@@ -104,11 +104,11 @@ const BookShop = () => {
       !filters.category || book.category?.id === parseInt(filters.category);
     const matchesSubcategory =
       !filters.subcategory ||
-      book.subcategory?.id === parseInt(filters.subcategory);
+      book.subcategory?.name === filters.subcategory;
     const matchesRegion =
-      !filters.region || book.region?.id === parseInt(filters.region);
+      !filters.region || book.region?.name === filters.region;
     const matchesDistrict =
-      !filters.district || book.district?.id === parseInt(filters.district);
+      !filters.district || book.district?.name === filters.district;
     const matchesCoverType =
       !filters.cover_type || book.cover_type === filters.cover_type;
     const matchesIsUsed =
