@@ -2,9 +2,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import { getBookById } from "@/services/books";
+import { getBookById, patchBook } from "@/services/books";
 import Slider from "react-slick";
 import Spin from "./Spin";
+import BookCreateModal from "./BookCreateModal";
 
 const ProductDetailsOne = () => {
   const searchParams = useSearchParams();
@@ -13,6 +14,8 @@ const ProductDetailsOne = () => {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [archiving, setArchiving] = useState(false);
 
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -109,6 +112,34 @@ const ProductDetailsOne = () => {
     `${book.posted_by?.first_name || "Noma'lum"} ${
       book.posted_by?.last_name || ""
     }`.trim();
+
+  // Archive book function
+  const handleArchive = async () => {
+    if (!window.confirm("Kitobni arxivga qo'shmoqchimisiz?")) {
+      return;
+    }
+
+    try {
+      setArchiving(true);
+      const formData = new FormData();
+      formData.append("is_active", "false");
+
+      const response = await patchBook(book.id, formData);
+      if (response.success) {
+        alert("Kitob muvaffaqiyatli arxivga qo'shildi!");
+        // Refresh book data
+        const updatedResponse = await getBookById(id);
+        setBook(updatedResponse.book);
+      } else {
+        alert("Xatolik yuz berdi: " + (response.message || "Noma'lum xatolik"));
+      }
+    } catch (err) {
+      console.error("Archive error:", err);
+      alert("Kitobni arxivga qo'shishda xatolik yuz berdi.");
+    } finally {
+      setArchiving(false);
+    }
+  };
 
   return (
     <section className="product-details py-80">
@@ -314,22 +345,90 @@ const ProductDetailsOne = () => {
           <div className="col-lg-3">
             <div className="product-details__sidebar border border-gray-100 rounded-16 overflow-hidden">
               <div className="p-24">
-                <div className="flex-between bg-main-600 rounded-pill p-8">
-                  <div className="flex-align gap-8">
-                    <span className="w-44 h-44 bg-white rounded-circle flex-center text-2xl">
-                      <i className="ph ph-storefront" />
-                    </span>
-                    <span className="text-white">by {sellerName}</span>
+                {/* O'zimning kitobim bo'lsa - Archive va Edit */}
+                {book.can_update ? (
+                  <div>
+                    <div className="flex-align gap-8 mb-16">
+                      <span className="w-44 h-44 bg-main-50 rounded-circle flex-center text-2xl text-main-600">
+                        <i className="ph ph-book" />
+                      </span>
+                      <div>
+                        <h6 className="mb-0 text-gray-900">Mening kitobim</h6>
+                        <span className="text-xs text-gray-600">Siz post qilgan</span>
+                      </div>
+                    </div>
+                    <div className="d-flex flex-column gap-8">
+                      <button
+                        onClick={() => setShowEditModal(true)}
+                        className="btn btn-main rounded-pill w-100"
+                      >
+                        <i className="ph ph-pencil me-2" />
+                        Tahrirlash
+                      </button>
+                      <button
+                        onClick={handleArchive}
+                        disabled={archiving}
+                        className="btn btn-outline-secondary rounded-pill w-100"
+                      >
+                        {archiving ? (
+                          <>
+                            <span className="spinner-border spinner-border-sm me-2" />
+                            Arxivlanmoqda...
+                          </>
+                        ) : (
+                          <>
+                            <i className="ph ph-archive me-2" />
+                            Arxivga qo'shish
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
-                  <Link
-                    href={`/vendor-two-details?id=${
-                      book.shop?.id || book.posted_by?.id
-                    }`}
-                    className="btn btn-white rounded-pill text-uppercase"
-                  >
-                    Do'kon
-                  </Link>
-                </div>
+                ) : book.shop?.id ? (
+                  /* Do'konniki bo'lsa - Do'kon page'ga link */
+                  <div className="flex-between bg-main-600 rounded-pill p-8">
+                    <div className="flex-align gap-8">
+                      <span className="w-44 h-44 bg-white rounded-circle flex-center text-2xl">
+                        <i className="ph ph-storefront" />
+                      </span>
+                      <span className="text-white">by {sellerName}</span>
+                    </div>
+                    <Link
+                      href={`/vendor-two-details?id=${book.shop.id}`}
+                      className="btn btn-white rounded-pill text-uppercase"
+                    >
+                      Do'kon
+                    </Link>
+                  </div>
+                ) : book.posted_by?.id && book.owner_type === "user" ? (
+                  /* User post qilgan bo'lsa - User page'ga link */
+                  <div className="flex-between bg-main-600 rounded-pill p-8">
+                    <div className="flex-align gap-8">
+                      <span className="w-44 h-44 bg-white rounded-circle flex-center text-2xl">
+                        <i className="ph ph-user" />
+                      </span>
+                      <span className="text-white">
+                        {book.posted_by?.first_name || "Foydalanuvchi"}
+                      </span>
+                    </div>
+                    <Link
+                      href={`/user-profile?id=${book.posted_by.id}`}
+                      className="btn btn-white rounded-pill text-uppercase"
+                    >
+                      Profil
+                    </Link>
+                  </div>
+                ) : (
+                  /* Default - Sotuvchi ma'lumoti */
+                  <div className="flex-between bg-main-600 rounded-pill p-8">
+                    <div className="flex-align gap-8">
+                      <span className="w-44 h-44 bg-white rounded-circle flex-center text-2xl">
+                        <i className="ph ph-storefront" />
+                      </span>
+                      <span className="text-white">by {sellerName}</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -446,6 +545,25 @@ const ProductDetailsOne = () => {
           </div>
         </div>
       </div>
+
+      {/* Edit Book Modal */}
+      {book && (
+        <BookCreateModal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          onSuccess={(updatedBook) => {
+            setBook(updatedBook);
+            setShowEditModal(false);
+            // Refresh page data
+            if (id) {
+              getBookById(id).then((response) => {
+                setBook(response.book);
+              });
+            }
+          }}
+          editBook={book}
+        />
+      )}
     </section>
   );
 };

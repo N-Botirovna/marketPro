@@ -100,17 +100,17 @@ const VendorTwoDetails = () => {
                 backgroundImage: `url('assets/images/thumbs/inner-banner-two-bg.png')`,
               }}
             >
-              <div className="row">
+              <div className="row bg-black">
                 <div className="col-6 d-xl-block d-none" />
                 <div className="col-xl-6 d-xl-flex">
-                  <div className="text-center py-32">
+                  <div className="text-center py-32 ">
                     <h6 className="text-white">Daily Offer</h6>
                     <h3 className="my-32 text-white">SALE 48% OFF</h3>
                     <Link
                       href="/shop"
                       className="btn btn-main d-inline-flex align-items-center rounded-8 gap-8"
                     >
-                      Shop Now
+                      Banner Image qo'shaylik 
                       <span className="icon text-xl d-flex">
                         <i className="ph ph-shopping-cart" />
                       </span>
@@ -228,6 +228,7 @@ const VendorTwoDetails = () => {
                   const priceCurrent =
                     item?.discount_price || item?.price || "$14.99";
                   const priceOld = hasDiscount ? item?.price : "$28.99";
+                  const id = item.id
 
                   return (
                     <div
@@ -340,7 +341,7 @@ const VendorTwoDetails = () => {
                           </span>
                         </div>
                         <Link
-                          href="#"
+                          href={`/product-details?id=${id}`}
                           className="product-card__cart btn bg-gray-50 text-heading hover-bg-main-600 hover-text-white py-11 px-24 rounded-8 flex-center gap-8 fw-medium"
                           tabIndex={0}
                         >
