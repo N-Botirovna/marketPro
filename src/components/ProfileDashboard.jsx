@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { useTranslations } from "next-intl";
 import { getUserProfile } from '@/services/auth';
 import { useAuth } from '@/hooks/useAuth';
 import { getUserPostedBooks, getUserArchivedBooks } from '@/services/books';
@@ -15,6 +16,9 @@ import PostCreateModal from './PostCreateModal';
 
 const ProfileDashboard = () => {
   const { isAuthenticated, isLoading: authLoading, logout } = useAuth();
+  const tProfile = useTranslations("ProfileDashboard");
+  const tProfileForm = useTranslations("ProfileForm");
+  const tProfileMessages = useTranslations("Profile");
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('books');
@@ -189,16 +193,16 @@ const ProfileDashboard = () => {
         setHasChanges(false);
         
         // Show success message
-        alert('Profil muvaffaqiyatli yangilandi!');
+        alert(tProfileMessages("updated"));
       } else {
         console.error('❌ Failed to update profile:', data?.message || 'Unknown error');
-        alert('Profilni yangilashda xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+        alert(tProfileMessages("updateError"));
       }
     } catch (error) {
       console.error('💥 Error updating profile:', error);
       console.error('Error details:', error.response?.data || error.message);
       console.error('Error status:', error.response?.status);
-      alert('Profilni yangilashda xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+      alert(tProfileMessages("updateError"));
     } finally {
       setSaving(false);
     }
@@ -242,142 +246,137 @@ const ProfileDashboard = () => {
       <section className='account py-80'>
         <div className='container container-lg'>
           <div className='d-flex justify-content-center align-items-center py-80'>
-            <Spin text="Ma'lumotlar yuklanmoqda..." />
+            <Spin text={tProfile("loadingData")} />
           </div>
         </div>
       </section>
     );
   }
 
+  const renderEmptyState = (iconClass, title, subtitle) => (
+    <div className='text-center py-60'>
+      <i className={`${iconClass} text-gray-300 text-5xl mb-16`}></i>
+      <h5 className='text-gray-500 mb-0'>{title}</h5>
+      <p className='text-gray-400 text-sm mt-8'>{subtitle}</p>
+    </div>
+  );
+
   const renderContent = () => {
-    switch (activeTab) {
-      case 'books':
-        return (
-          <div className='p-32'>
-            <div className="d-flex align-items-center justify-content-between mb-24">
-              <div className="d-flex align-items-center gap-16">
-                <h3 className='text-2xl fw-bold text-gray-900 mb-0'>My Books</h3>
-                <span className="badge bg-main-100 text-main-600 px-12 py-4 rounded-pill text-xs">Active Books</span>
-              </div>
-              <button 
-                className="btn btn-main py-8 px-16 text-sm"
-                onClick={handleCreateBook}
-              >
-                <i className="ph ph-plus me-8"></i>
-                Kitob qo'shish
-              </button>
+    if (activeTab === 'books') {
+      return (
+        <div className='p-32'>
+          <div className='d-flex align-items-center justify-content-between mb-24'>
+            <div className='d-flex align-items-center gap-16'>
+              <h3 className='text-2xl fw-bold text-gray-900 mb-0'>{tProfile("myBooks")}</h3>
+              <span className='badge bg-main-100 text-main-600 px-12 py-4 rounded-pill text-xs'>{tProfile("activeBadge")}</span>
             </div>
-            {booksLoading ? (
-              <div className='text-center py-60'>
-                <Spin text="Kitoblar yuklanmoqda..." />
-              </div>
-            ) : userBooks.length > 0 ? (
-              <div className='row g-4'>
-                {userBooks.map((book) => (
-                  <div key={book.id} className='col-lg-4 col-md-6'>
-                    <BookCard 
-                      book={book} 
-                      onEdit={handleEditBook} 
-                      currentUserId={userData?.id}
-                      showEditForOwn={true}
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className='text-center py-60'>
-                <i className='ph ph-books text-gray-300 text-5xl mb-16'></i>
-                <h5 className='text-gray-500 mb-0'>No books posted yet</h5>
-                <p className='text-gray-400 text-sm mt-8'>Your posted books will appear here</p>
-              </div>
-            )}
+            <button
+              className='btn btn-main py-8 px-16 text-sm'
+              onClick={handleCreateBook}
+            >
+              <i className='ph ph-plus me-8'></i>
+              {tProfile("addBook")}
+            </button>
           </div>
-        );
-      case 'archive':
-        return (
-          <div className='p-32'>
-            <div className="d-flex align-items-center gap-16 mb-24">
-              <h3 className='text-2xl fw-bold text-gray-900 mb-0'>Archive Books</h3>
-              <span className="badge bg-gray-100 text-gray-600 px-12 py-4 rounded-pill text-xs">Archived</span>
-            </div>
-            {booksLoading ? (
-              <div className='text-center py-60'>
-                <Spin text="Kitoblar yuklanmoqda..." />
-              </div>
-            ) : archivedBooks.length > 0 ? (
-              <div className='row g-4'>
-                {archivedBooks.map((book) => (
-                  <div key={book.id} className='col-lg-4 col-md-6'>
-                    <BookCard 
-                      book={book} 
-                      onEdit={handleEditBook} 
-                      currentUserId={userData?.id}
-                      showEditForOwn={true}
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className='text-center py-60'>
-                <i className='ph ph-archive text-gray-300 text-5xl mb-16'></i>
-                <h5 className='text-gray-500 mb-0'>No archived books</h5>
-                <p className='text-gray-400 text-sm mt-8'>Your archived books will appear here</p>
-              </div>
-            )}
-          </div>
-        );
-      case 'posts':
-        return (
-          <div className='p-32'>
-            <div className="d-flex align-items-center justify-content-between mb-24">
-              <div className="d-flex align-items-center gap-16">
-                <h3 className='text-2xl fw-bold text-gray-900 mb-0'>My Posts</h3>
-                <span className="badge bg-gray-100 text-gray-600 px-12 py-4 rounded-pill text-xs">All Posts</span>
-              </div>
-              <button 
-                className="btn btn-main py-8 px-16 text-sm"
-                onClick={handleCreatePost}
-              >
-                <i className="ph ph-plus me-8"></i>
-                Post qo'shish
-              </button>
-            </div>
-            {postsLoading ? (
-              <div className='text-center py-60'>
-                <Spin text="Kitoblar yuklanmoqda..." />
-              </div>
-            ) : userPosts.length > 0 ? (
-              <div className='row g-4'>
-                {userPosts.map((post) => (
-                  <div key={post.id} className='col-lg-6 col-md-12'>
-                    <PostCard post={post} onEdit={handleEditPost} />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className='text-center py-60'>
-                <i className='ph ph-newspaper text-gray-300 text-5xl mb-16'></i>
-                <h5 className='text-gray-500 mb-0'>No posts yet</h5>
-                <p className='text-gray-400 text-sm mt-8'>Your posts will appear here</p>
-              </div>
-            )}
-          </div>
-        );
-      default:
-        return (
-          <div className='p-32'>
-            <div className="d-flex align-items-center gap-16 mb-24">
-              <h3 className='text-2xl fw-bold text-gray-900 mb-0'>My Books</h3>
-              <span className="badge bg-main-100 text-main-600 px-12 py-4 rounded-pill text-xs">Active Books</span>
-            </div>
+          {booksLoading ? (
             <div className='text-center py-60'>
-              <i className='ph ph-books text-gray-300 text-5xl mb-16'></i>
-              <h5 className='text-gray-500 mb-0'>No books posted yet</h5>
-              <p className='text-gray-400 text-sm mt-8'>Your posted books will appear here</p>
+              <Spin text={tProfile("booksLoading")} />
             </div>
-          </div>
-        );
+          ) : userBooks.length > 0 ? (
+            <div className='row g-4'>
+              {userBooks.map((book) => (
+                <div key={book.id} className='col-lg-4 col-md-6'>
+                  <BookCard
+                    book={book}
+                    onEdit={handleEditBook}
+                    currentUserId={userData?.id}
+                    showEditForOwn={true}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            renderEmptyState('ph ph-books', tProfile("noBooksTitle"), tProfile("noBooksSubtitle"))
+          )}
+        </div>
+      );
     }
+
+    if (activeTab === 'archive') {
+      return (
+        <div className='p-32'>
+          <div className='d-flex align-items-center gap-16 mb-24'>
+            <h3 className='text-2xl fw-bold text-gray-900 mb-0'>{tProfile("archiveTitle")}</h3>
+            <span className='badge bg-gray-100 text-gray-600 px-12 py-4 rounded-pill text-xs'>{tProfile("archiveBadge")}</span>
+          </div>
+          {booksLoading ? (
+            <div className='text-center py-60'>
+              <Spin text={tProfile("booksLoading")} />
+            </div>
+          ) : archivedBooks.length > 0 ? (
+            <div className='row g-4'>
+              {archivedBooks.map((book) => (
+                <div key={book.id} className='col-lg-4 col-md-6'>
+                  <BookCard
+                    book={book}
+                    onEdit={handleEditBook}
+                    currentUserId={userData?.id}
+                    showEditForOwn={true}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            renderEmptyState('ph ph-archive', tProfile("noArchiveTitle"), tProfile("noArchiveSubtitle"))
+          )}
+        </div>
+      );
+    }
+
+    if (activeTab === 'posts') {
+      return (
+        <div className='p-32'>
+          <div className='d-flex align-items-center justify-content-between mb-24'>
+            <div className='d-flex align-items-center gap-16'>
+              <h3 className='text-2xl fw-bold text-gray-900 mb-0'>{tProfile("myPosts")}</h3>
+              <span className='badge bg-gray-100 text-gray-600 px-12 py-4 rounded-pill text-xs'>{tProfile("postsBadge")}</span>
+            </div>
+            <button
+              className='btn btn-main py-8 px-16 text-sm'
+              onClick={handleCreatePost}
+            >
+              <i className='ph ph-plus me-8'></i>
+              {tProfile("addPost")}
+            </button>
+          </div>
+          {postsLoading ? (
+            <div className='text-center py-60'>
+              <Spin text={tProfile("postsLoading")} />
+            </div>
+          ) : userPosts.length > 0 ? (
+            <div className='row g-4'>
+              {userPosts.map((post) => (
+                <div key={post.id} className='col-lg-6 col-md-12'>
+                  <PostCard post={post} onEdit={handleEditPost} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            renderEmptyState('ph ph-newspaper', tProfile("noPostsTitle"), tProfile("noPostsSubtitle"))
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div className='p-32'>
+        <div className='d-flex align-items-center gap-16 mb-24'>
+          <h3 className='text-2xl fw-bold text-gray-900 mb-0'>{tProfile("myBooks")}</h3>
+          <span className='badge bg-main-100 text-main-600 px-12 py-4 rounded-pill text-xs'>{tProfile("activeBadge")}</span>
+        </div>
+        {renderEmptyState('ph ph-books', tProfile("noBooksTitle"), tProfile("noBooksSubtitle"))}
+      </div>
+    );
   };
 
   return (
@@ -400,7 +399,11 @@ const ProfileDashboard = () => {
                         e.target.src = '/assets/images/thumbs/user-placeholder.png';
                       }}
                     />
-                    <button className='btn btn-sm btn-main rounded-circle position-absolute bottom-0 end-0 p-8'>
+                    <button className='btn btn-sm btn-main rounded-circle position-absolute bottom-0 end-0 p-8'
+                      type='button'
+                      aria-label={tProfile("cameraButton")}
+                      title={tProfile("cameraButton")}
+                    >
                       <i className='ph ph-camera text-white'></i>
                     </button>
                   </div>
@@ -410,34 +413,37 @@ const ProfileDashboard = () => {
                 <div className='text-center mb-24'>
                   <h4 className='text-xl fw-bold text-gray-900 mb-4'>
                     {isEditingProfile ? (
-                      <div className="d-flex gap-8 justify-content-center">
-                        <input 
-                          type="text" 
-                          name="first_name"
+                      <div className='d-flex gap-8 justify-content-center'>
+                        <input
+                          type='text'
+                          name='first_name'
                           className={`form-control form-control-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
                           value={profileFormData.first_name || ''}
                           onChange={handleProfileInputChange}
-                          placeholder="Ism"
+                          placeholder={tProfileForm('enterFirstName')}
                           disabled={!isEditingProfile}
                           style={{ width: '120px' }}
                         />
-                        <input 
-                          type="text" 
-                          name="last_name"
+                        <input
+                          type='text'
+                          name='last_name'
                           className={`form-control form-control-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
                           value={profileFormData.last_name || ''}
                           onChange={handleProfileInputChange}
-                          placeholder="Familiya"
+                          placeholder={tProfileForm('enterLastName')}
                           disabled={!isEditingProfile}
                           style={{ width: '120px' }}
                         />
                       </div>
                     ) : (
-                      `${userData?.first_name || 'Noma\'lum'} ${userData?.last_name || ''}`
+                      (() => {
+                        const parts = [userData?.first_name, userData?.last_name].filter(Boolean);
+                        return parts.length ? parts.join(' ') : tProfileForm('notProvided');
+                      })()
                     )}
                   </h4>
                   <p className='text-gray-500 text-sm mb-0'>
-                    {userData?.user_type === 'bookshop' ? 'Kitob do\'koni egasi' : 'Foydalanuvchi'}
+                    {userData?.user_type === 'bookshop' ? tProfile('bookshopOwner') : tProfile('user')}
                   </p>
                 </div>
 
@@ -446,93 +452,93 @@ const ProfileDashboard = () => {
                   <div className='col-4 text-center'>
                     <div className='bg-gray-50 rounded-12 p-16'>
                       <h5 className='text-lg fw-bold text-gray-900 mb-2'>{userBooks.length}</h5>
-                      <p className='text-xs text-gray-500 mb-0'>Kitoblar</p>
+                      <p className='text-xs text-gray-500 mb-0'>{tProfile("statsBooks")}</p>
                     </div>
                   </div>
                   <div className='col-4 text-center'>
                     <div className='bg-gray-50 rounded-12 p-16'>
                       <h5 className='text-lg fw-bold text-gray-900 mb-2'>{archivedBooks.length}</h5>
-                      <p className='text-xs text-gray-500 mb-0'>Arxiv</p>
+                      <p className='text-xs text-gray-500 mb-0'>{tProfile("statsArchive")}</p>
                     </div>
                   </div>
                   <div className='col-4 text-center'>
                     <div className='bg-gray-50 rounded-12 p-16'>
                       <h5 className='text-lg fw-bold text-gray-900 mb-2'>{userPosts.length}</h5>
-                      <p className='text-xs text-gray-500 mb-0'>Postlar</p>
+                      <p className='text-xs text-gray-500 mb-0'>{tProfile("statsPosts")}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* User Info */}
                 <div className='mb-24'>
-                  <h6 className='text-sm fw-semibold text-gray-700 mb-12'>Ma'lumotlar</h6>
+                  <h6 className='text-sm fw-semibold text-gray-700 mb-12'>{tProfile("infoTitle")}</h6>
                   <div className='space-y-8'>
                     <div className='d-flex justify-content-between align-items-center py-8'>
-                      <span className='text-sm text-gray-600'>Telefon:</span>
+                      <span className='text-sm text-gray-600'>{`${tProfile("phone")}:`}</span>
                       {isEditingProfile ? (
-                        <input 
-                          type="tel" 
-                          name="app_phone_number"
+                        <input
+                          type='tel'
+                          name='app_phone_number'
                           className={`form-control form-control-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
                           value={profileFormData.app_phone_number || ''}
                           onChange={handleProfileInputChange}
-                          placeholder="Telefon raqam"
+                          placeholder={tProfile("phonePlaceholder")}
                           disabled={!isEditingProfile}
                           style={{ width: '150px' }}
                         />
                       ) : (
-                        <span className='text-sm fw-medium text-gray-900'>{userData?.app_phone_number || 'Ko\'rsatilmagan'}</span>
+                        <span className='text-sm fw-medium text-gray-900'>{userData?.app_phone_number || tProfile("notProvided")}</span>
                       )}
                     </div>
                     <div className='d-flex justify-content-between align-items-center py-8'>
-                      <span className='text-sm text-gray-600'>Viloyat:</span>
+                      <span className='text-sm text-gray-600'>{`${tProfile("region")}:`}</span>
                       {isEditingProfile ? (
-                        <input 
-                          type="text" 
-                          name="region"
+                        <input
+                          type='text'
+                          name='region'
                           className={`form-control form-control-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
                           value={profileFormData.region || ''}
                           onChange={handleProfileInputChange}
-                          placeholder="Viloyat"
+                          placeholder={tProfileForm("enterRegion")}
                           disabled={!isEditingProfile}
                           style={{ width: '150px' }}
                         />
                       ) : (
-                        <span className='text-sm fw-medium text-gray-900'>{userData?.region || 'Ko\'rsatilmagan'}</span>
+                        <span className='text-sm fw-medium text-gray-900'>{userData?.region || tProfile("notProvided")}</span>
                       )}
                     </div>
                     <div className='d-flex justify-content-between align-items-center py-8'>
-                      <span className='text-sm text-gray-600'>Tuman:</span>
+                      <span className='text-sm text-gray-600'>{`${tProfile("district")}:`}</span>
                       {isEditingProfile ? (
-                        <input 
-                          type="text" 
-                          name="district"
+                        <input
+                          type='text'
+                          name='district'
                           className={`form-control form-control-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
                           value={profileFormData.district || ''}
                           onChange={handleProfileInputChange}
-                          placeholder="Tuman"
+                          placeholder={tProfileForm("enterDistrict")}
                           disabled={!isEditingProfile}
                           style={{ width: '150px' }}
                         />
                       ) : (
-                        <span className='text-sm fw-medium text-gray-900'>{userData?.district || 'Ko\'rsatilmagan'}</span>
+                        <span className='text-sm fw-medium text-gray-900'>{userData?.district || tProfile("notProvided")}</span>
                       )}
                     </div>
                     <div className='d-flex justify-content-between align-items-center py-8'>
-                      <span className='text-sm text-gray-600'>Manzil:</span>
+                      <span className='text-sm text-gray-600'>{`${tProfile("location")}:`}</span>
                       {isEditingProfile ? (
-                        <input 
-                          type="text" 
-                          name="location_text"
+                        <input
+                          type='text'
+                          name='location_text'
                           className={`form-control form-control-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
                           value={profileFormData.location_text || ''}
                           onChange={handleProfileInputChange}
-                          placeholder="To'liq manzil"
+                          placeholder={tProfileForm("enterFullAddress")}
                           disabled={!isEditingProfile}
                           style={{ width: '150px' }}
                         />
                       ) : (
-                        <span className='text-sm fw-medium text-gray-900'>{userData?.location_text || 'Ko\'rsatilmagan'}</span>
+                        <span className='text-sm fw-medium text-gray-900'>{userData?.location_text || tProfileForm("noLocation")}</span>
                       )}
                     </div>
                   </div>
@@ -540,66 +546,66 @@ const ProfileDashboard = () => {
 
                 {/* Bio */}
                 <div className='mb-24'>
-                  <h6 className='text-sm fw-semibold text-gray-700 mb-12'>Bio</h6>
+                  <h6 className='text-sm fw-semibold text-gray-700 mb-12'>{tProfile("bioTitle")}</h6>
                   {isEditingProfile ? (
-                    <textarea 
-                      name="bio"
+                    <textarea
+                      name='bio'
                       className={`form-control form-control-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
                       value={profileFormData.bio || ''}
                       onChange={handleProfileInputChange}
-                      placeholder="O'zingiz haqingizda yozing..."
+                      placeholder={tProfileForm("tellAboutYourself")}
                       disabled={!isEditingProfile}
-                      rows="3"
+                      rows='3'
                     />
                   ) : (
-                    <p className='text-sm text-gray-600 mb-0'>{userData?.bio || 'Bio kiritilmagan'}</p>
+                    <p className='text-sm text-gray-600 mb-0'>{userData?.bio || tProfile("bioEmpty")}</p>
                   )}
                 </div>
 
                 {/* Edit Profile Button */}
                 {!isEditingProfile ? (
                   <div className='d-flex flex-column gap-8'>
-                    <button 
+                    <button
                       className='btn btn-outline-main w-100 py-12'
                       onClick={handleEditProfile}
                     >
                       <i className='ph ph-pencil me-8'></i>
-                      Profilni tahrirlash
+                      {tProfile("editProfile")}
                     </button>
-                    <button 
+                    <button
                       className='btn btn-outline-danger w-100 py-12'
                       onClick={logout}
                     >
                       <i className='ph ph-sign-out me-8'></i>
-                      Chiqish
+                      {tProfile("logout")}
                     </button>
                   </div>
                 ) : (
                   <div className='d-flex gap-8'>
-                    <button 
+                    <button
                       className='btn btn-main flex-fill py-12'
                       onClick={handleSaveProfile}
                       disabled={!hasChanges || saving}
                     >
                       {saving ? (
                         <>
-                          <Spin size="sm" text="Saqlanmoqda..." />
-                          Saqlanmoqda...
+                          <Spin size='sm' text={tProfile("saving") || ""} />
+                          {tProfile("saving")}
                         </>
                       ) : (
                         <>
                           <i className='ph ph-check me-8'></i>
-                          Saqlash
+                          {tProfile("save")}
                         </>
                       )}
                     </button>
-                    <button 
+                    <button
                       className='btn btn-outline-secondary py-12'
                       onClick={handleCancelEdit}
                       disabled={saving}
                     >
                       <i className='ph ph-x me-8'></i>
-                      Bekor qilish
+                      {tProfile("cancel")}
                     </button>
                   </div>
                 )}
@@ -618,21 +624,21 @@ const ProfileDashboard = () => {
                     onClick={() => setActiveTab('books')}
                   >
                     <i className='ph ph-books me-8'></i>
-                    Kitoblar
+                    {tProfile("booksTab")}
                   </button>
                   <button 
                     className={`nav-link ${activeTab === 'archive' ? 'active' : ''}`}
                     onClick={() => setActiveTab('archive')}
                   >
                     <i className='ph ph-archive me-8'></i>
-                    Arxiv
+                    {tProfile("archiveTab")}
                   </button>
                   <button 
                     className={`nav-link ${activeTab === 'posts' ? 'active' : ''}`}
                     onClick={() => setActiveTab('posts')}
                   >
                     <i className='ph ph-newspaper me-8'></i>
-                    Postlar
+                    {tProfile("postsTab")}
                   </button>
                 </nav>
               </div>

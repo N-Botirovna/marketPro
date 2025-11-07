@@ -19,6 +19,14 @@ const BookDetails = ({ bookId }) => {
   const [error, setError] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
+  // Helper function to get localized field value
+  const getLocalizedField = (fieldPrefix) => {
+    if (!book) return '';
+    const localizedKey = `${fieldPrefix}_${locale}`;
+    const fallbackKey = `${fieldPrefix}_uz`;
+    return book[localizedKey] || book[fallbackKey] || book[fieldPrefix] || '';
+  };
+
   useEffect(() => {
     if (bookId) {
       fetchBookDetails();
@@ -192,7 +200,7 @@ const BookDetails = ({ bookId }) => {
               </div>
 
               <h1 className="product-details__title text-3xl fw-bold mb-16">
-                {book.name || tBook("bookName")}
+                {getLocalizedField("name") || tBook("bookName")}
               </h1>
 
               <div className="mb-16">
@@ -201,7 +209,7 @@ const BookDetails = ({ bookId }) => {
                   {tBook("author")}
                 </span>
                 <span className="fw-medium">
-                  {book.author || tBook("unknownAuthor")}
+                  {getLocalizedField("author") || tBook("unknownAuthor")}
                 </span>
               </div>
 
@@ -433,13 +441,13 @@ const BookDetails = ({ bookId }) => {
         </div>
 
         {/* Description */}
-        {book.description && (
+        {(getLocalizedField("description") || book.description) && (
           <div className="row mt-80">
             <div className="col-12">
               <div className="border border-gray-100 rounded-16 p-32">
                 <h5 className="mb-24">{tBook("aboutBook")}</h5>
                 <p className="text-gray-700 line-height-1-6">
-                  {book.description}
+                  {getLocalizedField("description") || book.description}
                 </p>
               </div>
             </div>

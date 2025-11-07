@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useTranslations, useLocale } from "next-intl";
 import { createBook, updateBook, patchBook } from '@/services/books';
 import { getBookCategories } from '@/services/categories';
 import Spin from './Spin';
@@ -8,19 +9,19 @@ import { useToast } from './Toast';
 
 const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
   const { showToast, ToastContainer } = useToast();
-  const [activeLanguage, setActiveLanguage] = useState('uz');
+  const t = useTranslations("BookCreateModal");
+  const tCommon = useTranslations("Common");
+  const locale = useLocale();
   const [formData, setFormData] = useState({
     // Required fields
     type: 'seller', // gift, exchange, seller
     is_used: false,
     picture: null,
-    name_uz: '',
-    name_ru: '',
-    name_en: '',
-    language: 'uz',
-    description: '',
-    script_type: '',
+    name: '',
     author: '',
+    description: '',
+    language: 'uz',
+    script_type: '',
     cover_type: 'hard', // hard, soft
     price: '',
     discount_price: '',
@@ -41,17 +42,20 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
     if (isOpen) {
       fetchCategories();
       if (editBook) {
+        // Get localized values from editBook, fallback to default fields
+        const getLocalizedValue = (fieldPrefix) => {
+          return editBook[`${fieldPrefix}_${locale}`] || editBook[fieldPrefix] || '';
+        };
+        
         setFormData({
           type: editBook.type || 'seller',
           is_used: editBook.is_used || false,
           picture: null,
-          name_uz: editBook.name_uz || editBook.name || '',
-          name_ru: editBook.name_ru || '',
-          name_en: editBook.name_en || '',
+          name: getLocalizedValue('name'),
+          author: getLocalizedValue('author'),
+          description: getLocalizedValue('description'),
           language: editBook.language || 'uz',
-          description: editBook.description || '',
           script_type: editBook.script_type || '',
-          author: editBook.author || '',
           cover_type: editBook.cover_type || 'hard',
           price: editBook.price || '',
           discount_price: editBook.discount_price || '',
@@ -67,13 +71,11 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
           type: 'seller',
           is_used: false,
           picture: null,
-          name_uz: '',
-          name_ru: '',
-          name_en: '',
-          language: 'uz',
-          description: '',
-          script_type: '',
+          name: '',
           author: '',
+          description: '',
+          language: 'uz',
+          script_type: '',
           cover_type: 'hard',
           price: '',
           discount_price: '',
@@ -85,7 +87,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
         });
       }
     }
-  }, [isOpen, editBook]);
+  }, [isOpen, editBook, locale]);
 
   const fetchCategories = async () => {
     try {
@@ -105,9 +107,6 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
       return;
     }
     try {
-      // You'll need to implement getBookSubCategories in your categories service
-      // const response = await getBookSubCategories(categoryId);
-      // setSubCategories(response.subcategories || []);
       setSubCategories([]); // Placeholder for now
     } catch (error) {
       console.error('Error fetching subcategories:', error);
@@ -127,16 +126,19 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
     }
   };
 
-  const handleLanguageChange = (lang) => {
-    setActiveLanguage(lang);
-  };
-
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      console.log('File selected:', file.name, file.size, 'bytes', file.type);
       setFormData(prev => ({
         ...prev,
         picture: file
+      }));
+    } else {
+      console.warn('No file selected');
+      setFormData(prev => ({
+        ...prev,
+        picture: null
       }));
     }
   };
@@ -146,37 +148,74 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
     setLoading(true);
 
     try {
+      // Validate required fields
+      if (!formData.picture && !editBook) {
+        alert(t("imageRequired"));
+        setLoading(false);
+        return;
+      }
+
       const submitData = new FormData();
       
-      // Add the active language name as the main name
-      const mainName = formData[`name_${activeLanguage}`] || formData.name_uz;
-      submitData.append('name', mainName);
+      // Required fields
+      submitData.append('type', formData.type);
+      submitData.append('name', formData.name);
+      submitData.append('author', formData.author);
+      submitData.append('language', formData.language);
+      submitData.append('cover_type', formData.cover_type);
+      submitData.append('publication_year', formData.publication_year);
+      submitData.append('pages', formData.pages);
+      submitData.append('is_used', formData.is_used.toString());
       
-      // Add all form fields to FormData (excluding null/empty values)
-      Object.keys(formData).forEach(key => {
-        if (formData[key] !== null && formData[key] !== '' && key !== 'picture') {
-          // Convert boolean to string for FormData
-          const value = typeof formData[key] === 'boolean' ? formData[key].toString() : formData[key];
-          submitData.append(key, value);
-        }
-      });
+      // Description - always send, even if empty (backend expects it)
+      submitData.append('description', formData.description || '');
+      
+      // Optional fields - only add if they have values
+      if (formData.script_type && formData.script_type.trim() !== '') {
+        submitData.append('script_type', formData.script_type);
+      }
+      
+      if (formData.price && formData.price !== '') {
+        submitData.append('price', formData.price);
+      }
+      
+      if (formData.discount_price && formData.discount_price !== '') {
+        submitData.append('discount_price', formData.discount_price);
+      }
+      
+      if (formData.isbn && formData.isbn.trim() !== '') {
+        submitData.append('isbn', formData.isbn);
+      }
+      
+      if (formData.category && formData.category !== '') {
+        submitData.append('category', formData.category);
+      }
+      
+      if (formData.sub_category && formData.sub_category !== '') {
+        submitData.append('sub_category', formData.sub_category);
+      }
 
-      // Add picture file if exists
+      // Add picture file - required for new books
       if (formData.picture) {
         submitData.append('picture', formData.picture);
+      } else if (editBook && editBook.picture) {
+        // For edit mode, if no new picture is selected, we might need to handle this differently
+        // But since API requires picture, we should still send it
+        console.warn('No picture file selected for edit');
       }
 
-      console.log('📤 FormData being sent:');
+      // Debug: Log FormData contents
+      console.log('FormData contents:');
       for (let [key, value] of submitData.entries()) {
-        console.log(`${key}:`, value);
+        if (value instanceof File) {
+          console.log(`${key}:`, value.name, value.size, 'bytes');
+        } else {
+          console.log(`${key}:`, value);
+        }
       }
-      
-      console.log('🔍 FormData type check:', submitData instanceof FormData);
-      console.log('🔍 Content-Type will be set by browser for FormData');
 
       let response;
       if (editBook) {
-        // Use PATCH for updates as requested
         response = await patchBook(editBook.id, submitData);
       } else {
         response = await createBook(submitData);
@@ -185,8 +224,8 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
       if (response.success) {
         showToast({
           type: 'success',
-          title: 'Muvaffaqiyatli!',
-          message: editBook ? 'Kitob muvaffaqiyatli yangilandi' : 'Kitob muvaffaqiyatli yaratildi',
+          title: tCommon("success"),
+          message: editBook ? t("bookUpdated") : t("bookCreated"),
           duration: 3000
         });
         onSuccess(response.book);
@@ -196,13 +235,11 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
           type: 'seller',
           is_used: false,
           picture: null,
-          name_uz: '',
-          name_ru: '',
-          name_en: '',
-          language: 'uz',
-          description: '',
-          script_type: '',
+          name: '',
           author: '',
+          description: '',
+          language: 'uz',
+          script_type: '',
           cover_type: 'hard',
           price: '',
           discount_price: '',
@@ -213,15 +250,20 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
           sub_category: '',
         });
       } else {
-        alert(response.message || 'Xatolik yuz berdi');
+        alert(response.message || t("error"));
       }
     } catch (error) {
       console.error('Error submitting book:', error);
-      console.error('Error details:', error.response?.data);
-      alert('Xatolik yuz berdi');
+      alert(t("error"));
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper function to get placeholder based on locale
+  const getPlaceholder = (key) => {
+    const localeKey = `${key}${locale.charAt(0).toUpperCase() + locale.slice(1)}Placeholder`;
+    return t(localeKey) || t(`${key}Placeholder`);
   };
 
   if (!isOpen) return null;
@@ -232,7 +274,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">
-              {editBook ? 'Kitobni tahrirlash' : 'Yangi kitob qo\'shish'}
+              {editBook ? t("editBook") : t("addBook")}
             </h5>
             <button type="button" className="btn-close" onClick={onClose}></button>
           </div>
@@ -242,7 +284,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
               <div className="row g-4">
                 {/* Book Type Selection */}
                 <div className="col-12">
-                  <label className="form-label fw-semibold">Kitob turi *</label>
+                  <label className="form-label fw-semibold">{t("bookType")}</label>
                   <div className="d-flex gap-3">
                     <div className="form-check">
                       <input
@@ -254,7 +296,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                         onChange={handleInputChange}
                         required
                       />
-                      <label className="form-check-label">Sotish</label>
+                      <label className="form-check-label">{t("sell")}</label>
                     </div>
                     <div className="form-check">
                       <input
@@ -265,7 +307,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                         checked={formData.type === 'gift'}
                         onChange={handleInputChange}
                       />
-                      <label className="form-check-label">Sovg'a</label>
+                      <label className="form-check-label">{t("gift")}</label>
                     </div>
                     <div className="form-check">
                       <input
@@ -276,7 +318,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                         checked={formData.type === 'exchange'}
                         onChange={handleInputChange}
                       />
-                      <label className="form-check-label">Almashtirish</label>
+                      <label className="form-check-label">{t("exchange")}</label>
                     </div>
                   </div>
                 </div>
@@ -291,99 +333,41 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                       checked={formData.is_used}
                       onChange={handleInputChange}
                     />
-                    <label className="form-check-label">Ishlatilgan kitob</label>
+                    <label className="form-check-label">{t("usedBook")}</label>
                   </div>
                 </div>
 
-                {/* Language Tabs for Book Names */}
+                {/* Book Name */}
                 <div className="col-12">
-                  <label className="form-label fw-semibold">Kitob nomi *</label>
-                  <div className="border rounded p-3">
-                    {/* Language Tabs */}
-                    <ul className="nav nav-tabs nav-tabs-sm mb-3" role="tablist">
-                      <li className="nav-item" role="presentation">
-                        <button
-                          className={`nav-link ${activeLanguage === 'uz' ? 'active' : ''}`}
-                          onClick={() => handleLanguageChange('uz')}
-                          type="button"
-                        >
-                          O'zbek
-                        </button>
-                      </li>
-                      <li className="nav-item" role="presentation">
-                        <button
-                          className={`nav-link ${activeLanguage === 'ru' ? 'active' : ''}`}
-                          onClick={() => handleLanguageChange('ru')}
-                          type="button"
-                        >
-                          Русский
-                        </button>
-                      </li>
-                      <li className="nav-item" role="presentation">
-                        <button
-                          className={`nav-link ${activeLanguage === 'en' ? 'active' : ''}`}
-                          onClick={() => handleLanguageChange('en')}
-                          type="button"
-                        >
-                          English
-                        </button>
-                      </li>
-                    </ul>
-
-                    {/* Language Inputs */}
-                    <div className="tab-content">
-                      <div className={`tab-pane ${activeLanguage === 'uz' ? 'show active' : ''}`}>
-                        <input
-                          type="text"
-                          name="name_uz"
-                          className="form-control"
-                          value={formData.name_uz}
-                          onChange={handleInputChange}
-                          placeholder="Kitob nomini o'zbek tilida kiriting"
-                          required={activeLanguage === 'uz'}
-                        />
-                      </div>
-                      <div className={`tab-pane ${activeLanguage === 'ru' ? 'show active' : ''}`}>
-                        <input
-                          type="text"
-                          name="name_ru"
-                          className="form-control"
-                          value={formData.name_ru}
-                          onChange={handleInputChange}
-                          placeholder="Введите название книги на русском языке"
-                          required={activeLanguage === 'ru'}
-                        />
-                      </div>
-                      <div className={`tab-pane ${activeLanguage === 'en' ? 'show active' : ''}`}>
-                        <input
-                          type="text"
-                          name="name_en"
-                          className="form-control"
-                          value={formData.name_en}
-                          onChange={handleInputChange}
-                          placeholder="Enter book title in English"
-                          required={activeLanguage === 'en'}
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  <label className="form-label fw-semibold">{t("bookName")}</label>
+                  <input
+                    type="text"
+                    name="name"
+                    className="form-control"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder={getPlaceholder("name")}
+                    required
+                  />
                 </div>
 
-                {/* Author and Language */}
-                <div className="col-md-6">
-                  <label className="form-label">Muallif *</label>
+                {/* Author */}
+                <div className="col-12">
+                  <label className="form-label fw-semibold">{t("author")}</label>
                   <input
                     type="text"
                     name="author"
                     className="form-control"
                     value={formData.author}
                     onChange={handleInputChange}
+                    placeholder={getPlaceholder("author")}
                     required
                   />
                 </div>
 
+                {/* Language and Cover Type */}
                 <div className="col-md-6">
-                  <label className="form-label">Til *</label>
+                  <label className="form-label">{t("language")}</label>
                   <select
                     name="language"
                     className="form-select"
@@ -391,17 +375,16 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                     onChange={handleInputChange}
                     required
                   >
-                    <option value="uz">O'zbek</option>
-                    <option value="ru">Rus</option>
-                    <option value="en">Ingliz</option>
-                    <option value="ar">Arab</option>
-                    <option value="tr">Turk</option>
+                    <option value="uz">{t("uzbekLang")}</option>
+                    <option value="ru">{t("russianLang")}</option>
+                    <option value="en">{t("englishLang")}</option>
+                    <option value="ar">{t("arabicLang")}</option>
+                    <option value="tr">{t("turkishLang")}</option>
                   </select>
                 </div>
 
-                {/* Cover Type and Script Type */}
                 <div className="col-md-6">
-                  <label className="form-label">Muqova turi *</label>
+                  <label className="form-label">{t("coverType")}</label>
                   <select
                     name="cover_type"
                     className="form-select"
@@ -409,54 +392,55 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                     onChange={handleInputChange}
                     required
                   >
-                    <option value="hard">Qattiq</option>
-                    <option value="soft">Yumshoq</option>
+                    <option value="hard">{t("hard")}</option>
+                    <option value="soft">{t("soft")}</option>
                   </select>
                 </div>
 
+                {/* Script Type */}
                 <div className="col-md-6">
-                  <label className="form-label">Yozuv turi</label>
+                  <label className="form-label">{t("scriptType")}</label>
                   <select
                     name="script_type"
                     className="form-select"
                     value={formData.script_type}
                     onChange={handleInputChange}
                   >
-                    <option value="">Tanlang</option>
-                    <option value="latin">Lotin</option>
-                    <option value="cyrillic">Kirill</option>
-                    <option value="arabic">Arab</option>
+                    <option value="">{t("select")}</option>
+                    <option value="latin">{t("latin")}</option>
+                    <option value="cyrillic">{t("cyrillic")}</option>
+                    <option value="arabic">{t("arabic")}</option>
                   </select>
                 </div>
 
                 {/* Price Fields */}
                 <div className="col-md-6">
-                  <label className="form-label">Narx (so'm)</label>
+                  <label className="form-label">{t("price")}</label>
                   <input
                     type="text"
                     name="price"
                     className="form-control"
                     value={formData.price}
                     onChange={handleInputChange}
-                    placeholder="Masalan: 50000"
+                    placeholder={t("pricePlaceholder")}
                   />
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label">Chegirma narxi (so'm)</label>
+                  <label className="form-label">{t("discountPrice")}</label>
                   <input
                     type="text"
                     name="discount_price"
                     className="form-control"
                     value={formData.discount_price}
                     onChange={handleInputChange}
-                    placeholder="Masalan: 40000"
+                    placeholder={t("discountPricePlaceholder")}
                   />
                 </div>
 
                 {/* Publication Year and Pages */}
                 <div className="col-md-6">
-                  <label className="form-label">Nashr yili *</label>
+                  <label className="form-label">{t("publicationYear")}</label>
                   <input
                     type="number"
                     name="publication_year"
@@ -470,7 +454,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label">Sahifalar soni *</label>
+                  <label className="form-label">{t("pages")}</label>
                   <input
                     type="number"
                     name="pages"
@@ -484,20 +468,20 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
 
                 {/* ISBN */}
                 <div className="col-12">
-                  <label className="form-label">ISBN</label>
+                  <label className="form-label">{t("isbn")}</label>
                   <input
                     type="text"
                     name="isbn"
                     className="form-control"
                     value={formData.isbn}
                     onChange={handleInputChange}
-                    placeholder="Masalan: 978-0-123456-78-9"
+                    placeholder={t("isbnPlaceholder")}
                   />
                 </div>
 
                 {/* Category and Subcategory */}
                 <div className="col-md-6">
-                  <label className="form-label">Kategoriya</label>
+                  <label className="form-label">{t("category")}</label>
                   <select
                     name="category"
                     className="form-select"
@@ -505,7 +489,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                     onChange={handleInputChange}
                     disabled={categoriesLoading}
                   >
-                    <option value="">Kategoriyani tanlang</option>
+                    <option value="">{t("selectCategory")}</option>
                     {categories.map(cat => (
                       <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
@@ -513,7 +497,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label">Pastki kategoriya</label>
+                  <label className="form-label">{t("subCategory")}</label>
                   <select
                     name="sub_category"
                     className="form-select"
@@ -521,42 +505,51 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                     onChange={handleInputChange}
                     disabled={!formData.category || subCategories.length === 0}
                   >
-                    <option value="">Pastki kategoriyani tanlang</option>
+                    <option value="">{t("selectSubCategory")}</option>
                     {subCategories.map(sub => (
                       <option key={sub.id} value={sub.id}>{sub.name}</option>
                     ))}
                   </select>
                 </div>
 
-                {/* Description with Rich Text */}
+                {/* Description */}
                 <div className="col-12">
-                  <label className="form-label">Tavsif</label>
+                  <label className="form-label fw-semibold">{t("description")}</label>
                   <textarea
                     name="description"
                     className="form-control"
-                    rows="6"
+                    rows={6}
                     value={formData.description}
                     onChange={handleInputChange}
-                    placeholder="Kitob haqida batafsil ma'lumot kiriting..."
+                    placeholder={getPlaceholder("description")}
                   />
                   <div className="form-text">
-                    Bold, italic, rasmlar va boshqa formatlarni qo'llab-quvvatlaydi
+                    {t("descriptionHelp")}
                   </div>
                 </div>
 
                 {/* Picture Upload */}
                 <div className="col-12">
-                  <label className="form-label">Rasm *</label>
+                  <label className="form-label fw-semibold">{t("image")}</label>
                   <input
                     type="file"
                     name="picture"
+                    id="picture-input"
                     className="form-control"
                     accept="image/*"
                     onChange={handleFileChange}
                     required={!editBook}
                   />
+                  {formData.picture && (
+                    <div className="mt-2">
+                      <p className="text-sm text-success">
+                        {t("fileSelected")}: {formData.picture.name}
+                      </p>
+                    </div>
+                  )}
                   {editBook?.picture && !formData.picture && (
                     <div className="mt-2">
+                      <p className="text-sm text-gray-600 mb-2">{t("currentImage")}:</p>
                       <img 
                         src={editBook.picture} 
                         alt="Current" 
@@ -571,16 +564,16 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
 
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" onClick={onClose}>
-                Bekor qilish
+                {t("cancel")}
               </button>
               <button type="submit" className="btn btn-main" disabled={loading}>
                 {loading ? (
                   <>
-                    <Spin size="sm" text="Saqlanmoqda..." />
-                    Saqlanmoqda...
+                    <Spin size="sm" text={t("saving")} />
+                    {t("saving")}
                   </>
                 ) : (
-                  editBook ? 'Yangilash' : 'Qo\'shish'
+                  editBook ? t("update") : t("add")
                 )}
               </button>
             </div>

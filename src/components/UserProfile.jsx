@@ -81,6 +81,7 @@ const UserProfile = ({ userData }) => {
           isEditing={isEditing}
           onInputChange={handleInputChange}
           onSave={handleSave}
+          onCancel={() => setIsEditing(false)}
         />
       </div>
 {/*       

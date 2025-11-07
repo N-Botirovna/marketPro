@@ -3,10 +3,11 @@ import Breadcrumb from "@/components/Breadcrumb";
 import FooterOne from "@/components/FooterOne";
 import HeaderOne from "@/components/HeaderOne";
 import ShippingOne from "@/components/ShippingOne";
-import BookShop from "@/components/BookShop";
+import VendorTwo from "@/components/VendorTwo";
 import ColorInit from "@/helper/ColorInit";
 import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
+import { getTranslations } from "next-intl/server";
 
 export const metadata = {
   title: "Kitoblar Do'koni - MarketPro",
@@ -14,7 +15,9 @@ export const metadata = {
     "Kitoblar do'konida turli kategoriyalardagi kitoblarni toping. Muallif, nashriyot, narx va boshqa mezonlar bo'yicha qidiring va kerakli kitobni toping.",
 };
 
-const page = () => {
+const page = async () => {
+  const tBreadcrumb = await getTranslations("Breadcrumb");
+
   return (
     <>
       {/* ColorInit */}
@@ -30,10 +33,10 @@ const page = () => {
       <HeaderOne category={true} />
 
       {/* Breadcrumb */}
-      <Breadcrumb title={"Kitoblar Do'koni"} />
+      <Breadcrumb title={tBreadcrumb("bookShop")} />
 
-      {/* BookShop */}
-      <BookShop />
+      {/* VendorTwo */}
+      <VendorTwo />
 
       {/* ShippingOne */}
       <ShippingOne />

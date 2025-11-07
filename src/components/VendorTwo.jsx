@@ -1,26 +1,210 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { getBooks } from "@/services/books";
+import { getBookCategories } from "@/services/categories";
+import { getRegions } from "@/services/regions";
+import BookCard from "./BookCard";
+import Spin from "./Spin";
 
 const VendorTwo = () => {
-  let [grid, setGrid] = useState(false);
+  const t = useTranslations("VendorTwo");
+  const tBookShop = useTranslations("BookShop");
+  const tCommon = useTranslations("Common");
+  const tLocation = useTranslations("Location");
+  const locale = useLocale();
+  
+  const [grid, setGrid] = useState(false);
+  const [active, setActive] = useState(false);
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
+  const [regions, setRegions] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Filters state
+  const [filters, setFilters] = useState({
+    category: "",
+    region: "",
+    district: "",
+    cover_type: "",
+    price_min: "",
+    price_max: "",
+    rating_min: "",
+    rating_max: "",
+  });
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [hasPreviousPage, setHasPreviousPage] = useState(false);
+  const itemsPerPage = 12;
 
-  let [active, setActive] = useState(false);
-  let sidebarController = () => {
+  const sidebarController = () => {
     setActive(!active);
   };
+
+  // Fetch categories and regions
+  useEffect(() => {
+    fetchCategories();
+    fetchRegions();
+  }, []);
+
+  // Fetch books from API
+  useEffect(() => {
+    fetchBooks();
+  }, [currentPage, filters, searchQuery]);
+
+  const fetchBooks = async () => {
+    try {
+      setLoading(true);
+      const params = {
+        limit: itemsPerPage,
+        offset: (currentPage - 1) * itemsPerPage,
+        is_active: true,
+      };
+
+      if (searchQuery) {
+        params.q = searchQuery;
+      }
+      if (filters.category) {
+        params.category = filters.category;
+      }
+      if (filters.region) {
+        params.region = filters.region;
+      }
+      if (filters.district) {
+        params.district = filters.district;
+      }
+      if (filters.cover_type) {
+        params.cover_type = filters.cover_type;
+      }
+      if (filters.price_min) {
+        params.price_min = filters.price_min;
+      }
+      if (filters.price_max) {
+        params.price_max = filters.price_max;
+      }
+      if (filters.rating_min) {
+        params.rating_min = filters.rating_min;
+      }
+      if (filters.rating_max) {
+        params.rating_max = filters.rating_max;
+      }
+
+      const response = await getBooks(params);
+      const allBooks = response.books || [];
+      
+      // Calculate pagination
+      const totalCount = response.count || allBooks.length;
+      const startIdx = (currentPage - 1) * itemsPerPage;
+      const endIdx = startIdx + itemsPerPage;
+      const paginatedBooks = allBooks.slice(startIdx, endIdx);
+      
+      setBooks(paginatedBooks);
+      setTotalCount(totalCount);
+      
+      // Calculate if there's a next/previous page
+      setHasNextPage((currentPage * itemsPerPage) < totalCount);
+      setHasPreviousPage(currentPage > 1);
+    } catch (error) {
+      console.error("Error fetching books:", error);
+      setBooks([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await getBookCategories({ limit: 50 });
+      setCategories(response.categories || []);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  const fetchRegions = async () => {
+    try {
+      const response = await getRegions();
+      setRegions(response.regions || response || []);
+    } catch (error) {
+      console.error("Error fetching regions:", error);
+    }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setCurrentPage(1);
+    fetchBooks();
+  };
+
+  const handleFilterChange = (filterType, value) => {
+    setCurrentPage(1);
+    setFilters((prev) => ({
+      ...prev,
+      [filterType]: value,
+    }));
+  };
+
+  const handleClearFilters = () => {
+    setCurrentPage(1);
+    setFilters({
+      category: "",
+      region: "",
+      district: "",
+      cover_type: "",
+      price_min: "",
+      price_max: "",
+      rating_min: "",
+      rating_max: "",
+    });
+    setSearchQuery("");
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Calculate pagination
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxPages = 7;
+    let startPage = Math.max(1, currentPage - Math.floor(maxPages / 2));
+    let endPage = Math.min(totalPages, startPage + maxPages - 1);
+    
+    if (endPage - startPage < maxPages - 1) {
+      startPage = Math.max(1, endPage - maxPages + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
+  // Get selected region's districts
+  const selectedRegion = regions.find((r) => r.id.toString() === filters.region);
+  const districts = selectedRegion?.districts || [];
+
   return (
     <section className="vendor-two py-80">
       <div className={`side-overlay ${active && "show"}`}></div>
       <div className="container container-lg">
         {/* Top Search */}
         <div className="d-flex align-items-center justify-content-between flex-wrap mb-48 gap-16">
-          <form action="#" className="input-group w-100 max-w-418">
+          <form onSubmit={handleSearch} className="input-group w-100 max-w-418">
             <input
               type="text"
               className="form-control common-input rounded-start-3"
-              placeholder="Searching..."
+              placeholder={t("searchPlaceholder")}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
             <button
               type="submit"
@@ -31,9 +215,7 @@ const VendorTwo = () => {
           </form>
           <div className="d-flex align-items-center justify-content-between justify-content-sm-end gap-16 flex-grow-1">
             <div className="text-gray-600 text-md flex-shrink-0">
-              {" "}
-              <span className="text-neutral-900 fw-semibold">52</span> Results
-              Found
+              <span className="text-neutral-900 fw-semibold">{totalCount}</span> {t("resultsFound")}
             </div>
             <div className="d-flex align-items-center gap-8 d-sm-flex d-none">
               <button
@@ -76,1416 +258,260 @@ const VendorTwo = () => {
                 <i className="ph ph-x" />
               </button>
               <div className="d-flex flex-column gap-12 px-lg-0 px-3 py-lg-0 py-4">
+
+                {/* Categories Filter */}
                 <div className="border border-gray-50 rounded-8 p-24">
                   <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">
-                    Product Category
+                    {t("productCategory")}
                   </h6>
                   <ul className="max-h-540 overflow-y-auto scroll-sm">
                     <li className="mb-24">
-                      <Link
-                        href="/product-details-two"
-                        className="text-gray-900 hover-text-main-600"
+                      <button
+                        onClick={() => handleFilterChange("category", "")}
+                        className={`text-gray-900 hover-text-main-600 text-start border-0 bg-transparent w-100 ${!filters.category && "text-main-600 fw-semibold"}`}
                       >
-                        Mobile &amp; Accessories (12)
-                      </Link>
+                        {tCommon("all")}
+                      </button>
                     </li>
-                    <li className="mb-24">
-                      <Link
-                        href="/product-details-two"
-                        className="text-gray-900 hover-text-main-600"
-                      >
-                        Laptop (12)
-                      </Link>
-                    </li>
-                    <li className="mb-24">
-                      <Link
-                        href="/product-details-two"
-                        className="text-gray-900 hover-text-main-600"
-                      >
-                        Electronics (12)
-                      </Link>
-                    </li>
-                    <li className="mb-24">
-                      <Link
-                        href="/product-details-two"
-                        className="text-gray-900 hover-text-main-600"
-                      >
-                        Smart Watch (12)
-                      </Link>
-                    </li>
-                    <li className="mb-24">
-                      <Link
-                        href="/product-details-two"
-                        className="text-gray-900 hover-text-main-600"
-                      >
-                        Storage (12)
-                      </Link>
-                    </li>
-                    <li className="mb-24">
-                      <Link
-                        href="/product-details-two"
-                        className="text-gray-900 hover-text-main-600"
-                      >
-                        Portable Devices (12)
-                      </Link>
-                    </li>
-                    <li className="mb-24">
-                      <Link
-                        href="/product-details-two"
-                        className="text-gray-900 hover-text-main-600"
-                      >
-                        Action Camera (12)
-                      </Link>
-                    </li>
-                    <li className="mb-24">
-                      <Link
-                        href="/product-details-two"
-                        className="text-gray-900 hover-text-main-600"
-                      >
-                        Smart Gadget (12)
-                      </Link>
-                    </li>
-                    <li className="mb-24">
-                      <Link
-                        href="/product-details-two"
-                        className="text-gray-900 hover-text-main-600"
-                      >
-                        Monitor (12)
-                      </Link>
-                    </li>
-                    <li className="mb-24">
-                      <Link
-                        href="/product-details-two"
-                        className="text-gray-900 hover-text-main-600"
-                      >
-                        Smart TV (12)
-                      </Link>
-                    </li>
-                    <li className="mb-24">
-                      <Link
-                        href="/product-details-two"
-                        className="text-gray-900 hover-text-main-600"
-                      >
-                        Camera (12)
-                      </Link>
-                    </li>
-                    <li className="mb-24">
-                      <Link
-                        href="/product-details-two"
-                        className="text-gray-900 hover-text-main-600"
-                      >
-                        Monitor Stand (12)
-                      </Link>
-                    </li>
-                    <li className="mb-0">
-                      <Link
-                        href="/product-details-two"
-                        className="text-gray-900 hover-text-main-600"
-                      >
-                        Headphone (12)
-                      </Link>
-                    </li>
+                    {categories.map((cat) => (
+                      <li key={cat.id} className="mb-24">
+                        <button
+                          onClick={() => handleFilterChange("category", cat.id)}
+                          className={`text-gray-900 hover-text-main-600 text-start border-0 bg-transparent w-100 ${filters.category === cat.id.toString() && "text-main-600 fw-semibold"}`}
+                        >
+                          {cat.name} ({cat.books_count || 0})
+                        </button>
+                      </li>
+                    ))}
                   </ul>
                 </div>
-                <div className="shop-sidebar__box border border-gray-100 rounded-8 p-32 mb-32">
-                  <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">
-                    Filter by Rating
-                  </h6>
-                  <div className="flex-align gap-8 position-relative mb-20">
-                    <label
-                      className="position-absolute w-100 h-100 cursor-pointer"
-                      htmlFor="rating5"
-                    >
-                      {" "}
-                    </label>
-                    <div className="common-check common-radio mb-0">
-                      <input
-                        className="form-check-input"
-                        type="radio"
-                        name="flexRadioDefault"
-                        id="rating5"
-                      />
-                    </div>
-                    <div
-                      className="progress w-100 bg-gray-100 rounded-pill h-8"
-                      role="progressbar"
-                      aria-label="Basic example"
-                      aria-valuenow={70}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                    >
-                      <div
-                        className="progress-bar bg-main-600 rounded-pill"
-                        style={{ width: "70%" }}
-                      />
-                    </div>
-                    <div className="flex-align gap-4">
-                      <span className="text-xs fw-medium text-warning-600 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-warning-600 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-warning-600 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-warning-600 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-warning-600 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                    </div>
-                    <span className="text-gray-900 flex-shrink-0">124</span>
-                  </div>
-                  <div className="flex-align gap-8 position-relative mb-20">
-                    <label
-                      className="position-absolute w-100 h-100 cursor-pointer"
-                      htmlFor="rating4"
-                    >
-                      {" "}
-                    </label>
-                    <div className="common-check common-radio mb-0">
-                      <input
-                        className="form-check-input"
-                        type="radio"
-                        name="flexRadioDefault"
-                        id="rating4"
-                      />
-                    </div>
-                    <div
-                      className="progress w-100 bg-gray-100 rounded-pill h-8"
-                      role="progressbar"
-                      aria-label="Basic example"
-                      aria-valuenow={50}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                    >
-                      <div
-                        className="progress-bar bg-main-600 rounded-pill"
-                        style={{ width: "50%" }}
-                      />
-                    </div>
-                    <div className="flex-align gap-4">
-                      <span className="text-xs fw-medium text-warning-600 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-warning-600 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-warning-600 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-warning-600 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-gray-400 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                    </div>
-                    <span className="text-gray-900 flex-shrink-0">52</span>
-                  </div>
-                  <div className="flex-align gap-8 position-relative mb-20">
-                    <label
-                      className="position-absolute w-100 h-100 cursor-pointer"
-                      htmlFor="rating3"
-                    >
-                      {" "}
-                    </label>
-                    <div className="common-check common-radio mb-0">
-                      <input
-                        className="form-check-input"
-                        type="radio"
-                        name="flexRadioDefault"
-                        id="rating3"
-                      />
-                    </div>
-                    <div
-                      className="progress w-100 bg-gray-100 rounded-pill h-8"
-                      role="progressbar"
-                      aria-label="Basic example"
-                      aria-valuenow={35}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                    >
-                      <div
-                        className="progress-bar bg-main-600 rounded-pill"
-                        style={{ width: "35%" }}
-                      />
-                    </div>
-                    <div className="flex-align gap-4">
-                      <span className="text-xs fw-medium text-warning-600 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-warning-600 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-warning-600 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-gray-400 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-gray-400 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                    </div>
-                    <span className="text-gray-900 flex-shrink-0">12</span>
-                  </div>
-                  <div className="flex-align gap-8 position-relative mb-20">
-                    <label
-                      className="position-absolute w-100 h-100 cursor-pointer"
-                      htmlFor="rating2"
-                    >
-                      {" "}
-                    </label>
-                    <div className="common-check common-radio mb-0">
-                      <input
-                        className="form-check-input"
-                        type="radio"
-                        name="flexRadioDefault"
-                        id="rating2"
-                      />
-                    </div>
-                    <div
-                      className="progress w-100 bg-gray-100 rounded-pill h-8"
-                      role="progressbar"
-                      aria-label="Basic example"
-                      aria-valuenow={20}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                    >
-                      <div
-                        className="progress-bar bg-main-600 rounded-pill"
-                        style={{ width: "20%" }}
-                      />
-                    </div>
-                    <div className="flex-align gap-4">
-                      <span className="text-xs fw-medium text-warning-600 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-warning-600 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-gray-400 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-gray-400 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-gray-400 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                    </div>
-                    <span className="text-gray-900 flex-shrink-0">5</span>
-                  </div>
-                  <div className="flex-align gap-8 position-relative mb-0">
-                    <label
-                      className="position-absolute w-100 h-100 cursor-pointer"
-                      htmlFor="rating1"
-                    >
-                      {" "}
-                    </label>
-                    <div className="common-check common-radio mb-0">
-                      <input
-                        className="form-check-input"
-                        type="radio"
-                        name="flexRadioDefault"
-                        id="rating1"
-                      />
-                    </div>
-                    <div
-                      className="progress w-100 bg-gray-100 rounded-pill h-8"
-                      role="progressbar"
-                      aria-label="Basic example"
-                      aria-valuenow={5}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                    >
-                      <div
-                        className="progress-bar bg-main-600 rounded-pill"
-                        style={{ width: "5%" }}
-                      />
-                    </div>
-                    <div className="flex-align gap-4">
-                      <span className="text-xs fw-medium text-warning-600 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-gray-400 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-gray-400 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-gray-400 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                      <span className="text-xs fw-medium text-gray-400 d-flex">
-                        <i className="ph-fill ph-star" />
-                      </span>
-                    </div>
-                    <span className="text-gray-900 flex-shrink-0">2</span>
-                  </div>
-                </div>
+
+                {/* Cover Type Filter */}
                 <div className="border border-gray-50 rounded-8 p-24">
                   <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">
-                    Filter by Location
+                    {t("filterByCover")}
                   </h6>
                   <div className="d-flex flex-column gap-8">
-                    <select
-                      className="common-input form-select"
-                      defaultValue={1}
-                    >
-                      <option value={1}>Country</option>
-                      <option value={2}>Bangladesh</option>
-                      <option value={3}>Pakistan</option>
-                      <option value={3}>Vutan</option>
-                      <option value={4}>Nepal</option>
-                    </select>
-                    <select
-                      className="common-input form-select"
-                      defaultValue={1}
-                    >
-                      <option value={1} disabled>
-                        State
-                      </option>
-                      <option value={2}>California</option>
-                      <option value={3}>Washington</option>
-                      <option value={4}>Florida</option>
-                      <option value={5}>Texas</option>
-                    </select>
-                    <select
-                      className="common-input form-select"
-                      defaultValue={1}
-                    >
-                      <option value={1}>City</option>
-                      <option value={2}>New York</option>
-                      <option value={3}>San Francisco</option>
-                      <option value={4}> Oklahoma City</option>
-                      <option value={5}>Chicago</option>
-                    </select>
+                    <label className="d-flex align-items-center gap-8 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="cover_type"
+                        value=""
+                        checked={filters.cover_type === ""}
+                        onChange={(e) => handleFilterChange("cover_type", e.target.value)}
+                        className="form-check-input"
+                      />
+                      <span>{tCommon("all")}</span>
+                    </label>
+                    <label className="d-flex align-items-center gap-8 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="cover_type"
+                        value="hard"
+                        checked={filters.cover_type === "hard"}
+                        onChange={(e) => handleFilterChange("cover_type", e.target.value)}
+                        className="form-check-input"
+                      />
+                      <span>{tBookShop("hardCover")}</span>
+                    </label>
+                    <label className="d-flex align-items-center gap-8 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="cover_type"
+                        value="soft"
+                        checked={filters.cover_type === "soft"}
+                        onChange={(e) => handleFilterChange("cover_type", e.target.value)}
+                        className="form-check-input"
+                      />
+                      <span>{tBookShop("softCover")}</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Price Filter */}
+                <div className="border border-gray-50 rounded-8 p-24">
+                  <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">
+                    {t("filterByPrice")}
+                  </h6>
+                  <div className="d-flex gap-8">
                     <input
-                      type="text"
+                      type="number"
                       className="common-input"
-                      placeholder="Zip"
+                      placeholder={t("minPrice")}
+                      value={filters.price_min}
+                      onChange={(e) => handleFilterChange("price_min", e.target.value)}
+                    />
+                    <input
+                      type="number"
+                      className="common-input"
+                      placeholder={t("maxPrice")}
+                      value={filters.price_max}
+                      onChange={(e) => handleFilterChange("price_max", e.target.value)}
                     />
                   </div>
+                </div>
+
+                {/* Rating Filter */}
+                <div className="border border-gray-50 rounded-8 p-24">
+                  <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">
+                    {t("filterByRating")}
+                  </h6>
+                  <div className="d-flex gap-8">
+                    <input
+                      type="number"
+                      className="common-input"
+                      placeholder={t("minRating")}
+                      min="0"
+                      max="5"
+                      step="0.1"
+                      value={filters.rating_min}
+                      onChange={(e) => handleFilterChange("rating_min", e.target.value)}
+                    />
+                    <input
+                      type="number"
+                      className="common-input"
+                      placeholder={t("maxRating")}
+                      min="0"
+                      max="5"
+                      step="0.1"
+                      value={filters.rating_max}
+                      onChange={(e) => handleFilterChange("rating_max", e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Location Filter */}
+                <div className="border border-gray-50 rounded-8 p-24">
+                  <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">
+                    {t("filterByLocation")}
+                  </h6>
+                  <div className="d-flex flex-column gap-12">
+                    <div>
+                      <label className="text-sm text-gray-600 mb-8 d-block fw-medium">
+                        {tLocation("region")}
+                      </label>
+                      <select
+                        className="common-input form-select"
+                        value={filters.region}
+                        onChange={(e) => {
+                          handleFilterChange("region", e.target.value);
+                          handleFilterChange("district", "");
+                        }}
+                      >
+                        <option value="">{tBookShop("allLocations")}</option>
+                        {regions.map((region) => (
+                          <option key={region.id} value={region.id}>
+                            {region.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    {filters.region && districts.length > 0 && (
+                      <div>
+                        <label className="text-sm text-gray-600 mb-8 d-block fw-medium">
+                          {tLocation("district")}
+                        </label>
+                        <select
+                          className="common-input form-select"
+                          value={filters.district}
+                          onChange={(e) => handleFilterChange("district", e.target.value)}
+                        >
+                          <option value="">{tLocation("selectDistrict")}</option>
+                          {districts.map((district) => (
+                            <option key={district.id} value={district.id}>
+                              {district.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Clear Filters */}
+                <div className="border border-gray-50 rounded-8 p-24">
+                  <button
+                    onClick={handleClearFilters}
+                    className="btn btn-outline-main w-100"
+                  >
+                    {t("clearFilters")}
+                  </button>
                 </div>
               </div>
             </div>
           </div>
           <div className="col-xl-9 col-lg-8">
-            {/* Vendors Start */}
-            <div
-              className={`list-grid-wrapper vendors-two-item-wrapper grid-cols-3 ${
-                grid && "list-view"
-              }`}
-            >
-              <div className="vendors-two-item rounded-12 overflow-hidden bg-color-three border border-neutral-50 hover-border-main-two-600 transition-2">
-                <div className="vendors-two-item__top bg-overlay style-two position-relative">
-                  <div className="vendors-two-item__thumbs h-210">
-                    <img
-                      src="assets/images/thumbs/vendors-two-img1.png"
-                      alt=""
-                      className="cover-img"
-                    />
-                  </div>
-                  <div className="position-absolute top-0 inset-inline-start-0 w-100 h-100 p-24 z-1 d-flex flex-column justify-content-between">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <span className="w-80 h-80 flex-center bg-white rounded-circle flex-shrink-0">
-                        <img
-                          src="assets/images/thumbs/vendors-two-icon1.png"
-                          alt=""
-                        />
-                      </span>
-                      <button
-                        type="button"
-                        className="text-uppercase border border-white px-16 py-8 rounded-pill text-white text-sm hover-bg-main-two-600 hover-text-white hover-border-main-two-600 transition-2"
-                      >
-                        FOLLOW
-                      </button>
-                    </div>
-                    <div className="mt-16">
-                      <h6 className="text-white fw-semibold mb-12">
-                        <Link href="/vendor-two-details" className="">
-                          e-Mart Shop
-                        </Link>
-                      </h6>
-                      <div className="flex-align gap-6">
-                        <div className="flex-align gap-8">
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                        </div>
-                        <span className="text-xs fw-medium text-white">
-                          4.8
-                        </span>
-                        <span className="text-xs fw-medium text-white">
-                          (12K)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="vendors-two-item__content p-24 flex-grow-1">
-                  <div className="d-flex flex-column gap-14">
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-map-pin-line" />
-                      </span>
-                      <p className="text-md text-gray-900">
-                        6391 Elgin St. Celina, Delaware 10299
-                      </p>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-envelope-simple" />
-                      </span>
-                      <a
-                        href="mailto:info@watch.com"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        info@watch.com
-                      </a>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-phone" />
-                      </span>
-                      <a
-                        href="tel:0833081888"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        083 308 1888
-                      </a>
-                    </div>
-                  </div>
-                  <Link
-                    href="/vendor-two-details"
-                    className="btn bg-neutral-600 hover-bg-neutral-700 text-white py-12 px-24 rounded-8 flex-center gap-8 fw-medium mt-24"
-                  >
-                    Visit Store
-                    <span className="text-xl d-flex text-main-two-600">
-                      {" "}
-                      <i className="ph ph-storefront" />
-                    </span>
-                  </Link>
-                </div>
+            {/* Books Start */}
+            {loading ? (
+              <div className="text-center py-80">
+                <Spin text={t("loading")} />
               </div>
-              <div className="vendors-two-item rounded-12 overflow-hidden bg-color-three border border-neutral-50 hover-border-main-two-600 transition-2">
-                <div className="vendors-two-item__top bg-overlay style-two position-relative">
-                  <div className="vendors-two-item__thumbs h-210">
-                    <img
-                      src="assets/images/thumbs/vendors-two-img2.png"
-                      alt=""
-                      className="cover-img"
-                    />
-                  </div>
-                  <div className="position-absolute top-0 inset-inline-start-0 w-100 h-100 p-24 z-1 d-flex flex-column justify-content-between">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <span className="w-80 h-80 flex-center bg-white rounded-circle flex-shrink-0">
-                        <img
-                          src="assets/images/thumbs/vendors-two-icon2.png"
-                          alt=""
-                        />
-                      </span>
+            ) : books.length > 0 ? (
+              <>
+                <div
+                  className={`list-grid-wrapper books-grid-wrapper grid-cols-3 ${
+                    grid && "list-view"
+                  }`}
+                >
+                  {books.map((book) => (
+                    <BookCard key={book.id} book={book} />
+                  ))}
+                </div>
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <ul className="pagination flex-center flex-wrap gap-16 mt-48">
+                    <li className="page-item">
                       <button
-                        type="button"
-                        className="text-uppercase border border-white px-16 py-8 rounded-pill text-white text-sm hover-bg-main-two-600 hover-text-white hover-border-main-two-600 transition-2"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={!hasPreviousPage}
+                        className={`page-link h-64 w-64 flex-center text-xxl rounded-8 fw-medium border border-gray-100 ${
+                          !hasPreviousPage
+                            ? "text-gray-400 cursor-not-allowed"
+                            : "text-neutral-600 hover-bg-main-600 hover-text-white hover-border-main-600"
+                        }`}
                       >
-                        FOLLOW
+                        <i className="ph-bold ph-arrow-left" />
                       </button>
-                    </div>
-                    <div className="mt-16">
-                      <h6 className="text-white fw-semibold mb-12">
-                        <Link href="/vendor-two-details" className="">
-                          Baishakhi
-                        </Link>
-                      </h6>
-                      <div className="flex-align gap-6">
-                        <div className="flex-align gap-8">
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                        </div>
-                        <span className="text-xs fw-medium text-white">
-                          4.8
-                        </span>
-                        <span className="text-xs fw-medium text-white">
-                          (12K)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="vendors-two-item__content p-24 flex-grow-1">
-                  <div className="d-flex flex-column gap-14">
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-map-pin-line" />
-                      </span>
-                      <p className="text-md text-gray-900">
-                        6391 Elgin St. Celina, Delaware 10299
-                      </p>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-envelope-simple" />
-                      </span>
-                      <a
-                        href="mailto:info@watch.com"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        info@watch.com
-                      </a>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-phone" />
-                      </span>
-                      <a
-                        href="tel:0833081888"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        083 308 1888
-                      </a>
-                    </div>
-                  </div>
-                  <Link
-                    href="/vendor-two-details"
-                    className="btn bg-neutral-600 hover-bg-neutral-700 text-white py-12 px-24 rounded-8 flex-center gap-8 fw-medium mt-24"
-                  >
-                    Visit Store
-                    <span className="text-xl d-flex text-main-two-600">
-                      {" "}
-                      <i className="ph ph-storefront" />
-                    </span>
-                  </Link>
-                </div>
-              </div>
-              <div className="vendors-two-item rounded-12 overflow-hidden bg-color-three border border-neutral-50 hover-border-main-two-600 transition-2">
-                <div className="vendors-two-item__top bg-overlay style-two position-relative">
-                  <div className="vendors-two-item__thumbs h-210">
-                    <img
-                      src="assets/images/thumbs/vendors-two-img3.png"
-                      alt=""
-                      className="cover-img"
-                    />
-                  </div>
-                  <div className="position-absolute top-0 inset-inline-start-0 w-100 h-100 p-24 z-1 d-flex flex-column justify-content-between">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <span className="w-80 h-80 flex-center bg-white rounded-circle flex-shrink-0">
-                        <img
-                          src="assets/images/thumbs/vendors-two-icon3.png"
-                          alt=""
-                        />
-                      </span>
+                    </li>
+                    {getPageNumbers().map((pageNum) => (
+                      <li key={pageNum} className="page-item">
+                        <button
+                          onClick={() => handlePageChange(pageNum)}
+                          className={`page-link h-64 w-64 flex-center text-md rounded-8 fw-medium border border-gray-100 ${
+                            currentPage === pageNum
+                              ? "text-white bg-main-600 border-main-600"
+                              : "text-neutral-600 hover-bg-main-600 hover-text-white hover-border-main-600"
+                          }`}
+                        >
+                          {String(pageNum).padStart(2, "0")}
+                        </button>
+                      </li>
+                    ))}
+                    <li className="page-item">
                       <button
-                        type="button"
-                        className="text-uppercase border border-white px-16 py-8 rounded-pill text-white text-sm hover-bg-main-two-600 hover-text-white hover-border-main-two-600 transition-2"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={!hasNextPage}
+                        className={`page-link h-64 w-64 flex-center text-xxl rounded-8 fw-medium border border-gray-100 ${
+                          !hasNextPage
+                            ? "text-gray-400 cursor-not-allowed"
+                            : "text-neutral-600 hover-bg-main-600 hover-text-white hover-border-main-600"
+                        }`}
                       >
-                        FOLLOW
+                        <i className="ph-bold ph-arrow-right" />
                       </button>
-                    </div>
-                    <div className="mt-16">
-                      <h6 className="text-white fw-semibold mb-12">
-                        <Link href="/vendor-two-details" className="">
-                          e-zone Shop
-                        </Link>
-                      </h6>
-                      <div className="flex-align gap-6">
-                        <div className="flex-align gap-8">
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                        </div>
-                        <span className="text-xs fw-medium text-white">
-                          4.8
-                        </span>
-                        <span className="text-xs fw-medium text-white">
-                          (12K)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="vendors-two-item__content p-24 flex-grow-1">
-                  <div className="d-flex flex-column gap-14">
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-map-pin-line" />
-                      </span>
-                      <p className="text-md text-gray-900">
-                        6391 Elgin St. Celina, Delaware 10299
-                      </p>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-envelope-simple" />
-                      </span>
-                      <a
-                        href="mailto:info@watch.com"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        info@watch.com
-                      </a>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-phone" />
-                      </span>
-                      <a
-                        href="tel:0833081888"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        083 308 1888
-                      </a>
-                    </div>
-                  </div>
-                  <Link
-                    href="/vendor-two-details"
-                    className="btn bg-neutral-600 hover-bg-neutral-700 text-white py-12 px-24 rounded-8 flex-center gap-8 fw-medium mt-24"
-                  >
-                    Visit Store
-                    <span className="text-xl d-flex text-main-two-600">
-                      {" "}
-                      <i className="ph ph-storefront" />
-                    </span>
-                  </Link>
-                </div>
+                    </li>
+                  </ul>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-80">
+                <i className="ph ph-books text-gray-300 text-5xl mb-16"></i>
+                <h5 className="text-gray-500 mb-8">{t("noBooks")}</h5>
+                <p className="text-gray-400 text-sm">{t("noBooksMessage")}</p>
               </div>
-              <div className="vendors-two-item rounded-12 overflow-hidden bg-color-three border border-neutral-50 hover-border-main-two-600 transition-2">
-                <div className="vendors-two-item__top bg-overlay style-two position-relative">
-                  <div className="vendors-two-item__thumbs h-210">
-                    <img
-                      src="assets/images/thumbs/vendors-two-img4.png"
-                      alt=""
-                      className="cover-img"
-                    />
-                  </div>
-                  <div className="position-absolute top-0 inset-inline-start-0 w-100 h-100 p-24 z-1 d-flex flex-column justify-content-between">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <span className="w-80 h-80 flex-center bg-white rounded-circle flex-shrink-0">
-                        <img
-                          src="assets/images/thumbs/vendors-two-icon1.png"
-                          alt=""
-                        />
-                      </span>
-                      <button
-                        type="button"
-                        className="text-uppercase border border-white px-16 py-8 rounded-pill text-white text-sm hover-bg-main-two-600 hover-text-white hover-border-main-two-600 transition-2"
-                      >
-                        FOLLOW
-                      </button>
-                    </div>
-                    <div className="mt-16">
-                      <h6 className="text-white fw-semibold mb-12">
-                        <Link href="/vendor-two-details" className="">
-                          Cloth &amp; Fashion Shop
-                        </Link>
-                      </h6>
-                      <div className="flex-align gap-6">
-                        <div className="flex-align gap-8">
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                        </div>
-                        <span className="text-xs fw-medium text-white">
-                          4.8
-                        </span>
-                        <span className="text-xs fw-medium text-white">
-                          (12K)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="vendors-two-item__content p-24 flex-grow-1">
-                  <div className="d-flex flex-column gap-14">
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-map-pin-line" />
-                      </span>
-                      <p className="text-md text-gray-900">
-                        6391 Elgin St. Celina, Delaware 10299
-                      </p>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-envelope-simple" />
-                      </span>
-                      <a
-                        href="mailto:info@watch.com"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        info@watch.com
-                      </a>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-phone" />
-                      </span>
-                      <a
-                        href="tel:0833081888"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        083 308 1888
-                      </a>
-                    </div>
-                  </div>
-                  <Link
-                    href="/vendor-two-details"
-                    className="btn bg-neutral-600 hover-bg-neutral-700 text-white py-12 px-24 rounded-8 flex-center gap-8 fw-medium mt-24"
-                  >
-                    Visit Store
-                    <span className="text-xl d-flex text-main-two-600">
-                      {" "}
-                      <i className="ph ph-storefront" />
-                    </span>
-                  </Link>
-                </div>
-              </div>
-              <div className="vendors-two-item rounded-12 overflow-hidden bg-color-three border border-neutral-50 hover-border-main-two-600 transition-2">
-                <div className="vendors-two-item__top bg-overlay style-two position-relative">
-                  <div className="vendors-two-item__thumbs h-210">
-                    <img
-                      src="assets/images/thumbs/vendors-two-img5.png"
-                      alt=""
-                      className="cover-img"
-                    />
-                  </div>
-                  <div className="position-absolute top-0 inset-inline-start-0 w-100 h-100 p-24 z-1 d-flex flex-column justify-content-between">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <span className="w-80 h-80 flex-center bg-white rounded-circle flex-shrink-0">
-                        <img
-                          src="assets/images/thumbs/vendors-two-icon5.png"
-                          alt=""
-                        />
-                      </span>
-                      <button
-                        type="button"
-                        className="text-uppercase border border-white px-16 py-8 rounded-pill text-white text-sm hover-bg-main-two-600 hover-text-white hover-border-main-two-600 transition-2"
-                      >
-                        FOLLOW
-                      </button>
-                    </div>
-                    <div className="mt-16">
-                      <h6 className="text-white fw-semibold mb-12">
-                        <Link href="/vendor-two-details" className="">
-                          New Market Shop
-                        </Link>
-                      </h6>
-                      <div className="flex-align gap-6">
-                        <div className="flex-align gap-8">
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                        </div>
-                        <span className="text-xs fw-medium text-white">
-                          4.8
-                        </span>
-                        <span className="text-xs fw-medium text-white">
-                          (12K)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="vendors-two-item__content p-24 flex-grow-1">
-                  <div className="d-flex flex-column gap-14">
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-map-pin-line" />
-                      </span>
-                      <p className="text-md text-gray-900">
-                        6391 Elgin St. Celina, Delaware 10299
-                      </p>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-envelope-simple" />
-                      </span>
-                      <a
-                        href="mailto:info@watch.com"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        info@watch.com
-                      </a>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-phone" />
-                      </span>
-                      <a
-                        href="tel:0833081888"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        083 308 1888
-                      </a>
-                    </div>
-                  </div>
-                  <Link
-                    href="/vendor-two-details"
-                    className="btn bg-neutral-600 hover-bg-neutral-700 text-white py-12 px-24 rounded-8 flex-center gap-8 fw-medium mt-24"
-                  >
-                    Visit Store
-                    <span className="text-xl d-flex text-main-two-600">
-                      {" "}
-                      <i className="ph ph-storefront" />
-                    </span>
-                  </Link>
-                </div>
-              </div>
-              <div className="vendors-two-item rounded-12 overflow-hidden bg-color-three border border-neutral-50 hover-border-main-two-600 transition-2">
-                <div className="vendors-two-item__top bg-overlay style-two position-relative">
-                  <div className="vendors-two-item__thumbs h-210">
-                    <img
-                      src="assets/images/thumbs/vendors-two-img6.png"
-                      alt=""
-                      className="cover-img"
-                    />
-                  </div>
-                  <div className="position-absolute top-0 inset-inline-start-0 w-100 h-100 p-24 z-1 d-flex flex-column justify-content-between">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <span className="w-80 h-80 flex-center bg-white rounded-circle flex-shrink-0">
-                        <img
-                          src="assets/images/thumbs/vendors-two-icon6.png"
-                          alt=""
-                        />
-                      </span>
-                      <button
-                        type="button"
-                        className="text-uppercase border border-white px-16 py-8 rounded-pill text-white text-sm hover-bg-main-two-600 hover-text-white hover-border-main-two-600 transition-2"
-                      >
-                        FOLLOW
-                      </button>
-                    </div>
-                    <div className="mt-16">
-                      <h6 className="text-white fw-semibold mb-12">
-                        <Link href="/vendor-two-details" className="">
-                          Zeilla Shop
-                        </Link>
-                      </h6>
-                      <div className="flex-align gap-6">
-                        <div className="flex-align gap-8">
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                        </div>
-                        <span className="text-xs fw-medium text-white">
-                          4.8
-                        </span>
-                        <span className="text-xs fw-medium text-white">
-                          (12K)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="vendors-two-item__content p-24 flex-grow-1">
-                  <div className="d-flex flex-column gap-14">
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-map-pin-line" />
-                      </span>
-                      <p className="text-md text-gray-900">
-                        6391 Elgin St. Celina, Delaware 10299
-                      </p>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-envelope-simple" />
-                      </span>
-                      <a
-                        href="mailto:info@watch.com"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        info@watch.com
-                      </a>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-phone" />
-                      </span>
-                      <a
-                        href="tel:0833081888"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        083 308 1888
-                      </a>
-                    </div>
-                  </div>
-                  <Link
-                    href="/vendor-two-details"
-                    className="btn bg-neutral-600 hover-bg-neutral-700 text-white py-12 px-24 rounded-8 flex-center gap-8 fw-medium mt-24"
-                  >
-                    Visit Store
-                    <span className="text-xl d-flex text-main-two-600">
-                      {" "}
-                      <i className="ph ph-storefront" />
-                    </span>
-                  </Link>
-                </div>
-              </div>
-              <div className="vendors-two-item rounded-12 overflow-hidden bg-color-three border border-neutral-50 hover-border-main-two-600 transition-2">
-                <div className="vendors-two-item__top bg-overlay style-two position-relative">
-                  <div className="vendors-two-item__thumbs h-210">
-                    <img
-                      src="assets/images/thumbs/vendors-two-img7.png"
-                      alt=""
-                      className="cover-img"
-                    />
-                  </div>
-                  <div className="position-absolute top-0 inset-inline-start-0 w-100 h-100 p-24 z-1 d-flex flex-column justify-content-between">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <span className="w-80 h-80 flex-center bg-white rounded-circle flex-shrink-0">
-                        <img
-                          src="assets/images/thumbs/vendors-two-icon7.png"
-                          alt=""
-                        />
-                      </span>
-                      <button
-                        type="button"
-                        className="text-uppercase border border-white px-16 py-8 rounded-pill text-white text-sm hover-bg-main-two-600 hover-text-white hover-border-main-two-600 transition-2"
-                      >
-                        FOLLOW
-                      </button>
-                    </div>
-                    <div className="mt-16">
-                      <h6 className="text-white fw-semibold mb-12">
-                        <Link href="/vendor-two-details" className="">
-                          Ever Green Shop
-                        </Link>
-                      </h6>
-                      <div className="flex-align gap-6">
-                        <div className="flex-align gap-8">
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                        </div>
-                        <span className="text-xs fw-medium text-white">
-                          4.8
-                        </span>
-                        <span className="text-xs fw-medium text-white">
-                          (12K)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="vendors-two-item__content p-24 flex-grow-1">
-                  <div className="d-flex flex-column gap-14">
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-map-pin-line" />
-                      </span>
-                      <p className="text-md text-gray-900">
-                        6391 Elgin St. Celina, Delaware 10299
-                      </p>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-envelope-simple" />
-                      </span>
-                      <a
-                        href="mailto:info@watch.com"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        info@watch.com
-                      </a>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-phone" />
-                      </span>
-                      <a
-                        href="tel:0833081888"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        083 308 1888
-                      </a>
-                    </div>
-                  </div>
-                  <Link
-                    href="/vendor-two-details"
-                    className="btn bg-neutral-600 hover-bg-neutral-700 text-white py-12 px-24 rounded-8 flex-center gap-8 fw-medium mt-24"
-                  >
-                    Visit Store
-                    <span className="text-xl d-flex text-main-two-600">
-                      {" "}
-                      <i className="ph ph-storefront" />
-                    </span>
-                  </Link>
-                </div>
-              </div>
-              <div className="vendors-two-item rounded-12 overflow-hidden bg-color-three border border-neutral-50 hover-border-main-two-600 transition-2">
-                <div className="vendors-two-item__top bg-overlay style-two position-relative">
-                  <div className="vendors-two-item__thumbs h-210">
-                    <img
-                      src="assets/images/thumbs/vendors-two-img8.png"
-                      alt=""
-                      className="cover-img"
-                    />
-                  </div>
-                  <div className="position-absolute top-0 inset-inline-start-0 w-100 h-100 p-24 z-1 d-flex flex-column justify-content-between">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <span className="w-80 h-80 flex-center bg-white rounded-circle flex-shrink-0">
-                        <img
-                          src="assets/images/thumbs/vendors-two-icon8.png"
-                          alt=""
-                        />
-                      </span>
-                      <button
-                        type="button"
-                        className="text-uppercase border border-white px-16 py-8 rounded-pill text-white text-sm hover-bg-main-two-600 hover-text-white hover-border-main-two-600 transition-2"
-                      >
-                        FOLLOW
-                      </button>
-                    </div>
-                    <div className="mt-16">
-                      <h6 className="text-white fw-semibold mb-12">
-                        <Link href="/vendor-two-details" className="">
-                          Maple Shop
-                        </Link>
-                      </h6>
-                      <div className="flex-align gap-6">
-                        <div className="flex-align gap-8">
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                        </div>
-                        <span className="text-xs fw-medium text-white">
-                          4.8
-                        </span>
-                        <span className="text-xs fw-medium text-white">
-                          (12K)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="vendors-two-item__content p-24 flex-grow-1">
-                  <div className="d-flex flex-column gap-14">
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-map-pin-line" />
-                      </span>
-                      <p className="text-md text-gray-900">
-                        6391 Elgin St. Celina, Delaware 10299
-                      </p>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-envelope-simple" />
-                      </span>
-                      <a
-                        href="mailto:info@watch.com"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        info@watch.com
-                      </a>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-phone" />
-                      </span>
-                      <a
-                        href="tel:0833081888"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        083 308 1888
-                      </a>
-                    </div>
-                  </div>
-                  <Link
-                    href="/vendor-two-details"
-                    className="btn bg-neutral-600 hover-bg-neutral-700 text-white py-12 px-24 rounded-8 flex-center gap-8 fw-medium mt-24"
-                  >
-                    Visit Store
-                    <span className="text-xl d-flex text-main-two-600">
-                      {" "}
-                      <i className="ph ph-storefront" />
-                    </span>
-                  </Link>
-                </div>
-              </div>
-              <div className="vendors-two-item rounded-12 overflow-hidden bg-color-three border border-neutral-50 hover-border-main-two-600 transition-2">
-                <div className="vendors-two-item__top bg-overlay style-two position-relative">
-                  <div className="vendors-two-item__thumbs h-210">
-                    <img
-                      src="assets/images/thumbs/vendors-two-img9.png"
-                      alt=""
-                      className="cover-img"
-                    />
-                  </div>
-                  <div className="position-absolute top-0 inset-inline-start-0 w-100 h-100 p-24 z-1 d-flex flex-column justify-content-between">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <span className="w-80 h-80 flex-center bg-white rounded-circle flex-shrink-0">
-                        <img
-                          src="assets/images/thumbs/vendors-two-icon2.png"
-                          alt=""
-                        />
-                      </span>
-                      <button
-                        type="button"
-                        className="text-uppercase border border-white px-16 py-8 rounded-pill text-white text-sm hover-bg-main-two-600 hover-text-white hover-border-main-two-600 transition-2"
-                      >
-                        FOLLOW
-                      </button>
-                    </div>
-                    <div className="mt-16">
-                      <h6 className="text-white fw-semibold mb-12">
-                        <Link href="/vendor-two-details" className="">
-                          New Mart
-                        </Link>
-                      </h6>
-                      <div className="flex-align gap-6">
-                        <div className="flex-align gap-8">
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                          <span className="text-15 fw-medium text-warning-600 d-flex">
-                            <i className="ph-fill ph-star" />
-                          </span>
-                        </div>
-                        <span className="text-xs fw-medium text-white">
-                          4.8
-                        </span>
-                        <span className="text-xs fw-medium text-white">
-                          (12K)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="vendors-two-item__content p-24 flex-grow-1">
-                  <div className="d-flex flex-column gap-14">
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-map-pin-line" />
-                      </span>
-                      <p className="text-md text-gray-900">
-                        6391 Elgin St. Celina, Delaware 10299
-                      </p>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-envelope-simple" />
-                      </span>
-                      <a
-                        href="mailto:info@watch.com"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        info@watch.com
-                      </a>
-                    </div>
-                    <div className="flex-align gap-8">
-                      <span className="flex-center text-main-two-600 text-2xl flex-shrink-0">
-                        <i className="ph ph-phone" />
-                      </span>
-                      <a
-                        href="tel:0833081888"
-                        className="text-md text-gray-900 hover-text-main-60"
-                      >
-                        083 308 1888
-                      </a>
-                    </div>
-                  </div>
-                  <Link
-                    href="/vendor-two-details"
-                    className="btn bg-neutral-600 hover-bg-neutral-700 text-white py-12 px-24 rounded-8 flex-center gap-8 fw-medium mt-24"
-                  >
-                    Visit Store
-                    <span className="text-xl d-flex text-main-two-600">
-                      {" "}
-                      <i className="ph ph-storefront" />
-                    </span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-            {/* Vendors End */}
-            {/* Pagination Start */}
-            <ul className="pagination flex-center flex-wrap gap-16">
-              <li className="page-item">
-                <Link
-                  className="page-link h-64 w-64 flex-center text-xxl rounded-8 fw-medium text-neutral-600 border border-gray-100"
-                  href="#"
-                >
-                  <i className="ph-bold ph-arrow-left" />
-                </Link>
-              </li>
-              <li className="page-item active">
-                <Link
-                  className="page-link h-64 w-64 flex-center text-md rounded-8 fw-medium text-neutral-600 border border-gray-100"
-                  href="#"
-                >
-                  01
-                </Link>
-              </li>
-              <li className="page-item">
-                <Link
-                  className="page-link h-64 w-64 flex-center text-md rounded-8 fw-medium text-neutral-600 border border-gray-100"
-                  href="#"
-                >
-                  02
-                </Link>
-              </li>
-              <li className="page-item">
-                <Link
-                  className="page-link h-64 w-64 flex-center text-md rounded-8 fw-medium text-neutral-600 border border-gray-100"
-                  href="#"
-                >
-                  03
-                </Link>
-              </li>
-              <li className="page-item">
-                <Link
-                  className="page-link h-64 w-64 flex-center text-md rounded-8 fw-medium text-neutral-600 border border-gray-100"
-                  href="#"
-                >
-                  04
-                </Link>
-              </li>
-              <li className="page-item">
-                <Link
-                  className="page-link h-64 w-64 flex-center text-md rounded-8 fw-medium text-neutral-600 border border-gray-100"
-                  href="#"
-                >
-                  05
-                </Link>
-              </li>
-              <li className="page-item">
-                <Link
-                  className="page-link h-64 w-64 flex-center text-md rounded-8 fw-medium text-neutral-600 border border-gray-100"
-                  href="#"
-                >
-                  06
-                </Link>
-              </li>
-              <li className="page-item">
-                <Link
-                  className="page-link h-64 w-64 flex-center text-md rounded-8 fw-medium text-neutral-600 border border-gray-100"
-                  href="#"
-                >
-                  07
-                </Link>
-              </li>
-              <li className="page-item">
-                <Link
-                  className="page-link h-64 w-64 flex-center text-xxl rounded-8 fw-medium text-neutral-600 border border-gray-100"
-                  href="#"
-                >
-                  <i className="ph-bold ph-arrow-right" />
-                </Link>
-              </li>
-            </ul>
-            {/* Pagination End */}
+            )}
+            {/* Books End */}
           </div>
         </div>
       </div>

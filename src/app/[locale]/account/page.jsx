@@ -7,6 +7,7 @@ import ColorInit from "@/helper/ColorInit";
 import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
 import HeaderOne from "@/components/HeaderOne";
+import { getTranslations } from "next-intl/server";
 
 export const metadata = {
   title: "MarketPro - User Profile",
@@ -14,7 +15,9 @@ export const metadata = {
     "Manage your profile, orders, and account settings on MarketPro - your comprehensive e-commerce marketplace.",
 };
 
-const page = () => {
+const page = async () => {
+  const tBreadcrumb = await getTranslations("Breadcrumb");
+
   return (
     <>
       {/* ColorInit */}
@@ -28,7 +31,7 @@ const page = () => {
       <HeaderOne category={true} />
 
       {/* Breadcrumb */}
-      <Breadcrumb title={"My Account"} />
+      <Breadcrumb title={tBreadcrumb("myAccount")} />
 
       {/* ProfileDashboard */}
       <ProfileDashboard />
