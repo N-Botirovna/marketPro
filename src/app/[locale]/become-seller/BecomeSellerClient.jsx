@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import BottomFooter from "@/components/BottomFooter";
 import CounterSection from "@/components/CounterSection";
 import FooterOne from "@/components/FooterOne";
@@ -13,6 +14,7 @@ import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
 
 const BecomeSellerClient = () => {
+  const tSeller = useTranslations("SellerRegistration");
   const [showModal, setShowModal] = useState(false);
   const [showFloatingButton, setShowFloatingButton] = useState(false);
 
@@ -81,7 +83,7 @@ const BecomeSellerClient = () => {
             }}
           >
             <i className="ph ph-user-plus me-8"></i>
-            Hisob yaratish
+            {tSeller("createAccountButton")}
           </button>
         </div>
       )}

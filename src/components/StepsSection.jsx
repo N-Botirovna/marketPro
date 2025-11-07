@@ -1,9 +1,11 @@
 "use client";
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import SellerRegistrationModal from "./SellerRegistrationModal";
 
 const StepsSection = () => {
   const [showModal, setShowModal] = useState(false);
+  const tSteps = useTranslations("Steps");
 
   return (
     <section className='step py-80'>
@@ -18,18 +20,17 @@ const StepsSection = () => {
             <div className='col-lg-6'>
               <div className='step-content'>
                 <div className='section-heading ms-auto text-end'>
-                  <h5 className=''>200,000$ dan ortiq potentsial foyda</h5>
+                  <h5 className=''>{tSteps("title")}</h5>
                   <span className='text-gray-600'>
-                    Sotishga tayyormisiz? Bugun o'z brendingizni ishga tushiring va 
-                    yangi sotuvchilar uchun 200,000$ dan ortiq foyda oling
+                    {tSteps("subtitle")}
                   </span>
                 </div>
                 <div className='d-flex flex-column align-items-end gap-56'>
                   <div className='d-flex align-items-center gap-32'>
                     <div className='text-end'>
-                      <h5 className='mb-8'>1-qadam</h5>
+                      <h5 className='mb-8'>{tSteps("step1Title")}</h5>
                       <p className='text-gray-600'>
-                        Bizning veb-saytimizda hisob yarating. Bu tez va bepul.
+                        {tSteps("step1Desc")}
                       </p>
                     </div>
                     <div className='w-90 h-90 flex-center bg-main-two-100 rounded-circle'>
@@ -40,9 +41,9 @@ const StepsSection = () => {
                   </div>
                   <div className='d-flex align-items-center gap-32'>
                     <div className='text-end'>
-                      <h5 className='mb-8'>2-qadam</h5>
+                      <h5 className='mb-8'>{tSteps("step2Title")}</h5>
                       <p className='text-gray-600'>
-                        Kitoblaringizni yuklang va do'koningizda ko'rsating.
+                        {tSteps("step2Desc")}
                       </p>
                     </div>
                     <div className='w-90 h-90 flex-center bg-main-two-100 rounded-circle'>
@@ -53,9 +54,9 @@ const StepsSection = () => {
                   </div>
                   <div className='d-flex align-items-center gap-32'>
                     <div className='text-end'>
-                      <h5 className='mb-8'>3-qadam</h5>
+                      <h5 className='mb-8'>{tSteps("step3Title")}</h5>
                       <p className='text-gray-600'>
-                        Biz hisobingizni tekshiramiz va keyin siz sotishni boshlashingiz mumkin!
+                        {tSteps("step3Desc")}
                       </p>
                     </div>
                     <div className='w-90 h-90 flex-center bg-main-two-100 rounded-circle'>
@@ -69,7 +70,7 @@ const StepsSection = () => {
                       onClick={() => setShowModal(true)}
                       className='btn btn-main px-40 py-16 rounded-pill'
                     >
-                      Hisob yaratish
+                      {tSteps("button")}
                     </button>
                   </div>
                 </div>

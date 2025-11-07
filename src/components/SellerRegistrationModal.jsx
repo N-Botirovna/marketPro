@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { getRegions } from "@/services/regions";
 import { createShop } from "@/services/shopCreate";
 import Spin from "./Spin";
@@ -7,6 +8,9 @@ import { useToast } from "./Toast";
 
 const SellerRegistrationModal = ({ show, onHide }) => {
   const { showToast, ToastContainer } = useToast();
+  const tSeller = useTranslations("SellerRegistration");
+  const tCommon = useTranslations("Common");
+  const tButtons = useTranslations("Buttons");
   const [formData, setFormData] = useState({
     point: "",
     name: "",
@@ -28,7 +32,8 @@ const SellerRegistrationModal = ({ show, onHide }) => {
   const [regions, setRegions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+
+  const selectedRegion = regions.find((r) => r.id === parseInt(formData.region));
 
   // Fetch regions
   useEffect(() => {
@@ -37,7 +42,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
         const response = await getRegions({ limit: 50 });
         setRegions(response.regions || []);
       } catch (err) {
-        console.error('Regions yuklashda xatolik:', err);
+        console.error(tSeller("error"), err);
       }
     };
     fetchRegions();
@@ -54,11 +59,10 @@ const SellerRegistrationModal = ({ show, onHide }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
 
     // Validation
     if (!formData.name || !formData.phone_number || !formData.region || !formData.picture) {
-      setError("Iltimos, barcha majburiy maydonlarni to'ldiring (do'kon rasmi ham kerak)");
+      setError(tSeller("fillRequiredFields"));
       return;
     }
 
@@ -79,8 +83,8 @@ const SellerRegistrationModal = ({ show, onHide }) => {
       if (result.success) {
         showToast({
           type: 'success',
-          title: 'Muvaffaqiyatli!',
-          message: 'Sotuvchi arizasi muvaffaqiyatli jo\'natildi',
+          title: tCommon("success"),
+          message: tSeller("successMessage"),
           duration: 3000
         });
         setFormData({
@@ -104,10 +108,10 @@ const SellerRegistrationModal = ({ show, onHide }) => {
           onHide();
         }, 2000);
       } else {
-        setError(result.message);
+        setError(result.message || tSeller("error"));
       }
     } catch (err) {
-      setError("Xatolik yuz berdi. Qaytadan urinib ko'ring.");
+      setError(tSeller("error"));
     } finally {
       setLoading(false);
     }
@@ -120,11 +124,12 @@ const SellerRegistrationModal = ({ show, onHide }) => {
       <div className="modal-dialog modal-lg modal-dialog-centered">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">Sotuvchi hisobi yaratish</h5>
+            <h5 className="modal-title">{tSeller("modalTitle")}</h5>
             <button 
               type="button" 
               className="btn-close" 
               onClick={onHide}
+              aria-label={tButtons("cancel")}
             ></button>
           </div>
           
@@ -136,15 +141,9 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                 </div>
               )}
               
-              {success && (
-                <div className="alert alert-success mb-3">
-                  {success}
-                </div>
-              )}
-
               <div className="row">
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Do'kon nomi *</label>
+                  <label className="form-label">{tSeller("shopName")}</label>
                   <input
                     type="text"
                     className="form-control"
@@ -156,7 +155,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                 </div>
                 
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Telefon raqam *</label>
+                  <label className="form-label">{tSeller("phoneNumber")}</label>
                   <div className="input-group">
                     <span className="input-group-text">+998</span>
                     <input
@@ -174,6 +173,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                         }
                       }}
                       maxLength={9}
+                      placeholder={tSeller("phonePlaceholder")}
                       required
                     />
                   </div>
@@ -182,7 +182,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
 
               <div className="row">
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Viloyat *</label>
+                  <label className="form-label">{tSeller("region")}</label>
                   <select
                     className="form-select"
                     name="region"
@@ -190,7 +190,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                     onChange={handleInputChange}
                     required
                   >
-                    <option value="">Viloyatni tanlang</option>
+                    <option value="">{tSeller("selectRegion")}</option>
                     {regions.map(region => (
                       <option key={region.id} value={region.id}>
                         {region.name}
@@ -200,88 +200,87 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                 </div>
                 
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Tuman</label>
+                  <label className="form-label">{tSeller("district")}</label>
                   <select
                     className="form-select"
                     name="district"
                     value={formData.district}
                     onChange={handleInputChange}
                   >
-                    <option value="">Tumanni tanlang</option>
-                    {regions
-                      .find(r => r.id === parseInt(formData.region))
-                      ?.districts?.map(district => (
-                        <option key={district.id} value={district.id}>
-                          {district.name}
-                        </option>
-                      ))}
+                    <option value="">{tSeller("selectDistrict")}</option>
+                    {selectedRegion?.districts?.map(district => (
+                      <option key={district.id} value={district.id}>
+                        {district.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
 
               <div className="mb-3">
-                <label className="form-label">Joylashuv matni</label>
+                <label className="form-label">{tSeller("locationText")}</label>
                 <input
                   type="text"
                   className="form-control"
                   name="location_text"
                   value={formData.location_text}
                   onChange={handleInputChange}
-                  placeholder="Masalan: Toshkent shahar, Chilonzor tumani"
+                  placeholder={tSeller("locationPlaceholder")}
                 />
               </div>
 
               <div className="mb-3">
-                <label className="form-label">Bio</label>
+                <label className="form-label">{tSeller("bio")}</label>
                 <textarea
                   className="form-control"
                   name="bio"
                   rows="3"
                   value={formData.bio}
                   onChange={handleInputChange}
-                  placeholder="Do'koningiz haqida qisqacha ma'lumot"
+                  placeholder={tSeller("bioPlaceholder")}
                 />
               </div>
 
               <div className="row">
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Telegram</label>
+                  <label className="form-label">{tSeller("telegram")}</label>
                   <input
                     type="text"
                     className="form-control"
                     name="telegram"
                     value={formData.telegram}
                     onChange={handleInputChange}
-                    placeholder="@username"
+                    placeholder={tSeller("telegramPlaceholder")}
                   />
                 </div>
                 
                 <div className="col-md-6 mb-3">
-                  <label className="form-label">Instagram</label>
+                  <label className="form-label">{tSeller("instagram")}</label>
                   <input
                     type="text"
                     className="form-control"
                     name="instagram"
                     value={formData.instagram}
                     onChange={handleInputChange}
-                    placeholder="@username"
+                    placeholder={tSeller("instagramPlaceholder")}
                   />
                 </div>
               </div>
 
               <div className="mb-3">
-                <label className="form-label">Veb-sayt</label>
+                <label className="form-label">{tSeller("website")}</label>
                 <input
                   type="url"
                   className="form-control"
                   name="website"
                   value={formData.website}
                   onChange={handleInputChange}
-                  placeholder="https://example.com"
+                  placeholder={tSeller("websitePlaceholder")}
                 />
               </div>
+
               <div className="mb-3">
-                <label className="form-label">Do'kon rasmi *</label>
+                <label className="form-label">{tSeller("shopImage")}</label>
                 <input
                   type="file"
                   className="form-control"
@@ -299,43 +298,44 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                   required
                 />
                 <small className="form-text text-muted">
-                  JPG, PNG yoki GIF formatida, maksimal 5MB
+                  {tSeller("imageHelp")}
                 </small>
               </div>
+
               <div className="row">
                 <div className="col-md-4 mb-3">
-                  <label className="form-label">Ish kunlari</label>
+                  <label className="form-label">{tSeller("workingDays")}</label>
                   <input
                     type="text"
                     className="form-control"
                     name="working_days"
                     value={formData.working_days}
                     onChange={handleInputChange}
-                    placeholder="Dushanba - Juma"
+                    placeholder={tSeller("workingDaysPlaceholder")}
                   />
                 </div>
                 
                 <div className="col-md-4 mb-3">
-                  <label className="form-label">Ish vaqti</label>
+                  <label className="form-label">{tSeller("workingHours")}</label>
                   <input
                     type="text"
                     className="form-control"
                     name="working_hours"
                     value={formData.working_hours}
                     onChange={handleInputChange}
-                    placeholder="09:00 - 18:00"
+                    placeholder={tSeller("workingHoursPlaceholder")}
                   />
                 </div>
                 
                 <div className="col-md-4 mb-3">
-                  <label className="form-label">Tushlik vaqti</label>
+                  <label className="form-label">{tSeller("lunch")}</label>
                   <input
                     type="text"
                     className="form-control"
                     name="lunch"
                     value={formData.lunch}
                     onChange={handleInputChange}
-                    placeholder="12:00 - 13:00"
+                    placeholder={tSeller("lunchPlaceholder")}
                   />
                 </div>
               </div>
@@ -350,7 +350,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                     onChange={handleInputChange}
                   />
                   <label className="form-check-label">
-                    Pochta xizmati mavjud
+                    {tSeller("hasPostService")}
                   </label>
                 </div>
               </div>
@@ -362,7 +362,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                 className="btn btn-secondary" 
                 onClick={onHide}
               >
-                Bekor qilish
+                {tButtons("cancel")}
               </button>
               <button 
                 type="submit" 
@@ -371,11 +371,11 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               >
                 {loading ? (
                   <>
-                    <Spin size="sm" text="Yaratilmoqda..." />
-                    Yaratilmoqda...
+                    <Spin size="sm" text={tSeller("creating") || ""} />
+                    {tSeller("creating")}
                   </>
                 ) : (
-                  "Hisob yaratish"
+                  tSeller("createAccountButton")
                 )}
               </button>
             </div>

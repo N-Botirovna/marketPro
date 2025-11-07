@@ -1,11 +1,18 @@
 "use client";
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import { loginWithPhoneOtp } from "@/services/auth";
 import Spin from "./Spin";
 import { useToast } from "./Toast";
 import { useRouter } from "@/i18n/navigation";
 
 const AuthLogin = () => {
+  const tAuth = useTranslations("Auth");
+  const tForms = useTranslations("Forms");
+  const tCommon = useTranslations("Common");
+  const tErrors = useTranslations("Errors");
+  const tButtons = useTranslations("Buttons");
+  const tAccount = useTranslations("Account");
   const router = useRouter();
   const { showToast, ToastContainer } = useToast();
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -13,31 +20,27 @@ const AuthLogin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Validate phone number format
   const validatePhoneNumber = (phone) => {
     const phoneRegex = /^\+998[0-9]{9}$/;
     return phoneRegex.test(phone);
   };
 
-  // Handle login with phone and OTP
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     if (!phoneNumber || !password) {
-      setError("Iltimos, barcha maydonlarni to'ldiring");
+      setError(tCommon("fillAllFields"));
       return;
     }
 
     if (!validatePhoneNumber(phoneNumber)) {
-      setError(
-        "Iltimos, to'g'ri telefon raqam kiriting (masalan: +998901234567)"
-      );
+      setError(tAuth("invalidPhone"));
       return;
     }
 
     if (password.length < 6) {
-      setError("Parol kamida 6 belgidan iborat bo'lishi kerak");
+      setError(tErrors("passwordMin"));
       return;
     }
 
@@ -51,22 +54,22 @@ const AuthLogin = () => {
       if (res.access_token || res.token) {
         showToast({
           type: "success",
-          title: "Muvaffaqiyatli!",
-          message: "Tizimga muvaffaqiyatli kirdingiz",
+          title: tCommon("success"),
+          message: tAuth("loginSuccess"),
           duration: 2000,
         });
         setTimeout(() => {
           router.push("/");
         }, 2000);
       } else {
-        setError("Kirish muvaffaqiyatsiz. Parolni tekshiring.");
+        setError(tErrors("checkPassword"));
       }
     } catch (err) {
       console.error("Login error:", err);
       const message =
         err?.normalized?.message ||
         err?.response?.data?.message ||
-        "Kirish muvaffaqiyatsiz";
+        tErrors("loginFailed");
       setError(message);
     } finally {
       setLoading(false);
@@ -155,16 +158,15 @@ const AuthLogin = () => {
                   className="fw-bold mb-12 welcome-title"
                   style={{ fontSize: "1.75rem" }}
                 >
-                  Kitobzorga xush kelibsiz!
+                  {tAuth("welcome")}
                 </h2>
                 <p className="text-gray-600" style={{ fontSize: "0.95rem" }}>
-                  Kirish uchun quyidagi ma'lumotlarni to'ldiring
+                  {tAuth("fillInfo")}
                 </p>
               </div>
 
               <form onSubmit={handleSubmit}>
                 <div className="form-container px-24 py-28">
-                  {/* Telegram Bot Section */}
                   <div className="text-center mb-20">
                     <div className="telegram-section">
                       <div className="telegram-icon">
@@ -180,7 +182,7 @@ const AuthLogin = () => {
                         className="text-white mb-10 opacity-90"
                         style={{ fontSize: "13px" }}
                       >
-                        Parolni olish uchun Telegram botga o'ting
+                        {tAuth("getPasswordFromBot")}
                       </p>
                       <a
                         href="https://t.me/kitobzoruz_bot"
@@ -189,18 +191,17 @@ const AuthLogin = () => {
                         className="telegram-button"
                       >
                         <i className="ph ph-telegram-logo"></i>
-                        Telegram botga o'tish
+                        {tButtons("goToBot")}
                       </a>
                     </div>
                   </div>
-                  {/* Form Fields */}
                   <div className="mb-18">
                     <label
                       htmlFor="phone"
                       className="text-neutral-900 mb-6 fw-medium d-block"
                       style={{ fontSize: "0.95rem" }}
                     >
-                      Telefon raqam <span className="text-danger">*</span>
+                      {tForms("phone")} <span className="text-danger">*</span>
                     </label>
                     <input
                       type="tel"
@@ -221,14 +222,14 @@ const AuthLogin = () => {
                       className="text-neutral-900 mb-6 fw-medium d-block"
                       style={{ fontSize: "0.95rem" }}
                     >
-                      Parol <span className="text-danger">*</span>
+                      {tForms("password")} <span className="text-danger">*</span>
                     </label>
                     <input
                       type="password"
                       className="common-input"
                       id="password"
                       autoComplete={"off"}
-                      placeholder="Parolingizni kiriting"
+                      placeholder={tForms("passwordPlaceholder")}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -238,10 +239,9 @@ const AuthLogin = () => {
                       className="text-gray-500 mt-6 d-block"
                       style={{ fontSize: "13px" }}
                     >
-                      @kitobzoruz_bot dan olingan parolni kiriting
+                      {tAuth("enterPasswordFromBot")}
                     </small>
                   </div>
-                  {/* Error/Success Messages */}
                   {error && (
                     <div className="mb-18">
                       <div
@@ -257,7 +257,6 @@ const AuthLogin = () => {
                     </div>
                   )}
 
-                  {/* Submit Button */}
                   <div className="mb-16 mt-24">
                     <button
                       type="submit"
@@ -267,11 +266,11 @@ const AuthLogin = () => {
                     >
                       {loading ? (
                         <>
-                          <Spin size="sm" text="Kirinmoqda..." />
-                          Kirinmoqda...
+                          <Spin size="sm" text={tAuth("loggingIn") || ""} />
+                          {tAuth("loggingIn")}
                         </>
                       ) : (
-                        "Kirish"
+                        tAccount("logIn")
                       )}
                     </button>
                   </div>

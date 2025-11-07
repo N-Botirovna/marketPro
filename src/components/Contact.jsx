@@ -1,11 +1,16 @@
 "use client";
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { sendContactMessage } from "@/services/contact";
 import Spin from "./Spin";
 import { useToast } from "./Toast";
 
 const Contact = () => {
+  const tContact = useTranslations("Contact");
+  const tForms = useTranslations("Forms");
+  const tCommon = useTranslations("Common");
+  const tFooter = useTranslations("Footer");
   const { showToast, ToastContainer } = useToast();
   const [formData, setFormData] = useState({
     phone: "",
@@ -27,7 +32,7 @@ const Contact = () => {
     setError("");
 
     if (!formData.phone || !formData.message) {
-      setError("Iltimos, barcha maydonlarni to'ldiring");
+      setError(tCommon("fillAllFields"));
       return;
     }
 
@@ -41,18 +46,16 @@ const Contact = () => {
       if (response.success) {
         showToast({
           type: "success",
-          title: "Muvaffaqiyatli!",
-          message: "Xabaringiz muvaffaqiyatli yuborildi",
+          title: tCommon("success"),
+          message: tContact("messageSent"),
           duration: 3000,
         });
         setFormData({ phone: "", message: "" });
       } else {
-        setError(response.message || "Xabar yuborishda xatolik yuz berdi");
+        setError(response.message || tContact("sendError"));
       }
     } catch (err) {
-      setError(
-        err?.normalized?.message || "Xabar yuborishda xatolik yuz berdi"
-      );
+      setError(err?.normalized?.message || tContact("sendError"));
     } finally {
       setLoading(false);
     }
@@ -65,7 +68,7 @@ const Contact = () => {
           <div className="col-lg-8">
             <div className="contact-box border border-gray-100 rounded-16 px-24 py-40">
               <form onSubmit={handleSubmit}>
-                <h6 className="mb-32">Xabar yuborish</h6>
+                <h6 className="mb-32">{tContact("sendMessage")}</h6>
 
                 {error && (
                   <div className="alert alert-danger mb-24">{error}</div>
@@ -77,7 +80,7 @@ const Contact = () => {
                       htmlFor="phone"
                       className="flex-align gap-4 text-sm font-heading-two text-gray-900 fw-semibold mb-4"
                     >
-                      Telefon raqam
+                      {tForms("phone")}
                       <span className="text-danger text-xl line-height-1">
                         *
                       </span>{" "}
@@ -98,7 +101,7 @@ const Contact = () => {
                       htmlFor="message"
                       className="flex-align gap-4 text-sm font-heading-two text-gray-900 fw-semibold mb-4"
                     >
-                      Xabar
+                      {tContact("message")}
                       <span className="text-danger text-xl line-height-1">
                         *
                       </span>{" "}
@@ -107,7 +110,7 @@ const Contact = () => {
                       className="common-input px-16"
                       id="message"
                       name="message"
-                      placeholder="Xabaringizni yozing"
+                      placeholder={tContact("messagePlaceholder")}
                       value={formData.message}
                       onChange={handleInputChange}
                       rows={5}
@@ -122,11 +125,11 @@ const Contact = () => {
                     >
                       {loading ? (
                         <>
-                          <Spin size="sm" text="Yuborilmoqda..." />
-                          Yuborilmoqda...
+                          <Spin size="sm" text={tContact("sending") || ""} />
+                          {tContact("sending")}
                         </>
                       ) : (
-                        "Xabar yuborish"
+                        tContact("sendMessage")
                       )}
                     </button>
                   </div>
@@ -136,7 +139,7 @@ const Contact = () => {
           </div>
           <div className="col-lg-4">
             <div className="contact-box border border-gray-100 rounded-16 px-24 py-40">
-              <h6 className="mb-48">Bog'lanish</h6>
+              <h6 className="mb-48">{tContact("contact")}</h6>
               <div className="flex-align gap-16 mb-16">
                 <span className="w-40 h-40 flex-center rounded-circle border border-gray-100 text-main-two-600 text-2xl flex-shrink-0">
                   <i className="ph-fill ph-phone-call" />
@@ -156,7 +159,7 @@ const Contact = () => {
                   href="/mailto:support24@marketpro.com"
                   className="text-md text-gray-900 hover-text-main-600"
                 >
-                  support24@marketpro.com
+                  {tFooter("about.email")}
                 </Link>
               </div>
               <div className="flex-align gap-16 mb-0">
@@ -164,32 +167,10 @@ const Contact = () => {
                   <i className="ph-fill ph-map-pin" />
                 </span>
                 <span className="text-md text-gray-900 ">
-                  789 Inner Lane, California, USA
+                  {tFooter("about.address")}
                 </span>
               </div>
             </div>
-            {/* <div className='mt-24 flex-align flex-wrap gap-16'>
-              <Link
-                href='#'
-                className='bg-neutral-600 hover-bg-main-600 rounded-8 p-10 px-16 flex-between flex-wrap gap-8 flex-grow-1'
-              >
-                <span className='text-white fw-medium'>
-                  Qo'llab-quvvatlash
-                </span>
-                <span className='w-36 h-36 bg-main-600 rounded-8 flex-center text-xl text-white'>
-                  <i className='ph ph-headset' />
-                </span>
-              </Link>
-              <Link
-                href='#'
-                className='bg-neutral-600 hover-bg-main-600 rounded-8 p-10 px-16 flex-between flex-wrap gap-8 flex-grow-1'
-              >
-                <span className='text-white fw-medium'>Yo'l ko'rsatish</span>
-                <span className='w-36 h-36 bg-main-600 rounded-8 flex-center text-xl text-white'>
-                  <i className='ph ph-map-pin' />
-                </span>
-              </Link>
-            </div> */}
           </div>
         </div>
       </div>

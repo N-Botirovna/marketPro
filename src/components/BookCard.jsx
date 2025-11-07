@@ -1,16 +1,29 @@
 "use client";
 import { Link } from "@/i18n/navigation";
 import React from "react";
+import { useTranslations, useLocale } from "next-intl";
 
 const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn = true }) => {
   if (!book) return null;
 
+  const locale = useLocale();
+  const tBookCard = useTranslations("BookCard");
+  const tCommon = useTranslations("Common");
+  const tButtons = useTranslations("Buttons");
+  const tWishList = useTranslations("WishList");
+  const tProduct = useTranslations("ProductDetailsOne");
+
   const formatPrice = (price) => {
     if (price === null || price === undefined) return "";
-    return new Intl.NumberFormat('uz-UZ').format(price) + " so'm";
+    return `${new Intl.NumberFormat(locale).format(price)} ${tCommon("currency")}`;
   };
 
-  const sellerName = book.shop?.name || `${book.posted_by?.first_name || 'Noma\'lum'} ${book.posted_by?.last_name || ''}`.trim();
+  const sellerName =
+    book.shop?.name ||
+    (() => {
+      const parts = [book.posted_by?.first_name, book.posted_by?.last_name].filter(Boolean);
+      return parts.length ? parts.join(" ") : tProduct("unknown");
+    })();
   const isOwnBook = currentUserId && book.posted_by?.id === currentUserId;
   const showEditButton = showEditForOwn && isOwnBook && onEdit;
 
@@ -23,7 +36,7 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
             <button 
               className="btn btn-sm btn-outline-main rounded-circle p-8"
               onClick={() => onEdit(book)}
-              title="Tahrirlash"
+              title={tButtons("edit")}
             >
               <i className="ph ph-pencil text-xs"></i>
             </button>
@@ -32,7 +45,7 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
             <button 
               className="btn btn-sm btn-outline-danger rounded-circle p-8"
               onClick={() => onDelete(book)}
-              title="O'chirish"
+              title={tWishList("delete")}
             >
               <i className="ph ph-trash text-xs"></i>
             </button>
@@ -57,7 +70,7 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
       <div className='product-card__content p-sm-2'>
         <h6 className='title text-lg fw-semibold mt-12 mb-8'>
           <Link href={`/product-details?id=${book.id}`} className='link text-line-2'>
-            {book.name || 'Kitob Nomi Mavjud Emas'}
+            {book.name || tBookCard("noName")}
           </Link>
         </h6>
 
@@ -66,7 +79,7 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
             <i className='ph-fill ph-user' />
           </span>
           <span className='text-gray-500 text-xs'>
-            {book.author || "Noma'lum muallif"}
+            {book.author || tCommon("unknownAuthor")}
           </span>
         </div>
         
@@ -75,7 +88,7 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
             <i className='ph-fill ph-book-open' />
           </span>
           <span className='text-gray-500 text-xs'>
-            {book.publisher || 'Noma\'lum nashriyot'}
+            {book.publisher || tBookCard("unknownPublisher")}
           </span>
         </div>
 
@@ -109,7 +122,7 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
               <i className='ph-fill ph-storefront' />
             </span>
             <span className='text-gray-600 text-xs'>
-              by {sellerName}
+              {`${tCommon("seller")}: ${sellerName}`}
             </span>
           </div>
 
@@ -121,7 +134,7 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
               />
             </div>
             <span className='text-gray-900 text-xs fw-medium mt-8 d-block'>
-              Sold: 22/35
+              {tBookCard("sold")}
             </span>
           </div>
 
@@ -129,7 +142,7 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
             href={`/product-details?id=${book.id}`}
             className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-16 w-100 justify-content-center'
           >
-            Batafsil ko'rish <i className='ph ph-arrow-right' />
+            {tBookCard("viewDetails")} <i className='ph ph-arrow-right' />
           </Link>
         </div>
       </div>
