@@ -1,23 +1,29 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Link } from "@/i18n/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import { getBookById } from "@/services/books";
 import { useAuth } from "@/hooks/useAuth";
 import BookCreateModal from "./BookCreateModal";
 import Spin from "./Spin";
 
 const BookDetails = ({ bookId }) => {
-  const { isAuthenticated, token } = useAuth();
+  const locale = useLocale();
+  const tBook = useTranslations("BookDetails");
+  const tCommon = useTranslations("Common");
+  const tCategories = useTranslations("Categories");
+  const tButtons = useTranslations("Buttons");
+  const tProduct = useTranslations("ProductDetailsOne");
+  const { isAuthenticated } = useAuth();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(0);
   const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     if (bookId) {
       fetchBookDetails();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookId]);
 
   const fetchBookDetails = async () => {
@@ -26,26 +32,33 @@ const BookDetails = ({ bookId }) => {
       const response = await getBookById(bookId);
       setBook(response.book);
     } catch (err) {
-      console.error("Kitob tafsilotlari yuklashda xatolik:", err);
-      setError(err.message);
+      console.error(tBook("loadError"), err);
+      setError(err.message || tBook("loadError"));
     } finally {
       setLoading(false);
     }
   };
 
   const formatPrice = (price) => {
-    if (!price) return "0";
-    return new Intl.NumberFormat("uz-UZ").format(price);
+    if (!price && price !== 0) return "0";
+    return new Intl.NumberFormat(locale).format(price);
   };
+
+  const formatDate = (date) =>
+    new Date(date).toLocaleDateString(locale, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
 
   const getTypeLabel = (type) => {
     switch (type) {
       case "gift":
-        return "Sovg'a";
+        return tBook("gift");
       case "exchange":
-        return "Almashtirish";
+        return tBook("exchange");
       case "seller":
-        return "Sotish";
+        return tBook("sell");
       default:
         return type;
     }
@@ -67,9 +80,9 @@ const BookDetails = ({ bookId }) => {
   const getOwnerTypeLabel = (ownerType) => {
     switch (ownerType) {
       case "user":
-        return "Foydalanuvchi";
+        return tBook("user");
       case "shop":
-        return "Do'kon";
+        return tBook("shop");
       default:
         return ownerType;
     }
@@ -78,9 +91,9 @@ const BookDetails = ({ bookId }) => {
   const getCoverTypeLabel = (coverType) => {
     switch (coverType) {
       case "hard":
-        return "Qattiq muqova";
+        return tBook("hardCover");
       case "soft":
-        return "Yumshoq muqova";
+        return tBook("softCover");
       default:
         return coverType;
     }
@@ -89,21 +102,21 @@ const BookDetails = ({ bookId }) => {
   const getScriptTypeLabel = (scriptType) => {
     switch (scriptType) {
       case "latin":
-        return "Lotin";
+        return tBook("latin");
       case "cyrillic":
-        return "Kirill";
+        return tBook("cyrillic");
       case "arabic":
-        return "Arab";
+        return tBook("arabic");
       default:
         return scriptType;
     }
   };
 
+  const getConditionLabel = (isUsed) =>
+    isUsed ? tCategories("likeNew") : tCategories("new");
+
   const isOwnBook = () => {
     if (!isAuthenticated || !book?.posted_by?.id) return false;
-    // You would need to get current user ID from auth context
-    // For now, we'll show edit button if user is authenticated
-    // In a real app, you'd compare with current user ID
     return true;
   };
 
@@ -112,7 +125,7 @@ const BookDetails = ({ bookId }) => {
       <section className="py-80">
         <div className="container container-lg">
           <div className="text-center">
-            <Spin text="Kitob ma'lumotlari yuklanmoqda..." />
+            <Spin text={tBook("loading") || ""} />
           </div>
         </div>
       </section>
@@ -124,9 +137,7 @@ const BookDetails = ({ bookId }) => {
       <section className="py-80">
         <div className="container container-lg">
           <div className="text-center">
-            <p className="text-danger">
-              Kitob tafsilotlari yuklashda xatolik yuz berdi
-            </p>
+            <p className="text-danger">{error}</p>
           </div>
         </div>
       </section>
@@ -138,7 +149,7 @@ const BookDetails = ({ bookId }) => {
       <section className="py-80">
         <div className="container container-lg">
           <div className="text-center">
-            <p className="text-muted">Kitob topilmadi</p>
+            <p className="text-muted">{tBook("notFound")}</p>
           </div>
         </div>
       </section>
@@ -150,7 +161,6 @@ const BookDetails = ({ bookId }) => {
       <div className="container container-lg">
         <div className="row gy-5">
           <div className="col-lg-6">
-            {/* Book Images */}
             <div className="product-details__thumb">
               <div className="product-details__thumb-main">
                 <img
@@ -170,51 +180,46 @@ const BookDetails = ({ bookId }) => {
 
           <div className="col-lg-6">
             <div className="product-details__content">
-              {/* Type Badge */}
               <div className="mb-16">
                 <span className={`badge ${getTypeColor(book.type)} text-white`}>
                   {getTypeLabel(book.type)}
                 </span>
                 {book.is_used && (
                   <span className="badge bg-dark text-white ms-8">
-                    Yangidek
+                    {tCategories("likeNew")}
                   </span>
                 )}
               </div>
 
-              {/* Book Name */}
               <h1 className="product-details__title text-3xl fw-bold mb-16">
-                {book.name || "Kitob nomi"}
+                {book.name || tBook("bookName")}
               </h1>
 
-              {/* Author */}
               <div className="mb-16">
                 <span className="text-gray-600 me-8">
                   <i className="ph ph-user me-4"></i>
-                  Muallif:
+                  {tBook("author")}
                 </span>
                 <span className="fw-medium">
-                  {book.author || "Noma'lum muallif"}
+                  {book.author || tBook("unknownAuthor")}
                 </span>
               </div>
 
-              {/* Language */}
               {book.language && (
                 <div className="mb-16">
                   <span className="text-gray-600 me-8">
                     <i className="ph ph-globe me-4"></i>
-                    Til:
+                    {tBook("language")}
                   </span>
                   <span className="fw-medium">{book.language}</span>
                 </div>
               )}
 
-              {/* Script Type */}
               {book.script_type && (
                 <div className="mb-16">
                   <span className="text-gray-600 me-8">
                     <i className="ph ph-text-aa me-4"></i>
-                    Yozuv turi:
+                    {tBook("scriptType")}
                   </span>
                   <span className="fw-medium">
                     {getScriptTypeLabel(book.script_type)}
@@ -222,12 +227,11 @@ const BookDetails = ({ bookId }) => {
                 </div>
               )}
 
-              {/* Cover Type */}
               {book.cover_type && (
                 <div className="mb-16">
                   <span className="text-gray-600 me-8">
                     <i className="ph ph-book me-4"></i>
-                    Muqova:
+                    {tBook("cover")}
                   </span>
                   <span className="fw-medium">
                     {getCoverTypeLabel(book.cover_type)}
@@ -235,40 +239,38 @@ const BookDetails = ({ bookId }) => {
                 </div>
               )}
 
-              {/* Publication Year */}
               {book.publication_year && (
                 <div className="mb-16">
                   <span className="text-gray-600 me-8">
                     <i className="ph ph-calendar me-4"></i>
-                    Nashr yili:
+                    {tBook("publicationYear")}
                   </span>
                   <span className="fw-medium">{book.publication_year}</span>
                 </div>
               )}
 
-              {/* Pages */}
               {book.pages && (
                 <div className="mb-16">
                   <span className="text-gray-600 me-8">
                     <i className="ph ph-file-text me-4"></i>
-                    Sahifalar:
+                    {tBook("pages")}
                   </span>
-                  <span className="fw-medium">{book.pages} sahifa</span>
+                  <span className="fw-medium">
+                    {book.pages} {tBook("pagesUnit")}
+                  </span>
                 </div>
               )}
 
-              {/* ISBN */}
               {book.isbn && (
                 <div className="mb-16">
                   <span className="text-gray-600 me-8">
                     <i className="ph ph-barcode me-4"></i>
-                    ISBN:
+                    {tBook("isbn")}
                   </span>
                   <span className="fw-medium">{book.isbn}</span>
                 </div>
               )}
 
-              {/* Owner Info */}
               <div className="mb-16">
                 <div className="d-flex align-items-center">
                   {book.posted_by?.picture && (
@@ -281,7 +283,13 @@ const BookDetails = ({ bookId }) => {
                   )}
                   <div>
                     <div className="fw-medium">
-                      {book.posted_by?.first_name} {book.posted_by?.last_name}
+                      {(() => {
+                        const parts = [
+                          book.posted_by?.first_name,
+                          book.posted_by?.last_name,
+                        ].filter(Boolean);
+                        return parts.length ? parts.join(" ") : tProduct("unknown");
+                      })()}
                     </div>
                     <small className="text-gray-500">
                       {getOwnerTypeLabel(book.owner_type)}
@@ -304,7 +312,7 @@ const BookDetails = ({ bookId }) => {
                     )}
                     <div>
                       <div className="fw-medium">{book.shop.name}</div>
-                      <small className="text-gray-500">Do'kon</small>
+                      <small className="text-gray-500">{tBook("shop")}</small>
                     </div>
                   </div>
                 </div>
@@ -315,10 +323,10 @@ const BookDetails = ({ bookId }) => {
                 {book.discount_price ? (
                   <div>
                     <span className="text-main-600 fw-bold text-2xl">
-                      {formatPrice(book.discount_price)} so'm
+                      {formatPrice(book.discount_price)} {tCommon("currency")}
                     </span>
                     <span className="text-decoration-line-through text-gray-500 ms-16">
-                      {formatPrice(book.price)} so'm
+                      {formatPrice(book.price)} {tCommon("currency")}
                     </span>
                     {book.percentage && (
                       <span className="badge bg-danger ms-16">
@@ -328,7 +336,7 @@ const BookDetails = ({ bookId }) => {
                   </div>
                 ) : (
                   <span className="text-main-600 fw-bold text-2xl">
-                    {formatPrice(book.price)} so'm
+                    {formatPrice(book.price)} {tCommon("currency")}
                   </span>
                 )}
               </div>
@@ -338,10 +346,10 @@ const BookDetails = ({ bookId }) => {
                 <div className="d-flex align-items-center justify-content-between">
                   <div className="d-flex align-items-center">
                     <i className="ph ph-storefront text-main-600 me-8"></i>
-                    <span className="text-gray-600 me-8">Sotuvchi:</span>
+                    <span className="text-gray-600 me-8">{tBook("seller")}</span>
                     <span className="fw-medium">
                       {book.shop?.name ||
-                        `${book.posted_by?.first_name || "Noma'lum"} ${
+                        `${book.posted_by?.first_name || tProduct("unknown")} ${
                           book.posted_by?.last_name || ""
                         }`.trim()}
                     </span>
@@ -352,7 +360,7 @@ const BookDetails = ({ bookId }) => {
                       onClick={() => setShowEditModal(true)}
                     >
                       <i className="ph ph-pencil me-4"></i>
-                      Tahrirlash
+                      {tButtons("edit")}
                     </button>
                   )}
                 </div>
@@ -381,7 +389,7 @@ const BookDetails = ({ bookId }) => {
                 <div className="d-flex align-items-center">
                   <i className="ph ph-calendar text-gray-500 me-4"></i>
                   <span className="text-gray-500">
-                    {new Date(book.created_at).toLocaleDateString("uz-UZ")}
+                    {formatDate(book.created_at)}
                   </span>
                 </div>
               </div>
@@ -390,33 +398,33 @@ const BookDetails = ({ bookId }) => {
               <div className="d-flex gap-16 flex-wrap">
                 <button className="btn btn-main px-32 py-16">
                   <i className="ph ph-shopping-cart me-8"></i>
-                  Savatga qo'shish
+                  {tBook("addToCart")}
                 </button>
                 <button className="btn btn-outline-main px-32 py-16">
                   <i className="ph ph-heart me-8"></i>
-                  Sevimlilar
+                  {tBook("favorites")}
                 </button>
                 <button className="btn btn-outline-secondary px-32 py-16">
                   <i className="ph ph-share-network me-8"></i>
-                  Ulashish
+                  {tBook("share")}
                 </button>
               </div>
 
               {/* Contact Seller */}
               <div className="mt-32 p-24 bg-gray-50 rounded-16">
-                <h6 className="mb-16">Sotuvchi bilan bog'lanish</h6>
+                <h6 className="mb-16">{tBook("contactSeller")}</h6>
                 <div className="d-flex gap-12 flex-wrap">
                   <button className="btn btn-outline-primary px-24 py-12">
                     <i className="ph ph-phone me-8"></i>
-                    Telefon
+                    {tBook("phone")}
                   </button>
                   <button className="btn btn-outline-success px-24 py-12">
                     <i className="ph ph-messenger-logo me-8"></i>
-                    Xabar
+                    {tBook("message")}
                   </button>
                   <button className="btn btn-outline-info px-24 py-12">
                     <i className="ph ph-telegram-logo me-8"></i>
-                    Telegram
+                    {tBook("telegram")}
                   </button>
                 </div>
               </div>
@@ -429,7 +437,7 @@ const BookDetails = ({ bookId }) => {
           <div className="row mt-80">
             <div className="col-12">
               <div className="border border-gray-100 rounded-16 p-32">
-                <h5 className="mb-24">Kitob haqida</h5>
+                <h5 className="mb-24">{tBook("aboutBook")}</h5>
                 <p className="text-gray-700 line-height-1-6">
                   {book.description}
                 </p>
@@ -442,56 +450,52 @@ const BookDetails = ({ bookId }) => {
         <div className="row mt-40">
           <div className="col-12">
             <div className="border border-gray-100 rounded-16 p-32">
-              <h5 className="mb-24">Qo'shimcha ma'lumotlar</h5>
+              <h5 className="mb-24">{tBook("additionalInfo")}</h5>
               <div className="row">
                 <div className="col-md-6">
                   <div className="mb-16">
-                    <strong>Kitob turi:</strong> {getTypeLabel(book.type)}
+                    <strong>{tBook("bookType")}</strong> {getTypeLabel(book.type)}
                   </div>
                   <div className="mb-16">
-                    <strong>Holati:</strong>{" "}
-                    {book.is_used ? "Yangidek" : "Yangi"}
+                    <strong>{tBook("condition")}</strong> {getConditionLabel(book.is_used)}
                   </div>
                   <div className="mb-16">
-                    <strong>Egasi:</strong> {getOwnerTypeLabel(book.owner_type)}
+                    <strong>{tBook("owner")}</strong> {getOwnerTypeLabel(book.owner_type)}
                   </div>
                   {book.language && (
                     <div className="mb-16">
-                      <strong>Til:</strong> {book.language}
+                      <strong>{tBook("language")}</strong> {book.language}
                     </div>
                   )}
                   {book.script_type && (
                     <div className="mb-16">
-                      <strong>Yozuv turi:</strong>{" "}
-                      {getScriptTypeLabel(book.script_type)}
+                      <strong>{tBook("scriptType")}</strong> {getScriptTypeLabel(book.script_type)}
                     </div>
                   )}
                 </div>
                 <div className="col-md-6">
                   {book.cover_type && (
                     <div className="mb-16">
-                      <strong>Muqova:</strong>{" "}
-                      {getCoverTypeLabel(book.cover_type)}
+                      <strong>{tBook("cover")}</strong> {getCoverTypeLabel(book.cover_type)}
                     </div>
                   )}
                   {book.publication_year && (
                     <div className="mb-16">
-                      <strong>Nashr yili:</strong> {book.publication_year}
+                      <strong>{tBook("publicationYear")}</strong> {book.publication_year}
                     </div>
                   )}
                   {book.pages && (
                     <div className="mb-16">
-                      <strong>Sahifalar:</strong> {book.pages} sahifa
+                      <strong>{tBook("pages")}</strong> {book.pages} {tBook("pagesUnit")}
                     </div>
                   )}
                   {book.isbn && (
                     <div className="mb-16">
-                      <strong>ISBN:</strong> {book.isbn}
+                      <strong>{tBook("isbn")}</strong> {book.isbn}
                     </div>
                   )}
                   <div className="mb-16">
-                    <strong>Yaratilgan sana:</strong>{" "}
-                    {new Date(book.created_at).toLocaleDateString("uz-UZ")}
+                    <strong>{tBook("createdDate")}</strong> {formatDate(book.created_at)}
                   </div>
                 </div>
               </div>
@@ -506,7 +510,7 @@ const BookDetails = ({ bookId }) => {
               <div className="alert alert-info border border-info rounded-16 p-24">
                 <div className="d-flex align-items-center">
                   <i className="ph ph-info text-info me-12"></i>
-                  <span>Siz bu kitobni yangilashingiz mumkin</span>
+                  <span>{tBook("canUpdate")}</span>
                 </div>
               </div>
             </div>

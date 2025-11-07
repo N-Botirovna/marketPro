@@ -1,9 +1,10 @@
+"use client";
 import React from "react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
 const FooterOne = () => {
-  const tF = useTranslations('Footer');
+  const tF = useTranslations("Footer");
   return (
     <footer className="footer py-120">
       <img
@@ -21,14 +22,14 @@ const FooterOne = () => {
               </Link>
             </div>
             <p className="mb-24">
-              {tF('about.blurb')}
+              {tF("about.blurb")}
             </p>
             <div className="flex-align gap-16 mb-16">
               <span className="w-32 h-32 flex-center rounded-circle bg-main-600 text-white text-md flex-shrink-0">
                 <i className="ph-fill ph-map-pin" />
               </span>
               <span className="text-md text-gray-900 ">
-                {tF('about.address')}
+                {tF("about.address")}
               </span>
             </div>
             <div className="flex-align gap-16 mb-16">
@@ -42,47 +43,47 @@ const FooterOne = () => {
                 >
                   +00 123 456 789
                 </a>
-                <span className="text-md text-main-600 ">{tF('about.or')}</span>
-                <Link
+                <span className="text-md text-main-600 ">{tF("about.or")}</span>
+                <a
                   href="tel:+00987654012"
                   className="text-md text-gray-900 hover-text-main-600"
                 >
                   +00 987 654 012
-                </Link>
+                </a>
               </div>
             </div>
             <div className="flex-align gap-16 mb-16">
               <span className="w-32 h-32 flex-center rounded-circle bg-main-600 text-white text-md flex-shrink-0">
                 <i className="ph-fill ph-envelope" />
               </span>
-              <Link
-                href="/t.me/kitobzoruz_bot"
+              <a
+                href="https://t.me/kitobzoruz_bot"
                 className="text-md text-gray-900 hover-text-main-600"
               >
-                {tF('about.telegram')}
-              </Link>
+                {tF("about.telegram")}
+              </a>
             </div>
             <div className="flex-align gap-16 mb-16">
               <span className="w-32 h-32 flex-center rounded-circle bg-main-600 text-white text-md flex-shrink-0">
                 <i className="ph-fill ph-envelope" />
               </span>
-              <Link
-                href="/mailto:support24@marketpro.com"
+              <a
+                href="mailto:support24@marketpro.com"
                 className="text-md text-gray-900 hover-text-main-600"
               >
-                {tF('about.email')}
-              </Link>
+                {tF("about.email")}
+              </a>
             </div>
           </div>
           <div className="footer-item">
-            <h6 className="footer-item__title">{tF('info.title')}</h6>
+            <h6 className="footer-item__title">{tF("info.title")}</h6>
             <ul className="footer-menu">
               <li className="mb-16">
                 <Link
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  {tF('info.becomeSeller')}
+                  {tF("info.becomeSeller")}
                 </Link>
               </li>
               <li className="mb-16">
@@ -90,7 +91,7 @@ const FooterOne = () => {
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  {tF('info.aboutUs')}
+                  {tF("info.aboutUs")}
                 </Link>
               </li>
               <li className="mb-16">
@@ -98,7 +99,7 @@ const FooterOne = () => {
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  {tF('info.privacy')}
+                  {tF("info.privacy")}
                 </Link>
               </li>
               <li className="mb-16">
@@ -106,20 +107,20 @@ const FooterOne = () => {
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  {tF('info.faq')}
+                  {tF("info.faq")}
                 </Link>
               </li>
             </ul>
           </div>
           <div className="footer-item">
-            <h6 className="footer-item__title">{tF('categories.title')}</h6>
+            <h6 className="footer-item__title">{tF("categories.title")}</h6>
             <ul className="footer-menu">
               <li className="mb-16">
                 <Link
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  {tF('categories.religious')}
+                  {tF("categories.religious")}
                 </Link>
               </li>
               <li className="mb-16">
@@ -127,7 +128,7 @@ const FooterOne = () => {
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  {tF('categories.fiction')}
+                  {tF("categories.fiction")}
                 </Link>
               </li>
               <li className="mb-16">
@@ -135,7 +136,7 @@ const FooterOne = () => {
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  {tF('categories.children')}
+                  {tF("categories.children")}
                 </Link>
               </li>
               <li className="mb-16">
@@ -143,7 +144,7 @@ const FooterOne = () => {
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  {tF('categories.education')}
+                  {tF("categories.education")}
                 </Link>
               </li>
               <li className="mb-16">
@@ -151,20 +152,20 @@ const FooterOne = () => {
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  {tF('categories.science')}
+                  {tF("categories.science")}
                 </Link>
               </li>
             </ul>
           </div>
           <div className="footer-item">
-            <h6 className="footer-item__title">{tF('help.title')}</h6>
+            <h6 className="footer-item__title">{tF("help.title")}</h6>
             <ul className="footer-menu">
               <li className="mb-16">
                 <Link
                   href="/contact"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  {tF('help.contact')}
+                  {tF("help.contact")}
                 </Link>
               </li>
               <li className="mb-16">
@@ -172,57 +173,57 @@ const FooterOne = () => {
                   href="/shop"
                   className="text-gray-600 hover-text-main-600"
                 >
-                  {tF('help.becomeSeller')}
+                  {tF("help.becomeSeller")}
                 </Link>
               </li>
             </ul>
           </div>
           <div className="footer-item">
-            <h6 className="">{tF('newsletter.title')} </h6>
-            <p className="mb-16">{tF('newsletter.follow')}</p>
+            <h6 className="">{tF("newsletter.title")} </h6>
+            <p className="mb-16">{tF("newsletter.follow")}</p>
             <div className="flex-align gap-8 my-32">
-              <Link href="/https://www.apple.com/store" className="">
+              <a href="https://www.apple.com/store" className="">
                 <img src="assets/images/thumbs/store-img1.png" alt="" />
-              </Link>
-              <Link
-                href="/https://play.google.com/store/apps?hl=en"
+              </a>
+              <a
+                href="https://play.google.com/store/apps?hl=en"
                 className=""
               >
                 <img src="assets/images/thumbs/store-img2.png" alt="" />
-              </Link>
+              </a>
             </div>
             <ul className="flex-align gap-16">
               <li>
-                <Link
-                  href="/https://www.facebook.com"
+                <a
+                  href="https://www.facebook.com"
                   className="w-44 h-44 flex-center bg-main-100 text-main-600 text-xl rounded-circle hover-bg-main-600 hover-text-white"
                 >
                   <i className="ph-fill ph-facebook-logo" />
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
-                  href="/https://www.twitter.com"
+                <a
+                  href="https://www.twitter.com"
                   className="w-44 h-44 flex-center bg-main-100 text-main-600 text-xl rounded-circle hover-bg-main-600 hover-text-white"
                 >
                   <i className="ph-fill ph-twitter-logo" />
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
-                  href="/https://www.linkedin.com"
+                <a
+                  href="https://www.linkedin.com"
                   className="w-44 h-44 flex-center bg-main-100 text-main-600 text-xl rounded-circle hover-bg-main-600 hover-text-white"
                 >
                   <i className="ph-fill ph-instagram-logo" />
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
-                  href="/https://www.pinterest.com"
+                <a
+                  href="https://www.pinterest.com"
                   className="w-44 h-44 flex-center bg-main-100 text-main-600 text-xl rounded-circle hover-bg-main-600 hover-text-white"
                 >
                   <i className="ph-fill ph-linkedin-logo" />
-                </Link>
+                </a>
               </li>
             </ul>
           </div>

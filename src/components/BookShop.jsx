@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import BookCard from "./BookCard";
 import { getBooks } from "@/services/books";
@@ -12,6 +12,9 @@ import Spin from "./Spin";
 
 const BookShop = () => {
   const searchParams = useSearchParams();
+  const tBookShop = useTranslations("BookShop");
+  const tCommon = useTranslations("Common");
+  const tLocation = useTranslations("Location");
   const [books, setBooks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [shops, setShops] = useState([]);
@@ -81,7 +84,7 @@ const BookShop = () => {
         setShops(shopsRes.shops || []);
         setRegions(regionsRes.regions || []);
       } catch (error) {
-        console.error("Ma'lumotlarni yuklashda xatolik:", error);
+        console.error(tCommon("error"), error);
       } finally {
         setLoading(false);
       }
@@ -172,8 +175,8 @@ const BookShop = () => {
       <section className="book-shop py-80">
         <div className="container container-lg">
           <div className="text-center py-80">
-            <Spin text="Kitoblar yuklanmoqda..." />
-            <p className="mt-16">Kitoblar yuklanmoqda...</p>
+            <Spin text={tBookShop("loading") || ""} />
+            <p className="mt-16">{tBookShop("loading")}</p>
           </div>
         </div>
       </section>
@@ -190,7 +193,7 @@ const BookShop = () => {
             <input
               type="text"
               className="form-control common-input rounded-start-3"
-              placeholder="Kitob nomi, muallif yoki kalit so\'z qidiring..."
+              placeholder={tBookShop("searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -206,7 +209,7 @@ const BookShop = () => {
               <span className="text-neutral-900 fw-semibold">
                 {filteredBooks.length}
               </span>{" "}
-              ta kitob topildi
+              {tBookShop("booksFound")}
             </div>
             <div className="d-flex align-items-center gap-8 d-sm-flex d-none">
               <button
@@ -254,7 +257,7 @@ const BookShop = () => {
                 {/* Categories Filter */}
                 <div className="border border-gray-50 rounded-8 p-24">
                   <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">
-                    Kategoriyalar
+                    {tBookShop("categories")}
                   </h6>
                   <ul className="max-h-540 overflow-y-auto scroll-sm">
                     <li className="mb-24">
@@ -264,7 +267,7 @@ const BookShop = () => {
                           !filters.category ? "text-main-600 fw-semibold" : ""
                         }`}
                       >
-                        Barcha kategoriya
+                        {tBookShop("allCategories")}
                       </button>
                     </li>
                     {categories.map((category) => (
@@ -289,7 +292,7 @@ const BookShop = () => {
                 {/* Cover Type Filter */}
                 <div className="border border-gray-50 rounded-8 p-24">
                   <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">
-                    Muqova turi
+                    {tBookShop("coverType")}
                   </h6>
                   <div className="d-flex flex-column gap-8">
                     <label className="d-flex align-items-center gap-8 cursor-pointer">
@@ -303,7 +306,7 @@ const BookShop = () => {
                         }
                         className="form-check-input"
                       />
-                      <span>Barcha</span>
+                      <span>{tBookShop("all")}</span>
                     </label>
                     <label className="d-flex align-items-center gap-8 cursor-pointer">
                       <input
@@ -316,7 +319,7 @@ const BookShop = () => {
                         }
                         className="form-check-input"
                       />
-                      <span>Qattiq muqova</span>
+                      <span>{tBookShop("hardCover")}</span>
                     </label>
                     <label className="d-flex align-items-center gap-8 cursor-pointer">
                       <input
@@ -329,7 +332,7 @@ const BookShop = () => {
                         }
                         className="form-check-input"
                       />
-                      <span>Yumshoq muqova</span>
+                      <span>{tBookShop("softCover")}</span>
                     </label>
                   </div>
                 </div>
@@ -337,7 +340,7 @@ const BookShop = () => {
                 {/* Condition Filter */}
                 <div className="border border-gray-50 rounded-8 p-24">
                   <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">
-                    Holati
+                    {tBookShop("condition")}
                   </h6>
                   <div className="d-flex flex-column gap-8">
                     <label className="d-flex align-items-center gap-8 cursor-pointer">
@@ -351,7 +354,7 @@ const BookShop = () => {
                         }
                         className="form-check-input"
                       />
-                      <span>Barcha</span>
+                      <span>{tBookShop("all")}</span>
                     </label>
                     <label className="d-flex align-items-center gap-8 cursor-pointer">
                       <input
@@ -364,7 +367,7 @@ const BookShop = () => {
                         }
                         className="form-check-input"
                       />
-                      <span>Yangi</span>
+                      <span>{tBookShop("new")}</span>
                     </label>
                     <label className="d-flex align-items-center gap-8 cursor-pointer">
                       <input
@@ -377,7 +380,7 @@ const BookShop = () => {
                         }
                         className="form-check-input"
                       />
-                      <span>Ishlatilgan</span>
+                      <span>{tBookShop("used")}</span>
                     </label>
                   </div>
                 </div>
@@ -385,14 +388,14 @@ const BookShop = () => {
                 {/* Shop Filter */}
                 <div className="border border-gray-50 rounded-8 p-24">
                   <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">
-                    Do'kon
+                    {tBookShop("shop")}
                   </h6>
                   <select
                     className="common-input form-select"
                     value={filters.shop}
                     onChange={(e) => handleFilterChange("shop", e.target.value)}
                   >
-                    <option value="">Barcha do'konlar</option>
+                    <option value="">{tBookShop("allShops")}</option>
                     {shops.map((shop) => (
                       <option key={shop.id} value={shop.id}>
                         {shop.name}
@@ -404,7 +407,7 @@ const BookShop = () => {
                 {/* Location Filter */}
                 <div className="border border-gray-50 rounded-8 p-24">
                   <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">
-                    Joylashuv
+                    {tBookShop("location")}
                   </h6>
                   <div className="position-relative">
                     <ul className="max-h-300 overflow-y-auto scroll-sm">
@@ -418,7 +421,7 @@ const BookShop = () => {
                             !filters.region ? "text-main-600 fw-semibold" : ""
                           }`}
                         >
-                          Barcha joylashuvlar
+                          {tBookShop("allLocations")}
                         </button>
                       </li>
                       {regions.length > 0 ? (
@@ -487,7 +490,7 @@ const BookShop = () => {
                         ))
                       ) : (
                         <li className="mb-16 text-center text-gray-500">
-                          <Spin size="sm" text="Joylashuvlar yuklanmoqda..." />
+                          <Spin size="sm" text={tBookShop("loadingLocations") || ""} />
                         </li>
                       )}
                     </ul>
@@ -497,13 +500,13 @@ const BookShop = () => {
                 {/* Publication Year Filter */}
                 <div className="border border-gray-50 rounded-8 p-24">
                   <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">
-                    Nashr yili
+                    {tBookShop("publicationYear")}
                   </h6>
                   <div className="d-flex gap-8">
                     <input
                       type="number"
                       className="common-input"
-                      placeholder="Min"
+                      placeholder={tBookShop("min")}
                       value={filters.publication_year_min}
                       onChange={(e) =>
                         handleFilterChange(
@@ -515,7 +518,7 @@ const BookShop = () => {
                     <input
                       type="number"
                       className="common-input"
-                      placeholder="Max"
+                      placeholder={tBookShop("max")}
                       value={filters.publication_year_max}
                       onChange={(e) =>
                         handleFilterChange(
@@ -530,13 +533,13 @@ const BookShop = () => {
                 {/* Price Filter */}
                 <div className="border border-gray-50 rounded-8 p-24">
                   <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">
-                    Narx (so'm)
+                    {tBookShop("price")}
                   </h6>
                   <div className="d-flex gap-8">
                     <input
                       type="number"
                       className="common-input"
-                      placeholder="Min narx"
+                      placeholder={tBookShop("minPrice")}
                       value={filters.price_min}
                       onChange={(e) =>
                         handleFilterChange("price_min", e.target.value)
@@ -545,7 +548,7 @@ const BookShop = () => {
                     <input
                       type="number"
                       className="common-input"
-                      placeholder="Max narx"
+                      placeholder={tBookShop("maxPrice")}
                       value={filters.price_max}
                       onChange={(e) =>
                         handleFilterChange("price_max", e.target.value)
@@ -560,7 +563,7 @@ const BookShop = () => {
                     onClick={clearFilters}
                     className="btn btn-outline-main w-100"
                   >
-                    Filtrlarni tozalash
+                    {tBookShop("clearFilters")}
                   </button>
                 </div>
               </div>
@@ -582,13 +585,13 @@ const BookShop = () => {
                 <div className="col-12 text-center py-80">
                   <div className="text-gray-500">
                     <i className="ph ph-book text-6xl mb-16 d-block"></i>
-                    <h5 className="mb-8">Kitoblar topilmadi</h5>
-                    <p>Qidiruv mezonlariga mos kitoblar mavjud emas</p>
+                    <h5 className="mb-8">{tBookShop("noBooks")}</h5>
+                    <p>{tBookShop("noBooksMessage")}</p>
                     <button
                       onClick={clearFilters}
                       className="btn btn-main mt-16"
                     >
-                      Filtrlarni tozalash
+                      {tBookShop("clearFilters")}
                     </button>
                   </div>
                 </div>

@@ -1,9 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { getFaqs } from "@/services/faqs";
 import Spin from "./Spin";
 
 const FaqSection = () => {
+  const tFaq = useTranslations("FAQ");
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,13 +15,13 @@ const FaqSection = () => {
     const fetchFaqs = async () => {
       try {
         setLoading(true);
-        console.log('🔄 Fetching FAQs...');
+        console.log("🔄 Fetching FAQs...");
         const response = await getFaqs({ limit: 20 });
-        console.log('📋 FAQs response:', response);
+        console.log("📋 FAQs response:", response);
         setFaqs(response.faqs || []);
       } catch (err) {
-        console.error('❌ FAQ yuklashda xatolik:', err);
-        setError(err?.normalized?.message || err?.message || 'FAQ yuklashda xatolik yuz berdi');
+        console.error(tFaq("loadError"), err);
+        setError(err?.normalized?.message || err?.message || tFaq("loadError"));
       } finally {
         setLoading(false);
       }
@@ -34,11 +36,11 @@ const FaqSection = () => {
 
   if (loading) {
     return (
-      <section className='faq py-80'>
-        <div className='container container-lg'>
-          <div className='text-center py-80'>
-            <Spin text="FAQ ma'lumotlari yuklanmoqda..." />
-            <p className='mt-16 text-gray-600'>FAQ ma'lumotlari yuklanmoqda...</p>
+      <section className="faq py-80">
+        <div className="container container-lg">
+          <div className="text-center py-80">
+            <Spin text={tFaq("loading") || ""} />
+            <p className="mt-16 text-gray-600">{tFaq("loading")}</p>
           </div>
         </div>
       </section>
@@ -47,19 +49,19 @@ const FaqSection = () => {
 
   if (error) {
     return (
-      <section className='faq py-80'>
-        <div className='container container-lg'>
-          <div className='text-center py-80'>
-            <div className='text-danger mb-16'>
-              <i className='ph ph-warning text-4xl'></i>
+      <section className="faq py-80">
+        <div className="container container-lg">
+          <div className="text-center py-80">
+            <div className="text-danger mb-16">
+              <i className="ph ph-warning text-4xl"></i>
             </div>
-            <h5 className='text-danger mb-8'>FAQ yuklashda xatolik yuz berdi</h5>
-            <p className='text-gray-600'>{error}</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className='btn btn-outline-danger mt-16'
+            <h5 className="text-danger mb-8">{tFaq("loadError")}</h5>
+            <p className="text-gray-600">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="btn btn-outline-danger mt-16"
             >
-              Qayta urinish
+              {tFaq("retry")}
             </button>
           </div>
         </div>
@@ -69,14 +71,14 @@ const FaqSection = () => {
 
   if (!faqs || faqs.length === 0) {
     return (
-      <section className='faq py-80'>
-        <div className='container container-lg'>
-          <div className='text-center py-80'>
-            <div className='text-gray-500 mb-16'>
-              <i className='ph ph-question text-6xl'></i>
+      <section className="faq py-80">
+        <div className="container container-lg">
+          <div className="text-center py-80">
+            <div className="text-gray-500 mb-16">
+              <i className="ph ph-question text-6xl"></i>
             </div>
-            <h5 className='text-gray-700 mb-8'>FAQ topilmadi</h5>
-            <p className='text-gray-600'>Hozircha savollar mavjud emas</p>
+            <h5 className="text-gray-700 mb-8">{tFaq("notFound")}</h5>
+            <p className="text-gray-600">{tFaq("noQuestions")}</p>
           </div>
         </div>
       </section>
@@ -196,10 +198,10 @@ const FaqSection = () => {
             <div className='col-xl-8 col-lg-10'>
               <div className='text-center mb-48'>
                 <h2 className='faq-title'>
-                  Tez-tez so'raladigan savollar
+                  {tFaq('title')}
                 </h2>
                 <p className='faq-subtitle'>
-                  Bizga tez-tez beriladigan savollarga javoblar
+                  {tFaq('subtitle')}
                 </p>
               </div>
               

@@ -39,7 +39,7 @@ const TopVendorsOne = () => {
             <h5 className="mb-0 font-semibold">{tCommon("shops")}</h5>
             <Link
               href="/vendor-two-details"
-              className="text-green-600 text-sm font-medium hover:underline border border-green-600 px-3 py-1 rounded-lg"
+              className="!text-green-600 text-sm font-medium hover:underline border border-green-600 px-3 py-1 rounded-lg"
             >
               {tCommon("viewAll")}
             </Link>
