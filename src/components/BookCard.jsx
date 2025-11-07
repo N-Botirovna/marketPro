@@ -13,6 +13,13 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
   const tWishList = useTranslations("WishList");
   const tProduct = useTranslations("ProductDetailsOne");
 
+  // Helper function to get localized field value
+  const getLocalizedField = (fieldPrefix) => {
+    const localizedKey = `${fieldPrefix}_${locale}`;
+    const fallbackKey = `${fieldPrefix}_uz`;
+    return book[localizedKey] || book[fallbackKey] || book[fieldPrefix] || '';
+  };
+
   const formatPrice = (price) => {
     if (price === null || price === undefined) return "";
     return `${new Intl.NumberFormat(locale).format(price)} ${tCommon("currency")}`;
@@ -70,7 +77,7 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
       <div className='product-card__content p-sm-2'>
         <h6 className='title text-lg fw-semibold mt-12 mb-8'>
           <Link href={`/product-details?id=${book.id}`} className='link text-line-2'>
-            {book.name || tBookCard("noName")}
+            {getLocalizedField("name") || tBookCard("noName")}
           </Link>
         </h6>
 
@@ -79,7 +86,7 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
             <i className='ph-fill ph-user' />
           </span>
           <span className='text-gray-500 text-xs'>
-            {book.author || tCommon("unknownAuthor")}
+            {getLocalizedField("author") || tCommon("unknownAuthor")}
           </span>
         </div>
         
