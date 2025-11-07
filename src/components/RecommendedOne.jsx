@@ -1,12 +1,396 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState, memo } from "react";
 import { Link } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
+import { getBookById, getBooks } from "@/services/books";
+import dynamic from "next/dynamic";
+import Spin from "./Spin";
+
+const Slider = dynamic(() => import("react-slick"), { ssr: false });
+
+// Carousel CSS Styles
+const sliderStyles = `
+  .recommended .slick-slider {
+    padding: 0;
+    margin: 0;
+    position: relative;
+  }
+  
+  .recommended .slick-track {
+    display: flex !important;
+    gap: 0;
+  }
+  
+  .recommended .slick-slide {
+    height: auto !important;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .recommended .slick-arrow {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 50% !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 10 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: absolute !important;
+  }
+  
+  .recommended .slick-prev {
+    left: 10px !important;
+  }
+  
+  .recommended .slick-next {
+    right: 10px !important;
+  }
+  
+  .recommended .slick-prev:hover,
+  .recommended .slick-next:hover {
+    background-color: #299E60 !important;
+    border-color: #299E60 !important;
+    color: white !important;
+  }
+  
+  .recommended .slick-prev:before,
+  .recommended .slick-next:before {
+    content: '' !important;
+  }
+  
+  .recommended .product-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .recommended .product-card__thumb {
+    flex-shrink: 0;
+  }
+  
+  .recommended .product-card__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .recommended .product-card .title {
+    line-height: 1.3;
+    min-height: 2.6em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  
+  @media (max-width: 768px) {
+    .recommended .slick-prev {
+      left: 5px !important;
+    }
+    
+    .recommended .slick-next {
+      right: 5px !important;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .recommended .slick-prev {
+      left: 0px !important;
+      width: 36px !important;
+      height: 36px !important;
+    }
+    
+    .recommended .slick-next {
+      right: 0px !important;
+      width: 36px !important;
+      height: 36px !important;
+    }
+  }
+`;
+
+// Custom Next Arrow
+const SampleNextArrow = memo((props) => {
+  const { className, onClick } = props;
+  return (
+              <button
+                type="button"
+      onClick={onClick}
+      className={`${className} slick-next slick-arrow flex-center rounded-circle border border-gray-100 hover-border-main-600 text-xl hover-bg-main-600 hover-text-white transition-1`}
+              >
+      <i className="ph ph-caret-right" />
+              </button>
+  );
+});
+
+// Custom Prev Arrow
+const SamplePrevArrow = memo((props) => {
+  const { className, onClick } = props;
+  return (
+              <button
+                type="button"
+      onClick={onClick}
+      className={`${className} slick-prev slick-arrow flex-center rounded-circle border border-gray-100 hover-border-main-600 text-xl hover-bg-main-600 hover-text-white transition-1`}
+              >
+      <i className="ph ph-caret-left" />
+              </button>
+  );
+});
 
 const RecommendedOne = () => {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+
+  const [currentBook, setCurrentBook] = useState(null);
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedFilters, setSelectedFilters] = useState(["category"]); // Default: category tanlangan
+  const [sliderRef, setSliderRef] = useState(null);
+
+  // Fetch current book details
+  useEffect(() => {
+    if (id) {
+      const fetchCurrentBook = async () => {
+        try {
+          const response = await getBookById(id);
+          setCurrentBook(response.book);
+        } catch (err) {
+          console.error("Error fetching current book:", err);
+        }
+      };
+      fetchCurrentBook();
+    }
+  }, [id]);
+
+  // Toggle filter selection
+  const toggleFilter = (filterType) => {
+    setSelectedFilters((prev) => {
+      if (prev.includes(filterType)) {
+        // Agar allaqachon tanlangan bo'lsa, chiqar
+        return prev.filter((f) => f !== filterType);
+      } else {
+        // Agar tanlanmagan bo'lsa, qo'sh
+        return [...prev, filterType];
+      }
+    });
+  };
+
+  // Fetch recommended books based on selected filters
+  useEffect(() => {
+    if (!currentBook || selectedFilters.length === 0) {
+      setBooks([]);
+      setLoading(false);
+      return;
+    }
+
+    const fetchRecommendedBooks = async () => {
+      try {
+        setLoading(true);
+        let params = { is_active: true, limit: 20 };
+
+  // Har bir tanlangan filter uchun parametr qo'sh
+        if (selectedFilters.includes("category") && currentBook.category) {
+          params.category = currentBook.category;
+        }
+
+        if (selectedFilters.includes("price") && currentBook.price) {
+          const price = currentBook.discount_price || currentBook.price;
+          const minPrice = Math.floor(price * 0.8); // -20%
+          const maxPrice = Math.ceil(price * 1.2); // +20%
+          params.price_min = minPrice;
+          params.price_max = maxPrice;
+        }
+
+        if (selectedFilters.includes("location") && currentBook.region) {
+          params.region = currentBook.region;
+        }
+
+        if (selectedFilters.includes("shop") && currentBook.shop?.id) {
+          params.shop = currentBook.shop.id;
+        }
+
+        const response = await getBooks(params);
+        // Filter out the current book from recommendations
+        const filteredBooks = response.books.filter(
+          (book) => book.id !== currentBook.id
+        );
+        setBooks(filteredBooks);
+      } catch (err) {
+        console.error("Error fetching recommended books:", err);
+        setBooks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecommendedBooks();
+  }, [currentBook, selectedFilters]);
+
+  const sliderSettings = {
+    dots: false,
+    infinite: books.length > 6,
+    speed: 600,
+    slidesToShow: 6,
+    slidesToScroll: 1,
+    autoplay: false,
+    pauseOnHover: true,
+    arrows: true,
+    prevArrow: <SamplePrevArrow />,
+    nextArrow: <SampleNextArrow />,
+    centerMode: false,
+    swipeToSlide: true,
+    touchMove: true,
+    draggable: true,
+    responsive: [
+      {
+        breakpoint: 1400,
+        settings: {
+          slidesToShow: 5,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 1200,
+        settings: {
+          slidesToShow: 4,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 992,
+        settings: {
+          slidesToShow: 3,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 576,
+        settings: {
+          slidesToShow: 1.5,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+    ],
+  };
+
+  const BookCard = ({ book }) => (
+    <div className="px-6">
+      <div className="product-card h-100 p-12 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
+        {book.discount_price && (
+          <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white position-absolute">
+            {Math.round(
+              ((book.price - book.discount_price) / book.price) * 100
+            )}
+            %
+          </span>
+        )}
+        <Link
+          href={`/product-details?id=${book.id}`}
+          className="product-card__thumb flex-center mb-12"
+          style={{ minHeight: "160px" }}
+        >
+          <img
+            src={book.picture || "assets/images/thumbs/product-img7.png"}
+            alt={book.name}
+            style={{ maxHeight: "140px", width: "auto", objectFit: "contain" }}
+          />
+        </Link>
+        <div className="product-card__content">
+          <h6 className="title text-sm fw-semibold mb-8">
+            <Link
+              href={`/product-details?id=${book.id}`}
+              className="link text-line-2"
+              title={book.name}
+            >
+              {book.name}
+            </Link>
+          </h6>
+          <div className="flex-align gap-4 mb-10">
+            <span className="text-main-600 text-sm d-flex">
+              <i className="ph-fill ph-storefront" />
+            </span>
+            <span className="text-gray-500 text-xs line-clamp-1">
+              {book.shop?.name ||
+                `${book.posted_by?.first_name || ""} ${
+                  book.posted_by?.last_name || ""
+                }`.trim() ||
+                "Noma'lum"}
+            </span>
+          </div>
+          <div className="product-card__price mb-8">
+            <span className="text-heading text-md fw-semibold d-block">
+              {new Intl.NumberFormat("uz-UZ").format(
+                book.discount_price || book.price
+              )}{" "}
+              so'm
+            </span>
+            {book.discount_price && (
+              <span className="text-gray-400 text-xs fw-semibold text-decoration-line-through">
+                {new Intl.NumberFormat("uz-UZ").format(book.price)} so'm
+              </span>
+            )}
+          </div>
+          <div className="flex-align gap-6">
+            <span className="text-xs fw-bold text-gray-600">
+              👁 {book.view_count || 0}
+            </span>
+            <span className="text-15 fw-bold text-warning-600 d-flex">
+              <i className="ph-fill ph-star" />
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (!currentBook) {
+    return (
+      <section className="recommended">
+        <div className="container container-lg">
+          <div className="text-center py-40">
+            <Spin text="Kitob yuklanmoqda..." />
+                    </div>
+                      </div>
+      </section>
+    );
+  }
+
+  const getFilterLabel = () => {
+    if (selectedFilters.length === 0) {
+      return "Filter tanlang";
+    }
+    const labels = {
+      category: "Kategoriya",
+      price: "Narx (±20%)",
+      location: "Manzil",
+      shop: "Do'kon",
+    };
+    return selectedFilters.map((f) => labels[f]).join(" + ");
+  };
+
   return (
-    <section className="recommended">
+    <>
+      <style>{sliderStyles}</style>
+      <section className="recommended">
       <div className="container container-lg">
         <div className="section-heading flex-between flex-wrap gap-16">
-          <h5 className="mb-0">Recommended for you</h5>
+          <h5 className="mb-0">Sizga tavsiya qilingan kitoblar</h5>
           <ul
             className="nav common-tab nav-pills"
             id="pills-tab"
@@ -14,4567 +398,140 @@ const RecommendedOne = () => {
           >
             <li className="nav-item" role="presentation">
               <button
-                className="nav-link active"
-                id="pills-all-tab"
-                data-bs-toggle="pill"
-                data-bs-target="#pills-all"
+                className={`nav-link ${
+                  selectedFilters.includes("category") ? "active" : ""
+                }`}
+                onClick={() => toggleFilter("category")}
                 type="button"
-                role="tab"
-                aria-controls="pills-all"
-                aria-selected="true"
+                title="Kategoriya bo'yicha filtrla"
               >
-                All
+                <i className="ph ph-list me-2" />
+                Kategoriya
               </button>
             </li>
             <li className="nav-item" role="presentation">
               <button
-                className="nav-link"
-                id="pills-grocery-tab"
-                data-bs-toggle="pill"
-                data-bs-target="#pills-grocery"
+                className={`nav-link ${
+                  selectedFilters.includes("price") ? "active" : ""
+                }`}
+                onClick={() => toggleFilter("price")}
                 type="button"
-                role="tab"
-                aria-controls="pills-grocery"
-                aria-selected="false"
+                title="Narx oraliqda filtrla (±20%)"
               >
-                Grocery
+                <i className="ph ph-tag me-2" />
+                Narx (±20%)
               </button>
             </li>
             <li className="nav-item" role="presentation">
               <button
-                className="nav-link"
-                id="pills-fruits-tab"
-                data-bs-toggle="pill"
-                data-bs-target="#pills-fruits"
+                className={`nav-link ${
+                  selectedFilters.includes("location") ? "active" : ""
+                }`}
+                onClick={() => toggleFilter("location")}
                 type="button"
-                role="tab"
-                aria-controls="pills-fruits"
-                aria-selected="false"
+                title="Manzil bo'yicha filtrla"
               >
-                Fruits
+                <i className="ph ph-map-pin me-2" />
+                Manzil
               </button>
             </li>
             <li className="nav-item" role="presentation">
               <button
-                className="nav-link"
-                id="pills-juices-tab"
-                data-bs-toggle="pill"
-                data-bs-target="#pills-juices"
+                className={`nav-link ${
+                  selectedFilters.includes("shop") ? "active" : ""
+                }`}
+                onClick={() => toggleFilter("shop")}
                 type="button"
-                role="tab"
-                aria-controls="pills-juices"
-                aria-selected="false"
+                title="Do'kon bo'yicha filtrla"
               >
-                Juices
-              </button>
-            </li>
-            <li className="nav-item" role="presentation">
-              <button
-                className="nav-link"
-                id="pills-vegetables-tab"
-                data-bs-toggle="pill"
-                data-bs-target="#pills-vegetables"
-                type="button"
-                role="tab"
-                aria-controls="pills-vegetables"
-                aria-selected="false"
-              >
-                Vegetables
-              </button>
-            </li>
-            <li className="nav-item" role="presentation">
-              <button
-                className="nav-link"
-                id="pills-snacks-tab"
-                data-bs-toggle="pill"
-                data-bs-target="#pills-snacks"
-                type="button"
-                role="tab"
-                aria-controls="pills-snacks"
-                aria-selected="false"
-              >
-                Snacks
-              </button>
-            </li>
-            <li className="nav-item" role="presentation">
-              <button
-                className="nav-link"
-                id="pills-organic-tab"
-                data-bs-toggle="pill"
-                data-bs-target="#pills-organic"
-                type="button"
-                role="tab"
-                aria-controls="pills-organic"
-                aria-selected="false"
-              >
-                Organic Foods
+                <i className="ph ph-storefront me-2" />
+                Do'kon
               </button>
             </li>
           </ul>
         </div>
-        <div className="tab-content" id="pills-tabContent">
-          <div
-            className="tab-pane fade show active"
-            id="pills-all"
-            role="tabpanel"
-            aria-labelledby="pills-all-tab"
-            tabIndex={0}
-          >
-            <div className="row g-12">
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img7.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img8.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Marcel's Modern Pantry Almond Unsweetened
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img9.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        O Organics Milk, Whole, Vitamin D
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-info-600 px-8 py-4 text-sm text-white">
-                    Best Sale
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img10.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Whole Grains and Seeds Organic Bread
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img11.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Lucerne Yogurt, Lowfat, Strawberry
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img12.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Nature Valley Whole Grain Oats and Honey Protein
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img13.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img14.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-warning-600 px-8 py-4 text-sm text-white">
-                    New
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img15.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img16.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Good &amp; Gather Farmed Atlantic Salmon
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img17.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Market Pantry 41/50 Raw Tail-Off Large Raw Shrimp
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-warning-600 px-8 py-4 text-sm text-white">
-                    New
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img18.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Tropicana 100% Juice, Orange, No Pulp
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            className="tab-pane fade"
-            id="pills-grocery"
-            role="tabpanel"
-            aria-labelledby="pills-grocery-tab"
-            tabIndex={0}
-          >
-            <div className="row g-12">
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img7.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img8.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Marcel's Modern Pantry Almond Unsweetened
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img9.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        O Organics Milk, Whole, Vitamin D
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-info-600 px-8 py-4 text-sm text-white">
-                    Best Sale
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img10.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Whole Grains and Seeds Organic Bread
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img11.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Lucerne Yogurt, Lowfat, Strawberry
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img12.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Nature Valley Whole Grain Oats and Honey Protein
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img13.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img14.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-warning-600 px-8 py-4 text-sm text-white">
-                    New
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img15.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img16.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Good &amp; Gather Farmed Atlantic Salmon
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img17.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Market Pantry 41/50 Raw Tail-Off Large Raw Shrimp
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-warning-600 px-8 py-4 text-sm text-white">
-                    New
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img18.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Tropicana 100% Juice, Orange, No Pulp
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            className="tab-pane fade"
-            id="pills-fruits"
-            role="tabpanel"
-            aria-labelledby="pills-fruits-tab"
-            tabIndex={0}
-          >
-            <div className="row g-12">
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img7.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img8.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Marcel's Modern Pantry Almond Unsweetened
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img9.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        O Organics Milk, Whole, Vitamin D
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-info-600 px-8 py-4 text-sm text-white">
-                    Best Sale
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img10.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Whole Grains and Seeds Organic Bread
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img11.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Lucerne Yogurt, Lowfat, Strawberry
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img12.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Nature Valley Whole Grain Oats and Honey Protein
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img13.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img14.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-warning-600 px-8 py-4 text-sm text-white">
-                    New
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img15.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img16.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Good &amp; Gather Farmed Atlantic Salmon
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img17.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Market Pantry 41/50 Raw Tail-Off Large Raw Shrimp
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-warning-600 px-8 py-4 text-sm text-white">
-                    New
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img18.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Tropicana 100% Juice, Orange, No Pulp
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            className="tab-pane fade"
-            id="pills-juices"
-            role="tabpanel"
-            aria-labelledby="pills-juices-tab"
-            tabIndex={0}
-          >
-            <div className="row g-12">
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img7.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img8.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Marcel's Modern Pantry Almond Unsweetened
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img9.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        O Organics Milk, Whole, Vitamin D
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-info-600 px-8 py-4 text-sm text-white">
-                    Best Sale
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img10.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Whole Grains and Seeds Organic Bread
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img11.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Lucerne Yogurt, Lowfat, Strawberry
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img12.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Nature Valley Whole Grain Oats and Honey Protein
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img13.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img14.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-warning-600 px-8 py-4 text-sm text-white">
-                    New
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img15.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img16.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Good &amp; Gather Farmed Atlantic Salmon
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img17.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Market Pantry 41/50 Raw Tail-Off Large Raw Shrimp
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-warning-600 px-8 py-4 text-sm text-white">
-                    New
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img18.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Tropicana 100% Juice, Orange, No Pulp
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            className="tab-pane fade"
-            id="pills-vegetables"
-            role="tabpanel"
-            aria-labelledby="pills-vegetables-tab"
-            tabIndex={0}
-          >
-            <div className="row g-12">
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img7.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img8.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Marcel's Modern Pantry Almond Unsweetened
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img9.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        O Organics Milk, Whole, Vitamin D
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-info-600 px-8 py-4 text-sm text-white">
-                    Best Sale
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img10.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Whole Grains and Seeds Organic Bread
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img11.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Lucerne Yogurt, Lowfat, Strawberry
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img12.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Nature Valley Whole Grain Oats and Honey Protein
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img13.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img14.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-warning-600 px-8 py-4 text-sm text-white">
-                    New
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img15.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img16.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Good &amp; Gather Farmed Atlantic Salmon
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img17.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Market Pantry 41/50 Raw Tail-Off Large Raw Shrimp
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-warning-600 px-8 py-4 text-sm text-white">
-                    New
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img18.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Tropicana 100% Juice, Orange, No Pulp
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            className="tab-pane fade"
-            id="pills-snacks"
-            role="tabpanel"
-            aria-labelledby="pills-snacks-tab"
-            tabIndex={0}
-          >
-            <div className="row g-12">
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img7.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img8.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Marcel's Modern Pantry Almond Unsweetened
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img9.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        O Organics Milk, Whole, Vitamin D
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-info-600 px-8 py-4 text-sm text-white">
-                    Best Sale
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img10.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Whole Grains and Seeds Organic Bread
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img11.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Lucerne Yogurt, Lowfat, Strawberry
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img12.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Nature Valley Whole Grain Oats and Honey Protein
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img13.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img14.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-warning-600 px-8 py-4 text-sm text-white">
-                    New
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img15.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img16.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Good &amp; Gather Farmed Atlantic Salmon
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img17.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Market Pantry 41/50 Raw Tail-Off Large Raw Shrimp
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-warning-600 px-8 py-4 text-sm text-white">
-                    New
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img18.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Tropicana 100% Juice, Orange, No Pulp
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            className="tab-pane fade"
-            id="pills-organic"
-            role="tabpanel"
-            aria-labelledby="pills-organic-tab"
-            tabIndex={0}
-          >
-            <div className="row g-12">
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img7.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img8.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Marcel's Modern Pantry Almond Unsweetened
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img9.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        O Organics Milk, Whole, Vitamin D
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-info-600 px-8 py-4 text-sm text-white">
-                    Best Sale
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img10.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Whole Grains and Seeds Organic Bread
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img11.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Lucerne Yogurt, Lowfat, Strawberry
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img12.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Nature Valley Whole Grain Oats and Honey Protein
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img13.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img14.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-warning-600 px-8 py-4 text-sm text-white">
-                    New
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img15.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        C-500 Antioxidant Protect Dietary Supplement
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img16.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Good &amp; Gather Farmed Atlantic Salmon
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-                    Sale 50%
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img17.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Market Pantry 41/50 Raw Tail-Off Large Raw Shrimp
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-xxl-2 col-lg-3 col-sm-4 col-6">
-                <div className="product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
-                  <span className="product-card__badge bg-warning-600 px-8 py-4 text-sm text-white">
-                    New
-                  </span>
-                  <Link
-                    href="/product-details"
-                    className="product-card__thumb flex-center"
-                  >
-                    <img src="assets/images/thumbs/product-img18.png" alt="" />
-                  </Link>
-                  <div className="product-card__content p-sm-2">
-                    <h6 className="title text-lg fw-semibold mt-12 mb-8">
-                      <Link
-                        href="/product-details"
-                        className="link text-line-2"
-                      >
-                        Tropicana 100% Juice, Orange, No Pulp
-                      </Link>
-                    </h6>
-                    <div className="flex-align gap-4">
-                      <span className="text-main-600 text-md d-flex">
-                        <i className="ph-fill ph-storefront" />
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        By Lucky Supermarket
-                      </span>
-                    </div>
-                    <div className="product-card__content mt-12">
-                      <div className="product-card__price mb-8">
-                        <span className="text-heading text-md fw-semibold ">
-                          $14.99{" "}
-                          <span className="text-gray-500 fw-normal">/Qty</span>{" "}
-                        </span>
-                        <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                          $28.99
-                        </span>
-                      </div>
-                      <div className="flex-align gap-6">
-                        <span className="text-xs fw-bold text-gray-600">
-                          4.8
-                        </span>
-                        <span className="text-15 fw-bold text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-xs fw-bold text-gray-600">
-                          (17k)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+
+        {selectedFilters.length === 0 ? (
+          <div className="text-center py-60">
+            <div className="mb-16">
+              <i
+                className="ph ph-magnifying-glass"
+                style={{ fontSize: "48px", color: "#ccc" }}
+              />
+                      </div>
+            <p className="text-gray-600 text-lg">
+              Kitoblarni ko'rish uchun yuqoridan filter tanlang
+            </p>
+                      </div>
+        ) : loading ? (
+          <div className="text-center py-40">
+            <Spin text="Kitoblar yuklanmoqda..." />
+                    </div>
+        ) : books.length > 0 ? (
+          <div className="overflow-hidden">
+            <Slider ref={setSliderRef} {...sliderSettings}>
+              {books.map((book) => (
+                <BookCard key={book.id} book={book} />
+              ))}
+            </Slider>
+                  </div>
+        ) : (
+          <div className="text-center py-60">
+            <div className="mb-16">
+              <i
+                className="ph ph-binoculars"
+                style={{ fontSize: "48px", color: "#ccc" }}
+              />
+                </div>
+            <p className="text-gray-600 text-lg mb-16">
+              {selectedFilters.includes("category") &&
+                selectedFilters.includes("price") &&
+                selectedFilters.includes("location") &&
+                selectedFilters.includes("shop") &&
+                "Bu shartlarga mos kitoblar topilmadi."}
+              {selectedFilters.includes("category") &&
+                !selectedFilters.includes("price") &&
+                !selectedFilters.includes("location") &&
+                !selectedFilters.includes("shop") &&
+                "Bu kategoriyada boshqa kitoblar topilmadi."}
+              {selectedFilters.includes("price") &&
+                !selectedFilters.includes("category") &&
+                !selectedFilters.includes("location") &&
+                !selectedFilters.includes("shop") &&
+                "Bu narx oraliqda boshqa kitoblar topilmadi."}
+              {selectedFilters.includes("location") &&
+                !selectedFilters.includes("category") &&
+                !selectedFilters.includes("price") &&
+                !selectedFilters.includes("shop") &&
+                "Bu manzilda boshqa kitoblar topilmadi."}
+              {selectedFilters.includes("shop") &&
+                !selectedFilters.includes("category") &&
+                !selectedFilters.includes("price") &&
+                !selectedFilters.includes("location") &&
+                "Bu do'konda boshqa kitoblar topilmadi."}
+              {selectedFilters.length > 1 &&
+                "Tanlangan shartlarga mos kitoblar topilmadi."}
+            </p>
+            <button
+              onClick={() => setSelectedFilters(["category"])}
+              className="btn btn-main rounded-pill"
+            >
+              <i className="ph ph-arrow-clockwise me-2" />
+              Kategoriya filtriga qaytish
+            </button>
+                    </div>
+        )}
+
+        {books.length > 0 && (
+          <div className="text-center mt-32">
+            <p className="text-gray-600 text-sm">
+              Jami {books.length} ta kitob topildi
+            </p>
+                      </div>
+        )}
       </div>
     </section>
+    </>
   );
 };
 
