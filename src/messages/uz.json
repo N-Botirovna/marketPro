@@ -69,6 +69,12 @@
             "title": "Yangiliklar"
         }
     },
+    "NewsletterOne": {
+        "title": "Kitobzor takliflarini o'tkazib yubormang!",
+        "subtitle": "SOTUVCHI BO'LING VA FOYDA OLING",
+        "description": "Kitoblaringizni sotish orqali oylik 200,000$ dan ortiq foyda oling. Bepul ro'yxatdan o'ting va darhol sotishni boshlang!",
+        "buttonText": "Sotuvchi Bo'lish"
+    },
     "Footer": {
         "about": {
             "blurb": "Biz Kitobzor - innovatsion kitob do'koni va kitob sotuvchilari jamoasi.",

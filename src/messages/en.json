@@ -69,6 +69,12 @@
             "title": "Newsletter"
         }
     },
+    "NewsletterOne": {
+        "title": "Don't miss out on Kitobzor offers!",
+        "subtitle": "BECOME A SELLER AND EARN",
+        "description": "Earn more than $200,000 per month by selling your books. Register for free and start selling right away!",
+        "buttonText": "Become a Seller"
+    },
     "Footer": {
         "about": {
             "blurb": "We are Kitobzor – an innovative book store and sellers community.",

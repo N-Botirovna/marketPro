@@ -153,7 +153,7 @@ const CategoryDropdown = () => {
                     {cat.subcategories.map((sub) => (
                       <li key={sub.id}>
                         <Link
-                          href={`/vendor-two?subcategory=${sub.id}`}
+                          href={`/vendor-two?subcategory=${encodeURIComponent(sub.name)}`}
                           className="block px-16 py-8 hover:bg-gray-50 rounded-4 transition-all duration-10 text-gray-600 hover:text-gray-800"
                           style={{ transition: "all 0.02s ease" }}
                         >

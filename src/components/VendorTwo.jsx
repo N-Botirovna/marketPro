@@ -22,11 +22,13 @@ const VendorTwo = () => {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [regions, setRegions] = useState([]);
+  const [districts, setDistricts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   
   // Filters state
   const [filters, setFilters] = useState({
     category: "",
+    subcategory: "",
     region: "",
     district: "",
     cover_type: "",
@@ -73,11 +75,15 @@ const VendorTwo = () => {
       if (filters.category) {
         params.category = filters.category;
       }
+      if (filters.subcategory) {
+        params.subcategory = filters.subcategory;
+      }
+      // API expects region and district by name, not ID
       if (filters.region) {
-        params.region = filters.region;
+        params.region = filters.region; // region name
       }
       if (filters.district) {
-        params.district = filters.district;
+        params.district = filters.district; // district name
       }
       if (filters.cover_type) {
         params.cover_type = filters.cover_type;
@@ -144,16 +150,41 @@ const VendorTwo = () => {
 
   const handleFilterChange = (filterType, value) => {
     setCurrentPage(1);
-    setFilters((prev) => ({
-      ...prev,
-      [filterType]: value,
-    }));
+    
+    // Special handling for region filter
+    if (filterType === "region") {
+      // If region is being cleared, clear districts too
+      if (!value) {
+        setDistricts([]);
+      } else {
+        // Find the selected region and get its districts
+        const selectedRegion = regions.find(r => r.name === value);
+        if (selectedRegion) {
+          setDistricts(selectedRegion.districts || []);
+        }
+      }
+    }
+    
+    // If region is changed, reset district
+    if (filterType === "region") {
+      setFilters((prev) => ({
+        ...prev,
+        region: value,
+        district: "",
+      }));
+    } else {
+      setFilters((prev) => ({
+        ...prev,
+        [filterType]: value,
+      }));
+    }
   };
 
   const handleClearFilters = () => {
     setCurrentPage(1);
     setFilters({
       category: "",
+      subcategory: "",
       region: "",
       district: "",
       cover_type: "",
@@ -187,10 +218,6 @@ const VendorTwo = () => {
     }
     return pages;
   };
-
-  // Get selected region's districts
-  const selectedRegion = regions.find((r) => r.id.toString() === filters.region);
-  const districts = selectedRegion?.districts || [];
 
   return (
     <section className="vendor-two py-80">
@@ -395,12 +422,11 @@ const VendorTwo = () => {
                         value={filters.region}
                         onChange={(e) => {
                           handleFilterChange("region", e.target.value);
-                          handleFilterChange("district", "");
                         }}
                       >
                         <option value="">{tBookShop("allLocations")}</option>
                         {regions.map((region) => (
-                          <option key={region.id} value={region.id}>
+                          <option key={region.id} value={region.name}>
                             {region.name}
                           </option>
                         ))}
@@ -419,7 +445,7 @@ const VendorTwo = () => {
                         >
                           <option value="">{tLocation("selectDistrict")}</option>
                           {districts.map((district) => (
-                            <option key={district.id} value={district.id}>
+                            <option key={district.id} value={district.name}>
                               {district.name}
                             </option>
                           ))}
