@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { getBooks } from "@/services/books";
 import { getBookCategories } from "@/services/categories";
@@ -17,6 +17,8 @@ const VendorTwo = () => {
   const tLocation = useTranslations("Location");
   const locale = useLocale();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   
   const [grid, setGrid] = useState(false);
   const [active, setActive] = useState(false);
@@ -87,22 +89,48 @@ const VendorTwo = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Convert category name to ID when categories are loaded
+  // Convert category and subcategory name to ID when categories are loaded
   useEffect(() => {
-    if (filters.category && categories.length > 0) {
-      // Check if category is a name (string) and not a number
-      const isNumeric = /^\d+$/.test(filters.category);
-      if (!isNumeric) {
-        // Find category by name
-        const foundCategory = categories.find(
-          cat => cat.name === decodeURIComponent(filters.category)
-        );
-        if (foundCategory && foundCategory.id.toString() !== filters.category) {
-          setFilters(prev => ({
-            ...prev,
-            category: foundCategory.id.toString()
-          }));
+    if (categories.length > 0) {
+      let updatedFilters = { ...filters };
+      let needsUpdate = false;
+
+      // Convert category name to ID
+      if (filters.category) {
+        const isNumeric = /^\d+$/.test(filters.category);
+        if (!isNumeric) {
+          const foundCategory = categories.find(
+            cat => cat.name === decodeURIComponent(filters.category)
+          );
+          if (foundCategory && foundCategory.id.toString() !== filters.category) {
+            updatedFilters.category = foundCategory.id.toString();
+            needsUpdate = true;
+          }
         }
+      }
+
+      // Convert subcategory name to ID
+      if (filters.subcategory) {
+        const isNumeric = /^\d+$/.test(filters.subcategory);
+        if (!isNumeric) {
+          // Find subcategory by name in all categories
+          for (const cat of categories) {
+            if (cat.subcategories && cat.subcategories.length > 0) {
+              const foundSub = cat.subcategories.find(
+                sub => sub.name === decodeURIComponent(filters.subcategory)
+              );
+              if (foundSub && foundSub.id.toString() !== filters.subcategory) {
+                updatedFilters.subcategory = foundSub.id.toString();
+                needsUpdate = true;
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      if (needsUpdate) {
+        setFilters(updatedFilters);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -149,7 +177,28 @@ const VendorTwo = () => {
         }
       }
       if (filters.subcategory) {
-        params.subcategory = filters.subcategory;
+        // API expects subcategory as integer (ID), not string (name)
+        // Try to find subcategory ID from categories
+        let subcategoryId = filters.subcategory;
+        const isNumeric = /^\d+$/.test(filters.subcategory);
+        if (!isNumeric && categories.length > 0) {
+          // Find subcategory by name
+          for (const cat of categories) {
+            if (cat.subcategories && cat.subcategories.length > 0) {
+              const foundSub = cat.subcategories.find(
+                sub => sub.name === decodeURIComponent(filters.subcategory)
+              );
+              if (foundSub) {
+                subcategoryId = foundSub.id.toString();
+                break;
+              }
+            }
+          }
+        }
+        const subcategoryIdInt = parseInt(subcategoryId);
+        if (!isNaN(subcategoryIdInt)) {
+          params.subcategory = subcategoryIdInt;
+        }
       }
       // API expects region and district by name, not ID
       if (filters.region) {
@@ -218,7 +267,87 @@ const VendorTwo = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     setCurrentPage(1);
+    // Update URL with search query
+    updateURL(filters, searchQuery, 1);
     fetchBooks();
+  };
+
+  // Update URL with current filters
+  const updateURL = (newFilters, newSearchQuery = searchQuery, newPage = 1) => {
+    const params = new URLSearchParams();
+    
+    if (newSearchQuery) {
+      params.set("q", newSearchQuery);
+    }
+    if (newFilters.category) {
+      // Use category name if it's not numeric, otherwise try to find name from categories
+      const isNumeric = /^\d+$/.test(newFilters.category);
+      if (isNumeric && categories.length > 0) {
+        const category = categories.find(cat => cat.id.toString() === newFilters.category);
+        if (category) {
+          params.set("category", category.name);
+        } else {
+          // If category not found, keep the ID (shouldn't happen normally)
+          params.set("category", newFilters.category);
+        }
+      } else {
+        // If it's already a name or categories not loaded yet, use as is
+        params.set("category", newFilters.category);
+      }
+    }
+    if (newFilters.subcategory) {
+      // Use subcategory name if it's not numeric, otherwise try to find name from categories
+      const isNumeric = /^\d+$/.test(newFilters.subcategory);
+      if (isNumeric && categories.length > 0) {
+        // Find subcategory by ID
+        for (const cat of categories) {
+          if (cat.subcategories && cat.subcategories.length > 0) {
+            const foundSub = cat.subcategories.find(
+              sub => sub.id.toString() === newFilters.subcategory
+            );
+            if (foundSub) {
+              params.set("subcategory", foundSub.name);
+              break;
+            }
+          }
+        }
+        // If not found, keep the ID
+        if (!params.has("subcategory")) {
+          params.set("subcategory", newFilters.subcategory);
+        }
+      } else {
+        // If it's already a name or categories not loaded yet, use as is
+        params.set("subcategory", newFilters.subcategory);
+      }
+    }
+    if (newFilters.region) {
+      params.set("region", newFilters.region);
+    }
+    if (newFilters.district) {
+      params.set("district", newFilters.district);
+    }
+    if (newFilters.cover_type) {
+      params.set("cover_type", newFilters.cover_type);
+    }
+    if (newFilters.price_min) {
+      params.set("price_min", newFilters.price_min);
+    }
+    if (newFilters.price_max) {
+      params.set("price_max", newFilters.price_max);
+    }
+    if (newFilters.rating_min) {
+      params.set("rating_min", newFilters.rating_min);
+    }
+    if (newFilters.rating_max) {
+      params.set("rating_max", newFilters.rating_max);
+    }
+    if (newPage > 1) {
+      params.set("page", newPage.toString());
+    }
+    
+    const queryString = params.toString();
+    const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
+    router.replace(newUrl, { scroll: false });
   };
 
   const handleFilterChange = (filterType, value) => {
@@ -238,24 +367,30 @@ const VendorTwo = () => {
       }
     }
     
-    // If region is changed, reset district
+    // Update filters
+    let updatedFilters;
     if (filterType === "region") {
-      setFilters((prev) => ({
-        ...prev,
+      updatedFilters = {
+        ...filters,
         region: value,
         district: "",
-      }));
+      };
     } else {
-      setFilters((prev) => ({
-        ...prev,
+      updatedFilters = {
+        ...filters,
         [filterType]: value,
-      }));
+      };
     }
+    
+    setFilters(updatedFilters);
+    
+    // Update URL
+    updateURL(updatedFilters, searchQuery, 1);
   };
 
   const handleClearFilters = () => {
     setCurrentPage(1);
-    setFilters({
+    const clearedFilters = {
       category: "",
       subcategory: "",
       region: "",
@@ -265,12 +400,18 @@ const VendorTwo = () => {
       price_max: "",
       rating_min: "",
       rating_max: "",
-    });
+    };
+    setFilters(clearedFilters);
     setSearchQuery("");
+    
+    // Update URL - clear all params
+    router.replace(pathname, { scroll: false });
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
+    // Update URL with page number
+    updateURL(filters, searchQuery, page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -607,7 +748,14 @@ const VendorTwo = () => {
               <div className="text-center py-80">
                 <i className="ph ph-books text-gray-300 text-5xl mb-16"></i>
                 <h5 className="text-gray-500 mb-8">{t("noBooks")}</h5>
-                <p className="text-gray-400 text-sm">{t("noBooksMessage")}</p>
+                <p className="text-gray-400 text-sm mb-24">{t("noBooksMessage")}</p>
+                <button
+                  onClick={handleClearFilters}
+                  className="btn btn-main d-inline-flex align-items-center gap-8"
+                >
+                  <i className="ph ph-arrow-counter-clockwise"></i>
+                  {t("clearFilters")}
+                </button>
               </div>
             )}
             {/* Books End */}

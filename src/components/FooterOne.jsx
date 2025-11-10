@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 const FooterOne = () => {
   const tF = useTranslations("Footer");
   return (
-    <footer className="footer py-120">
+    <footer className="footer py-5">
       <img
         src="assets/images/bg/body-bottom-bg.png"
         alt="BG"
@@ -21,9 +21,7 @@ const FooterOne = () => {
                 <img src="assets/images/logo1.png" alt="" />
               </Link>
             </div>
-            <p className="mb-24">
-              {tF("about.blurb")}
-            </p>
+            <p className="mb-24">{tF("about.blurb")}</p>
             <div className="flex-align gap-16 mb-16">
               <span className="w-32 h-32 flex-center rounded-circle bg-main-600 text-white text-md flex-shrink-0">
                 <i className="ph-fill ph-map-pin" />
@@ -41,7 +39,7 @@ const FooterOne = () => {
                   href="tel:+00123456789"
                   className="text-md text-gray-900 hover-text-main-600"
                 >
-                  +00 123 456 789
+                  +998 93 834 01 03
                 </a>
                 <span className="text-md text-main-600 ">{tF("about.or")}</span>
                 <a
@@ -68,7 +66,7 @@ const FooterOne = () => {
                 <i className="ph-fill ph-envelope" />
               </span>
               <a
-                href="mailto:support24@marketpro.com"
+                href="mailto:kitobzor.help@gmail.com"
                 className="text-md text-gray-900 hover-text-main-600"
               >
                 {tF("about.email")}
@@ -185,10 +183,7 @@ const FooterOne = () => {
               <a href="https://www.apple.com/store" className="">
                 <img src="assets/images/thumbs/store-img1.png" alt="" />
               </a>
-              <a
-                href="https://play.google.com/store/apps?hl=en"
-                className=""
-              >
+              <a href="https://play.google.com/store/apps?hl=en" className="">
                 <img src="assets/images/thumbs/store-img2.png" alt="" />
               </a>
             </div>
