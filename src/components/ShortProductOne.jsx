@@ -112,7 +112,7 @@ const ShortProductOne = () => {
     const slides = [];
     for (let i = 0; i < books.length; i += 4) {
       const group = books.slice(i, i + 4).map((book, idx) => ({
-        id: book.id || book._id || `book-${i}-${idx}`,
+        id: book.id || book._id || null,
         picture: book.picture || "/assets/images/thumbs/short-product-img3.png",
         star: book.rating || book.averageRating || "4.8",
         num: book.reviewCount || book.numReviews || "17k",
@@ -142,22 +142,42 @@ const ShortProductOne = () => {
 
   // 🔹 Product card
   const ProductCard = memo(({ product }) => {
+    const hasValidId = product.id && 
+                       product.id !== null && 
+                       product.id !== undefined &&
+                       !product.id.toString().startsWith('placeholder') &&
+                       product.id !== 'placeholder';
+    const detailUrl = hasValidId ? `/product-details?id=${product.id}` : '#';
+    
     return (
       <div className="flex-align gap-16 mb-24" key={product.id}>
         <div
           className="w-90 h-90 rounded-12 border border-gray-100 shrink-0 overflow-hidden"
           style={{ position: "relative", width: 90, height: 90 }}
         >
-          <Link href={`/product-details?id=${product.id}`} className="link">
-            <Image
-              src={product.picture}
-              alt="product"
-              fill
-              sizes="90px"
-              style={{ objectFit: "cover" }}
-              loading="lazy"
-            />
-          </Link>
+          {hasValidId ? (
+            <Link href={detailUrl} className="link" style={{ display: 'block', width: '100%', height: '100%' }}>
+              <Image
+                src={product.picture}
+                alt={product.desc || "product"}
+                fill
+                sizes="90px"
+                style={{ objectFit: "cover" }}
+                loading="lazy"
+              />
+            </Link>
+          ) : (
+            <div style={{ width: '100%', height: '100%' }}>
+              <Image
+                src={product.picture}
+                alt={product.desc || "product"}
+                fill
+                sizes="90px"
+                style={{ objectFit: "cover" }}
+                loading="lazy"
+              />
+            </div>
+          )}
         </div>
         <div className="flex-1">
           <div className="flex-align gap-6">
@@ -172,9 +192,13 @@ const ShortProductOne = () => {
             </span>
           </div>
           <h6 className="text-sm fw-semibold mt-8 mb-8 text-line-1">
-            <Link href={`/product-details?id=${product.id}`} className="link">
-              {product.desc}
-            </Link>
+            {hasValidId ? (
+              <Link href={detailUrl} className="link hover-text-main-600 transition-1">
+                {product.desc}
+              </Link>
+            ) : (
+              <span className="text-gray-500">{product.desc}</span>
+            )}
           </h6>
           <div className="flex-align gap-8">
             <span className="text-heading text-md fw-semibold">

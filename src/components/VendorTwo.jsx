@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { getBooks } from "@/services/books";
 import { getBookCategories } from "@/services/categories";
@@ -15,6 +16,7 @@ const VendorTwo = () => {
   const tCommon = useTranslations("Common");
   const tLocation = useTranslations("Location");
   const locale = useLocale();
+  const searchParams = useSearchParams();
   
   const [grid, setGrid] = useState(false);
   const [active, setActive] = useState(false);
@@ -49,6 +51,73 @@ const VendorTwo = () => {
     setActive(!active);
   };
 
+  // Initialize filters and search query from URL params on mount
+  useEffect(() => {
+    const categoryParam = searchParams.get("category");
+    const subcategoryParam = searchParams.get("subcategory");
+    const regionParam = searchParams.get("region");
+    const districtParam = searchParams.get("district");
+    const coverTypeParam = searchParams.get("cover_type");
+    const priceMinParam = searchParams.get("price_min");
+    const priceMaxParam = searchParams.get("price_max");
+    const ratingMinParam = searchParams.get("rating_min");
+    const ratingMaxParam = searchParams.get("rating_max");
+    const searchParam = searchParams.get("q") || searchParams.get("search");
+    
+    // Set filters from URL params (category will be converted to ID after categories are loaded)
+    if (categoryParam || subcategoryParam || regionParam || districtParam || 
+        coverTypeParam || priceMinParam || priceMaxParam || ratingMinParam || ratingMaxParam) {
+      setFilters({
+        category: categoryParam || "",
+        subcategory: subcategoryParam || "",
+        region: regionParam || "",
+        district: districtParam || "",
+        cover_type: coverTypeParam || "",
+        price_min: priceMinParam || "",
+        price_max: priceMaxParam || "",
+        rating_min: ratingMinParam || "",
+        rating_max: ratingMaxParam || "",
+      });
+    }
+    
+    // Set search query from URL params
+    if (searchParam) {
+      setSearchQuery(searchParam);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Convert category name to ID when categories are loaded
+  useEffect(() => {
+    if (filters.category && categories.length > 0) {
+      // Check if category is a name (string) and not a number
+      const isNumeric = /^\d+$/.test(filters.category);
+      if (!isNumeric) {
+        // Find category by name
+        const foundCategory = categories.find(
+          cat => cat.name === decodeURIComponent(filters.category)
+        );
+        if (foundCategory && foundCategory.id.toString() !== filters.category) {
+          setFilters(prev => ({
+            ...prev,
+            category: foundCategory.id.toString()
+          }));
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categories]);
+
+  // Set districts when region is selected and regions are loaded
+  useEffect(() => {
+    if (filters.region && regions.length > 0) {
+      const selectedRegion = regions.find(r => r.name === filters.region);
+      if (selectedRegion) {
+        setDistricts(selectedRegion.districts || []);
+      }
+    }
+  }, [filters.region, regions]);
+
   // Fetch categories and regions
   useEffect(() => {
     fetchCategories();
@@ -73,7 +142,11 @@ const VendorTwo = () => {
         params.q = searchQuery;
       }
       if (filters.category) {
-        params.category = filters.category;
+        // API expects category as integer (ID), not string (name)
+        const categoryId = parseInt(filters.category);
+        if (!isNaN(categoryId)) {
+          params.category = categoryId;
+        }
       }
       if (filters.subcategory) {
         params.subcategory = filters.subcategory;

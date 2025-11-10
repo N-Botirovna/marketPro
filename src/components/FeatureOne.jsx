@@ -153,7 +153,7 @@ const FeatureOne = () => {
                     }}
                   >
                     <Link
-                      href={`/vendor-two?category=${category.name}`}
+                      href={`/vendor-two?category=${encodeURIComponent(category.name)}`}
                       className="w-100 h-100 flex-center"
                     >
                       <Image
@@ -172,8 +172,8 @@ const FeatureOne = () => {
                   <div className="feature-item__content mt-16">
                     <h6 className="text-lg mb-8">
                       <Link
-                        href={`/vendor-two?category=${category.name}`}
-                        className="text-inherit"
+                        href={`/vendor-two?category=${encodeURIComponent(category.name)}`}
+                        className="text-inherit hover-text-main-600 transition-1"
                       >
                         {category.name}
                       </Link>
