@@ -447,10 +447,29 @@ const HeaderOne = () => {
               {/* Wishlist Icon Start */}
               <Link
                 href="/wishlist"
-                className="wishlist-icon flex-align gap-4 item-hover"
+                className="wishlist-icon flex-align gap-4 item-hover position-relative"
+                style={{ position: 'relative', display: 'inline-flex' }}
               >
-                <i className="ph ph-heart text-2xl" />
-                <span className="wishlist-count bg-main-600 text-white rounded-circle flex-center">
+                <i className="ph ph-heart text-2xl" style={{ position: 'relative', zIndex: 1 }} />
+                <span 
+                  className="wishlist-count bg-main-600 text-white rounded-circle flex-center position-absolute"
+                  style={{
+                    top: '-6px',
+                    right: '-8px',
+                    minWidth: '18px',
+                    height: '18px',
+                    fontSize: '10px',
+                    fontWeight: '700',
+                    padding: '0 5px',
+                    lineHeight: '1',
+                    border: '2px solid white',
+                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
+                    zIndex: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
                   0
                 </span>
               </Link>

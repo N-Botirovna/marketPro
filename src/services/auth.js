@@ -148,17 +148,35 @@ export function shouldRefreshToken() {
     return false;
   }
   
-  // Only refresh if token is actually expired or about to expire in 1 minute
+  // Check if refresh token is expired first
+  if (isRefreshTokenExpired()) {
+    return false; // Can't refresh if refresh token is expired
+  }
+  
+  // Only refresh if token is actually expired or about to expire in 5 minutes
   const expirationTime = getItem('token_expires_at');
   if (!expirationTime) {
+    // If no expiration time stored, try to decode JWT
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.exp) {
+        const expiry = payload.exp * 1000;
+        const now = Date.now();
+        const refreshBuffer = 5 * 60 * 1000; // 5 minutes
+        return now >= (expiry - refreshBuffer);
+      }
+    } catch (e) {
+      // If can't decode, assume not expired
+      return false;
+    }
     return false;
   }
   
   const now = Date.now();
   const expiresAt = parseInt(expirationTime, 10);
   
-  // Refresh only if token expires within the next 1 minute
-  const refreshBuffer = 1 * 60 * 1000; // 1 minute
+  // Refresh if token expires within the next 5 minutes (proactive refresh)
+  const refreshBuffer = 5 * 60 * 1000; // 5 minutes
   return now >= (expiresAt - refreshBuffer);
 }
 
@@ -166,18 +184,29 @@ export function shouldRefreshToken() {
 export async function refreshTokenIfNeeded() {
   // Return existing promise if already refreshing
   if (isCurrentlyRefreshing && refreshPromise) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('⏳ Already refreshing token, waiting...');
+    }
     return refreshPromise;
   }
   
   // Don't refresh if no access token exists
   const token = getItem(AUTH_TOKEN_STORAGE_KEY);
   if (!token) {
-    return true;
+    return true; // No token means not authenticated, but not an error
+  }
+  
+  // Check if refresh token is expired first
+  if (isRefreshTokenExpired()) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('⚠️ Refresh token expired, cannot refresh access token');
+    }
+    return false;
   }
   
   // Don't refresh if not needed
   if (!shouldRefreshToken()) {
-    return true;
+    return true; // Token is still valid, no refresh needed
   }
   
   try {
@@ -310,7 +339,17 @@ export function isRefreshTokenExpired() {
     
     const payload = JSON.parse(atob(parts[1]));
     if (!payload.exp) {
-      // No expiration in token, assume valid
+      // No expiration in token, check login time as fallback
+      const loginTime = getItem('login_time');
+      if (loginTime) {
+        const daysSinceLogin = (Date.now() - parseInt(loginTime, 10)) / (1000 * 60 * 60 * 24);
+        // Assume refresh token valid for 14 days if no exp in token
+        return daysSinceLogin > 14;
+      }
+      // If no expiration and no login time, assume valid (but log warning)
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('⚠️ Refresh token has no expiration, assuming valid');
+      }
       return false;
     }
     
@@ -318,7 +357,17 @@ export function isRefreshTokenExpired() {
     const now = Date.now();
     
     // Consider expired if already past expiration (no buffer for refresh token)
-    return now >= exp;
+    const isExpired = now >= exp;
+    
+    if (process.env.NODE_ENV === 'development' && isExpired) {
+      console.log('⚠️ Refresh token expired:', {
+        expiredAt: new Date(exp).toLocaleString(),
+        now: new Date(now).toLocaleString(),
+        daysSinceExpiry: (now - exp) / (1000 * 60 * 60 * 24)
+      });
+    }
+    
+    return isExpired;
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
       console.error('Error parsing refresh token:', error);
@@ -327,7 +376,8 @@ export function isRefreshTokenExpired() {
     const loginTime = getItem('login_time');
     if (loginTime) {
       const daysSinceLogin = (Date.now() - parseInt(loginTime, 10)) / (1000 * 60 * 60 * 24);
-      return daysSinceLogin > 14; // Assume 14 days max
+      // Assume 14 days max for refresh token if can't parse
+      return daysSinceLogin > 14;
     }
     return true; // If no info, consider expired
   }

@@ -10,7 +10,6 @@ export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: "api/v1/auth/login/",
     REQUEST_OTP: "api/v1/auth/request-otp",
-    REGISTER: "api/v1/auth/register",
     REFRESH: "api/v1/auth/refresh",
     LOGOUT: "api/v1/auth/logout",
     PROFILE: "api/v1/auth/profile",

@@ -15,7 +15,7 @@ const AuthLogin = () => {
   const tAccount = useTranslations("Account");
   const router = useRouter();
   const { showToast, ToastContainer } = useToast();
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("+998");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -23,6 +23,19 @@ const AuthLogin = () => {
   const validatePhoneNumber = (phone) => {
     const phoneRegex = /^\+998[0-9]{9}$/;
     return phoneRegex.test(phone);
+  };
+
+  const handlePhoneChange = (e) => {
+    let value = e.target.value;
+    
+    // Faqat raqamlarni qoldiramiz
+    const numbers = value.replace(/[^0-9]/g, "");
+    
+    // Maksimal 9 ta raqam (998 dan keyin)
+    const phoneDigits = numbers.substring(0, 9);
+    
+    // State da to'liq raqamni saqlaymiz
+    setPhoneNumber("+998" + phoneDigits);
   };
 
   const handleSubmit = async (e) => {
@@ -203,17 +216,40 @@ const AuthLogin = () => {
                     >
                       {tForms("phone")} <span className="text-danger">*</span>
                     </label>
-                    <input
-                      type="tel"
-                      className="common-input"
-                      id="phone"
-                      placeholder="+998901234567"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      required
-                      autoComplete={"off"}
-                      style={{ padding: "12px 16px", fontSize: "14px" }}
-                    />
+                    <div style={{ position: "relative" }}>
+                      <span
+                        style={{
+                          position: "absolute",
+                          left: "16px",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          color: "#6b7280",
+                          fontSize: "14px",
+                          fontWeight: "500",
+                          pointerEvents: "none",
+                          zIndex: 1,
+                        }}
+                      >
+                        +998
+                      </span>
+                      <input
+                        type="tel"
+                        className="common-input"
+                        id="phone"
+                        name="phone"
+                        placeholder="901234567"
+                        value={phoneNumber.startsWith("+998") ? phoneNumber.substring(4) : ""}
+                        onChange={handlePhoneChange}
+                        required
+                        autoComplete="tel"
+                        maxLength={9}
+                        inputMode="numeric"
+                        style={{
+                          padding: "12px 16px 12px 60px",
+                          fontSize: "14px",
+                        }}
+                      />
+                    </div>
                   </div>
 
                   <div className="mb-18">
@@ -228,7 +264,8 @@ const AuthLogin = () => {
                       type="password"
                       className="common-input"
                       id="password"
-                      autoComplete={"off"}
+                      name="password"
+                      autoComplete="off"
                       placeholder={tForms("passwordPlaceholder")}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
