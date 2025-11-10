@@ -564,5 +564,60 @@
         "saving": "Saqlanmoqda...",
         "cancel": "Bekor qilish",
         "cameraButton": "Rasmni o'zgartirish"
+    },
+    "AboutUs": {
+        "hero": {
+            "title": "Kitobzor - Kitoblar olami",
+            "description": "Kitobzor - bu kitob do'konlari va kitob sevuvchilarini birlashtiruvchi innovatsion platforma. Bizda siz o'zingizga kerakli kitobni topishingiz, do'konlar bilan bog'lanishingiz yoki o'qilgan kitoblaringizni almashtirishingiz mumkin.",
+            "contactUs": "Biz bilan bog'lanish",
+            "slogan": "Kitoblar - bilim manbai"
+        },
+        "stats": {
+            "books": "Kitoblar",
+            "shops": "Do'konlar",
+            "users": "Foydalanuvchilar",
+            "exchanges": "Almashinuvlar"
+        },
+        "mission": {
+            "title": "Bizning missiyamiz",
+            "description": "Har bir kishiga o'ziga kerakli kitobni topish imkoniyatini yaratish. Kitob do'konlarini va kitob sevuvchilarni birlashtirib, kitoblar olamini yanada qulay va qiziqarli qilish."
+        },
+        "vision": {
+            "title": "Bizning ko'rsatkichimiz",
+            "description": "O'zbekistondagi eng yirik va eng qulay kitob platformasi bo'lish. Har bir shahar va tuman aholisi uchun yaqin joydan kitob topish imkoniyatini yaratish."
+        },
+        "features": {
+            "title": "Nima uchun Kitobzor?",
+            "subtitle": "Bizning platformamizning asosiy imkoniyatlari",
+            "search": {
+                "title": "Qulay qidiruv",
+                "description": "Kitob nomi, muallif yoki kategoriya bo'yicha tez qidiruv. Joylashuv va narx bo'yicha filtrlash imkoniyati."
+            },
+            "location": {
+                "title": "Joylashuv bo'yicha qidiruv",
+                "description": "Yaqin joylashgan do'konlardan kitob topish. Viloyat va tuman bo'yicha filtrlash."
+            },
+            "exchange": {
+                "title": "Kitob almashish",
+                "description": "O'qilgan kitoblaringizni boshqa kitoblar bilan almashtirish. Kitob almashish jamoasiga qo'shiling."
+            },
+            "giveaway": {
+                "title": "Sovg'a kitoblar",
+                "description": "Muntazam ravishda o'tkaziladigan giveawaylar. Kitoblar sovg'a qilinadi va yutuqlar tanlanadi."
+            }
+        },
+        "shops": {
+            "title": "Bizning do'konlarimiz",
+            "subtitle": "Ro'yxatdan o'tgan do'konlarimiz bilan tanishing"
+        },
+        "contact": {
+            "title": "Biz bilan bog'laning",
+            "subtitle": "Savollaringiz bormi? Bizga yozing yoki qo'ng'iroq qiling"
+        },
+        "cta": {
+            "title": "Bizning jamoamizga qo'shiling",
+            "description": "Sotuvchi bo'ling yoki bizning do'konlarimizni ko'rib chiqing",
+            "exploreShops": "Do'konlarni ko'rish"
+        }
     }
 }

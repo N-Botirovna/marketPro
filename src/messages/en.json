@@ -564,5 +564,60 @@
         "saving": "Saving...",
         "cancel": "Cancel",
         "cameraButton": "Change avatar"
+    },
+    "AboutUs": {
+        "hero": {
+            "title": "Kitobzor - World of Books",
+            "description": "Kitobzor is an innovative platform that connects bookstores and book lovers. Here you can find the books you need, connect with stores, or exchange your read books.",
+            "contactUs": "Contact Us",
+            "slogan": "Books - Source of Knowledge"
+        },
+        "stats": {
+            "books": "Books",
+            "shops": "Shops",
+            "users": "Users",
+            "exchanges": "Exchanges"
+        },
+        "mission": {
+            "title": "Our Mission",
+            "description": "To create opportunities for everyone to find the books they need. Uniting bookstores and book lovers to make the world of books more convenient and interesting."
+        },
+        "vision": {
+            "title": "Our Vision",
+            "description": "To become the largest and most convenient book platform in Uzbekistan. Creating opportunities for residents of every city and district to find books from nearby locations."
+        },
+        "features": {
+            "title": "Why Kitobzor?",
+            "subtitle": "Key features of our platform",
+            "search": {
+                "title": "Easy Search",
+                "description": "Quick search by book name, author or category. Filtering by location and price."
+            },
+            "location": {
+                "title": "Location-based Search",
+                "description": "Find books from nearby stores. Filter by region and district."
+            },
+            "exchange": {
+                "title": "Book Exchange",
+                "description": "Exchange your read books with other books. Join the book exchange community."
+            },
+            "giveaway": {
+                "title": "Gift Books",
+                "description": "Regularly held giveaways. Books are given away and winners are selected."
+            }
+        },
+        "shops": {
+            "title": "Our Shops",
+            "subtitle": "Get to know our registered shops"
+        },
+        "contact": {
+            "title": "Contact Us",
+            "subtitle": "Have questions? Write to us or call us"
+        },
+        "cta": {
+            "title": "Join Our Community",
+            "description": "Become a seller or explore our shops",
+            "exploreShops": "Explore Shops"
+        }
     }
 }
