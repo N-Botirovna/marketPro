@@ -402,18 +402,19 @@ const ProductDetailsOne = () => {
                   </div>
                 ) : book.posted_by?.id && book.owner_type === "user" ? (
                   /* User post qilgan bo'lsa - User page'ga link */
-                  <div className="flex-between bg-main-600 rounded-pill p-8">
-                    <div className="flex-align gap-8">
-                      <span className="w-44 h-44 bg-white rounded-circle flex-center text-2xl">
+                  <div className="flex-between bg-main-600 rounded-pill p-10" style={{ gap: '12px' }}>
+                    <div className="flex-align gap-10">
+                      <span className="w-44 h-44 bg-white rounded-circle flex-center text-2xl" style={{ flexShrink: 0 }}>
                         <i className="ph ph-user" />
                       </span>
-                      <span className="text-white">
+                      <span className="text-white fw-medium" style={{ fontSize: '14px' }}>
                         {book.posted_by?.first_name || "Foydalanuvchi"}
                       </span>
                     </div>
                     <Link
                       href={`/user-profile?id=${book.posted_by.id}`}
                       className="btn btn-white rounded-pill text-uppercase"
+                      style={{ fontSize: '13px', padding: '8px 16px', whiteSpace: 'nowrap' }}
                     >
                       Profil
                     </Link>

@@ -192,7 +192,7 @@ const FaqSection = () => {
         }
       `}</style>
       
-      <section className='faq py-80 faq-section'>
+      <section id="faq" className='faq py-80 faq-section'>
         <div className='container container-lg'>
           <div className='row justify-content-center'>
             <div className='col-xl-8 col-lg-10'>

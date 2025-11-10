@@ -34,12 +34,26 @@ const TopVendorsOne = () => {
   return (
     <section className="top-vendors py-80">
       <div className="container container-lg">
-        <div className="section-heading">
-          <div className="flex items-center justify-between w-full mb-6">
-            <h5 className="mb-0 font-semibold">{tCommon("shops")}</h5>
+        <div className="section-heading mb-6">
+          <div className="d-flex align-items-center justify-content-between flex-nowrap" style={{ 
+            display: 'flex !important',
+            alignItems: 'center',
+            justifyContent: 'space-between !important',
+            width: '100%',
+            gap: '16px'
+          }}>
+            <h5 className="mb-0 fw-semibold" style={{ margin: 0, flexShrink: 0 }}>{tCommon("shops")}</h5>
             <Link
               href="/vendor-two-details"
-              className="!text-green-600 text-sm font-medium hover:underline border border-green-600 px-3 py-1 rounded-lg"
+              className="btn btn-outline-main d-inline-flex align-items-center gap-6 rounded-pill px-16 py-8 text-sm fw-medium hover-bg-main-600 hover-text-white transition-1"
+              style={{ 
+                borderColor: '#299E60',
+                color: '#299E60',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+                marginLeft: 'auto'
+              }}
             >
               {tCommon("viewAll")}
             </Link>

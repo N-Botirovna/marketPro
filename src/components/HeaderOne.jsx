@@ -7,7 +7,7 @@ import CategoryDropdown from "./CategoryDropdown";
 import MaterialCategoryDropdown from "./MaterialCategoryDropdown";
 import MaterialLocationDropdown from "./MaterialLocationDropdown";
 import { useTranslations } from "next-intl";
- 
+
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import LanguageSwitcher from "./LanguageSwitcher";
 const HeaderOne = () => {
@@ -167,7 +167,7 @@ const HeaderOne = () => {
             <input
               type="text"
               className="form-control py-16 px-24 text-xl rounded-pill pe-64"
-              placeholder={tHeader('searchPlaceholder')}
+              placeholder={tHeader("searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -206,29 +206,29 @@ const HeaderOne = () => {
               <ul className="mobile-menu__list">
                 <li className="mobile-menu__item">
                   <Link href="/" className="mobile-menu__link">
-                    {tHeader('home')}
+                    {tHeader("home")}
                   </Link>
                 </li>
                 <li className="mobile-menu__item">
                   <Link href="/shop" className="mobile-menu__link">
-                    {tHeader('shop')}
+                    {tHeader("shop")}
                   </Link>
                 </li>
                 <li className="mobile-menu__item">
                   <Link href="/blog" className="mobile-menu__link">
-                    {tHeader('blog')}
+                    {tHeader("blog")}
                   </Link>
                 </li>
                 <li className="mobile-menu__item">
                   <Link href="/contact" className="mobile-menu__link">
-                    {tHeader('contact')}
+                    {tHeader("contact")}
                   </Link>
                 </li>
                 {isLoggedIn ? (
                   <>
                     <li className="mobile-menu__item">
                       <Link href="/account" className="mobile-menu__link">
-                        {tHeader('myAccount')}
+                        {tHeader("myAccount")}
                       </Link>
                     </li>
                     <li className="mobile-menu__item">
@@ -243,7 +243,7 @@ const HeaderOne = () => {
                 ) : (
                   <li className="mobile-menu__item">
                     <Link href="/login" className="mobile-menu__link">
-                      {tHeader('login')}
+                      {tHeader("login")}
                     </Link>
                   </li>
                 )}
@@ -262,19 +262,19 @@ const HeaderOne = () => {
                 <div className="flex-align gap-8">
                   <i className="ph ph-phone text-white text-sm" />
                   <a
-                    href="tel:+00123456789"
+                    href="tel:++998938340103"
                     className="text-white text-sm hover-text-main-200"
                   >
-                    +00 123 456 789
+                    +998 93 834 01 03
                   </a>
                 </div>
                 <div className="flex-align gap-8">
                   <i className="ph ph-envelope text-white text-sm" />
                   <a
-                    href="mailto:support24@marketpro.com"
+                    href="mailto:kitobzor.help@gmail.com"
                     className="text-white text-sm hover-text-main-200"
                   >
-                    support24@marketpro.com
+                    kitobzor.help@gmail.com
                   </a>
                 </div>
               </div>
@@ -284,13 +284,13 @@ const HeaderOne = () => {
                 <div className="flex-align gap-8">
                   <i className="ph ph-truck text-white text-sm" />
                   <span className="text-white text-sm">
-                    {tHeader('freeShipping')}
+                    {tHeader("freeShipping")}
                   </span>
                 </div>
                 <div className="flex-align gap-8">
                   <i className="ph ph-clock text-white text-sm" />
                   <span className="text-white text-sm">
-                    {tHeader('workHours')}
+                    {tHeader("workHours")}
                   </span>
                 </div>
               </div>
@@ -335,7 +335,7 @@ const HeaderOne = () => {
                   <input
                     type="text"
                     className="search-form__input common-input py-13 ps-16 pe-18 rounded-end-pill pe-44"
-                    placeholder={tHeader('searchPlaceholder')}
+                    placeholder={tHeader("searchPlaceholder")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -354,10 +354,10 @@ const HeaderOne = () => {
                   <i className="ph ph-headset text-main-600 text-2xl" />
                   <div>
                     <div className="text-sm text-gray-500">
-                      {tHeader('customerService')}
+                      {tHeader("customerService")}
                     </div>
                     <div className="fw-semibold text-gray-900">
-                      +00 123 456 789
+                    +998 93 834 01 03
                     </div>
                   </div>
                 </div>
@@ -386,7 +386,7 @@ const HeaderOne = () => {
               <ul className="nav-menu flex-align ">
                 <li className="on-hover-item nav-menu__item has-submenu">
                   <Link href="/" className="nav-menu__link">
-                    {tHeader('shop')}
+                    {tHeader("shop")}
                   </Link>
                   <ul className="on-hover-dropdown common-dropdown nav-submenu scroll-sm">
                     <li className="common-dropdown__item nav-submenu__item">
@@ -394,7 +394,7 @@ const HeaderOne = () => {
                         href="/vendor-two?is_used=false"
                         className="common-dropdown__link nav-submenu__link"
                       >
-                        {tCategories('newBooks')}
+                        {tCategories("newBooks")}
                       </Link>
                     </li>
                     <li className="common-dropdown__item nav-submenu__item">
@@ -402,7 +402,7 @@ const HeaderOne = () => {
                         href="/vendor-two?is_used=true"
                         className="common-dropdown__link nav-submenu__link"
                       >
-                        {tCategories('likeNewBooks')}
+                        {tCategories("likeNewBooks")}
                       </Link>
                     </li>
                     <li className="common-dropdown__item nav-submenu__item">
@@ -410,24 +410,24 @@ const HeaderOne = () => {
                         href="/vendor-two?type=gift"
                         className="common-dropdown__link nav-submenu__link"
                       >
-                        {tCategories('giftBooks')}
+                        {tCategories("giftBooks")}
                       </Link>
                     </li>
                   </ul>
                 </li>
                 <li className="nav-menu__item">
                   <Link href="/vendor" className="nav-menu__link">
-                    {tHeader('shops')}
+                    {tHeader("shops")}
                   </Link>
                 </li>
                 <li className="nav-menu__item">
                   <Link href="/become-seller" className="nav-menu__link">
-                    {tHeader('becomeSeller')}
+                    {tHeader("becomeSeller")}
                   </Link>
                 </li>
                 <li className="nav-menu__item">
                   <Link href="/contact" className="nav-menu__link">
-                    {tHeader('contact')}
+                    {tHeader("contact")}
                   </Link>
                 </li>
               </ul>
@@ -447,10 +447,32 @@ const HeaderOne = () => {
               {/* Wishlist Icon Start */}
               <Link
                 href="/wishlist"
-                className="wishlist-icon flex-align gap-4 item-hover"
+                className="wishlist-icon flex-align gap-4 item-hover position-relative"
+                style={{ position: "relative", display: "inline-flex" }}
               >
-                <i className="ph ph-heart text-2xl" />
-                <span className="wishlist-count bg-main-600 text-white rounded-circle flex-center">
+                <i
+                  className="ph ph-heart text-2xl"
+                  style={{ position: "relative", zIndex: 1 }}
+                />
+                <span
+                  className="wishlist-count bg-main-600 text-white rounded-circle flex-center position-absolute"
+                  style={{
+                    top: "-6px",
+                    right: "-8px",
+                    minWidth: "18px",
+                    height: "18px",
+                    fontSize: "10px",
+                    fontWeight: "700",
+                    padding: "0 5px",
+                    lineHeight: "1",
+                    border: "2px solid white",
+                    boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
+                    zIndex: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
                   0
                 </span>
               </Link>
@@ -465,19 +487,21 @@ const HeaderOne = () => {
                     data-bs-toggle="dropdown"
                   >
                     <i className="ph ph-user text-2xl" />
-                    <span className="d-none d-sm-block">{tHeader('myAccount')}</span>
+                    <span className="d-none d-sm-block">
+                      {tHeader("myAccount")}
+                    </span>
                   </Link>
                   <ul className="dropdown-menu">
                     <li>
                       <Link href="/account" className="dropdown-item">
                         <i className="ph ph-user me-8"></i>
-                        {tHeader('profile')}
+                        {tHeader("profile")}
                       </Link>
                     </li>
                     <li>
                       <button onClick={handleLogout} className="dropdown-item">
                         <i className="ph ph-sign-out me-8"></i>
-                        {tHeader('logout')}
+                        {tHeader("logout")}
                       </button>
                     </li>
                   </ul>
@@ -488,7 +512,7 @@ const HeaderOne = () => {
                   className="user-icon flex-align gap-4 item-hover"
                 >
                   <i className="ph ph-user text-2xl" />
-                  <span className="d-none d-sm-block">{tHeader('login')}</span>
+                  <span className="d-none d-sm-block">{tHeader("login")}</span>
                 </Link>
               )}
               {/* User Icon End */}

@@ -209,14 +209,6 @@ const ProfileDashboard = () => {
   };
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      if (!authLoading) {
-        // Redirect to login if not authenticated
-        window.location.href = '/login';
-      }
-      return;
-    }
-
     const fetchUserData = async () => {
       try {
         const response = await getUserProfile();

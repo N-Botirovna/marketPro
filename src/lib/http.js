@@ -167,10 +167,16 @@ httpClient.interceptors.response.use(
 
         const newAccessToken = response.data?.access_token;
         const newRefreshToken = response.data?.refresh_token;
+        const expiresIn = response.data?.expires_in || response.data?.expires_in_seconds || 4800;
         
         if (newAccessToken) {
           setItem(AUTH_TOKEN_STORAGE_KEY, newAccessToken);
           httpClient.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+          
+          // Update token expiration time
+          const tokenExpiry = expiresIn || 4800;
+          const expirationTime = Date.now() + (tokenExpiry * 1000);
+          setItem('token_expires_at', expirationTime);
           
           // Update refresh token if new one provided
           if (newRefreshToken) {
@@ -178,7 +184,10 @@ httpClient.interceptors.response.use(
           }
           
           if (process.env.NODE_ENV === 'development') {
-            console.log('✅ Access token refreshed successfully');
+            console.log('✅ Access token refreshed successfully', {
+              expiresIn: `${tokenExpiry}s`,
+              expiresAt: new Date(expirationTime).toLocaleString()
+            });
           }
           processQueue(null, newAccessToken);
           
@@ -197,11 +206,14 @@ httpClient.interceptors.response.use(
         // Clear tokens and redirect to login
         removeItem(AUTH_TOKEN_STORAGE_KEY);
         removeItem('refresh_token');
+        removeItem('token_expires_at');
+        removeItem('login_time');
         delete httpClient.defaults.headers.common['Authorization'];
         
-        // Redirect to login
+        // Redirect to login with locale
         if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+          const currentLocale = getCurrentLocale() || 'uz';
+          window.location.href = `/${currentLocale}/login`;
         }
         
         return Promise.reject(refreshError);

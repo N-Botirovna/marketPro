@@ -29,6 +29,7 @@ const ProtectedRoute = ({ children }) => {
 
       // If not authenticated and not on a public page, redirect to login
       if (!authenticated && !isPublicPage) {
+        // Use locale-aware navigation
         router.push('/login');
       }
     };

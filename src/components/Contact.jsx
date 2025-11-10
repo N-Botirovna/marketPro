@@ -148,7 +148,7 @@ const Contact = () => {
                   href="tel:+00123456789"
                   className="text-md text-gray-900 hover-text-main-600"
                 >
-                  +00 123 456 789
+                  +998 93 834 01 03
                 </a>
               </div>
               <div className="flex-align gap-16 mb-16">
@@ -156,7 +156,7 @@ const Contact = () => {
                   <i className="ph-fill ph-envelope" />
                 </span>
                 <Link
-                  href="/mailto:support24@marketpro.com"
+                  href="/mailto:kitobzor.help@gmail.com"
                   className="text-md text-gray-900 hover-text-main-600"
                 >
                   {tFooter("about.email")}
