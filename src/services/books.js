@@ -220,3 +220,61 @@ export async function getLikedBooks(params = {}) {
     raw: data,
   };
 }
+
+// Get book comments
+export async function getBookComments(bookId, params = {}) {
+  const { data } = await http.get(API_ENDPOINTS.BOOKS.COMMENT.LIST, { 
+    params: { book: bookId, ...params } 
+  });
+  return {
+    comments: data?.result || data?.results || [],
+    count: data?.count || (data?.result?.length || 0),
+    success: data?.success || false,
+    raw: data,
+  };
+}
+
+// Create book comment
+export async function createBookComment(bookId, comment, parentId = null) {
+  const payload = {
+    book: bookId,
+    comment: comment,
+  };
+  
+  if (parentId) {
+    payload.parent = parentId;
+  }
+  
+  const { data } = await http.post(API_ENDPOINTS.BOOKS.COMMENT.CREATE, payload);
+  return {
+    comment: data?.result || data || null,
+    success: data?.success || false,
+    message: data?.message || 'Comment created successfully',
+    raw: data,
+  };
+}
+
+// Like/Unlike comment
+export async function likeComment(commentId) {
+  const { data } = await http.post(API_ENDPOINTS.BOOKS.COMMENT.LIKE, { comment_id: commentId });
+  
+  // Backend 'Liked' yoki 'Unliked' qaytarishi mumkin
+  const isLiked = data?.result === 'Liked' || data?.message === 'Liked';
+  
+  return {
+    success: data?.success === true,
+    message: data?.result || data?.message || 'Comment liked successfully',
+    is_liked: isLiked,
+    raw: data,
+  };
+}
+
+// Delete comment
+export async function deleteComment(commentId) {
+  const { data } = await http.delete(`${API_ENDPOINTS.BOOKS.COMMENT.DELETE}/${commentId}/`);
+  return {
+    success: data?.success || true,
+    message: data?.message || 'Comment deleted successfully',
+    raw: data,
+  };
+}

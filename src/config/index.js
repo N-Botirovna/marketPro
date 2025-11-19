@@ -39,6 +39,12 @@ export const API_ENDPOINTS = {
     UPDATE: "api/v1/book/update/",
     LIKE: "api/v1/book/like/",
     LIKED: "api/v1/book/liked/",
+    COMMENT: {
+      CREATE: "api/v1/book/comment/create/",
+      LIST: "api/v1/book/comment/list/",
+      LIKE: "api/v1/book/comment/like/",
+      DELETE: "api/v1/book/comment",
+    },
   },
   COMMENTS: {
     CREATE: "api/v1/comment/create/",
