@@ -6,6 +6,7 @@ import { getBookById, patchBook, likeBook } from "@/services/books";
 import Slider from "react-slick";
 import Spin from "./Spin";
 import BookCreateModal from "./BookCreateModal";
+import BookComments from "./BookComments";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "./Toast";
 
@@ -588,6 +589,20 @@ const ProductDetailsOne = () => {
                     Xususiyatlari
                   </button>
                 </li>
+                <li className="nav-item" role="presentation">
+                  <button
+                    className="nav-link"
+                    id="pills-comments-tab"
+                    data-bs-toggle="pill"
+                    data-bs-target="#pills-comments"
+                    type="button"
+                    role="tab"
+                    aria-controls="pills-comments"
+                    aria-selected="false"
+                  >
+                    Izohlar {book?.comment_count > 0 && `(${book.comment_count})`}
+                  </button>
+                </li>
               </ul>
             </div>
             <div className="product-dContent__box">
@@ -657,6 +672,17 @@ const ProductDetailsOne = () => {
                         </span>
                       </li>
                     </ul>
+                  </div>
+                </div>
+                <div
+                  className="tab-pane fade"
+                  id="pills-comments"
+                  role="tabpanel"
+                  aria-labelledby="pills-comments-tab"
+                  tabIndex={0}
+                >
+                  <div className="mb-40">
+                    <BookComments bookId={id} />
                   </div>
                 </div>
               </div>
