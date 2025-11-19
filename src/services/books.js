@@ -194,3 +194,29 @@ export async function deleteBook(bookId) {
     raw: data,
   };
 }
+
+// Like/Unlike book
+export async function likeBook(bookId) {
+  const { data } = await http.post(API_ENDPOINTS.BOOKS.LIKE, { book_id: bookId });
+  
+  // Backend faqat 'Liked' yoki 'Unliked' qaytaradi
+  const isLiked = data?.result === 'Liked';
+  
+  return {
+    success: data?.success === true,
+    message: data?.result || 'Book liked successfully',
+    is_liked: isLiked,
+    raw: data,
+  };
+}
+
+// Get liked books
+export async function getLikedBooks(params = {}) {
+  const { data } = await http.get(API_ENDPOINTS.BOOKS.LIKED, { params });
+  return {
+    books: data?.result || data?.results || [],
+    count: data?.count || (data?.result?.length || 0),
+    success: data?.success || false,
+    raw: data,
+  };
+}

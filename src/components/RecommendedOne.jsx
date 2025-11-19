@@ -2,7 +2,9 @@
 import React, { useEffect, useState, memo } from "react";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import { getBookById, getBooks } from "@/services/books";
+import { getBookById, getBooks, likeBook } from "@/services/books";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "./Toast";
 import dynamic from "next/dynamic";
 import Spin from "./Spin";
 
@@ -142,12 +144,16 @@ const SamplePrevArrow = memo((props) => {
 const RecommendedOne = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const { isAuthenticated } = useAuth();
+  const { showToast, ToastContainer } = useToast();
 
   const [currentBook, setCurrentBook] = useState(null);
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedFilters, setSelectedFilters] = useState(["category"]); // Default: category tanlangan
   const [sliderRef, setSliderRef] = useState(null);
+  const [likedBooks, setLikedBooks] = useState({});
+  const [liking, setLiking] = useState({});
 
   // Fetch current book details
   useEffect(() => {
@@ -217,6 +223,25 @@ const RecommendedOne = () => {
           (book) => book.id !== currentBook.id
         );
         setBooks(filteredBooks);
+        
+        // Initialize liked state with local storage
+        const likedState = {};
+        let likedMap = {};
+        try {
+          const stored = localStorage.getItem('liked_books_map');
+          likedMap = stored ? JSON.parse(stored) : {};
+        } catch {}
+        
+        filteredBooks.forEach(book => {
+          if (book.id) {
+            const stored = likedMap[book.id];
+            likedState[book.id] = {
+              isLiked: stored?.isLiked ?? (book.is_liked === true),
+              likeCount: stored?.likeCount ?? (book.like_count || 0)
+            };
+          }
+        });
+        setLikedBooks(prev => ({ ...prev, ...likedState }));
       } catch (err) {
         console.error("Error fetching recommended books:", err);
         setBooks([]);
@@ -289,9 +314,100 @@ const RecommendedOne = () => {
     ],
   };
 
+  const handleLike = async (bookId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      showToast({
+        type: 'info',
+        title: "Ma'lumot",
+        message: "Like qilish uchun tizimga kiring",
+        duration: 3000
+      });
+      return;
+    }
+
+    if (liking[bookId]) return;
+
+    const previousState = likedBooks[bookId] || { isLiked: false, likeCount: 0 };
+    const newLiked = !previousState.isLiked;
+    const newCount = newLiked ? previousState.likeCount + 1 : Math.max(0, previousState.likeCount - 1);
+    
+    setLikedBooks(prev => ({
+      ...prev,
+      [bookId]: { isLiked: newLiked, likeCount: newCount }
+    }));
+
+    try {
+      setLiking(prev => ({ ...prev, [bookId]: true }));
+      const response = await likeBook(bookId);
+      
+      if (response.success) {
+        const finalCount = response.is_liked ? newCount : Math.max(0, newCount);
+        const updatedState = {
+          isLiked: response.is_liked,
+          likeCount: finalCount
+        };
+        
+        setLikedBooks(prev => ({
+          ...prev,
+          [bookId]: updatedState
+        }));
+        
+        // Local storage'ga saqlash
+        if (typeof window !== 'undefined') {
+          const likedMap = localStorage.getItem('liked_books_map');
+          const map = likedMap ? JSON.parse(likedMap) : {};
+          
+          if (response.is_liked) {
+            map[bookId] = updatedState;
+          } else {
+            delete map[bookId];
+          }
+          
+          localStorage.setItem('liked_books_map', JSON.stringify(map));
+        }
+        
+        window.dispatchEvent(new Event(response.is_liked ? 'bookLiked' : 'bookUnliked'));
+      }
+    } catch (error) {
+      console.error("Like error:", error);
+      setLikedBooks(prev => ({
+        ...prev,
+        [bookId]: previousState
+      }));
+      
+      showToast({
+        type: 'error',
+        title: "Xatolik",
+        message: "Like qilishda xatolik yuz berdi",
+        duration: 3000
+      });
+    } finally {
+      setLiking(prev => ({ ...prev, [bookId]: false }));
+    }
+  };
+
   const BookCard = ({ book }) => (
     <div className="px-6">
       <div className="product-card h-100 p-12 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
+        {/* Like Button */}
+        {isAuthenticated && (
+          <button
+            type="button"
+            onClick={(e) => handleLike(book.id, e)}
+            disabled={liking[book.id]}
+            className={`position-absolute top-0 end-0 m-12 w-44 h-44 flex-center rounded-circle border-0 transition-1 z-2 ${
+              likedBooks[book.id]?.isLiked 
+                ? 'bg-danger-600 text-white hover-bg-danger-700' 
+                : 'bg-white text-gray-600 hover-bg-danger-50 hover-text-danger-600 shadow-sm'
+            }`}
+            title={likedBooks[book.id]?.isLiked ? "Like olib tashlash" : "Like qo'shish"}
+          >
+            <i className={`${likedBooks[book.id]?.isLiked ? 'ph-fill' : 'ph'} ph-heart text-md`} />
+          </button>
+        )}
         {book.discount_price && (
           <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white position-absolute">
             {Math.round(
@@ -353,6 +469,12 @@ const RecommendedOne = () => {
             <span className="text-15 fw-bold text-warning-600 d-flex">
               <i className="ph-fill ph-star" />
             </span>
+            {likedBooks[book.id]?.likeCount > 0 && (
+              <span className="text-xs fw-bold text-gray-500 d-flex align-items-center gap-2">
+                <i className="ph ph-heart text-xs" />
+                {likedBooks[book.id].likeCount}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -530,7 +652,8 @@ const RecommendedOne = () => {
                       </div>
         )}
       </div>
-    </section>
+      </section>
+      <ToastContainer />
     </>
   );
 };

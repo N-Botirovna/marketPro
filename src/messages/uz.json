@@ -203,6 +203,8 @@
         "allCategories": "Barcha kategoriya",
         "coverType": "Muqova turi",
         "all": "Barcha",
+        "softCover": "Yumshoq muqova",
+        "hardCover": "Qattiq muqova",
         "condition": "Holati",
         "used": "Ishlatilgan",
         "allShops": "Barcha do'konlar",

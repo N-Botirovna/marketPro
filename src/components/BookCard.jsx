@@ -1,9 +1,12 @@
 "use client";
 import { Link } from "@/i18n/navigation";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { likeBook } from "@/services/books";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "./Toast";
 
-const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn = true }) => {
+const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn = true, onLikeUpdate }) => {
   if (!book) return null;
 
   const locale = useLocale();
@@ -12,6 +15,39 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
   const tButtons = useTranslations("Buttons");
   const tWishList = useTranslations("WishList");
   const tProduct = useTranslations("ProductDetailsOne");
+  const { isAuthenticated } = useAuth();
+  const { showToast, ToastContainer } = useToast();
+  
+  // Local storage'dan like holatini olish
+  const getStoredLikeState = () => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const likedMap = localStorage.getItem('liked_books_map');
+      if (likedMap) {
+        const map = JSON.parse(likedMap);
+        return map[book?.id] || null;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
+  const storedState = getStoredLikeState();
+  const [isLiked, setIsLiked] = useState(storedState?.isLiked ?? (book?.is_liked === true));
+  const [likeCount, setLikeCount] = useState(storedState?.likeCount ?? (book?.like_count || 0));
+  const [liking, setLiking] = useState(false);
+  const [bookIdRef, setBookIdRef] = useState(book?.id);
+
+  // Update state FAQAT yangi kitobga o'tganda (ID o'zgarganda)
+  useEffect(() => {
+    if (book?.id && book.id !== bookIdRef) {
+      setBookIdRef(book.id);
+      const stored = getStoredLikeState();
+      setIsLiked(stored?.isLiked ?? (book.is_liked === true));
+      setLikeCount(stored?.likeCount ?? (book.like_count || 0));
+    }
+  }, [book?.id, bookIdRef]);
 
   // Helper function to get localized field value
   const getLocalizedField = (fieldPrefix) => {
@@ -34,31 +70,123 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
   const isOwnBook = currentUserId && book.posted_by?.id === currentUserId;
   const showEditButton = showEditForOwn && isOwnBook && onEdit;
 
+  const handleLike = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      showToast({
+        type: 'info',
+        title: tCommon("info") || "Ma'lumot",
+        message: "Like qilish uchun tizimga kiring",
+        duration: 3000
+      });
+      return;
+    }
+
+    if (liking) return;
+
+    // Optimistic update
+    const previousLiked = isLiked;
+    const previousCount = likeCount;
+    const newLiked = !previousLiked;
+    const newCount = newLiked ? previousCount + 1 : Math.max(0, previousCount - 1);
+    
+    setIsLiked(newLiked);
+    setLikeCount(newCount);
+
+    try {
+      setLiking(true);
+      const response = await likeBook(book.id);
+      
+      if (response.success) {
+        // Backend'dan kelgan is_liked bilan yangilash, count esa o'zimizda qoladi
+        setIsLiked(response.is_liked);
+        
+        // Count'ni backend bermagani uchun o'zimiz boshqaramiz
+        const finalCount = response.is_liked ? newCount : Math.max(0, newCount);
+        setLikeCount(finalCount);
+        
+        // Local storage'ga saqlash
+        if (typeof window !== 'undefined') {
+          const likedMap = localStorage.getItem('liked_books_map');
+          const map = likedMap ? JSON.parse(likedMap) : {};
+          
+          if (response.is_liked) {
+            map[book.id] = {
+              isLiked: true,
+              likeCount: finalCount
+            };
+          } else {
+            delete map[book.id];
+          }
+          
+          localStorage.setItem('liked_books_map', JSON.stringify(map));
+        }
+        
+        if (onLikeUpdate) {
+          onLikeUpdate(book.id, response.is_liked, finalCount);
+        }
+        
+        window.dispatchEvent(new Event(response.is_liked ? 'bookLiked' : 'bookUnliked'));
+      }
+    } catch (error) {
+      console.error("❌ Like error:", error);
+      setIsLiked(previousLiked);
+      setLikeCount(previousCount);
+      
+      showToast({
+        type: 'error',
+        title: tCommon("error"),
+        message: "Like qilishda xatolik yuz berdi",
+        duration: 3000
+      });
+    } finally {
+      setLiking(false);
+    }
+  };
+
   return (
     <div className='product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2'>
-      {/* Action Buttons */}
-      {(showEditButton || onDelete) && (
-        <div className="position-absolute top-0 end-0 p-8 d-flex gap-4">
-          {showEditButton && (
-            <button 
-              className="btn btn-sm btn-outline-main rounded-circle p-8"
-              onClick={() => onEdit(book)}
-              title={tButtons("edit")}
-            >
-              <i className="ph ph-pencil text-xs"></i>
-            </button>
-          )}
-          {onDelete && (
-            <button 
-              className="btn btn-sm btn-outline-danger rounded-circle p-8"
-              onClick={() => onDelete(book)}
-              title={tWishList("delete")}
-            >
-              <i className="ph ph-trash text-xs"></i>
-            </button>
-          )}
-        </div>
-      )}
+      {/* Action Buttons - Top Right */}
+      <div className="position-absolute top-0 end-0 p-8 d-flex gap-4 z-2">
+        {/* Like Button */}
+        {isAuthenticated && (
+          <button
+            onClick={handleLike}
+            className={`btn btn-sm rounded-circle p-10 border-0 transition-1 ${
+              isLiked 
+                ? 'bg-danger-600 text-white hover-bg-danger-700' 
+                : 'bg-white text-gray-600 hover-bg-danger-50 hover-text-danger-600 shadow-sm'
+            }`}
+            disabled={liking}
+            title={isLiked ? "Like olib tashlash" : "Like qo'shish"}
+            style={{ width: '36px', height: '36px' }}
+          >
+            <i className={`${isLiked ? 'ph-fill' : 'ph'} ph-heart text-md`} />
+          </button>
+        )}
+        {/* Edit Button */}
+        {showEditButton && (
+          <button 
+            className="btn btn-sm btn-outline-main rounded-circle p-8"
+            onClick={() => onEdit(book)}
+            title={tButtons("edit")}
+          >
+            <i className="ph ph-pencil text-xs"></i>
+          </button>
+        )}
+        {/* Delete Button */}
+        {onDelete && (
+          <button 
+            className="btn btn-sm btn-outline-danger rounded-circle p-8"
+            onClick={() => onDelete(book)}
+            title={tWishList("delete")}
+          >
+            <i className="ph ph-trash text-xs"></i>
+          </button>
+        )}
+      </div>
       
       {book.percentage && (
         <span className='product-card__badge bg-danger-600 px-8 py-4 text-sm text-white'>
@@ -113,14 +241,20 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
           
           <div className='flex-align gap-6'>
             <span className='text-xs fw-bold text-gray-600'>
-              4.5 {/* Hardcoded star rating */}
+              4.5
             </span>
             <span className='text-15 fw-bold text-warning-600 d-flex'>
               <i className='ph-fill ph-star' />
             </span>
             <span className='text-xs fw-bold text-gray-600'>
-              ({book.view_count || 0}) {/* Using view_count as review count */}
+              ({book.view_count || 0})
             </span>
+            {likeCount > 0 && (
+              <span className='text-xs fw-bold text-gray-500 d-flex align-items-center gap-2'>
+                <i className='ph ph-heart text-xs' />
+                {likeCount}
+              </span>
+            )}
           </div>
 
           {/* Seller Information */}
@@ -153,6 +287,7 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
           </Link>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

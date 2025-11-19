@@ -2,20 +2,43 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import { getBookById, patchBook } from "@/services/books";
+import { getBookById, patchBook, likeBook } from "@/services/books";
 import Slider from "react-slick";
 import Spin from "./Spin";
 import BookCreateModal from "./BookCreateModal";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "./Toast";
 
 const ProductDetailsOne = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const { isAuthenticated } = useAuth();
+  const { showToast, ToastContainer } = useToast();
 
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [archiving, setArchiving] = useState(false);
+  
+  // Local storage'dan like holatini olish
+  const getStoredLikeState = (bookId) => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const likedMap = localStorage.getItem('liked_books_map');
+      if (likedMap) {
+        const map = JSON.parse(likedMap);
+        return map[bookId] || null;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+  
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [liking, setLiking] = useState(false);
 
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -51,7 +74,13 @@ const ProductDetailsOne = () => {
         try {
           setLoading(true);
           const response = await getBookById(id);
-          setBook(response.book);
+          const bookData = response.book;
+          setBook(bookData);
+          
+          // Local storage'dan yoki API'dan like holatini olish
+          const stored = getStoredLikeState(bookData?.id);
+          setIsLiked(stored?.isLiked ?? (bookData?.is_liked === true));
+          setLikeCount(stored?.likeCount ?? (bookData?.like_count || 0));
         } catch (err) {
           setError("Failed to fetch book details.");
           console.error(err);
@@ -61,7 +90,89 @@ const ProductDetailsOne = () => {
       };
       fetchBookDetails();
     }
-  }, [id]);
+  }, [id]); // ID o'zgarganda yangi kitob yuklanadi
+
+  const handleLike = async (e) => {
+    e.preventDefault();
+    
+    if (!isAuthenticated) {
+      showToast({
+        type: 'info',
+        title: "Ma'lumot",
+        message: "Like qilish uchun tizimga kiring",
+        duration: 3000
+      });
+      return;
+    }
+
+    if (liking || !book) return;
+
+    const previousLiked = isLiked;
+    const previousCount = likeCount;
+    const newLiked = !previousLiked;
+    const newCount = newLiked ? previousCount + 1 : Math.max(0, previousCount - 1);
+    
+    setIsLiked(newLiked);
+    setLikeCount(newCount);
+    setBook(prev => ({
+      ...prev,
+      is_liked: newLiked,
+      like_count: newCount
+    }));
+
+    try {
+      setLiking(true);
+      const response = await likeBook(book.id);
+      
+      if (response.success) {
+        setIsLiked(response.is_liked);
+        const finalCount = response.is_liked ? newCount : Math.max(0, newCount);
+        setLikeCount(finalCount);
+        setBook(prev => ({
+          ...prev,
+          is_liked: response.is_liked,
+          like_count: finalCount
+        }));
+        
+        // Local storage'ga saqlash
+        if (typeof window !== 'undefined') {
+          const likedMap = localStorage.getItem('liked_books_map');
+          const map = likedMap ? JSON.parse(likedMap) : {};
+          
+          if (response.is_liked) {
+            map[book.id] = {
+              isLiked: true,
+              likeCount: finalCount
+            };
+          } else {
+            delete map[book.id];
+          }
+          
+          localStorage.setItem('liked_books_map', JSON.stringify(map));
+        }
+        
+        window.dispatchEvent(new Event(response.is_liked ? 'bookLiked' : 'bookUnliked'));
+      }
+    } catch (error) {
+      console.error("Like error:", error);
+      setIsLiked(previousLiked);
+      setLikeCount(previousCount);
+      setBook(prev => ({
+        ...prev,
+        is_liked: previousLiked,
+        like_count: previousCount
+      }));
+      
+      showToast({
+        type: 'error',
+        title: "Xatolik",
+        message: "Like qilishda xatolik yuz berdi",
+        duration: 3000
+      });
+    } finally {
+      setLiking(false);
+    }
+  };
 
   // Dummy images for the slider as they are not in the API response
   const productImages = [
@@ -317,12 +428,19 @@ const ProductDetailsOne = () => {
                       </Link>
                     </div>
                     <div className="flex-align gap-12">
-                      <Link
-                        href="#"
-                        className="w-52 h-52 bg-main-50 text-main-600 text-xl hover-bg-main-600 hover-text-white flex-center rounded-circle"
+                      <button
+                        onClick={handleLike}
+                        disabled={liking || !isAuthenticated}
+                        className={`w-60 h-60 ${isLiked ? 'bg-danger-600 text-white' : 'bg-main-50 text-main-600 hover-bg-danger-50 hover-text-danger-600'} flex-center rounded-circle transition-1 position-relative border-0`}
+                        title={isLiked ? "Like olib tashlash" : "Like qo'shish"}
                       >
-                        <i className="ph ph-heart" />
-                      </Link>
+                        <i className={`${isLiked ? 'ph-fill' : 'ph'} ph-heart text-2xl`} />
+                        {likeCount > 0 && (
+                          <span className="position-absolute top-0 end-0 bg-danger-600 text-white rounded-circle w-24 h-24 flex-center text-xs fw-bold border-2 border-white" style={{ transform: 'translate(30%, -30%)' }}>
+                            {likeCount > 99 ? '99+' : likeCount}
+                          </span>
+                        )}
+                      </button>
                       <Link
                         href="#"
                         className="w-52 h-52 bg-main-50 text-main-600 text-xl hover-bg-main-600 hover-text-white flex-center rounded-circle"
@@ -565,6 +683,7 @@ const ProductDetailsOne = () => {
           editBook={book}
         />
       )}
+      <ToastContainer />
     </section>
   );
 };

@@ -203,6 +203,8 @@
         "allCategories": "All categories",
         "coverType": "Cover type",
         "all": "All",
+        "softCover": "Soft cover",
+        "hardCover": "Hard cover",
         "condition": "Condition",
         "used": "Used",
         "allShops": "All shops",

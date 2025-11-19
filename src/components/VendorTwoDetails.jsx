@@ -4,17 +4,23 @@ import React, { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import VendorTwoSideBar from "./VendorTwoSideBar";
 import { useSearchParams } from "next/navigation";
-import { getBooks } from "@/services/books";
+import { getBooks, likeBook } from "@/services/books";
 import { getShopDetails } from "@/services/shop";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "./Toast";
 
 const VendorTwoDetails = () => {
   let [grid, setGrid] = useState(false);
   const searchParams = useSearchParams();
+  const { isAuthenticated } = useAuth();
+  const { showToast, ToastContainer } = useToast();
   const [books, setBooks] = useState([]);
   const [shop, setShop] = useState(null);
   const [query, setQuery] = useState("");
   const [categoryId, setCategoryId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [likedBooks, setLikedBooks] = useState({});
+  const [liking, setLiking] = useState({});
 
   let [active, setActive] = useState(false);
   let sidebarController = () => {
@@ -27,7 +33,27 @@ const VendorTwoDetails = () => {
     if (q) params.q = q;
     getBooks(params)
       .then((res) => {
-        setBooks(res.books || res.result || []);
+        const booksData = res.books || res.result || [];
+        setBooks(booksData);
+        
+        // Initialize liked state with local storage
+        const likedState = {};
+        let likedMap = {};
+        try {
+          const stored = localStorage.getItem('liked_books_map');
+          likedMap = stored ? JSON.parse(stored) : {};
+        } catch {}
+        
+        booksData.forEach(book => {
+          if (book.id) {
+            const stored = likedMap[book.id];
+            likedState[book.id] = {
+              isLiked: stored?.isLiked ?? (book.is_liked === true),
+              likeCount: stored?.likeCount ?? (book.like_count || 0)
+            };
+          }
+        });
+        setLikedBooks(prev => ({ ...prev, ...likedState }));
       })
       .catch((err) => {
         const message = err?.normalized?.message || err?.message;
@@ -69,6 +95,81 @@ const VendorTwoDetails = () => {
     const shopId = searchParams.get("id");
     if (!shopId) return;
     fetchBooks(shopId, null, "");
+  };
+
+  const handleLike = async (bookId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      showToast({
+        type: 'info',
+        title: "Ma'lumot",
+        message: "Like qilish uchun tizimga kiring",
+        duration: 3000
+      });
+      return;
+    }
+
+    if (liking[bookId]) return;
+
+    const previousState = likedBooks[bookId] || { isLiked: false, likeCount: 0 };
+    const newLiked = !previousState.isLiked;
+    const newCount = newLiked ? previousState.likeCount + 1 : Math.max(0, previousState.likeCount - 1);
+    
+    setLikedBooks(prev => ({
+      ...prev,
+      [bookId]: { isLiked: newLiked, likeCount: newCount }
+    }));
+
+    try {
+      setLiking(prev => ({ ...prev, [bookId]: true }));
+      const response = await likeBook(bookId);
+      
+      if (response.success) {
+        const finalCount = response.is_liked ? newCount : Math.max(0, newCount);
+        const updatedState = {
+          isLiked: response.is_liked,
+          likeCount: finalCount
+        };
+        
+        setLikedBooks(prev => ({
+          ...prev,
+          [bookId]: updatedState
+        }));
+        
+        // Local storage'ga saqlash
+        if (typeof window !== 'undefined') {
+          const likedMap = localStorage.getItem('liked_books_map');
+          const map = likedMap ? JSON.parse(likedMap) : {};
+          
+          if (response.is_liked) {
+            map[bookId] = updatedState;
+          } else {
+            delete map[bookId];
+          }
+          
+          localStorage.setItem('liked_books_map', JSON.stringify(map));
+        }
+        
+        window.dispatchEvent(new Event(response.is_liked ? 'bookLiked' : 'bookUnliked'));
+      }
+    } catch (error) {
+      console.error("Like error:", error);
+      setLikedBooks(prev => ({
+        ...prev,
+        [bookId]: previousState
+      }));
+      
+      showToast({
+        type: 'error',
+        title: "Xatolik",
+        message: "Like qilishda xatolik yuz berdi",
+        duration: 3000
+      });
+    } finally {
+      setLiking(prev => ({ ...prev, [bookId]: false }));
+    }
   };
 
   return (
@@ -262,6 +363,22 @@ const VendorTwoDetails = () => {
                             HOT
                           </span>
                         </div>
+                        {/* Like Button - Top Right Corner */}
+                        {isAuthenticated && (
+                          <button
+                            type="button"
+                            onClick={(e) => handleLike(item.id, e)}
+                            disabled={liking[item.id]}
+                            className={`position-absolute top-0 end-0 m-12 w-44 h-44 flex-center rounded-circle border-0 transition-1 z-2 ${
+                              likedBooks[item.id]?.isLiked 
+                                ? 'bg-danger-600 text-white hover-bg-danger-700' 
+                                : 'bg-white text-gray-600 hover-bg-danger-50 hover-text-danger-600 shadow-sm'
+                            }`}
+                            title={likedBooks[item.id]?.isLiked ? "Like olib tashlash" : "Like qo'shish"}
+                          >
+                            <i className={`${likedBooks[item.id]?.isLiked ? 'ph-fill' : 'ph'} ph-heart text-md`} />
+                          </button>
+                        )}
                         <div className="group bg-white p-2 rounded-pill z-1 position-absolute inset-inline-end-0 inset-block-start-0 me-16 mt-16 shadow-sm">
                           <button
                             type="button"
@@ -356,6 +473,7 @@ const VendorTwoDetails = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </section>
   );
 };
