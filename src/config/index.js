@@ -37,6 +37,8 @@ export const API_ENDPOINTS = {
     SUBCATEGORIES: "api/v1/book/subcategories/",
     CREATE: "api/v1/book/create/",
     UPDATE: "api/v1/book/update/",
+    LIKE: "api/v1/book/like/",
+    LIKED: "api/v1/book/liked/",
   },
   COMMENTS: {
     CREATE: "api/v1/comment/create/",

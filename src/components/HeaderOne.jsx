@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { isAuthenticated, logoutUser, getAuthToken } from "@/services/auth";
 import { getBookCategories } from "@/services/categories";
 import { getRegions } from "@/services/regions";
+import { getLikedBooks } from "@/services/books";
+import { useAuth } from "@/hooks/useAuth";
 import CategoryDropdown from "./CategoryDropdown";
 import MaterialCategoryDropdown from "./MaterialCategoryDropdown";
 import MaterialLocationDropdown from "./MaterialLocationDropdown";
@@ -13,6 +15,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 const HeaderOne = () => {
   let pathname = usePathname();
   const router = useRouter();
+  const { isAuthenticated: isAuth, isLoading: authLoading } = useAuth();
   const [scroll, setScroll] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userToken, setUserToken] = useState(null);
@@ -21,6 +24,7 @@ const HeaderOne = () => {
   const [hoveredRegionId, setHoveredRegionId] = useState(null);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [likedBooksCount, setLikedBooksCount] = useState(0);
   const tHeader = useTranslations("Header");
   const tCategories = useTranslations("Categories");
 
@@ -40,21 +44,25 @@ const HeaderOne = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showLocationDropdown]);
+
+  // Sync with useAuth hook
+  useEffect(() => {
+    const authenticated = isAuthenticated();
+    setIsLoggedIn(authenticated);
+    if (authenticated) {
+      const token = getAuthToken();
+      setUserToken(token);
+    } else {
+      setUserToken(null);
+      setLikedBooksCount(0);
+    }
+  }, [isAuth]);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const handleScroll = () => {
         setScroll(window.pageYOffset > 150);
       };
-
-      // Check authentication status
-      const checkAuth = () => {
-        const authenticated = isAuthenticated();
-        const token = getAuthToken();
-        setIsLoggedIn(authenticated);
-        setUserToken(token);
-      };
-
-      checkAuth();
 
       // Attach the scroll event listener
       window.addEventListener("scroll", handleScroll);
@@ -108,6 +116,77 @@ const HeaderOne = () => {
 
     fetchData();
   }, []);
+
+  // Fetch liked books count va localStorage'ni initialize qilish
+  useEffect(() => {
+    if (authLoading) return;
+
+    const fetchLikedBooksCount = async () => {
+      if (isAuth) {
+        try {
+          const response = await getLikedBooks();
+          const books = response.books || [];
+          const count = response.count || books.length || 0;
+          
+          // localStorage'ga like qilingan kitoblar ro'yxatini saqlash
+          if (typeof window !== 'undefined' && books.length > 0) {
+            const likedMap = {};
+            books.forEach(book => {
+              if (book.id) {
+                likedMap[book.id] = {
+                  isLiked: true,
+                  likeCount: book.like_count || 1
+                };
+              }
+            });
+            localStorage.setItem('liked_books_map', JSON.stringify(likedMap));
+          }
+          
+          setLikedBooksCount(count);
+        } catch (err) {
+          console.error("Liked books count xatolik:", err);
+          setLikedBooksCount(0);
+        }
+      } else {
+        setLikedBooksCount(0);
+        // Logout qilinganda localStorage'ni tozalash
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('liked_books_map');
+        }
+      }
+    };
+
+    fetchLikedBooksCount();
+  }, [isAuth, authLoading]);
+
+  // Listen for like updates - localStorage'dan count hisoblash
+  useEffect(() => {
+    const updateCountFromStorage = () => {
+      if (isAuth && typeof window !== 'undefined') {
+        try {
+          const likedMap = localStorage.getItem('liked_books_map');
+          if (likedMap) {
+            const map = JSON.parse(likedMap);
+            const count = Object.keys(map).length;
+            setLikedBooksCount(count);
+          } else {
+            setLikedBooksCount(0);
+          }
+        } catch (err) {
+          console.error("Error reading liked count from storage:", err);
+          setLikedBooksCount(0);
+        }
+      }
+    };
+
+    window.addEventListener('bookLiked', updateCountFromStorage);
+    window.addEventListener('bookUnliked', updateCountFromStorage);
+
+    return () => {
+      window.removeEventListener('bookLiked', updateCountFromStorage);
+      window.removeEventListener('bookUnliked', updateCountFromStorage);
+    };
+  }, [isAuth]);
 
   // Handle logout
   const handleLogout = async () => {
@@ -454,27 +533,29 @@ const HeaderOne = () => {
                   className="ph ph-heart text-2xl"
                   style={{ position: "relative", zIndex: 1 }}
                 />
-                <span
-                  className="wishlist-count bg-main-600 text-white rounded-circle flex-center position-absolute"
-                  style={{
-                    top: "-6px",
-                    right: "-8px",
-                    minWidth: "18px",
-                    height: "18px",
-                    fontSize: "10px",
-                    fontWeight: "700",
-                    padding: "0 5px",
-                    lineHeight: "1",
-                    border: "2px solid white",
-                    boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
-                    zIndex: 2,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  0
-                </span>
+                {likedBooksCount > 0 && (
+                  <span
+                    className="wishlist-count bg-main-600 text-white rounded-circle flex-center position-absolute"
+                    style={{
+                      top: "-6px",
+                      right: "-8px",
+                      minWidth: "18px",
+                      height: "18px",
+                      fontSize: "10px",
+                      fontWeight: "700",
+                      padding: "0 5px",
+                      lineHeight: "1",
+                      border: "2px solid white",
+                      boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
+                      zIndex: 2,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {likedBooksCount > 99 ? '99+' : likedBooksCount}
+                  </span>
+                )}
               </Link>
               {/* Wishlist Icon End */}
               <LanguageSwitcher />

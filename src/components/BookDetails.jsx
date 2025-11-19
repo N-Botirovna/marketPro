@@ -1,10 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { getBookById } from "@/services/books";
+import { getBookById, likeBook } from "@/services/books";
 import { useAuth } from "@/hooks/useAuth";
 import BookCreateModal from "./BookCreateModal";
 import Spin from "./Spin";
+import { useToast } from "./Toast";
 
 const BookDetails = ({ bookId }) => {
   const locale = useLocale();
@@ -14,10 +15,30 @@ const BookDetails = ({ bookId }) => {
   const tButtons = useTranslations("Buttons");
   const tProduct = useTranslations("ProductDetailsOne");
   const { isAuthenticated } = useAuth();
+  const { showToast, ToastContainer } = useToast();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  
+  // Local storage'dan like holatini olish
+  const getStoredLikeState = (bookId) => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const likedMap = localStorage.getItem('liked_books_map');
+      if (likedMap) {
+        const map = JSON.parse(likedMap);
+        return map[bookId] || null;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+  
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [liking, setLiking] = useState(false);
 
   // Helper function to get localized field value
   const getLocalizedField = (fieldPrefix) => {
@@ -32,18 +53,104 @@ const BookDetails = ({ bookId }) => {
       fetchBookDetails();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bookId]);
+  }, [bookId]); // bookId o'zgarganda yangi kitob yuklanadi
 
   const fetchBookDetails = async () => {
     try {
       setLoading(true);
       const response = await getBookById(bookId);
-      setBook(response.book);
+      const bookData = response.book;
+      setBook(bookData);
+      
+      // Local storage'dan yoki API'dan like holatini olish
+      const stored = getStoredLikeState(bookData?.id);
+      setIsLiked(stored?.isLiked ?? (bookData?.is_liked === true));
+      setLikeCount(stored?.likeCount ?? (bookData?.like_count || 0));
     } catch (err) {
       console.error(tBook("loadError"), err);
       setError(err.message || tBook("loadError"));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLike = async () => {
+    if (!isAuthenticated) {
+      showToast({
+        type: 'info',
+        title: tCommon("info") || "Ma'lumot",
+        message: "Like qilish uchun tizimga kiring",
+        duration: 3000
+      });
+      return;
+    }
+
+    if (liking || !book) return;
+
+    const previousLiked = isLiked;
+    const previousCount = likeCount;
+    const newLiked = !previousLiked;
+    const newCount = newLiked ? previousCount + 1 : Math.max(0, previousCount - 1);
+    
+    setIsLiked(newLiked);
+    setLikeCount(newCount);
+    setBook(prev => ({
+      ...prev,
+      is_liked: newLiked,
+      like_count: newCount
+    }));
+
+    try {
+      setLiking(true);
+      const response = await likeBook(book.id);
+      
+      if (response.success) {
+        setIsLiked(response.is_liked);
+        const finalCount = response.is_liked ? newCount : Math.max(0, newCount);
+        setLikeCount(finalCount);
+        setBook(prev => ({
+          ...prev,
+          is_liked: response.is_liked,
+          like_count: finalCount
+        }));
+        
+        // Local storage'ga saqlash
+        if (typeof window !== 'undefined') {
+          const likedMap = localStorage.getItem('liked_books_map');
+          const map = likedMap ? JSON.parse(likedMap) : {};
+          
+          if (response.is_liked) {
+            map[book.id] = {
+              isLiked: true,
+              likeCount: finalCount
+            };
+          } else {
+            delete map[book.id];
+          }
+          
+          localStorage.setItem('liked_books_map', JSON.stringify(map));
+        }
+        
+        window.dispatchEvent(new Event(response.is_liked ? 'bookLiked' : 'bookUnliked'));
+      }
+    } catch (error) {
+      console.error("Like error:", error);
+      setIsLiked(previousLiked);
+      setLikeCount(previousCount);
+      setBook(prev => ({
+        ...prev,
+        is_liked: previousLiked,
+        like_count: previousCount
+      }));
+      
+      showToast({
+        type: 'error',
+        title: tCommon("error"),
+        message: "Like qilishda xatolik yuz berdi",
+        duration: 3000
+      });
+    } finally {
+      setLiking(false);
     }
   };
 
@@ -408,9 +515,18 @@ const BookDetails = ({ bookId }) => {
                   <i className="ph ph-shopping-cart me-8"></i>
                   {tBook("addToCart")}
                 </button>
-                <button className="btn btn-outline-main px-32 py-16">
-                  <i className="ph ph-heart me-8"></i>
-                  {tBook("favorites")}
+                <button 
+                  onClick={handleLike}
+                  disabled={liking || !isAuthenticated}
+                  className={`btn ${isLiked ? 'btn-danger' : 'btn-outline-danger'} px-32 py-16 d-flex align-items-center gap-8`}
+                >
+                  <i className={`${isLiked ? 'ph-fill' : 'ph'} ph-heart text-lg`}></i>
+                  <span>{isLiked ? "Liked" : tBook("favorites")}</span>
+                  {likeCount > 0 && (
+                    <span className={`badge ${isLiked ? 'bg-white text-danger-600' : 'bg-danger-600 text-white'}`}>
+                      {likeCount}
+                    </span>
+                  )}
                 </button>
                 <button className="btn btn-outline-secondary px-32 py-16">
                   <i className="ph ph-share-network me-8"></i>
@@ -536,6 +652,7 @@ const BookDetails = ({ bookId }) => {
           editBook={book}
         />
       </div>
+      <ToastContainer />
     </section>
   );
 };
