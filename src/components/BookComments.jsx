@@ -616,39 +616,31 @@ const BookComments = ({ bookId }) => {
                 </>
               )}
 
-              {/* Delete button - TEST MODE: Ko'rinadimi? */}
-              <button
-                type="button"
-                onClick={() => {
-                  console.log('🗑️ Delete clicked');
-                  console.log('Current User ID:', currentUserId);
-                  console.log('Comment User ID:', comment.user?.id);
-                  console.log('isOwner:', isOwner);
-                  if (isOwner) {
-                    handleDeleteComment(comment.id, isReply, parentId);
-                  } else {
-                    alert('Bu sizning commentingiz emas! currentUserId: ' + currentUserId + ', commentUserId: ' + comment.user?.id);
-                  }
-                }}
-                style={{ 
-                  background: "none",
-                  border: "none",
-                  padding: "4px 8px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                  fontSize: "13px",
-                  fontWeight: "500",
-                  color: isOwner ? "#dc3545" : "#999",
-                  marginLeft: "auto",
-                  transition: "color 0.2s"
-                }}
-                title={isOwner ? "O'chirish" : "Test mode"}
-              >
-                <i className="ph ph-trash" style={{ fontSize: "16px" }}></i>
-                O'chirish {!isOwner && '(test)'}
-              </button>
+              {/* Delete button - Only show for own comments */}
+              {isOwner && (
+                <button
+                  type="button"
+                  onClick={() => handleDeleteComment(comment.id, isReply, parentId)}
+                  style={{ 
+                    background: "none",
+                    border: "none",
+                    padding: "4px 8px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    fontSize: "13px",
+                    fontWeight: "500",
+                    color: "#dc3545",
+                    marginLeft: "auto",
+                    transition: "color 0.2s"
+                  }}
+                  title="O'chirish"
+                >
+                  <i className="ph ph-trash" style={{ fontSize: "16px" }}></i>
+                  O'chirish
+                </button>
+              )}
             </div>
 
             {/* Reply form */}
