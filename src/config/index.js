@@ -57,6 +57,7 @@ export const API_ENDPOINTS = {
   },
   BASE: {
     REGIONS: "api/v1/base/regions/",
+    FAQS: "api/v1/base/faqs/",
   },
   GIVEAWAY: {
     ACTIVE: "api/v1/book/give-away/active/",

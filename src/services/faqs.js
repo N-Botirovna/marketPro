@@ -1,4 +1,5 @@
 import http from "@/lib/http";
+import { API_ENDPOINTS } from "@/config";
 
 // Get FAQs
 export async function getFaqs(params = {}) {
@@ -16,7 +17,7 @@ export async function getFaqs(params = {}) {
   console.log('🧹 Cleaned FAQ params:', cleanParams);
   
   try {
-    const { data } = await http.get("api/v1/base/faqs", { params: cleanParams });
+    const { data } = await http.get(API_ENDPOINTS.BASE.FAQS, { params: cleanParams });
     console.log('✅ FAQs API response:', data);
     
     return {
@@ -34,7 +35,7 @@ export async function getFaqs(params = {}) {
 
 // Get single FAQ by ID
 export async function getFaqById(id) {
-  const { data } = await http.get(`api/v1/base/faqs/${id}/`);
+  const { data } = await http.get(`${API_ENDPOINTS.BASE.FAQS}${id}/`);
   return {
     faq: data || null,
     raw: data,
