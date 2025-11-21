@@ -4,7 +4,6 @@ import { useTranslations, useLocale } from "next-intl";
 import { getBookById, likeBook } from "@/services/books";
 import { useAuth } from "@/hooks/useAuth";
 import BookCreateModal from "./BookCreateModal";
-import BookComments from "./BookComments";
 import Spin from "./Spin";
 import { useToast } from "./Toast";
 
@@ -557,163 +556,70 @@ const BookDetails = ({ bookId }) => {
           </div>
         </div>
 
-        {/* Tabs: Description, Features, Comments */}
-        <div className="row mt-80">
-          <div className="col-12">
-            <div className="product-dContent border rounded-24">
-              <div className="product-dContent__header border-bottom border-gray-100 flex-between flex-wrap gap-16">
-                <ul
-                  className="nav common-tab nav-pills mb-3"
-                  id="pills-tab"
-                  role="tablist"
-                >
-                  <li className="nav-item" role="presentation">
-                    <button
-                      className="nav-link active"
-                      id="pills-description-tab"
-                      data-bs-toggle="pill"
-                      data-bs-target="#pills-description"
-                      type="button"
-                      role="tab"
-                      aria-controls="pills-description"
-                      aria-selected="true"
-                    >
-                      {tBook("aboutBook")}
-                    </button>
-                  </li>
-                  <li className="nav-item" role="presentation">
-                    <button
-                      className="nav-link"
-                      id="pills-specs-tab"
-                      data-bs-toggle="pill"
-                      data-bs-target="#pills-specs"
-                      type="button"
-                      role="tab"
-                      aria-controls="pills-specs"
-                      aria-selected="false"
-                    >
-                      {tBook("additionalInfo")}
-                    </button>
-                  </li>
-                  <li className="nav-item" role="presentation">
-                    <button
-                      className="nav-link"
-                      id="pills-comments-tab"
-                      data-bs-toggle="pill"
-                      data-bs-target="#pills-comments"
-                      type="button"
-                      role="tab"
-                      aria-controls="pills-comments"
-                      aria-selected="false"
-                    >
-                      Izohlar {book.comment_count > 0 && `(${book.comment_count})`}
-                    </button>
-                  </li>
-                </ul>
+        {/* Description */}
+        {(getLocalizedField("description") || book.description) && (
+          <div className="row mt-80">
+            <div className="col-12">
+              <div className="border border-gray-100 rounded-16 p-32">
+                <h5 className="mb-24">{tBook("aboutBook")}</h5>
+                <p className="text-gray-700 line-height-1-6">
+                  {getLocalizedField("description") || book.description}
+                </p>
               </div>
-              <div className="product-dContent__box">
-                <div className="tab-content" id="pills-tabContent">
-                  {/* Description Tab */}
-                  <div
-                    className="tab-pane fade show active"
-                    id="pills-description"
-                    role="tabpanel"
-                    aria-labelledby="pills-description-tab"
-                    tabIndex={0}
-                  >
-                    <div className="mb-40">
-                      {(getLocalizedField("description") || book.description) ? (
-                        <p className="text-gray-700 line-height-1-6">
-                          {getLocalizedField("description") || book.description}
-                        </p>
-                      ) : (
-                        <p className="text-gray-500">Tavsif mavjud emas.</p>
-                      )}
-                    </div>
-                  </div>
+            </div>
+          </div>
+        )}
 
-                  {/* Specifications Tab */}
-                  <div
-                    className="tab-pane fade"
-                    id="pills-specs"
-                    role="tabpanel"
-                    aria-labelledby="pills-specs-tab"
-                    tabIndex={0}
-                  >
-                    <div className="mb-40">
-                      <h6 className="mb-24">{tBook("additionalInfo")}</h6>
-                      <div className="row">
-                        <div className="col-md-6">
-                          <div className="mb-16">
-                            <strong>{tBook("bookType")}:</strong>{" "}
-                            <span className="text-gray-600">{getTypeLabel(book.type)}</span>
-                          </div>
-                          <div className="mb-16">
-                            <strong>{tBook("condition")}:</strong>{" "}
-                            <span className="text-gray-600">{getConditionLabel(book.is_used)}</span>
-                          </div>
-                          <div className="mb-16">
-                            <strong>{tBook("owner")}:</strong>{" "}
-                            <span className="text-gray-600">{getOwnerTypeLabel(book.owner_type)}</span>
-                          </div>
-                          {book.language && (
-                            <div className="mb-16">
-                              <strong>{tBook("language")}:</strong>{" "}
-                              <span className="text-gray-600">{book.language}</span>
-                            </div>
-                          )}
-                          {book.script_type && (
-                            <div className="mb-16">
-                              <strong>{tBook("scriptType")}:</strong>{" "}
-                              <span className="text-gray-600">{getScriptTypeLabel(book.script_type)}</span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="col-md-6">
-                          {book.cover_type && (
-                            <div className="mb-16">
-                              <strong>{tBook("cover")}:</strong>{" "}
-                              <span className="text-gray-600">{getCoverTypeLabel(book.cover_type)}</span>
-                            </div>
-                          )}
-                          {book.publication_year && (
-                            <div className="mb-16">
-                              <strong>{tBook("publicationYear")}:</strong>{" "}
-                              <span className="text-gray-600">{book.publication_year}</span>
-                            </div>
-                          )}
-                          {book.pages && (
-                            <div className="mb-16">
-                              <strong>{tBook("pages")}:</strong>{" "}
-                              <span className="text-gray-600">{book.pages} {tBook("pagesUnit")}</span>
-                            </div>
-                          )}
-                          {book.isbn && (
-                            <div className="mb-16">
-                              <strong>{tBook("isbn")}:</strong>{" "}
-                              <span className="text-gray-600">{book.isbn}</span>
-                            </div>
-                          )}
-                          <div className="mb-16">
-                            <strong>{tBook("createdDate")}:</strong>{" "}
-                            <span className="text-gray-600">{formatDate(book.created_at)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+        {/* Additional Info */}
+        <div className="row mt-40">
+          <div className="col-12">
+            <div className="border border-gray-100 rounded-16 p-32">
+              <h5 className="mb-24">{tBook("additionalInfo")}</h5>
+              <div className="row">
+                <div className="col-md-6">
+                  <div className="mb-16">
+                    <strong>{tBook("bookType")}</strong> {getTypeLabel(book.type)}
                   </div>
-
-                  {/* Comments Tab */}
-                  <div
-                    className="tab-pane fade"
-                    id="pills-comments"
-                    role="tabpanel"
-                    aria-labelledby="pills-comments-tab"
-                    tabIndex={0}
-                  >
-                    <div className="mb-40">
-                      <BookComments bookId={bookId} />
+                  <div className="mb-16">
+                    <strong>{tBook("condition")}</strong> {getConditionLabel(book.is_used)}
+                  </div>
+                  <div className="mb-16">
+                    <strong>{tBook("owner")}</strong> {getOwnerTypeLabel(book.owner_type)}
+                  </div>
+                  {book.language && (
+                    <div className="mb-16">
+                      <strong>{tBook("language")}</strong> {book.language}
                     </div>
+                  )}
+                  {book.script_type && (
+                    <div className="mb-16">
+                      <strong>{tBook("scriptType")}</strong> {getScriptTypeLabel(book.script_type)}
+                    </div>
+                  )}
+                </div>
+                <div className="col-md-6">
+                  {book.cover_type && (
+                    <div className="mb-16">
+                      <strong>{tBook("cover")}</strong> {getCoverTypeLabel(book.cover_type)}
+                    </div>
+                  )}
+                  {book.publication_year && (
+                    <div className="mb-16">
+                      <strong>{tBook("publicationYear")}</strong> {book.publication_year}
+                    </div>
+                  )}
+                  {book.pages && (
+                    <div className="mb-16">
+                      <strong>{tBook("pages")}</strong> {book.pages} {tBook("pagesUnit")}
+                    </div>
+                  )}
+                  {book.isbn && (
+                    <div className="mb-16">
+                      <strong>{tBook("isbn")}</strong> {book.isbn}
+                    </div>
+                  )}
+                  <div className="mb-16">
+                    <strong>{tBook("createdDate")}</strong> {formatDate(book.created_at)}
                   </div>
                 </div>
               </div>

@@ -1,14 +1,12 @@
 "use client";
 
 import React, { useEffect, useState, useMemo, memo } from "react";
-import { Link } from "@/i18n/navigation";
 import Slider from "react-slick";
 import { getBanners } from "@/services/banners";
 import Image from "next/image";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { useTranslations } from "next-intl";
 
 // Separate BannerImage component (no hooks inside parent component)
 const BannerImage = memo(({ src, alt, priority, fallbackSrc }) => (
@@ -32,8 +30,6 @@ const BannerOne = () => {
   const [error, setError] = useState(null);
 
   const FALLBACK_SRC = "/assets/images/bg/banner-bg.png";
-  const tCommon = useTranslations("Common")
-  const tBread = useTranslations("Breadcrumb")
 
   useEffect(() => {
     let mounted = true;
@@ -66,6 +62,7 @@ const BannerOne = () => {
         onClick={onClick}
         aria-label="Next slide"
         className={`${className} slick-next slick-arrow flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1`}
+        style={{ zIndex: 10 }}
       >
         <i className="ph ph-caret-right" />
       </button>
@@ -79,6 +76,7 @@ const BannerOne = () => {
         onClick={onClick}
         aria-label="Previous slide"
         className={`${className} slick-prev slick-arrow flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1`}
+        style={{ zIndex: 10 }}
       >
         <i className="ph ph-caret-left" />
       </button>
@@ -176,9 +174,6 @@ const BannerOne = () => {
             <Slider {...settings}>
               {slides.map((banner, index) => {
                 const idKey = banner.id ?? index;
-                const href = `/vendor-two-details?id=${encodeURIComponent(
-                  banner.id ?? ""
-                )}`;
 
                 return (
                   <div className="banner-slider__item" key={idKey}>
@@ -187,28 +182,14 @@ const BannerOne = () => {
                       style={{ gap: 24 }}
                     >
                       <div
-                        className="banner-item__content "
-                        style={{ flex: 1, minWidth: 260 }}
+                        className="banner-item__content d-flex align-items-center"
+                        style={{ flex: 1, minWidth: 260, position: 'relative', zIndex: 1, paddingLeft: '60px', paddingRight: '60px' }}
                       >
                         <h1
-                          className="banner-item__title bounce"
-                          style={{ marginBottom: 24 }}
+                          className="banner-item__title bounce mb-0"
                         >
-                          {/* {banner.title  || "Shop"} */}
-                          Bu yerda uzunroq tekst tursin!
+                          {banner.title || "Welcome"}
                         </h1>
-
-                        <div style={{ marginTop: 12 }}>
-                          <Link
-                            href={href}
-                            className="btn btn-main d-inline-flex align-items-center rounded-pill pt-8 gap-8"
-                          >
-                            {tBread("exploreShop")}
-                            <span className="icon text-xl d-flex">
-                              <i className="ph ph-shopping-cart-simple" />
-                            </span>
-                          </Link>
-                        </div>
                       </div>
 
                       <div
@@ -230,6 +211,30 @@ const BannerOne = () => {
           </div>
         </div>
       </div>
+      <style dangerouslySetInnerHTML={{__html: `
+        .banner-item .slick-prev,
+        .banner-item .slick-next {
+          z-index: 10 !important;
+        }
+        .banner-item .slick-prev {
+          left: 20px !important;
+        }
+        .banner-item .slick-next {
+          right: 20px !important;
+        }
+        .banner-item__content {
+          position: relative;
+          z-index: 1;
+        }
+        @media (min-width: 992px) {
+          .banner-item .slick-prev {
+            left: 20px !important;
+          }
+          .banner-item .slick-next {
+            right: 20px !important;
+          }
+        }
+      `}} />
     </div>
   );
 };
