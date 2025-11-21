@@ -32,20 +32,22 @@ export async function getHomePageBooks() {
 }
 
 // Get new books
-export async function getNewBooks(limit = 8) {
+export async function getNewBooks(limit = 8, offset = 0) {
   return await getBooks({ 
     is_used: false,
     is_active: true, 
-    limit 
+    limit,
+    offset
   });
 }
 
 // Get used books
-export async function getUsedBooks(limit = 8) {
+export async function getUsedBooks(limit = 8, offset = 0) {
   return await getBooks({ 
     is_active: true, 
     is_used: true,
-    limit 
+    limit,
+    offset
   });
 }
 
@@ -59,11 +61,12 @@ export async function getBooksByCategory(categoryId, limit = 12) {
 }
 
 // Get books by type (gift, exchange, seller)
-export async function getBooksByType(type, limit = 12) {
+export async function getBooksByType(type, limit = 12, offset = 0) {
   return await getBooks({ 
     type,
     is_active: true, 
-    limit 
+    limit,
+    offset
   });
 }
 

@@ -15,7 +15,7 @@ const TopVendorsOne = () => {
     let mounted = true;
     const fetchShops = async () => {
       try {
-        const response = await getShops({ limit: 8 });
+        const response = await getShops({ limit: 8, offset: 0 });
         if (mounted) {
           setShops(response.shops || []);
         }

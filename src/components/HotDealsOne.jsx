@@ -4,6 +4,8 @@ import dynamic from "next/dynamic";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { getActiveGiveaway } from "@/services/giveaway";
+import { formatPrice } from "@/utils/formatPrice";
+import { useLocale } from "next-intl";
 
 const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
@@ -34,6 +36,7 @@ const SamplePrevArrow = memo((props) => {
 });
 
 const HotDealsOne = () => {
+  const locale = useLocale();
   const [giveaway, setGiveaway] = useState(null);
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -464,14 +467,14 @@ const HotDealsOne = () => {
                             <div className="product-card__content mt-12">
                               <div className="product-card__price mb-8">
                                 <span className="text-heading text-md fw-semibold">
-                                  ${discountedPrice.toFixed(2)}{" "}
+                                  {formatPrice(discountedPrice || originalPrice, locale)}{" "}
                                   <span className="text-gray-500 fw-normal">
                                     /Qty
                                   </span>
                                 </span>
-                                {originalPrice > discountedPrice && (
+                                {originalPrice > discountedPrice && discountedPrice > 0 && (
                                   <span className="text-gray-400 text-md fw-semibold text-decoration-line-through">
-                                    ${originalPrice.toFixed(2)}
+                                    {formatPrice(originalPrice, locale)}
                                   </span>
                                 )}
                               </div>

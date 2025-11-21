@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { likeBook } from "@/services/books";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "./Toast";
+import { formatPrice } from "@/utils/formatPrice";
 
 const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn = true, onLikeUpdate }) => {
   if (!book) return null;
@@ -56,10 +57,6 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
     return book[localizedKey] || book[fallbackKey] || book[fieldPrefix] || '';
   };
 
-  const formatPrice = (price) => {
-    if (price === null || price === undefined) return "";
-    return `${new Intl.NumberFormat(locale).format(price)} ${tCommon("currency")}`;
-  };
 
   const sellerName =
     book.shop?.name ||
@@ -230,11 +227,11 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
         <div className='product-card__content mt-12'>
           <div className='product-card__price mb-8'>
             <span className='text-heading text-md fw-semibold'>
-              {formatPrice(book.discount_price || book.price)}
+              {formatPrice(book.discount_price || book.price, locale)}
             </span>
             {book.discount_price && (
               <span className='text-gray-400 text-md fw-semibold text-decoration-line-through ms-8'>
-                {formatPrice(book.price)}
+                {formatPrice(book.price, locale)}
               </span>
             )}
           </div>

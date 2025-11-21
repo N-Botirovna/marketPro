@@ -4,6 +4,8 @@ import { Link } from "@/i18n/navigation";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { getBooksByType, getNewBooks, getUsedBooks } from "@/services/books";
+import { formatPrice } from "@/utils/formatPrice";
+import { useLocale } from "next-intl";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -38,6 +40,7 @@ function SamplePrevArrow(props) {
 }
 
 const ShortProductOne = () => {
+  const locale = useLocale();
   // 🔹 Memoized Slick settings
   const settings = useMemo(
     () => ({
@@ -69,10 +72,10 @@ const ShortProductOne = () => {
     const fetchAllBooks = async () => {
       try {
         const [newRes, usedRes, giftRes, topRes] = await Promise.all([
-          getNewBooks(8),
-          getUsedBooks(8),
-          getBooksByType("gift", 8),
-          getBooksByType("exchange", 8),
+          getNewBooks(8, 0),
+          getUsedBooks(8, 0),
+          getBooksByType("gift", 8, 0),
+          getBooksByType("exchange", 8, 0),
         ]);
 
         setNewBooks(
@@ -99,8 +102,7 @@ const ShortProductOne = () => {
           {
             id: "placeholder",
             picture: "/assets/images/thumbs/short-product-img3.png",
-            star: "-",
-            num: "-",
+            author: "",
             desc: "No books available yet",
             price1: "-",
             price2: "",
@@ -114,19 +116,17 @@ const ShortProductOne = () => {
       const group = books.slice(i, i + 4).map((book, idx) => ({
         id: book.id || book._id || null,
         picture: book.picture || "/assets/images/thumbs/short-product-img3.png",
-        star: book.rating || book.averageRating || "4.8",
-        num: book.reviewCount || book.numReviews || "17k",
+        author: book.author || book.author_name || book.authorName || "",
         desc: book.title || book.name || "No title",
-        price1: book.price ? `$${book.price}` : "-",
-        price2: book.originalPrice ? `$${book.originalPrice}` : "",
+        price1: book.price ? formatPrice(book.price, locale) : "-",
+        price2: book.originalPrice ? formatPrice(book.originalPrice, locale) : "",
       }));
 
       while (group.length < 4) {
         group.push({
           id: `placeholder-${i}-${group.length}`,
           picture: "/assets/images/thumbs/short-product-img3.png",
-          star: "-",
-          num: "-",
+          author: "",
           desc: "Coming soon...",
           price1: "-",
           price2: "",
@@ -180,18 +180,12 @@ const ShortProductOne = () => {
           )}
         </div>
         <div className="flex-1">
-          <div className="flex-align gap-6">
-            <span className="text-xs fw-bold text-gray-500">
-              {product.star}
-            </span>
-            <span className="text-warning-600 text-xs">
-              <i className="ph-fill ph-star" />
-            </span>
-            <span className="text-xs fw-bold text-gray-500">
-              ({product.num})
-            </span>
-          </div>
-          <h6 className="text-sm fw-semibold mt-8 mb-8 text-line-1">
+          {product.author && (
+            <p className="text-xs text-gray-600 mb-4">
+              {product.author}
+            </p>
+          )}
+          <h6 className="text-sm fw-semibold mb-8 text-line-1">
             {hasValidId ? (
               <Link href={detailUrl} className="link hover-text-main-600 transition-1">
                 {product.desc}
@@ -204,9 +198,11 @@ const ShortProductOne = () => {
             <span className="text-heading text-md fw-semibold">
               {product.price1}
             </span>
-            <span className="text-gray-400 text-md fw-semibold">
-              {product.price2}
-            </span>
+            {product.price2 && (
+              <span className="text-gray-400 text-md fw-semibold">
+                {product.price2}
+              </span>
+            )}
           </div>
         </div>
       </div>

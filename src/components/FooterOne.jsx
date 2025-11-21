@@ -14,7 +14,7 @@ const FooterOne = () => {
       />
       <div className="container container-lg">
         <div className="row gy-4">
-          <div className="col-lg-4 col-md-6">
+          <div className="col-lg-3 col-md-6">
             <div className="footer-item">
               <div className="footer-item__logo mb-20">
                 <Link href="/">
@@ -22,47 +22,24 @@ const FooterOne = () => {
                 </Link>
               </div>
               <p className="mb-20 text-gray-700">{tF("about.blurb")}</p>
-              <div className="flex-align gap-12 mb-12">
-                <span className="w-32 h-32 flex-center rounded-circle bg-main-500 text-white text-md flex-shrink-0">
-                  <i className="ph-fill ph-map-pin" />
-                </span>
-                <span className="text-sm text-gray-700">
-                  {tF("about.address")}
-                </span>
-              </div>
-              <div className="flex-align gap-12 mb-12">
-                <span className="w-32 h-32 flex-center rounded-circle bg-main-500 text-white text-md flex-shrink-0">
-                  <i className="ph-fill ph-phone-call" />
-                </span>
-                <a
-                  href="tel:+998938340103"
-                  className="text-sm text-gray-700 hover-text-main-500"
-                >
-                  +998 93 834 01 03
-                </a>
-              </div>
-              <div className="flex-align gap-12 mb-12">
-                <span className="w-32 h-32 flex-center rounded-circle bg-main-500 text-white text-md flex-shrink-0">
-                  <i className="ph-fill ph-paper-plane-tilt" />
-                </span>
-                <a
-                  href="https://t.me/kitobzoruz_bot"
-                  className="text-sm text-gray-700 hover-text-main-500"
-                >
-                  {tF("about.telegram")}
-                </a>
-              </div>
-              <div className="flex-align gap-12 mb-0">
-                <span className="w-32 h-32 flex-center rounded-circle bg-main-500 text-white text-md flex-shrink-0">
-                  <i className="ph-fill ph-envelope" />
-                </span>
-                <a
-                  href="mailto:kitobzor.help@gmail.com"
-                  className="text-sm text-gray-700 hover-text-main-500"
-                >
-                  {tF("about.email")}
-                </a>
-              </div>
+              <ul className="footer-menu">
+                <li className="mb-12">
+                  <Link
+                    href="/contact"
+                    className="text-sm text-gray-600 hover-text-main-500 transition-1"
+                  >
+                    {tF("help.contact")}
+                  </Link>
+                </li>
+                <li className="mb-0">
+                  <Link
+                    href="/become-seller"
+                    className="text-sm text-gray-600 hover-text-main-500 transition-1"
+                  >
+                    {tF("help.becomeSeller")}
+                  </Link>
+                </li>
+              </ul>
             </div>
           </div>
           <div className="col-lg-2 col-md-6">
@@ -96,33 +73,56 @@ const FooterOne = () => {
               </ul>
             </div>
           </div>
-          <div className="col-lg-2 col-md-6">
+          <div className="col-lg-3 col-md-6">
             <div className="footer-item">
-              <h6 className="footer-item__title mb-20">{tF("help.title")}</h6>
-              <ul className="footer-menu">
-                <li className="mb-12">
-                  <Link
-                    href="/contact"
-                    className="text-sm text-gray-600 hover-text-main-500 transition-1"
-                  >
-                    {tF("help.contact")}
-                  </Link>
-                </li>
-                <li className="mb-0">
-                  <Link
-                    href="/become-seller"
-                    className="text-sm text-gray-600 hover-text-main-500 transition-1"
-                  >
-                    {tF("help.becomeSeller")}
-                  </Link>
-                </li>
-              </ul>
+              <h6 className="footer-item__title mb-20">{tF("about.title")}</h6>
+              <div className="flex-align gap-12 mb-12">
+                <span className="w-32 h-32 flex-center rounded-circle bg-main-500 text-white text-md flex-shrink-0">
+                  <i className="ph-fill ph-map-pin" />
+                </span>
+                <span className="text-sm text-gray-700">
+                  {tF("about.address")}
+                </span>
+              </div>
+              <div className="flex-align gap-12 mb-12">
+                <span className="w-32 h-32 flex-center rounded-circle bg-main-500 text-white text-md flex-shrink-0">
+                  <i className="ph-fill ph-phone-call" />
+                </span>
+                <a
+                  href="tel:+998938340103"
+                  className="text-sm text-gray-700 hover-text-main-500"
+                >
+                  +998 93 834 01 03
+                </a>
+              </div>
+              <div className="flex-align gap-12 mb-0">
+                <span className="w-32 h-32 flex-center rounded-circle bg-main-500 text-white text-md flex-shrink-0">
+                  <i className="ph-fill ph-envelope" />
+                </span>
+                <a
+                  href="mailto:kitobzor.help@gmail.com"
+                  className="text-sm text-gray-700 hover-text-main-500"
+                >
+                  {tF("about.email")}
+                </a>
+              </div>
             </div>
           </div>
           <div className="col-lg-4 col-md-6">
             <div className="footer-item">
               <h6 className="footer-item__title mb-20">{tF("newsletter.title")}</h6>
               <p className="mb-20 text-sm text-gray-700">{tF("newsletter.follow")}</p>
+              <div className="flex-align gap-12 mb-12">
+                <span className="w-32 h-32 flex-center rounded-circle bg-main-500 text-white text-md flex-shrink-0">
+                  <i className="ph-fill ph-paper-plane-tilt" />
+                </span>
+                <a
+                  href="https://t.me/kitobzoruz_bot"
+                  className="text-sm text-gray-700 hover-text-main-500"
+                >
+                  {tF("about.telegram")}
+                </a>
+              </div>
               <div className="flex-align gap-8 mb-24">
                 <a href="https://www.apple.com/store" className="hover-opacity-80 transition-1">
                   <img src="assets/images/thumbs/store-img1.png" alt="" />

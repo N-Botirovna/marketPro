@@ -77,8 +77,9 @@
     },
     "Footer": {
         "about": {
+            "title": "Contact",
             "blurb": "We are Kitobzor – an innovative book store and sellers community.",
-            "address": "We’re available online only — but always close to you",
+            "address": "We're available online only — but always close to you",
             "or": "or",
             "telegram": "@kitobzoruz_bot",
             "email": "kitobzor.help@gmail.com"
