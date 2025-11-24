@@ -7,6 +7,7 @@ import WishListSection from "@/components/WishListSection";
 import ColorInit from "@/helper/ColorInit";
 import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
+import { getTranslations } from "next-intl/server";
 
 export const metadata = {
   title: "MarketPro - E-commerce Next JS Template",
@@ -14,14 +15,16 @@ export const metadata = {
     "MarketPro is a comprehensive and versatile Next JS template designed for e-commerce platforms, specifically tailored for multi vendor marketplaces. With its modern design and extensive feature set, MarketPro provides everything you need to create a robust and user-friendly online marketplace..",
 };
 
-const page = () => {
+const page = async () => {
+  const tBreadcrumb = await getTranslations("Breadcrumb");
+
   return (
     <>
       {/* ColorInit */}
       <ColorInit color={true} />
 
       {/* ScrollToTop */}
-      <ScrollToTopInit color='#FA6400' />
+      <ScrollToTopInit color="#FA6400" />
 
       {/* Preloader */}
       <Preloader />
@@ -30,7 +33,7 @@ const page = () => {
       <HeaderOne category={true} />
 
       {/* Breadcrumb */}
-      <Breadcrumb title={"My Wishlist"} />
+      <Breadcrumb title={tBreadcrumb("myWishlist")} />
 
       {/* WishListSection */}
       <WishListSection />
@@ -48,3 +51,4 @@ const page = () => {
 };
 
 export default page;
+

@@ -36,11 +36,15 @@
     "Breadcrumb": {
         "home": "Главная",
         "vendorDetails": "Детали магазина",
+        "shopDetails": "Детали магазина",
         "bookShop": "Книжный магазин",
+        "bookDetails": "Детали книги",
         "exploreShop": "Перейти в магазин",
         "myAccount": "Мой аккаунт",
         "myWishlist": "Мой список желаний",
-        "contact": "Контакты"
+        "contact": "Контакты",
+        "shops": "Магазины",
+        "aboutUs": "О нас"
     },
     "Categories": {
         "allCat": "Все категории",
@@ -272,9 +276,18 @@
         "sendMessage": "Отправить сообщение",
         "booksCount": "книг",
         "workingDays": "Рабочие дни",
+        "lunch": "Обед",
+        "postService": "Почтовая служба доступна",
         "aboutShop": "О магазине",
         "products": "Товары",
-        "productCategory": "Категория товара"
+        "productCategory": "Категория товара",
+        "contactSeller": "Связаться с продавцом",
+        "infoTitle": "Информация",
+        "instagramNotAvailable": "Информация об Instagram не указана",
+        "telegramNotAvailable": "Информация о Telegram не указана",
+        "websiteNotAvailable": "Информация о веб-сайте не указана",
+        "phoneNotAvailable": "Номер телефона не указан",
+        "infoNotAvailable": "Информация не указана"
     },
     "VendorTwoDetails": {
         "dailyOffer": "Ежедневное предложение",
@@ -336,11 +349,11 @@
         "russian": "Русский",
         "english": "English",
         "uzbek": "O'zbek",
-        "nameUzPlaceholder": "Введите название книги на узбекском языке",
-        "nameRuPlaceholder": "Введите название книги на русском языке",
-        "nameEnPlaceholder": "Enter book title in English",
-        "authorUzPlaceholder": "Введите автора на узбекском языке",
-        "authorRuPlaceholder": "Введите автора на русском языке",
+        "nameUzPlaceholder": "Введите название книги ",
+        "nameRuPlaceholder": "Введите название книги ",
+        "nameEnPlaceholder": "Enter book title ",
+        "authorUzPlaceholder": "Введите автора ",
+        "authorRuPlaceholder": "Введите автора",
         "authorEnPlaceholder": "Enter author in English",
         "descriptionUzPlaceholder": "Введите подробную информацию о книге (на узбекском языке)...",
         "descriptionRuPlaceholder": "Введите подробную информацию о книге (на русском языке)...",

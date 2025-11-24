@@ -6,13 +6,16 @@ import ShippingTwo from "@/components/ShippingTwo";
 import ColorInit from "@/helper/ColorInit";
 import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
+import { getTranslations } from "next-intl/server";
 
 export const metadata = {
   title: "Kitob tafsilotlari - MarketPro",
   description: "Kitob tafsilotlari va ma'lumotlari",
 };
 
-const BookDetailsPage = ({ params }) => {
+const BookDetailsPage = async ({ params }) => {
+  const tBreadcrumb = await getTranslations("Breadcrumb");
+
   return (
     <>
       {/* ColorInit */}
@@ -28,7 +31,7 @@ const BookDetailsPage = ({ params }) => {
       <HeaderOne category={true} />
 
       {/* Breadcrumb */}
-      <Breadcrumb title={"Kitob tafsilotlari"} />
+      <Breadcrumb title={tBreadcrumb("bookDetails")} />
 
       {/* BookDetails */}
       <BookDetails bookId={params.id} />

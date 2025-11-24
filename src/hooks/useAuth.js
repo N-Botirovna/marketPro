@@ -8,6 +8,7 @@ import {
   isRefreshTokenExpired,
   logoutUser 
 } from '@/services/auth';
+import { getItem } from '@/utils/storage';
 
 export const useAuth = () => {
   const [isAuth, setIsAuth] = useState(false);
@@ -16,25 +17,27 @@ export const useAuth = () => {
 
   const checkAuthStatus = useCallback(async () => {
     try {
-      const hasToken = isAuthenticated();
-      const currentToken = getAuthToken();
-      
-      if (hasToken && currentToken) {
-        // Check if refresh token is expired first
-        if (isRefreshTokenExpired()) {
-          if (process.env.NODE_ENV === 'development') {
-            console.log('⚠️ Refresh token expired, logging out...');
-          }
-          await logoutUser();
-          setToken(null);
-          setIsAuth(false);
-          return;
+      // Check if refresh token is expired first
+      if (isRefreshTokenExpired()) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('⚠️ Refresh token expired, logging out...');
         }
-        
-        // If access token is expired, try to refresh
-        if (isTokenExpired()) {
+        await logoutUser();
+        setToken(null);
+        setIsAuth(false);
+        setIsLoading(false);
+        return;
+      }
+      
+      const currentToken = getAuthToken();
+      const hasToken = !!currentToken;
+      
+      // If no access token but refresh token exists, try to refresh
+      if (!hasToken) {
+        const refreshToken = getItem('refresh_token');
+        if (refreshToken && !isRefreshTokenExpired()) {
           if (process.env.NODE_ENV === 'development') {
-            console.log('⚠️ Access token expired, refreshing...');
+            console.log('⚠️ No access token, but refresh token exists. Refreshing...');
           }
           const refreshSuccess = await refreshTokenIfNeeded();
           
@@ -50,14 +53,40 @@ export const useAuth = () => {
             setToken(null);
             setIsAuth(false);
           }
+          setIsLoading(false);
+          return;
         } else {
-          // Token is valid, use it
-          setToken(currentToken);
+          // No tokens at all
+          setToken(null);
+          setIsAuth(false);
+          setIsLoading(false);
+          return;
+        }
+      }
+      
+      // Access token exists, check if expired
+      if (isTokenExpired()) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('⚠️ Access token expired, refreshing...');
+        }
+        const refreshSuccess = await refreshTokenIfNeeded();
+        
+        if (refreshSuccess) {
+          const newToken = getAuthToken();
+          setToken(newToken);
           setIsAuth(true);
+        } else {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('❌ Refresh failed, logging out...');
+          }
+          await logoutUser();
+          setToken(null);
+          setIsAuth(false);
         }
       } else {
-        setToken(null);
-        setIsAuth(false);
+        // Token is valid, use it
+        setToken(currentToken);
+        setIsAuth(true);
       }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {

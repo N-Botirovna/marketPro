@@ -36,11 +36,15 @@
     "Breadcrumb": {
         "home": "Bosh sahifa",
         "vendorDetails": "Do'kon tafsilotlari",
+        "shopDetails": "Do'kon tafsilotlari",
         "bookShop": "Kitoblar Do'koni",
+        "bookDetails": "Kitob tafsilotlari",
         "exploreShop": "Do'konga o'tish",
         "myAccount": "Mening hisobim",
         "myWishlist": "Mening saralanganlarim",
-        "contact": "Aloqa"
+        "contact": "Aloqa",
+        "shops": "Do'konlar",
+        "aboutUs": "Biz haqimizda"
     },
     "Categories": {
         "allCat": "Barcha Kategoriyalar",
@@ -272,9 +276,18 @@
         "sendMessage": "Xabar Yuborish",
         "booksCount": "ta Kitob",
         "workingDays": "Ish kunlari",
+        "lunch": "Tushlik",
+        "postService": "Pochta xizmati mavjud",
         "aboutShop": "Do'kon haqida",
         "products": "Mahsulotlar",
-        "productCategory": "Mahsulot kategoriyasi"
+        "productCategory": "Mahsulot kategoriyasi",
+        "contactSeller": "Sotuvchi bilan bog'lanish",
+        "infoTitle": "Ma'lumot",
+        "instagramNotAvailable": "Instagram ma'lumoti ko'rsatilmagan",
+        "telegramNotAvailable": "Telegram ma'lumoti ko'rsatilmagan",
+        "websiteNotAvailable": "Veb-sayt ma'lumoti ko'rsatilmagan",
+        "phoneNotAvailable": "Telefon raqami ko'rsatilmagan",
+        "infoNotAvailable": "Ma'lumot ko'rsatilmagan"
     },
     "VendorTwoDetails": {
         "dailyOffer": "Kunlik taklif",
@@ -336,10 +349,10 @@
         "russian": "Русский",
         "english": "English",
         "uzbek": "O'zbek",
-        "nameUzPlaceholder": "Kitob nomini o'zbek tilida kiriting",
-        "nameRuPlaceholder": "Введите название книги на русском языке",
-        "nameEnPlaceholder": "Enter book title in English",
-        "authorUzPlaceholder": "Muallifni o'zbek tilida kiriting",
+        "nameUzPlaceholder": "Kitob nomini kiriting",
+        "nameRuPlaceholder": "Введите название ",
+        "nameEnPlaceholder": "Enter book title ",
+        "authorUzPlaceholder": "Muallifni kiriting",
         "authorRuPlaceholder": "Введите автора на русском языке",
         "authorEnPlaceholder": "Enter author in English",
         "descriptionUzPlaceholder": "Kitob haqida batafsil ma'lumot kiriting (o'zbek tilida)...",
