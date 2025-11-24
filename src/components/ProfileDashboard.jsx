@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslations } from "next-intl";
 import { getUserProfile } from '@/services/auth';
 import { useAuth } from '@/hooks/useAuth';
 import { getUserPostedBooks, getUserArchivedBooks } from '@/services/books';
 import { getUserPosts } from '@/services/posts';
+import { getRegions } from '@/services/regions';
 import http from '@/lib/http';
 import { API_ENDPOINTS } from '@/config';
 import BookCard from './BookCard';
@@ -19,6 +20,7 @@ const ProfileDashboard = () => {
   const tProfile = useTranslations("ProfileDashboard");
   const tProfileForm = useTranslations("ProfileForm");
   const tProfileMessages = useTranslations("Profile");
+  const tLocation = useTranslations("Location");
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('books');
@@ -33,10 +35,161 @@ const ProfileDashboard = () => {
   const [editingPost, setEditingPost] = useState(null);
   
   // Profile editing states
+  const profileDefaults = {
+    first_name: '',
+    last_name: '',
+    app_phone_number: '',
+    bio: '',
+    region: '',
+    district: '',
+    location_text: '',
+  };
+
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [profileFormData, setProfileFormData] = useState({});
+  const [profileFormData, setProfileFormData] = useState(() => ({ ...profileDefaults }));
+  const [originalProfileData, setOriginalProfileData] = useState(() => ({ ...profileDefaults }));
   const [hasChanges, setHasChanges] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [regions, setRegions] = useState([]);
+  const [regionsLoading, setRegionsLoading] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const getIdAsString = (value) => {
+    if (value === null || value === undefined) return '';
+    if (typeof value === 'object') {
+      if (value.id !== undefined && value.id !== null) {
+        return String(value.id);
+      }
+      if ('value' in value && value.value !== undefined && value.value !== null) {
+        return String(value.value);
+      }
+      return '';
+    }
+    return String(value);
+  };
+
+  const toNumberOrNull = (value) => {
+    if (value === '' || value === null || value === undefined) {
+      return null;
+    }
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? null : parsed;
+  };
+
+  const normalizeProfileData = (user) => ({
+    first_name: user?.first_name || '',
+    last_name: user?.last_name || '',
+    app_phone_number: user?.app_phone_number || '',
+    bio: user?.bio || '',
+    region: getIdAsString(user?.region),
+    district: getIdAsString(user?.district),
+    location_text: user?.location_text || '',
+  });
+
+  const normalizeProfileStateMerge = (data = {}) => {
+    const normalized = { ...data };
+    if ('region' in normalized) {
+      normalized.region =
+        normalized.region !== undefined && normalized.region !== null
+          ? String(normalized.region)
+          : '';
+    }
+    if ('district' in normalized) {
+      normalized.district =
+        normalized.district !== undefined && normalized.district !== null
+          ? String(normalized.district)
+          : '';
+    }
+    return normalized;
+  };
+
+  const hasProfileDifferences = (current, original = originalProfileData) => {
+    const keys = new Set([
+      ...Object.keys(original || {}),
+      ...Object.keys(current || {})
+    ]);
+
+    for (const key of keys) {
+      const currentValue = current?.[key] ?? '';
+      const originalValue = original?.[key] ?? '';
+      if (currentValue !== originalValue) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  const findRegionById = (id) => {
+    if (id === null || id === undefined || id === '') return null;
+    return regions.find(region => String(region.id) === String(id)) || null;
+  };
+
+  const findDistrictById = (districtId) => {
+    if (districtId === null || districtId === undefined || districtId === '') return null;
+    for (const region of regions) {
+      const district = region?.districts?.find(d => String(d.id) === String(districtId));
+      if (district) {
+        return district;
+      }
+    }
+    return null;
+  };
+
+  const getRegionDisplayName = () => {
+    if (userData?.region && typeof userData.region === 'object') {
+      return userData.region.name || '';
+    }
+    if (userData?.region_name) {
+      return userData.region_name;
+    }
+    if (userData?.region !== undefined && userData?.region !== null && userData?.region !== '') {
+      return findRegionById(userData.region)?.name || String(userData.region);
+    }
+    if (profileFormData.region) {
+      return findRegionById(profileFormData.region)?.name || '';
+    }
+    return '';
+  };
+
+  const applyProfileUpdate = (updatedUser, fallbackData = null) => {
+    if (updatedUser && typeof updatedUser === 'object') {
+      setUserData(updatedUser);
+      initializeProfileForm(updatedUser);
+      return;
+    }
+
+    if (fallbackData) {
+      const normalizedFallback = normalizeProfileStateMerge(fallbackData);
+      setUserData(prev => ({
+        ...prev,
+        ...normalizedFallback,
+      }));
+      const mergedProfile = {
+        ...profileFormData,
+        ...normalizedFallback,
+      };
+      setProfileFormData(mergedProfile);
+      setOriginalProfileData(mergedProfile);
+    }
+  };
+
+  const getDistrictDisplayName = () => {
+    if (userData?.district && typeof userData.district === 'object') {
+      return userData.district.name || '';
+    }
+    if (userData?.district_name) {
+      return userData.district_name;
+    }
+    if (userData?.district !== undefined && userData?.district !== null && userData?.district !== '') {
+      return findDistrictById(userData.district)?.name || String(userData.district);
+    }
+    if (profileFormData.district) {
+      return findDistrictById(profileFormData.district)?.name || '';
+    }
+    return '';
+  };
 
   const fetchBooksData = async (userId) => {
     try {
@@ -76,6 +229,39 @@ const ProfileDashboard = () => {
     setEditingBook(null);
   };
 
+  const handleAvatarButtonClick = () => {
+    if (avatarUploading) {
+      return;
+    }
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('picture', file);
+
+    try {
+      setAvatarUploading(true);
+      const { data } = await http.patch(API_ENDPOINTS.AUTH.UPDATE_PROFILE, formData);
+      const updatedUser = data?.user || data;
+      applyProfileUpdate(updatedUser);
+      alert(tProfileMessages("updated"));
+    } catch (error) {
+      console.error('💥 Error updating avatar:', error);
+      console.error('Error details:', error.response?.data || error.message);
+      console.error('Error status:', error.response?.status);
+      alert(tProfileMessages("updateError"));
+    } finally {
+      setAvatarUploading(false);
+      if (event.target) {
+        event.target.value = '';
+      }
+    }
+  };
+
   const fetchPostsData = async (userId) => {
     try {
       setPostsLoading(true);
@@ -112,31 +298,22 @@ const ProfileDashboard = () => {
 
   // Profile editing functions
   const initializeProfileForm = (user) => {
-    setProfileFormData({
-      first_name: user?.first_name || '',
-      last_name: user?.last_name || '',
-      app_phone_number: user?.app_phone_number || '',
-      bio: user?.bio || '',
-      region: user?.region || '',
-      district: user?.district || '',
-      location_text: user?.location_text || '',
-    });
+    const normalized = normalizeProfileData(user || {});
+    setProfileFormData(normalized);
+    setOriginalProfileData(normalized);
   };
 
   const handleProfileInputChange = (e) => {
     const { name, value } = e.target;
-    setProfileFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Check if there are changes
-    const originalValue = userData?.[name] || '';
-    const hasChanges = Object.keys(profileFormData).some(key => {
-      if (key === name) return value !== originalValue;
-      return profileFormData[key] !== (userData?.[key] || '');
+    setProfileFormData(prev => {
+      const nextState = {
+        ...prev,
+        [name]: value,
+        ...(name === 'region' ? { district: '' } : {})
+      };
+      setHasChanges(hasProfileDifferences(nextState, originalProfileData));
+      return nextState;
     });
-    setHasChanges(hasChanges || value !== originalValue);
   };
 
   const handleEditProfile = () => {
@@ -147,7 +324,7 @@ const ProfileDashboard = () => {
 
   const handleCancelEdit = () => {
     setIsEditingProfile(false);
-    setProfileFormData({});
+    setProfileFormData(originalProfileData);
     setHasChanges(false);
   };
 
@@ -161,14 +338,20 @@ const ProfileDashboard = () => {
         last_name: profileFormData.last_name,
         app_phone_number: profileFormData.app_phone_number,
         bio: profileFormData.bio,
-        region: profileFormData.region,
-        district: profileFormData.district,
+        region: toNumberOrNull(profileFormData.region),
+        district: toNumberOrNull(profileFormData.district),
         location_text: profileFormData.location_text,
       };
 
       // Remove empty/null values
       const cleanedData = Object.fromEntries(
-        Object.entries(updateData).filter(([_, value]) => value !== null && value !== '')
+        Object.entries(updateData).filter(
+          ([_, value]) =>
+            value !== null &&
+            value !== '' &&
+            value !== undefined &&
+            !(typeof value === 'number' && Number.isNaN(value))
+        )
       );
 
       console.log('🔄 Sending PATCH request to v1/auth/me/update with data:', cleanedData);
@@ -184,11 +367,8 @@ const ProfileDashboard = () => {
       
       if (success) {
         console.log('✅ Profile updated successfully:', data?.message || 'Profile updated successfully');
-        // Update local user data
-        setUserData(prev => ({
-          ...prev,
-          ...cleanedData
-        }));
+        const updatedUser = data?.user || data;
+        applyProfileUpdate(updatedUser, cleanedData);
         setIsEditingProfile(false);
         setHasChanges(false);
         
@@ -232,6 +412,25 @@ const ProfileDashboard = () => {
 
     fetchUserData();
   }, [isAuthenticated, authLoading]);
+
+  useEffect(() => {
+    const fetchRegionsData = async () => {
+      try {
+        setRegionsLoading(true);
+        const response = await getRegions({ limit: 100 });
+        setRegions(response.regions || []);
+      } catch (error) {
+        console.error('Error fetching regions data:', error);
+      } finally {
+        setRegionsLoading(false);
+      }
+    };
+
+    fetchRegionsData();
+  }, []);
+
+  const selectedRegion = findRegionById(profileFormData.region);
+  const districtOptions = selectedRegion?.districts || [];
 
   if (loading) {
     return (
@@ -391,13 +590,27 @@ const ProfileDashboard = () => {
                         e.target.src = '/assets/images/thumbs/user-placeholder.png';
                       }}
                     />
-                    <button className='btn btn-sm btn-main rounded-circle position-absolute bottom-0 end-0 p-8'
+                    <button
+                      className='btn btn-sm btn-main rounded-circle position-absolute bottom-0 end-0 p-8'
                       type='button'
                       aria-label={tProfile("cameraButton")}
                       title={tProfile("cameraButton")}
+                      onClick={handleAvatarButtonClick}
+                      disabled={avatarUploading}
                     >
-                      <i className='ph ph-camera text-white'></i>
+                      {avatarUploading ? (
+                        <span className='spinner-border spinner-border-sm text-white' role='status' aria-hidden='true'></span>
+                      ) : (
+                        <i className='ph ph-camera text-white'></i>
+                      )}
                     </button>
+                    <input
+                      type='file'
+                      accept='image/*'
+                      ref={fileInputRef}
+                      className='d-none'
+                      onChange={handleAvatarChange}
+                    />
                   </div>
                 </div>
 
@@ -485,35 +698,53 @@ const ProfileDashboard = () => {
                     <div className='d-flex justify-content-between align-items-center py-8'>
                       <span className='text-sm text-gray-600'>{`${tProfile("region")}:`}</span>
                       {isEditingProfile ? (
-                        <input
-                          type='text'
+                        <select
                           name='region'
-                          className={`form-control form-control-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
+                          className={`form-select form-select-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
                           value={profileFormData.region || ''}
                           onChange={handleProfileInputChange}
-                          placeholder={tProfileForm("enterRegion")}
-                          disabled={!isEditingProfile}
+                          disabled={regionsLoading}
                           style={{ width: '150px' }}
-                        />
+                        >
+                          <option value=''>
+                            {regionsLoading ? tProfile("loadingData") : tLocation("selectRegion")}
+                          </option>
+                          {regions.map(region => (
+                            <option key={region.id} value={region.id}>
+                              {region.name}
+                            </option>
+                          ))}
+                        </select>
                       ) : (
-                        <span className='text-sm fw-medium text-gray-900'>{userData?.region || tProfile("notProvided")}</span>
+                        <span className='text-sm fw-medium text-gray-900'>{getRegionDisplayName() || tProfile("notProvided")}</span>
                       )}
                     </div>
                     <div className='d-flex justify-content-between align-items-center py-8'>
                       <span className='text-sm text-gray-600'>{`${tProfile("district")}:`}</span>
                       {isEditingProfile ? (
-                        <input
-                          type='text'
+                        <select
                           name='district'
-                          className={`form-control form-control-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
+                          className={`form-select form-select-sm ${isEditingProfile ? 'editable' : 'disabled'}`}
                           value={profileFormData.district || ''}
                           onChange={handleProfileInputChange}
-                          placeholder={tProfileForm("enterDistrict")}
-                          disabled={!isEditingProfile}
+                          disabled={!profileFormData.region || districtOptions.length === 0}
                           style={{ width: '150px' }}
-                        />
+                        >
+                          <option value=''>
+                            {!profileFormData.region
+                              ? tLocation("selectRegion")
+                              : districtOptions.length === 0
+                                ? tLocation("noDistricts")
+                                : tLocation("selectDistrict")}
+                          </option>
+                          {districtOptions.map(district => (
+                            <option key={district.id} value={district.id}>
+                              {district.name}
+                            </option>
+                          ))}
+                        </select>
                       ) : (
-                        <span className='text-sm fw-medium text-gray-900'>{userData?.district || tProfile("notProvided")}</span>
+                        <span className='text-sm fw-medium text-gray-900'>{getDistrictDisplayName() || tProfile("notProvided")}</span>
                       )}
                     </div>
                     <div className='d-flex justify-content-between align-items-center py-8'>
@@ -661,25 +892,29 @@ const ProfileDashboard = () => {
       />
 
       <style jsx>{`
-        .form-control.disabled {
+        .form-control.disabled,
+        .form-select.disabled {
           background-color: #f8f9fa;
           border: 1px solid #e9ecef;
           color: #6c757d;
           cursor: not-allowed;
         }
 
-        .form-control.editable {
+        .form-control.editable,
+        .form-select.editable {
           background-color: #ffffff;
           border: 1px solid #ced4da;
           color: #212529;
         }
 
-        .form-control.editable:focus {
+        .form-control.editable:focus,
+        .form-select.editable:focus {
           border-color: #0d6efd;
           box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
         }
 
-        .form-control.disabled::placeholder {
+        .form-control.disabled::placeholder,
+        .form-select.disabled::placeholder {
           color: #adb5bd;
         }
 
