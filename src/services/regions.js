@@ -13,9 +13,18 @@ export async function getRegions(params = {}) {
   });
   
   const { data } = await http.get(API_ENDPOINTS.BASE.REGIONS, { params: cleanParams });
+
+  const normalizedRegions = Array.isArray(data?.results)
+    ? data.results
+    : Array.isArray(data?.result)
+      ? data.result
+      : Array.isArray(data)
+        ? data
+        : [];
+
   return {
-    regions: data?.result || [],
-    count: data?.count || 0,
+    regions: normalizedRegions,
+    count: data?.count || normalizedRegions.length || 0,
     next: data?.next || null,
     previous: data?.previous || null,
     success: data?.success || false,
