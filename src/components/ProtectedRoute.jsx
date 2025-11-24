@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { isAuthenticated } from "@/services/auth";
+import { isAuthenticated, refreshTokenIfNeeded, isRefreshTokenExpired } from "@/services/auth";
 import { useTranslations } from "next-intl";
 import Spin from "./Spin";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -22,6 +22,21 @@ const ProtectedRoute = ({ children }) => {
       // Small delay to prevent flickering
       await new Promise(resolve => setTimeout(resolve, 100));
       
+      // Check if refresh token is expired first
+      if (isRefreshTokenExpired()) {
+        setIsAuth(false);
+        setIsLoading(false);
+        setIsChecking(false);
+        if (!isPublicPage) {
+          router.push('/login');
+        }
+        return;
+      }
+      
+      // Try to refresh token if needed (this will get new access token if refresh token exists)
+      await refreshTokenIfNeeded();
+      
+      // Now check authentication (this will return true if access token exists or refresh token is valid)
       const authenticated = isAuthenticated();
       setIsAuth(authenticated);
       setIsLoading(false);

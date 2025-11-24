@@ -6,6 +6,7 @@ import HeaderOne from "@/components/HeaderOne";
 import ColorInit from "@/helper/ColorInit";
 import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
+import { getTranslations } from "next-intl/server";
 
 export const metadata = {
   title: "Biz haqimizda - Kitobzor",
@@ -13,7 +14,9 @@ export const metadata = {
     "Kitobzor - kitob do'konlari va kitob sevuvchilarini birlashtiruvchi innovatsion platforma. Bizning missiyamiz va ko'rsatkichimiz haqida batafsil ma'lumot.",
 };
 
-const page = () => {
+const page = async () => {
+  const tBreadcrumb = await getTranslations("Breadcrumb");
+
   return (
     <>
       {/* ColorInit */}
@@ -29,7 +32,7 @@ const page = () => {
       <HeaderOne category={true} />
 
       {/* Breadcrumb */}
-      <Breadcrumb title={"Biz haqimizda"} />
+      <Breadcrumb title={tBreadcrumb("aboutUs")} />
 
       {/* AboutUs */}
       <AboutUs />

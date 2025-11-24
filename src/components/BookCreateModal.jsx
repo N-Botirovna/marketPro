@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations, useLocale } from "next-intl";
 import { createBook, updateBook, patchBook } from '@/services/books';
 import { getBookCategories } from '@/services/categories';
@@ -101,30 +101,45 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
     }
   };
 
-  const fetchSubCategories = async (categoryId) => {
+  const updateSubCategories = useCallback((categoryId) => {
     if (!categoryId) {
       setSubCategories([]);
       return;
     }
-    try {
-      setSubCategories([]); // Placeholder for now
-    } catch (error) {
-      console.error('Error fetching subcategories:', error);
-    }
-  };
+
+    const selectedCategory = categories.find(
+      (category) => String(category.id) === String(categoryId)
+    );
+    setSubCategories(selectedCategory?.subcategories || []);
+  }, [categories]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    if (name === 'category') {
+      setFormData(prev => ({
+        ...prev,
+        category: value,
+        sub_category: ''
+      }));
+      updateSubCategories(value);
+      return;
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
 
-    // Fetch subcategories when category changes
-    if (name === 'category') {
-      fetchSubCategories(value);
-    }
   };
+
+  useEffect(() => {
+    if (formData.category) {
+      updateSubCategories(formData.category);
+    } else {
+      setSubCategories([]);
+    }
+  }, [formData.category, updateSubCategories]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -496,21 +511,23 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                   </select>
                 </div>
 
-                <div className="col-md-6">
-                  <label className="form-label">{t("subCategory")}</label>
-                  <select
-                    name="sub_category"
-                    className="form-select"
-                    value={formData.sub_category}
-                    onChange={handleInputChange}
-                    disabled={!formData.category || subCategories.length === 0}
-                  >
-                    <option value="">{t("selectSubCategory")}</option>
-                    {subCategories.map(sub => (
-                      <option key={sub.id} value={sub.id}>{sub.name}</option>
-                    ))}
-                  </select>
-                </div>
+                {formData.category && (
+                  <div className="col-md-6">
+                    <label className="form-label">{t("subCategory")}</label>
+                    <select
+                      name="sub_category"
+                      className="form-select"
+                      value={formData.sub_category}
+                      onChange={handleInputChange}
+                      disabled={subCategories.length === 0}
+                    >
+                      <option value="">{t("selectSubCategory")}</option>
+                      {subCategories.map(sub => (
+                        <option key={sub.id} value={sub.id}>{sub.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 {/* Description */}
                 <div className="col-12">

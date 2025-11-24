@@ -190,12 +190,6 @@ export async function refreshTokenIfNeeded() {
     return refreshPromise;
   }
   
-  // Don't refresh if no access token exists
-  const token = getItem(AUTH_TOKEN_STORAGE_KEY);
-  if (!token) {
-    return true; // No token means not authenticated, but not an error
-  }
-  
   // Check if refresh token is expired first
   if (isRefreshTokenExpired()) {
     if (process.env.NODE_ENV === 'development') {
@@ -204,7 +198,40 @@ export async function refreshTokenIfNeeded() {
     return false;
   }
   
-  // Don't refresh if not needed
+  const token = getItem(AUTH_TOKEN_STORAGE_KEY);
+  const refreshToken = getItem('refresh_token');
+  
+  // If no access token but refresh token exists, try to get new access token
+  if (!token && refreshToken) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔄 No access token found, but refresh token exists. Getting new access token...');
+    }
+    try {
+      isCurrentlyRefreshing = true;
+      
+      refreshPromise = (async () => {
+        await refreshAccessToken();
+        return true;
+      })();
+      
+      return await refreshPromise;
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('❌ Token refresh failed:', error);
+      }
+      return false;
+    } finally {
+      isCurrentlyRefreshing = false;
+      refreshPromise = null;
+    }
+  }
+  
+  // If no tokens at all, return false
+  if (!token && !refreshToken) {
+    return false;
+  }
+  
+  // Don't refresh if not needed (token is still valid)
   if (!shouldRefreshToken()) {
     return true; // Token is still valid, no refresh needed
   }
@@ -253,7 +280,19 @@ export async function logoutUser() {
 // Check if user is authenticated
 export function isAuthenticated() {
   const token = getItem(AUTH_TOKEN_STORAGE_KEY);
-  return !!token;
+  
+  // If access token exists, user is authenticated
+  if (token) {
+    return true;
+  }
+  
+  // If no access token but refresh token exists and is valid, user can still be authenticated
+  const refreshToken = getItem('refresh_token');
+  if (refreshToken && !isRefreshTokenExpired()) {
+    return true; // Refresh token is valid, can get new access token
+  }
+  
+  return false;
 }
 
 // Get current token

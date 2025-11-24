@@ -1,7 +1,11 @@
+"use client";
 import React from "react";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 const Breadcrumb = ({ title }) => {
+  const tBreadcrumb = useTranslations("Breadcrumb");
+
   return (
     <div className="breadcrumb mb-0 py-26 bg-main-two-50">
       <div className="container container-lg">
@@ -14,7 +18,7 @@ const Breadcrumb = ({ title }) => {
                 className="text-gray-900 flex-align gap-8 hover-text-main-600"
               >
                 <i className="ph ph-house" />
-                Home
+                {tBreadcrumb("home")}
               </Link>
             </li>
             <li className="flex-align">
