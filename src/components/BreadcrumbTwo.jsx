@@ -20,22 +20,14 @@ const BreadcrumbTwo = () => {
               <i className="ph ph-caret-right" />
             </li>
             <li className="text-sm">
-              <Link href="/shop" className="text-main-600 flex-align gap-8">
-                Shop
+              <Link href="/vendor-two" className="text-main-600 flex-align gap-8">
+                Products
               </Link>
             </li>
             <li className="flex-align text-gray-500">
               <i className="ph ph-caret-right" />
             </li>
-            <li className="text-sm">
-              <Link href="/" className="text-main-600 flex-align gap-8">
-                Shop Grid
-              </Link>
-            </li>
-            <li className="flex-align text-gray-500">
-              <i className="ph ph-caret-right" />
-            </li>
-            <li className="text-sm text-neutral-600">Lay's Potato Chips</li>
+            <li className="text-sm text-neutral-600">Book</li>
           </ul>
         </div>
       </div>
