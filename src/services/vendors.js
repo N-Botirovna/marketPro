@@ -13,7 +13,7 @@ export async function getVendors(params = {}) {
   };
 }
 
-// Get single vendor by ID
+
 export async function getVendorById(id) {
   const { data } = await http.get(`${API_ENDPOINTS.VENDORS.DETAIL}/${id}`);
   return {
