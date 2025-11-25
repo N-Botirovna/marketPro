@@ -271,7 +271,9 @@ const HeaderOne = () => {
             <div className="mobile-menu__header d-flex justify-content-between align-items-center">
               <div className="mobile-menu__logo">
                 <Link href="/" className="link">
-                  <img src="assets/images/logo1.png" alt="Logo" />
+                  <img src="/assets/images/logo/logo.png" alt="Logo" onError={(e) => {
+                    e.target.src = "/assets/images/logo1.png";
+                  }} />
                 </Link>
               </div>
               <button
@@ -385,7 +387,9 @@ const HeaderOne = () => {
             <div className="col-lg-3">
               <div className="logo">
                 <Link href="/" className="link">
-                  <img src="assets/images/logo1.png" alt="Logo" />
+                  <img src="/assets/images/logo/logo.png" alt="Logo" onError={(e) => {
+                    e.target.src = "/assets/images/logo1.png";
+                  }} />
                 </Link>
               </div>
             </div>

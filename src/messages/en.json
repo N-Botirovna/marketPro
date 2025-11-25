@@ -513,6 +513,8 @@
         "unitPrice": "Unit Price",
         "stockStatus": "Stock Status",
         "remove": "Remove",
+        "delete": "Delete",
+        "viewDetails": "View Details",
         "reviews": "Reviews",
         "inStock": "In Stock"
     },

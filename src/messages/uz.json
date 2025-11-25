@@ -555,6 +555,8 @@
         "unitPrice": "Birlik narxi",
         "stockStatus": "Ombordagi holat",
         "remove": "Olib tashlash",
+        "delete": "O'chirish",
+        "viewDetails": "Tafsilotlarni ko'rish",
         "reviews": "Sharhlar",
         "inStock": "Omborda mavjud"
     },
