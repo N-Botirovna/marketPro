@@ -99,7 +99,7 @@ const ProductDetailsSidebar = ({
               </span>
             </div>
             <Link
-              href={`/user-profile?id=${book.posted_by.id}`}
+              href={`/user/${book.posted_by.id}`}
               className="btn btn-white rounded-pill text-uppercase"
               style={{ fontSize: "13px", padding: "8px 16px", whiteSpace: "nowrap" }}
             >

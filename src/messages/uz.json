@@ -44,7 +44,8 @@
         "myWishlist": "Mening saralanganlarim",
         "contact": "Aloqa",
         "shops": "Do'konlar",
-        "aboutUs": "Biz haqimizda"
+        "aboutUs": "Biz haqimizda",
+        "userProfile": "Foydalanuvchi profili"
     },
     "Categories": {
         "allCat": "Barcha Kategoriyalar",
@@ -360,6 +361,15 @@
         "pages": "Sahifalar soni:",
         "isbn": "ISBN:",
         "noDescription": "Tavsif mavjud emas."
+    },
+    "UserPublicProfile": {
+        "notFound": "Foydalanuvchi topilmadi.",
+        "infoTitle": "Profil ma'lumotlari",
+        "booksHeading": "Joylangan kitoblar",
+        "booksCount": "{count} ta e'lon",
+        "emptyBooks": "Bu foydalanuvchi hali kitob joylamagan.",
+        "locationFallback": "Joylashuv ko'rsatilmagan",
+        "phoneHidden": "Telefon ko'rsatilmagan"
     },
     "Account": {
         "usernameOrEmail": "Foydalanuvchi nomi yoki email manzili",
