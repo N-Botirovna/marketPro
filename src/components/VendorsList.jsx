@@ -301,7 +301,7 @@ const VendorsList = () => {
                       href={`/vendor-two-details?id=${shop.id}`}
                       className="bg-white text-neutral-600 hover-bg-main-600 hover-text-white rounded-pill py-6 px-16 text-12 mt-8 inline-block"
                     >
-                      {tBread("Breadcrumb")}
+                      {tBread("exploreShop")}
                     </Link>
                   </div>
                 </div>

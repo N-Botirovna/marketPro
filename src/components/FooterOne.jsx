@@ -18,7 +18,9 @@ const FooterOne = () => {
             <div className="footer-item">
               <div className="footer-item__logo mb-20">
                 <Link href="/">
-                  <img src="assets/images/logo1.png" alt="" />
+                  <img src="/assets/images/logo/logo.png" alt="Logo" onError={(e) => {
+                    e.target.src = "/assets/images/logo1.png";
+                  }} />
                 </Link>
               </div>
               <p className="mb-20 text-gray-700">{tF("about.blurb")}</p>
