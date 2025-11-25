@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { getBookById, likeBook } from "@/services/books";
 import { useAuth } from "@/hooks/useAuth";
@@ -39,6 +39,8 @@ const BookDetails = ({ bookId }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [liking, setLiking] = useState(false);
+  const fetchingRef = useRef(false);
+  const lastBookIdRef = useRef(null);
 
   // Helper function to get localized field value
   const getLocalizedField = (fieldPrefix) => {
@@ -49,30 +51,74 @@ const BookDetails = ({ bookId }) => {
   };
 
   useEffect(() => {
-    if (bookId) {
-      fetchBookDetails();
+    if (!bookId) return;
+    
+    // Agar bir xil bookId uchun so'rov allaqachon ketayotgan bo'lsa, qayta yuborma
+    if (fetchingRef.current && lastBookIdRef.current === bookId) {
+      console.log('🚫 BookDetails: Duplicate request blocked for bookId:', bookId);
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bookId]); // bookId o'zgarganda yangi kitob yuklanadi
 
-  const fetchBookDetails = async () => {
-    try {
-      setLoading(true);
-      const response = await getBookById(bookId);
-      const bookData = response.book;
-      setBook(bookData);
-      
-      // Local storage'dan yoki API'dan like holatini olish
-      const stored = getStoredLikeState(bookData?.id);
-      setIsLiked(stored?.isLiked ?? (bookData?.is_liked === true));
-      setLikeCount(stored?.likeCount ?? (bookData?.like_count || 0));
-    } catch (err) {
-      console.error(tBook("loadError"), err);
-      setError(err.message || tBook("loadError"));
-    } finally {
-      setLoading(false);
+    // Agar bookId o'zgarmagan bo'lsa va ma'lumot allaqachon yuklangan bo'lsa, qayta yuborma
+    if (lastBookIdRef.current === bookId && book) {
+      console.log('🚫 BookDetails: Request skipped, data already loaded for bookId:', bookId);
+      return;
     }
-  };
+
+    console.log('📥 BookDetails: Starting fetch for bookId:', bookId);
+    fetchingRef.current = true;
+    lastBookIdRef.current = bookId;
+    let isMounted = true;
+    const abortController = new AbortController();
+
+    const fetchBookDetails = async () => {
+      try {
+        setLoading(true);
+        console.log('🌐 BookDetails: Calling getBookById for:', bookId);
+        const response = await getBookById(bookId);
+        
+        if (!isMounted || abortController.signal.aborted) {
+          console.log('🚫 BookDetails: Request aborted for bookId:', bookId);
+          fetchingRef.current = false;
+          return;
+        }
+        
+        console.log('✅ BookDetails: Received response for bookId:', bookId);
+        const bookData = response.book;
+        setBook(bookData);
+        
+        // Local storage'dan yoki API'dan like holatini olish
+        const stored = getStoredLikeState(bookData?.id);
+        setIsLiked(stored?.isLiked ?? (bookData?.is_liked === true));
+        setLikeCount(stored?.likeCount ?? (bookData?.like_count || 0));
+        setError(null);
+      } catch (err) {
+        if (!isMounted || abortController.signal.aborted) {
+          fetchingRef.current = false;
+          return;
+        }
+        console.error('❌ BookDetails: Error for bookId:', bookId, err);
+        setError(err.message || tBook("loadError"));
+      } finally {
+        fetchingRef.current = false;
+        if (isMounted && !abortController.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchBookDetails();
+
+    return () => {
+      console.log('🧹 BookDetails: Cleanup for bookId:', bookId);
+      isMounted = false;
+      abortController.abort();
+      // Cleanup faqat bookId o'zgarganda
+      if (lastBookIdRef.current !== bookId) {
+        fetchingRef.current = false;
+      }
+    };
+  }, [bookId]);
 
   const handleLike = async () => {
     if (!isAuthenticated) {

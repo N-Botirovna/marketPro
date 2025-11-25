@@ -36,6 +36,9 @@ httpClient.interceptors.request.use(async (config) => {
     const cached = cache.get(cacheKey);
     
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📦 Using cached response for:', config.url);
+      }
       config.adapter = () => Promise.resolve({
         data: cached.data,
         status: 200,
@@ -47,11 +50,36 @@ httpClient.interceptors.request.use(async (config) => {
       return config;
     }
 
-    // Request deduplication
+    // Request deduplication - if same request is already pending, return that promise
     if (pendingRequests.has(cacheKey)) {
-      config.adapter = () => pendingRequests.get(cacheKey);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 HTTP: Deduplicating request for:', config.url);
+      }
+      const pendingPromise = pendingRequests.get(cacheKey);
+      // Use adapter to return the pending promise instead of making a new request
+      config.adapter = () => pendingPromise;
       return config;
     }
+    
+    // Store cache key for cleanup in response interceptor
+    config._cacheKey = cacheKey;
+    
+    // Create a promise that will be resolved when the actual request completes
+    // This promise will be shared with duplicate requests
+    let requestResolve;
+    let requestReject;
+    const sharedPromise = new Promise((resolve, reject) => {
+      requestResolve = resolve;
+      requestReject = reject;
+    });
+    
+    // Store the promise so duplicate requests can use it
+    pendingRequests.set(cacheKey, sharedPromise);
+    
+    // Mark that we need to resolve the shared promise in response interceptor
+    // We'll let axios use its default adapter and resolve in response interceptor
+    config._sharedPromiseResolve = requestResolve;
+    config._sharedPromiseReject = requestReject;
   }
   
   // Skip token refresh for refresh endpoint to prevent infinite loop
@@ -102,14 +130,21 @@ httpClient.interceptors.response.use(
       });
     }
 
-    // Cache GET responses
+    // Cache GET responses and clean up pending requests
     if (response.config.method === 'get') {
-      const localeFromHeader = response.config.headers?.['Accept-Language'] || getCurrentLocale() || 'uz';
-      const cacheKey = `${response.config.url}?${JSON.stringify(response.config.params)}::${localeFromHeader}`;
+      const cacheKey = response.config._cacheKey || 
+        `${response.config.url}?${JSON.stringify(response.config.params)}::${getCurrentLocale() || 'uz'}`;
+      
       cache.set(cacheKey, {
         data: response.data,
         timestamp: Date.now(),
       });
+      
+      // Resolve shared promise if it exists (for deduplication)
+      if (response.config._sharedPromiseResolve) {
+        response.config._sharedPromiseResolve(response);
+      }
+      
       pendingRequests.delete(cacheKey);
     }
 
@@ -126,8 +161,14 @@ httpClient.interceptors.response.use(
 
     // Clear pending request on error
     if (error?.config?.method === 'get') {
-      const localeFromHeader = error.config.headers?.['Accept-Language'] || getCurrentLocale() || 'uz';
-      const cacheKey = `${error.config.url}?${JSON.stringify(error.config.params)}::${localeFromHeader}`;
+      const cacheKey = error.config._cacheKey || 
+        `${error.config.url}?${JSON.stringify(error.config.params)}::${getCurrentLocale() || 'uz'}`;
+      
+      // Reject shared promise if it exists (for deduplication)
+      if (error.config._sharedPromiseReject) {
+        error.config._sharedPromiseReject(error);
+      }
+      
       pendingRequests.delete(cacheKey);
     }
 
