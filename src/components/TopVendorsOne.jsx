@@ -44,7 +44,7 @@ const TopVendorsOne = () => {
           }}>
             <h5 className="mb-0 fw-semibold" style={{ margin: 0, flexShrink: 0 }}>{tCommon("shops")}</h5>
             <Link
-              href="/vendor-two-details"
+              href="/vendor"
               className="btn btn-outline-main d-inline-flex align-items-center gap-6 rounded-pill px-16 py-8 text-sm fw-medium hover-bg-main-600 hover-text-white transition-1"
               style={{ 
                 borderColor: '#299E60',
