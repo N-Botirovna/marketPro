@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
     REFRESH: "api/v1/auth/refresh/",
     LOGOUT: "api/v1/auth/logout",
     PROFILE: "api/v1/auth/profile",
+    DETAIL: "api/v1/auth",
     UPDATE_PROFILE: "api/v1/auth/me/update/",
   },
   PRODUCTS: {

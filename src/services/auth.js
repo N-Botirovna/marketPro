@@ -78,6 +78,21 @@ export async function getUserProfile() {
   };
 }
 
+// Get public user by ID
+export async function getUserById(userId) {
+  if (!userId) {
+    throw new Error('userId is required to fetch user data');
+  }
+
+  const endpoint = `${API_ENDPOINTS.AUTH.DETAIL}/${userId}/`;
+  const { data } = await http.get(endpoint);
+
+  return {
+    user: data?.result || data || null,
+    raw: data,
+  };
+}
+
 // Update user profile
 export async function updateUserProfile(profileData) {
   console.log('🚀 updateUserProfile called with:', profileData);

@@ -44,7 +44,8 @@
         "myWishlist": "Мой список желаний",
         "contact": "Контакты",
         "shops": "Магазины",
-        "aboutUs": "О нас"
+        "aboutUs": "О нас",
+        "userProfile": "Профиль пользователя"
     },
     "Categories": {
         "allCat": "Все категории",
@@ -360,6 +361,15 @@
         "pages": "Количество страниц:",
         "isbn": "ISBN:",
         "noDescription": "Описание отсутствует."
+    },
+    "UserPublicProfile": {
+        "notFound": "Пользователь не найден.",
+        "infoTitle": "Информация о профиле",
+        "booksHeading": "Опубликованные книги",
+        "booksCount": "{count} объявлений",
+        "emptyBooks": "Этот пользователь еще не добавил книги.",
+        "locationFallback": "Местоположение не указано",
+        "phoneHidden": "Телефон не указан"
     },
     "Account": {
         "usernameOrEmail": "Имя пользователя или адрес электронной почты",

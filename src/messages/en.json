@@ -44,7 +44,8 @@
         "myWishlist": "My Wishlist",
         "contact": "Contact",
         "shops": "Shops",
-        "aboutUs": "About Us"
+        "aboutUs": "About Us",
+        "userProfile": "User Profile"
     },
     "Categories": {
         "allCat": "All Categories",
@@ -360,6 +361,15 @@
         "pages": "Number of pages:",
         "isbn": "ISBN:",
         "noDescription": "No description available."
+    },
+    "UserPublicProfile": {
+        "notFound": "User not found.",
+        "infoTitle": "Profile details",
+        "booksHeading": "Listed books",
+        "booksCount": "{count} listings",
+        "emptyBooks": "This user has not posted any books yet.",
+        "locationFallback": "Location not provided",
+        "phoneHidden": "Phone number is hidden"
     },
     "Account": {
         "usernameOrEmail": "Username or email address",
