@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { getBookById, patchBook, likeBook } from "@/services/books";
@@ -45,6 +45,8 @@ const ProductDetailsOne = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [liking, setLiking] = useState(false);
+  const fetchingRef = useRef(false);
+  const lastIdRef = useRef(null);
 
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -75,28 +77,67 @@ const ProductDetailsOne = () => {
   }, []);
 
   useEffect(() => {
-    if (id) {
-      const fetchBookDetails = async () => {
-        try {
-          setLoading(true);
-          const response = await getBookById(id);
-          const bookData = response.book;
-          setBook(bookData);
-          
-          // Local storage'dan yoki API'dan like holatini olish
-          const stored = getStoredLikeState(bookData?.id);
-          setIsLiked(stored?.isLiked ?? (bookData?.is_liked === true));
-          setLikeCount(stored?.likeCount ?? (bookData?.like_count || 0));
-        } catch (err) {
-          setError(t("fetchError"));
-          console.error(err);
-        } finally {
+    if (!id) return;
+    
+    // Agar bir xil id uchun so'rov allaqachon ketayotgan bo'lsa, qayta yuborma
+    if (fetchingRef.current && lastIdRef.current === id) {
+      return;
+    }
+
+    // Agar id o'zgarmagan bo'lsa va ma'lumot allaqachon yuklangan bo'lsa, qayta yuborma
+    if (lastIdRef.current === id && book) {
+      return;
+    }
+
+    fetchingRef.current = true;
+    lastIdRef.current = id;
+    let isMounted = true;
+    const abortController = new AbortController();
+
+    const fetchBookDetails = async () => {
+      try {
+        setLoading(true);
+        const response = await getBookById(id);
+        
+        if (!isMounted || abortController.signal.aborted) {
+          fetchingRef.current = false;
+          return;
+        }
+        
+        const bookData = response.book;
+        setBook(bookData);
+        
+        // Local storage'dan yoki API'dan like holatini olish
+        const stored = getStoredLikeState(bookData?.id);
+        setIsLiked(stored?.isLiked ?? (bookData?.is_liked === true));
+        setLikeCount(stored?.likeCount ?? (bookData?.like_count || 0));
+        setError(null);
+      } catch (err) {
+        if (!isMounted || abortController.signal.aborted) {
+          fetchingRef.current = false;
+          return;
+        }
+        setError(t("fetchError"));
+        console.error(err);
+      } finally {
+        fetchingRef.current = false;
+        if (isMounted && !abortController.signal.aborted) {
           setLoading(false);
         }
-      };
-      fetchBookDetails();
-    }
-  }, [id]); // ID o'zgarganda yangi kitob yuklanadi
+      }
+    };
+
+    fetchBookDetails();
+
+    return () => {
+      isMounted = false;
+      abortController.abort();
+      // Cleanup faqat id o'zgarganda
+      if (lastIdRef.current !== id) {
+        fetchingRef.current = false;
+      }
+    };
+  }, [id]);
 
   const handleLike = async (e) => {
     e.preventDefault();
