@@ -466,9 +466,6 @@ const RecommendedOne = () => {
             <span className="text-xs fw-bold text-gray-600">
               👁 {book.view_count || 0}
             </span>
-            <span className="text-15 fw-bold text-warning-600 d-flex">
-              <i className="ph-fill ph-star" />
-            </span>
             {likedBooks[book.id]?.likeCount > 0 && (
               <span className="text-xs fw-bold text-gray-500 d-flex align-items-center gap-2">
                 <i className="ph ph-heart text-xs" />

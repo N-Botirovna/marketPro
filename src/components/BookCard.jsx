@@ -238,12 +238,6 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
           
           <div className='flex-align gap-6'>
             <span className='text-xs fw-bold text-gray-600'>
-              4.5
-            </span>
-            <span className='text-15 fw-bold text-warning-600 d-flex'>
-              <i className='ph-fill ph-star' />
-            </span>
-            <span className='text-xs fw-bold text-gray-600'>
               ({book.view_count || 0})
             </span>
             {likeCount > 0 && (

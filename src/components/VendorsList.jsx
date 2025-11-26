@@ -17,8 +17,6 @@ const VendorsList = () => {
   const [filters, setFilters] = useState({
     region: "",
     district: "",
-    star_min: "",
-    star_max: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -28,15 +26,11 @@ const VendorsList = () => {
     const region = searchParams.get("region") || "";
     const district = searchParams.get("district") || "";
     const search = searchParams.get("q") || "";
-    const starMin = searchParams.get("star_min") || "";
-    const starMax = searchParams.get("star_max") || "";
 
     setFilters((prev) => ({
       ...prev,
       region: region,
       district: district,
-      star_min: starMin,
-      star_max: starMax,
     }));
 
     if (search) {
@@ -53,8 +47,6 @@ const VendorsList = () => {
           q: searchQuery,
           region: filters.region,
           district: filters.district,
-          star_min: filters.star_min,
-          star_max: filters.star_max,
           page: currentPage,
           limit: 12,
         });
@@ -64,8 +56,6 @@ const VendorsList = () => {
             q: searchQuery,
             region: filters.region,
             district: filters.district,
-            star_min: filters.star_min,
-            star_max: filters.star_max,
             page: currentPage,
             limit: 12,
           }),
@@ -109,8 +99,6 @@ const VendorsList = () => {
     setFilters({
       region: "",
       district: "",
-      star_min: "",
-      star_max: "",
     });
     setSearchQuery("");
     setCurrentPage(1);
@@ -196,30 +184,6 @@ const VendorsList = () => {
             </select>
           </div>
           <div className="col-lg-2 col-md-6 mb-16">
-            <input
-              type="number"
-              className="common-input w-100"
-              placeholder="Min star"
-              value={filters.star_min}
-              onChange={(e) => handleFilterChange("star_min", e.target.value)}
-              min="0"
-              max="5"
-              step="0.1"
-            />
-          </div>
-          <div className="col-lg-2 col-md-6 mb-16">
-            <input
-              type="number"
-              className="common-input w-100"
-              placeholder="Max star"
-              value={filters.star_max}
-              onChange={(e) => handleFilterChange("star_max", e.target.value)}
-              min="0"
-              max="5"
-              step="0.1"
-            />
-          </div>
-          <div className="col-lg-2 col-md-6 mb-16">
             <button
               onClick={clearFilters}
               className="btn btn-outline-secondary w-100"
@@ -257,16 +221,6 @@ const VendorsList = () => {
                         {shop.name}
                       </Link>
                     </h6>
-
-                    {/* Star Rating */}
-                    {shop.star && (
-                      <div className="flex-center gap-4 mt-8 mb-8">
-                        <span className="text-warning-600 text-sm fw-bold">
-                          {parseFloat(shop.star).toFixed(1)}
-                        </span>
-                        <i className="ph-fill ph-star text-warning-600 text-sm" />
-                      </div>
-                    )}
 
                     {/* Product Count */}
                     <span className="text-heading text-sm d-block">

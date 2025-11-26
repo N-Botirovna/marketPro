@@ -9,12 +9,6 @@ const VendorTwoSideBar = ({ shop, onCategorySelect }) => {
   const tVendor = useTranslations("VendorTwoSideBar");
   const { showToast, ToastContainer } = useToast();
   
-  const starNumber = Math.max(
-    0,
-    Math.min(5, Math.floor(parseFloat(shop?.star) || 0))
-  );
-  const stars = Array.from({ length: 5 }, (_, i) => i < starNumber);
-  
   // Address ma'lumotlarini to'g'ri formatlash
   const addressParts = [];
   if (shop?.region?.name) addressParts.push(shop.region.name);
@@ -154,21 +148,6 @@ const VendorTwoSideBar = ({ shop, onCategorySelect }) => {
               </span>
             )}
           </span>
-          <div className="flex-align gap-6">
-            <div className="flex-align gap-8">
-              {stars.map((filled, idx) => (
-                <span
-                  key={idx}
-                  className="text-15 fw-medium text-warning-600 d-flex"
-                >
-                  <i className={filled ? "ph-fill ph-star" : "ph ph-star"} />
-                </span>
-              ))}
-            </div>
-            <span className="text-xs fw-medium text-white">
-              {shop?.star || "0.0"}
-            </span>
-          </div>
           {shop?.bio && (
             <p className="text-white mt-16 mb-0" style={{ opacity: 0.9 }}>
               {shop.bio}

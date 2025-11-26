@@ -178,7 +178,8 @@
         "enterPasswordFromBot": "@kitobzoruz_bot dan olingan parolni kiriting",
         "loggingIn": "Kirinmoqda...",
         "invalidPhone": "Iltimos, to'g'ri telefon raqam kiriting (masalan: +998901234567)",
-        "loginSuccess": "Tizimga muvaffaqiyatli kirdingiz"
+        "loginSuccess": "Tizimga muvaffaqiyatli kirdingiz",
+        "phoneHint": "Masalan: +998901234567 yoki boshqa davlat kodi"
     },
     "BookDetails": {
         "loading": "Kitob ma'lumotlari yuklanmoqda...",

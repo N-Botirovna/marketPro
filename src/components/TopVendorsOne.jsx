@@ -87,16 +87,6 @@ const TopVendorsOne = () => {
                   </div>
                   <h6 className="title mt-32">{shop.name}</h6>
 
-                  {/* Star Rating */}
-                  {shop.star && (
-                    <div className="flex-center gap-4 mt-8 mb-8">
-                      <span className="text-warning-600 text-sm fw-bold">
-                        {parseFloat(shop.star).toFixed(1)}
-                      </span>
-                      <i className="ph-fill ph-star text-warning-600 text-sm" />
-                    </div>
-                  )}
-
                   {/* Product Count */}
                   <span className="text-heading text-sm d-block">
                     {shop.book_count} mahsulot
