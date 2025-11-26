@@ -34,36 +34,32 @@ const FeatureOne = () => {
     };
   }, []);
 
-  const SampleNextArrow = memo((props) => {
-    const { className, onClick, style } = props;
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        className={`${className} slick-next slick-arrow flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1`}
-        style={style}
-        aria-label="Next"
-      >
-        <i className="ph ph-caret-right" />
-      </button>
-    );
-  });
+  const SampleNextArrow = memo(({ className, onClick, style }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${className} flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1`}
+      style={style}
+      aria-label="Next"
+    >
+      <i className="ph ph-caret-right" />
+    </button>
+  ));
+  
+  const SamplePrevArrow = memo(({ className, onClick, style }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${className} flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1`}
+      style={style}
+      aria-label="Prev"
+    >
+      <i className="ph ph-caret-left" />
+    </button>
+  ));
+  
   SampleNextArrow.displayName = "SampleNextArrow";
 
-  const SamplePrevArrow = memo((props) => {
-    const { className, onClick, style } = props;
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        className={`${className} slick-prev slick-arrow flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1`}
-        style={style}
-        aria-label="Previous"
-      >
-        <i className="ph ph-caret-left" />
-      </button>
-    );
-  });
   SamplePrevArrow.displayName = "SamplePrevArrow";
 
   const settings = useMemo(

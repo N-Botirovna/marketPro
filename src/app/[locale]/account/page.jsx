@@ -15,7 +15,8 @@ export const metadata = {
     "Manage your profile, orders, and account settings on MarketPro - your comprehensive e-commerce marketplace.",
 };
 
-const page = async () => {
+const page = async ({ params }) => {
+  const { locale } = await params;
   const tBreadcrumb = await getTranslations("Breadcrumb");
 
   return (

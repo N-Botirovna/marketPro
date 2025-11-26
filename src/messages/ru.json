@@ -249,6 +249,13 @@
         "searchPlaceholder": "Поиск...",
         "resultsFound": "Результатов найдено",
         "productCategory": "Категория",
+        "filterByType": "Фильтр по типу",
+        "typeSell": "Продажа",
+        "typeExchange": "Обмен",
+        "typeGift": "Подарок",
+        "filterByCondition": "Фильтр по состоянию",
+        "conditionNew": "Новая",
+        "conditionUsed": "Б/у",
         "filterByRating": "Фильтр по рейтингу",
         "filterByLocation": "Фильтр по местоположению",
         "filterByCover": "Фильтр по типу обложки",
@@ -448,7 +455,11 @@
         "error": "Произошла ошибка",
         "fileSelected": "Файл выбран",
         "currentImage": "Текущее изображение",
-        "imageRequired": "Изображение обязательно"
+        "imageRequired": "Изображение обязательно",
+        "selectShop": "Выберите магазин",
+        "addWithOwnName": "Добавить от своего имени",
+        "loadingShops": "Загрузка магазинов...",
+        "noShops": "У вас нет магазинов"
     },
     "WhyBecomeSeller": {
         "title": "Почему стоит стать продавцом в Kitobzor?",

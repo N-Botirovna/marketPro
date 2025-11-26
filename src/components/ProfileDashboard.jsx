@@ -5,13 +5,11 @@ import { useTranslations } from "next-intl";
 import { getUserProfile } from '@/services/auth';
 import { useAuth } from '@/hooks/useAuth';
 import { getUserPostedBooks, getUserArchivedBooks } from '@/services/books';
-import { getUserPosts } from '@/services/posts';
 import { getRegions } from '@/services/regions';
 import http from '@/lib/http';
 import { API_ENDPOINTS } from '@/config';
 import Spin from './Spin';
 import BookCreateModal from './BookCreateModal';
-import PostCreateModal from './PostCreateModal';
 import ProfileSidebar from './profile/ProfileSidebar';
 import ProfileTabs from './profile/ProfileTabs';
 
@@ -29,10 +27,6 @@ const ProfileDashboard = () => {
   const [booksLoading, setBooksLoading] = useState(false);
   const [showBookModal, setShowBookModal] = useState(false);
   const [editingBook, setEditingBook] = useState(null);
-  const [userPosts, setUserPosts] = useState([]);
-  const [postsLoading, setPostsLoading] = useState(false);
-  const [showPostModal, setShowPostModal] = useState(false);
-  const [editingPost, setEditingPost] = useState(null);
   
   // Profile editing states
   const profileDefaults = {
@@ -262,40 +256,6 @@ const ProfileDashboard = () => {
     }
   };
 
-  const fetchPostsData = async (userId) => {
-    try {
-      setPostsLoading(true);
-      const response = await getUserPosts(userId, { limit: 20 });
-      setUserPosts(response.posts || []);
-    } catch (error) {
-      console.error('Error fetching posts data:', error);
-    } finally {
-      setPostsLoading(false);
-    }
-  };
-
-  const handleCreatePost = () => {
-    setEditingPost(null);
-    setShowPostModal(true);
-  };
-
-  const handleEditPost = (post) => {
-    setEditingPost(post);
-    setShowPostModal(true);
-  };
-
-  const handlePostSuccess = (post) => {
-    // Refresh posts data
-    if (userData?.id) {
-      fetchPostsData(userData.id);
-    }
-  };
-
-  const handleClosePostModal = () => {
-    setShowPostModal(false);
-    setEditingPost(null);
-  };
-
   // Profile editing functions
   const initializeProfileForm = (user) => {
     const normalized = normalizeProfileData(user || {});
@@ -401,7 +361,6 @@ const ProfileDashboard = () => {
         // Fetch books data after user data is loaded
         if (user?.id) {
           await fetchBooksData(user.id);
-          await fetchPostsData(user.id);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -455,7 +414,6 @@ const ProfileDashboard = () => {
               userData={userData}
               userBooksCount={userBooks.length}
               archivedBooksCount={archivedBooks.length}
-              userPostsCount={userPosts.length}
               isEditingProfile={isEditingProfile}
               profileFormData={profileFormData}
               regions={regions}
@@ -484,13 +442,9 @@ const ProfileDashboard = () => {
               userData={userData}
               userBooks={userBooks}
               archivedBooks={archivedBooks}
-              userPosts={userPosts}
               booksLoading={booksLoading}
-              postsLoading={postsLoading}
               onCreateBook={handleCreateBook}
               onEditBook={handleEditBook}
-              onCreatePost={handleCreatePost}
-              onEditPost={handleEditPost}
             />
           </div>
         </div>
@@ -502,14 +456,6 @@ const ProfileDashboard = () => {
         onClose={handleCloseModal}
         onSuccess={handleBookSuccess}
         editBook={editingBook}
-      />
-      
-      {/* Post Create/Edit Modal */}
-      <PostCreateModal
-        isOpen={showPostModal}
-        onClose={handleClosePostModal}
-        onSuccess={handlePostSuccess}
-        editPost={editingPost}
       />
 
     </section>

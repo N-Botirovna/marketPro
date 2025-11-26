@@ -238,7 +238,8 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
           
           <div className='flex-align gap-6'>
             <span className='text-xs fw-bold text-gray-600'>
-              ({book.view_count || 0})
+              <i className='ph ph-eye me-4'></i>
+              {book.view_count || 0}
             </span>
             {likeCount > 0 && (
               <span className='text-xs fw-bold text-gray-500 d-flex align-items-center gap-2'>
@@ -255,18 +256,6 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
             </span>
             <span className='text-gray-600 text-xs'>
               {`${tCommon("seller")}: ${sellerName}`}
-            </span>
-          </div>
-
-          <div className='product-card__progress-bar mt-16'>
-            <div className='progress h-8 rounded-pill'>
-              <div
-                className='progress-bar bg-main-600 rounded-pill'
-                style={{ width: "65%" }}
-              />
-            </div>
-            <span className='text-gray-900 text-xs fw-medium mt-8 d-block'>
-              {tBookCard("sold")}
             </span>
           </div>
 
