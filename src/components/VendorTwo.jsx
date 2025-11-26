@@ -10,6 +10,52 @@ import { getRegions } from "@/services/regions";
 import BookCard from "./BookCard";
 import Spin from "./Spin";
 
+const defaultFilterState = {
+  category: "",
+  subcategory: "",
+  region: "",
+  district: "",
+  cover_type: "",
+  price_min: "",
+  price_max: "",
+  rating_min: "",
+  rating_max: "",
+  is_used: "",
+  type: "",
+};
+
+const buildFiltersFromSearchParams = (params) => {
+  if (!params) {
+    return { ...defaultFilterState };
+  }
+
+  return {
+    category: params.get("category") || "",
+    subcategory: params.get("subcategory") || "",
+    region: params.get("region") || "",
+    district: params.get("district") || "",
+    cover_type: params.get("cover_type") || "",
+    price_min: params.get("price_min") || "",
+    price_max: params.get("price_max") || "",
+    rating_min: params.get("rating_min") || "",
+    rating_max: params.get("rating_max") || "",
+    is_used: params.get("is_used") ?? "",
+    type: params.get("type") ?? "",
+  };
+};
+
+const areFiltersEqual = (a, b) => {
+  if (!a || !b) {
+    return false;
+  }
+
+  return Object.keys(defaultFilterState).every((key) => {
+    const valueA = a[key] ?? "";
+    const valueB = b[key] ?? "";
+    return valueA === valueB;
+  });
+};
+
 const VendorTwo = () => {
   const t = useTranslations("VendorTwo");
   const tBookShop = useTranslations("BookShop");
@@ -27,20 +73,14 @@ const VendorTwo = () => {
   const [categories, setCategories] = useState([]);
   const [regions, setRegions] = useState([]);
   const [districts, setDistricts] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(
+    () => searchParams.get("q") || searchParams.get("search") || ""
+  );
   
   // Filters state
-  const [filters, setFilters] = useState({
-    category: "",
-    subcategory: "",
-    region: "",
-    district: "",
-    cover_type: "",
-    price_min: "",
-    price_max: "",
-    rating_min: "",
-    rating_max: "",
-  });
+  const [filters, setFilters] = useState(() =>
+    buildFiltersFromSearchParams(searchParams)
+  );
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,45 +89,43 @@ const VendorTwo = () => {
   const [hasPreviousPage, setHasPreviousPage] = useState(false);
   const itemsPerPage = 12;
 
+  const typeOptions = [
+    { value: "", label: tCommon("all") },
+    { value: "seller", label: t("typeSell") },
+    { value: "exchange", label: t("typeExchange") },
+    { value: "gift", label: t("typeGift") },
+  ];
+
+  const conditionOptions = [
+    { value: "", label: tCommon("all") },
+    { value: "false", label: t("conditionNew") },
+    { value: "true", label: t("conditionUsed") },
+  ];
+
+  const getPillButtonClass = (isActive) =>
+    `px-16 py-8 rounded-pill border fw-medium text-sm ${
+      isActive
+        ? "bg-main-600 text-white border-main-600 shadow-sm"
+        : "bg-white text-neutral-600 border-gray-100 hover-border-main-600 hover-text-main-600"
+    }`;
+
   const sidebarController = () => {
     setActive(!active);
   };
 
-  // Initialize filters and search query from URL params on mount
+  // Sync filters and search query when URL parameters change (e.g., navigation, external links)
   useEffect(() => {
-    const categoryParam = searchParams.get("category");
-    const subcategoryParam = searchParams.get("subcategory");
-    const regionParam = searchParams.get("region");
-    const districtParam = searchParams.get("district");
-    const coverTypeParam = searchParams.get("cover_type");
-    const priceMinParam = searchParams.get("price_min");
-    const priceMaxParam = searchParams.get("price_max");
-    const ratingMinParam = searchParams.get("rating_min");
-    const ratingMaxParam = searchParams.get("rating_max");
-    const searchParam = searchParams.get("q") || searchParams.get("search");
-    
-    // Set filters from URL params (category will be converted to ID after categories are loaded)
-    if (categoryParam || subcategoryParam || regionParam || districtParam || 
-        coverTypeParam || priceMinParam || priceMaxParam || ratingMinParam || ratingMaxParam) {
-      setFilters({
-        category: categoryParam || "",
-        subcategory: subcategoryParam || "",
-        region: regionParam || "",
-        district: districtParam || "",
-        cover_type: coverTypeParam || "",
-        price_min: priceMinParam || "",
-        price_max: priceMaxParam || "",
-        rating_min: ratingMinParam || "",
-        rating_max: ratingMaxParam || "",
-      });
-    }
-    
-    // Set search query from URL params
-    if (searchParam) {
-      setSearchQuery(searchParam);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const nextFilters = buildFiltersFromSearchParams(searchParams);
+    setFilters((prevFilters) =>
+      areFiltersEqual(prevFilters, nextFilters) ? prevFilters : nextFilters
+    );
+
+    const nextSearchQuery =
+      searchParams.get("q") || searchParams.get("search") || "";
+    setSearchQuery((prevQuery) =>
+      prevQuery === nextSearchQuery ? prevQuery : nextSearchQuery
+    );
+  }, [searchParams]);
 
   // Convert category and subcategory name to ID when categories are loaded
   useEffect(() => {
@@ -130,7 +168,11 @@ const VendorTwo = () => {
       }
 
       if (needsUpdate) {
-        setFilters(updatedFilters);
+        setFilters((prevFilters) =>
+          areFiltersEqual(prevFilters, updatedFilters)
+            ? prevFilters
+            : updatedFilters
+        );
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -222,6 +264,23 @@ const VendorTwo = () => {
       if (filters.rating_max) {
         params.rating_max = filters.rating_max;
       }
+      if (filters.is_used !== "") {
+        if (typeof filters.is_used === "string") {
+          const normalizedIsUsed = filters.is_used.toLowerCase();
+          if (normalizedIsUsed === "true" || normalizedIsUsed === "1") {
+            params.is_used = true;
+          } else if (normalizedIsUsed === "false" || normalizedIsUsed === "0") {
+            params.is_used = false;
+          } else {
+            params.is_used = filters.is_used;
+          }
+        } else {
+          params.is_used = filters.is_used;
+        }
+      }
+      if (filters.type) {
+        params.type = filters.type;
+      }
 
       const response = await getBooks(params);
       const allBooks = response.books || [];
@@ -269,7 +328,6 @@ const VendorTwo = () => {
     setCurrentPage(1);
     // Update URL with search query
     updateURL(filters, searchQuery, 1);
-    fetchBooks();
   };
 
   // Update URL with current filters
@@ -341,6 +399,12 @@ const VendorTwo = () => {
     if (newFilters.rating_max) {
       params.set("rating_max", newFilters.rating_max);
     }
+    if (newFilters.is_used !== "") {
+      params.set("is_used", newFilters.is_used.toString());
+    }
+    if (newFilters.type) {
+      params.set("type", newFilters.type);
+    }
     if (newPage > 1) {
       params.set("page", newPage.toString());
     }
@@ -368,40 +432,32 @@ const VendorTwo = () => {
     }
     
     // Update filters
-    let updatedFilters;
-    if (filterType === "region") {
-      updatedFilters = {
-        ...filters,
-        region: value,
-        district: "",
-      };
-    } else {
-      updatedFilters = {
-        ...filters,
-        [filterType]: value,
-      };
+    const updatedFilters =
+      filterType === "region"
+        ? {
+            ...filters,
+            region: value,
+            district: "",
+          }
+        : {
+            ...filters,
+            [filterType]: value,
+          };
+
+    if (areFiltersEqual(filters, updatedFilters)) {
+      return;
     }
-    
+
     setFilters(updatedFilters);
-    
-    // Update URL
     updateURL(updatedFilters, searchQuery, 1);
   };
 
   const handleClearFilters = () => {
     setCurrentPage(1);
-    const clearedFilters = {
-      category: "",
-      subcategory: "",
-      region: "",
-      district: "",
-      cover_type: "",
-      price_min: "",
-      price_max: "",
-      rating_min: "",
-      rating_max: "",
-    };
-    setFilters(clearedFilters);
+    const clearedFilters = { ...defaultFilterState };
+    setFilters((prevFilters) =>
+      areFiltersEqual(prevFilters, clearedFilters) ? prevFilters : clearedFilters
+    );
     setSearchQuery("");
     
     // Update URL - clear all params
@@ -525,6 +581,50 @@ const VendorTwo = () => {
                       </li>
                     ))}
                   </ul>
+                </div>
+
+                {/* Type Filter */}
+                <div className="border border-gray-50 rounded-8 p-24">
+                  <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">
+                    {t("filterByType")}
+                  </h6>
+                  <div className="d-flex flex-wrap gap-8">
+                    {typeOptions.map((option) => {
+                      const isActive = (filters.type ?? "") === option.value;
+                      return (
+                        <button
+                          key={option.value || "all"}
+                          type="button"
+                          onClick={() => handleFilterChange("type", option.value)}
+                          className={getPillButtonClass(isActive)}
+                        >
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Condition Filter */}
+                <div className="border border-gray-50 rounded-8 p-24">
+                  <h6 className="text-xl border-bottom border-gray-100 pb-24 mb-24">
+                    {t("filterByCondition")}
+                  </h6>
+                  <div className="d-flex flex-wrap gap-8">
+                    {conditionOptions.map((option) => {
+                      const isActive = (filters.is_used ?? "") === option.value;
+                      return (
+                        <button
+                          key={option.value || "all"}
+                          type="button"
+                          onClick={() => handleFilterChange("is_used", option.value)}
+                          className={getPillButtonClass(isActive)}
+                        >
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Cover Type Filter */}
