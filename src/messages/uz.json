@@ -447,6 +447,10 @@
         "bookCreated": "Kitob muvaffaqiyatli yaratildi",
         "bookUpdated": "Kitob muvaffaqiyatli yangilandi",
         "error": "Xatolik yuz berdi",
+        "selectShop": "Do'konni tanlang",
+        "addWithOwnName": "O'zimning nomimdan qo'shish",
+        "loadingShops": "Do'konlar yuklanmoqda...",
+        "noShops": "Sizda do'konlar mavjud emas",
         "fileSelected": "Fayl tanlandi",
         "currentImage": "Joriy rasm",
         "imageRequired": "Rasm majburiy"

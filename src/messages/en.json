@@ -448,7 +448,11 @@
         "error": "An error occurred",
         "fileSelected": "File selected",
         "currentImage": "Current image",
-        "imageRequired": "Image is required"
+        "imageRequired": "Image is required",
+        "selectShop": "Select shop",
+        "addWithOwnName": "Add with my own name",
+        "loadingShops": "Loading shops...",
+        "noShops": "You don't have any shops"
     },
     "SellerRegistration": {
         "modalTitle": "Create seller account",

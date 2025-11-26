@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations, useLocale } from "next-intl";
 import { createBook, updateBook, patchBook } from '@/services/books';
 import { getBookCategories } from '@/services/categories';
+import { getShopsByOwner } from '@/services/shops';
 import Spin from './Spin';
 import { useToast } from './Toast';
 
@@ -32,11 +33,58 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
     // Optional fields
     category: '',
     sub_category: '',
+    shop: '', // Will be set based on selectedShop
   });
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [shops, setShops] = useState([]);
+  const [shopsLoading, setShopsLoading] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [selectedShop, setSelectedShop] = useState('own_name'); // 'own_name' or shop ID
+
+  // Get current user ID from JWT token
+  useEffect(() => {
+    if (typeof window !== 'undefined' && isOpen) {
+      try {
+        const token = localStorage.getItem('auth_token');
+        
+        if (token) {
+          try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(
+              atob(base64)
+                .split('')
+                .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
+            );
+            
+            const decoded = JSON.parse(jsonPayload);
+            const userId = decoded.user_id || decoded.id || decoded.sub;
+            
+            if (userId) {
+              setCurrentUserId(userId);
+            }
+          } catch (e) {
+            console.error('JWT decode error:', e);
+          }
+        }
+      } catch (error) {
+        console.error('Error getting user ID:', error);
+      }
+    }
+  }, [isOpen]);
+
+  // Fetch user's shops when modal opens and user ID is available
+  useEffect(() => {
+    if (isOpen && currentUserId) {
+      fetchUserShops();
+    } else {
+      setShops([]);
+    }
+  }, [isOpen, currentUserId]);
 
   useEffect(() => {
     if (isOpen) {
@@ -46,6 +94,22 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
         const getLocalizedValue = (fieldPrefix) => {
           return editBook[`${fieldPrefix}_${locale}`] || editBook[fieldPrefix] || '';
         };
+        
+        // Set shop selection based on editBook
+        let bookShopId = null;
+        if (editBook.shop && typeof editBook.shop === 'object') {
+          bookShopId = editBook.shop.id;
+        } else if (typeof editBook.shop === 'number' || (typeof editBook.shop === 'string' && !isNaN(Number(editBook.shop)))) {
+          bookShopId = editBook.shop;
+        } else if (editBook.shop_id) {
+          bookShopId = editBook.shop_id;
+        }
+
+        if (bookShopId) {
+          setSelectedShop(String(bookShopId));
+        } else {
+          setSelectedShop('own_name');
+        }
         
         setFormData({
           type: editBook.type || 'seller',
@@ -64,6 +128,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
           isbn: editBook.isbn || '',
           category: editBook.category || '',
           sub_category: editBook.sub_category || '',
+          shop: bookShopId ? String(bookShopId) : '',
         });
       } else {
         // Reset form for new book
@@ -84,10 +149,27 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
           isbn: '',
           category: '',
           sub_category: '',
+          shop: '',
         });
+        setSelectedShop('own_name');
       }
     }
   }, [isOpen, editBook, locale]);
+
+  const fetchUserShops = async () => {
+    if (!currentUserId) return;
+    
+    try {
+      setShopsLoading(true);
+      const response = await getShopsByOwner(currentUserId, 100);
+      setShops(response.shops || []);
+    } catch (error) {
+      console.error('Error fetching user shops:', error);
+      setShops([]);
+    } finally {
+      setShopsLoading(false);
+    }
+  };
 
   const fetchCategories = async () => {
     try {
@@ -123,6 +205,15 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
         sub_category: ''
       }));
       updateSubCategories(value);
+      return;
+    }
+
+    if (name === 'shop') {
+      setSelectedShop(value);
+      setFormData(prev => ({
+        ...prev,
+        shop: value === 'own_name' ? '' : value
+      }));
       return;
     }
 
@@ -210,6 +301,19 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
         submitData.append('sub_category', formData.sub_category);
       }
 
+      // Add shop_id only if a shop is selected (not "own_name")
+      const shopIdToSubmit =
+        formData.shop && formData.shop !== ''
+          ? formData.shop
+          : selectedShop && selectedShop !== 'own_name'
+            ? selectedShop
+            : '';
+
+      if (shopIdToSubmit) {
+        submitData.append('shop', Number(shopIdToSubmit));
+      }
+      // If selectedShop is 'own_name' or empty, don't send shop - backend will auto-link to user
+
       // Add picture file - required for new books
       if (formData.picture) {
         submitData.append('picture', formData.picture);
@@ -263,7 +367,9 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
           isbn: '',
           category: '',
           sub_category: '',
+          shop: '',
         });
+        setSelectedShop('own_name');
       } else {
         alert(response.message || t("error"));
       }
@@ -350,6 +456,38 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                     />
                     <label className="form-check-label">{t("usedBook")}</label>
                   </div>
+                </div>
+
+                {/* Shop Selection */}
+                <div className="col-12">
+                  <label className="form-label fw-semibold">{t("selectShop")}</label>
+                  {shopsLoading ? (
+                    <div className="text-muted">
+                      <Spin size="sm" /> {t("loadingShops")}
+                    </div>
+                  ) : (
+                    <select
+                      name="shop"
+                      className="form-select"
+                      value={selectedShop}
+                      onChange={handleInputChange}
+                    >
+                      <option value="own_name">{t("addWithOwnName")}</option>
+                      {shops.length > 0 ? (
+                        shops.map(shop => (
+                          <option key={shop.id} value={shop.id}>
+                            {shop.name || `Shop #${shop.id}`}
+                          </option>
+                        ))
+                      ) : (
+                        shops.length === 0 && !shopsLoading && (
+                          <option value="own_name" disabled>
+                            {t("noShops")}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  )}
                 </div>
 
                 {/* Book Name */}

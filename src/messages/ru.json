@@ -448,7 +448,11 @@
         "error": "Произошла ошибка",
         "fileSelected": "Файл выбран",
         "currentImage": "Текущее изображение",
-        "imageRequired": "Изображение обязательно"
+        "imageRequired": "Изображение обязательно",
+        "selectShop": "Выберите магазин",
+        "addWithOwnName": "Добавить от своего имени",
+        "loadingShops": "Загрузка магазинов...",
+        "noShops": "У вас нет магазинов"
     },
     "WhyBecomeSeller": {
         "title": "Почему стоит стать продавцом в Kitobzor?",

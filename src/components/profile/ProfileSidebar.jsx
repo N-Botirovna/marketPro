@@ -8,7 +8,6 @@ const ProfileSidebar = ({
   userData,
   userBooksCount,
   archivedBooksCount,
-  userPostsCount,
   isEditingProfile,
   profileFormData,
   regions,
@@ -111,22 +110,16 @@ const ProfileSidebar = ({
 
         {/* User Stats */}
         <div className='row g-3 mb-24'>
-          <div className='col-4 text-center'>
+          <div className='col-6 text-center'>
             <div className='bg-gray-50 rounded-12 p-16'>
               <h5 className='text-lg fw-bold text-gray-900 mb-2'>{userBooksCount}</h5>
               <p className='text-xs text-gray-500 mb-0'>{tProfile("statsBooks")}</p>
             </div>
           </div>
-          <div className='col-4 text-center'>
+          <div className='col-6 text-center'>
             <div className='bg-gray-50 rounded-12 p-16'>
               <h5 className='text-lg fw-bold text-gray-900 mb-2'>{archivedBooksCount}</h5>
               <p className='text-xs text-gray-500 mb-0'>{tProfile("statsArchive")}</p>
-            </div>
-          </div>
-          <div className='col-4 text-center'>
-            <div className='bg-gray-50 rounded-12 p-16'>
-              <h5 className='text-lg fw-bold text-gray-900 mb-2'>{userPostsCount}</h5>
-              <p className='text-xs text-gray-500 mb-0'>{tProfile("statsPosts")}</p>
             </div>
           </div>
         </div>
