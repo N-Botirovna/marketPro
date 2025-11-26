@@ -21,21 +21,38 @@ const AuthLogin = () => {
   const [error, setError] = useState("");
 
   const validatePhoneNumber = (phone) => {
-    const phoneRegex = /^\+998[0-9]{9}$/;
+    // Xalqaro telefon raqam formatini tekshiramiz
+    // + bilan boshlanadi va kamida 10 ta raqam bo'lishi kerak
+    const phoneRegex = /^\+[1-9][0-9]{9,14}$/;
     return phoneRegex.test(phone);
   };
 
   const handlePhoneChange = (e) => {
     let value = e.target.value;
     
-    // Faqat raqamlarni qoldiramiz
-    const numbers = value.replace(/[^0-9]/g, "");
+    // Agar bo'sh bo'lsa, +998 ni qaytaramiz
+    if (!value || value.trim() === "") {
+      setPhoneNumber("+998");
+      return;
+    }
     
-    // Maksimal 9 ta raqam (998 dan keyin)
-    const phoneDigits = numbers.substring(0, 9);
+    // Faqat + va raqamlarni qoldiramiz
+    let cleaned = value.replace(/[^+0-9]/g, "");
     
-    // State da to'liq raqamni saqlaymiz
-    setPhoneNumber("+998" + phoneDigits);
+    // Agar + bilan boshlanmasa, + qo'shamiz
+    if (!cleaned.startsWith("+")) {
+      cleaned = "+" + cleaned;
+    }
+    
+    // + dan keyin faqat raqamlar bo'lishi kerak
+    if (cleaned === "+") {
+      setPhoneNumber("+");
+    } else {
+      const afterPlus = cleaned.substring(1);
+      // + dan keyin faqat raqamlar bo'lishi kerak va maksimal 15 ta raqam
+      const digits = afterPlus.replace(/[^0-9]/g, "").substring(0, 15);
+      setPhoneNumber("+" + digits);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -48,7 +65,7 @@ const AuthLogin = () => {
     }
 
     if (!validatePhoneNumber(phoneNumber)) {
-      setError(tAuth("invalidPhone"));
+      setError(tAuth("invalidPhone") || "Iltimos, to'g'ri xalqaro telefon raqam kiriting (masalan: +998901234567)");
       return;
     }
 
@@ -217,38 +234,29 @@ const AuthLogin = () => {
                       {tForms("phone")} <span className="text-danger">*</span>
                     </label>
                     <div style={{ position: "relative" }}>
-                      <span
-                        style={{
-                          position: "absolute",
-                          left: "16px",
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          color: "#6b7280",
-                          fontSize: "14px",
-                          fontWeight: "500",
-                          pointerEvents: "none",
-                          zIndex: 1,
-                        }}
-                      >
-                        +998
-                      </span>
                       <input
                         type="tel"
                         className="common-input"
                         id="phone"
                         name="phone"
-                        placeholder="901234567"
-                        value={phoneNumber.startsWith("+998") ? phoneNumber.substring(4) : ""}
+                        placeholder="+998901234567"
+                        value={phoneNumber}
                         onChange={handlePhoneChange}
                         required
                         autoComplete="tel"
-                        maxLength={9}
-                        inputMode="numeric"
+                        maxLength={16}
+                        inputMode="tel"
                         style={{
-                          padding: "12px 16px 12px 60px",
+                          padding: "12px 16px",
                           fontSize: "14px",
                         }}
                       />
+                      <small
+                        className="text-gray-500 mt-6 d-block"
+                        style={{ fontSize: "12px" }}
+                      >
+                        {tAuth("phoneHint") || "Masalan: +998901234567 yoki boshqa davlat kodi"}
+                      </small>
                     </div>
                   </div>
 

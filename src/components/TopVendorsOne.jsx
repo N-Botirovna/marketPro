@@ -87,26 +87,16 @@ const TopVendorsOne = () => {
                   </div>
                   <h6 className="title mt-32">{shop.name}</h6>
 
-                  {/* Star Rating */}
-                  {shop.star && (
-                    <div className="flex-center gap-4 mt-8 mb-8">
-                      <span className="text-warning-600 text-sm fw-bold">
-                        {parseFloat(shop.star).toFixed(1)}
-                      </span>
-                      <i className="ph-fill ph-star text-warning-600 text-sm" />
-                    </div>
-                  )}
-
                   {/* Product Count */}
                   <span className="text-heading text-sm d-block">
                     {shop.book_count} mahsulot
                   </span>
 
                   {/* Location */}
-                  {(shop.region || shop.district) && (
+                  {(shop.district || shop.region) && (
                     <span className="text-gray-600 text-xs d-block mt-4">
                       {shop.region?.name && shop.district?.name
-                        ? `${shop.district.name}, ${shop.region.name}`
+                        ? `${shop.region.name}, ${shop.district.name}`
                         : shop.region?.name || shop.district?.name}
                     </span>
                   )}

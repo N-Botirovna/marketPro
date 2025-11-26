@@ -126,32 +126,6 @@ const ProductDetailsTwo = () => {
                     - Modern Gray
                   </h5>
                   <div className="flex-align flex-wrap gap-12">
-                    <div className="flex-align gap-12 flex-wrap">
-                      <div className="flex-align gap-8">
-                        <span className="text-15 fw-medium text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-15 fw-medium text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-15 fw-medium text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-15 fw-medium text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                        <span className="text-15 fw-medium text-warning-600 d-flex">
-                          <i className="ph-fill ph-star" />
-                        </span>
-                      </div>
-                      <span className="text-sm fw-medium text-neutral-600">
-                        4.7 Star Rating
-                      </span>
-                      <span className="text-sm fw-medium text-gray-500">
-                        (21,671)
-                      </span>
-                    </div>
-                    <span className="text-sm fw-medium text-gray-500">|</span>
                     <span className="text-gray-900">
                       {" "}
                       <span className="text-gray-400">SKU:</span>EB4DRP{" "}
@@ -718,23 +692,6 @@ const ProductDetailsTwo = () => {
                           <div className="flex-between align-items-start gap-8 ">
                             <div className="">
                               <h6 className="mb-12 text-md">Nicolas cage</h6>
-                              <div className="flex-align gap-8">
-                                <span className="text-15 fw-medium text-warning-600 d-flex">
-                                  <i className="ph-fill ph-star" />
-                                </span>
-                                <span className="text-15 fw-medium text-warning-600 d-flex">
-                                  <i className="ph-fill ph-star" />
-                                </span>
-                                <span className="text-15 fw-medium text-warning-600 d-flex">
-                                  <i className="ph-fill ph-star" />
-                                </span>
-                                <span className="text-15 fw-medium text-warning-600 d-flex">
-                                  <i className="ph-fill ph-star" />
-                                </span>
-                                <span className="text-15 fw-medium text-warning-600 d-flex">
-                                  <i className="ph-fill ph-star" />
-                                </span>
-                              </div>
                             </div>
                             <span className="text-gray-800 text-xs">
                               3 Days ago
@@ -773,23 +730,6 @@ const ProductDetailsTwo = () => {
                           <div className="flex-between align-items-start gap-8 ">
                             <div className="">
                               <h6 className="mb-12 text-md">Nicolas cage</h6>
-                              <div className="flex-align gap-8">
-                                <span className="text-15 fw-medium text-warning-600 d-flex">
-                                  <i className="ph-fill ph-star" />
-                                </span>
-                                <span className="text-15 fw-medium text-warning-600 d-flex">
-                                  <i className="ph-fill ph-star" />
-                                </span>
-                                <span className="text-15 fw-medium text-warning-600 d-flex">
-                                  <i className="ph-fill ph-star" />
-                                </span>
-                                <span className="text-15 fw-medium text-warning-600 d-flex">
-                                  <i className="ph-fill ph-star" />
-                                </span>
-                                <span className="text-15 fw-medium text-warning-600 d-flex">
-                                  <i className="ph-fill ph-star" />
-                                </span>
-                              </div>
                             </div>
                             <span className="text-gray-800 text-xs">
                               3 Days ago
@@ -824,23 +764,6 @@ const ProductDetailsTwo = () => {
                           <span className="text-heading mb-8">
                             What is it like to Product?
                           </span>
-                          <div className="flex-align gap-8">
-                            <span className="text-15 fw-medium text-warning-600 d-flex">
-                              <i className="ph-fill ph-star" />
-                            </span>
-                            <span className="text-15 fw-medium text-warning-600 d-flex">
-                              <i className="ph-fill ph-star" />
-                            </span>
-                            <span className="text-15 fw-medium text-warning-600 d-flex">
-                              <i className="ph-fill ph-star" />
-                            </span>
-                            <span className="text-15 fw-medium text-warning-600 d-flex">
-                              <i className="ph-fill ph-star" />
-                            </span>
-                            <span className="text-15 fw-medium text-warning-600 d-flex">
-                              <i className="ph-fill ph-star" />
-                            </span>
-                          </div>
                         </div>
                         <div className="mt-32">
                           <form action="#">

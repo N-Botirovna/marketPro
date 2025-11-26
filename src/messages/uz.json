@@ -146,7 +146,7 @@
     },
     "Errors": {
         "loginFailed": "Kirish muvaffaqiyatsiz",
-        "checkPassword": "Kirish muvaffaqiyatsiz. Parolni tekshiring.",
+        "checkPassword": "Kirish muvaffaqiyatsiz. Kodni tekshiring.",
         "passwordMin": "Parol kamida 6 belgidan iborat bo'lishi kerak"
     },
     "Search": {
@@ -174,11 +174,12 @@
     "Auth": {
         "welcome": "Kitobzorga xush kelibsiz!",
         "fillInfo": "Kirish uchun quyidagi ma'lumotlarni to'ldiring",
-        "getPasswordFromBot": "Parolni olish uchun Telegram botga o'ting",
-        "enterPasswordFromBot": "@kitobzoruz_bot dan olingan parolni kiriting",
+        "getPasswordFromBot": "Kodni olish uchun Telegram botga o'ting",
+        "enterPasswordFromBot": "@kitobzoruz_bot dan olingan Kodni kiriting",
         "loggingIn": "Kirinmoqda...",
         "invalidPhone": "Iltimos, to'g'ri telefon raqam kiriting (masalan: +998901234567)",
-        "loginSuccess": "Tizimga muvaffaqiyatli kirdingiz"
+        "loginSuccess": "Tizimga muvaffaqiyatli kirdingiz",
+        "phoneHint": "Masalan: +998901234567 yoki boshqa davlat kodi"
     },
     "BookDetails": {
         "loading": "Kitob ma'lumotlari yuklanmoqda...",
@@ -374,10 +375,10 @@
     "Account": {
         "usernameOrEmail": "Foydalanuvchi nomi yoki email manzili",
         "firstName": "Ism",
-        "enterPassword": "Parolni kiriting",
+        "enterPassword": "Kodni kiriting",
         "logIn": "Kirish",
         "rememberMe": "Meni eslab qol",
-        "forgotPassword": "Parolni unutdingizmi?",
+        "forgotPassword": "Kodni unutdingizmi?",
         "register": "Ro'yxatdan o'tish",
         "username": "Foydalanuvchi nomi",
         "writeUsername": "Foydalanuvchi nomini yozing",

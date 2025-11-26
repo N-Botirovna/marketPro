@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { getShops } from "@/services/shops";
@@ -11,14 +11,16 @@ const VendorsList = () => {
   const searchParams = useSearchParams();
   const [shops, setShops] = useState([]);
   const [regions, setRegions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const debounceTimerRef = useRef(null);
+  const regionsLoadedRef = useRef(false);
   const tBread = useTranslations("Breadcrumb")
   const [filters, setFilters] = useState({
     region: "",
     district: "",
-    star_min: "",
-    star_max: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -28,52 +30,87 @@ const VendorsList = () => {
     const region = searchParams.get("region") || "";
     const district = searchParams.get("district") || "";
     const search = searchParams.get("q") || "";
-    const starMin = searchParams.get("star_min") || "";
-    const starMax = searchParams.get("star_max") || "";
 
     setFilters((prev) => ({
       ...prev,
       region: region,
       district: district,
-      star_min: starMin,
-      star_max: starMax,
     }));
 
     if (search) {
       setSearchQuery(search);
+      setInputValue(search);
     }
   }, [searchParams]);
 
-  // Fetch data
+  // Debounce search input - only update searchQuery after user stops typing
   useEffect(() => {
-    const fetchData = async () => {
+    // Clear previous timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Only search if input has at least 3 characters or is empty
+    const trimmedInput = inputValue.trim();
+    if (trimmedInput.length === 0 || trimmedInput.length >= 3) {
+      debounceTimerRef.current = setTimeout(() => {
+        setSearchQuery(trimmedInput);
+        setCurrentPage(1); // Reset to first page when search changes
+      }, 500); // Wait 500ms after user stops typing
+    }
+
+    // Cleanup timer on unmount or when inputValue changes
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [inputValue]);
+
+  // Load regions only once on mount
+  useEffect(() => {
+    if (!regionsLoadedRef.current) {
+      const loadRegions = async () => {
+        try {
+          const regionsRes = await getRegions({ limit: 50 });
+          setRegions(regionsRes.regions || []);
+          regionsLoadedRef.current = true;
+        } catch (err) {
+          console.error("❌ Regions yuklashda xatolik:", err);
+        }
+      };
+      loadRegions();
+    }
+  }, []);
+
+  // Fetch shops data
+  useEffect(() => {
+    const fetchShops = async () => {
       try {
-        setLoading(true);
+        // Show loading only for search/filter changes, not initial load
+        if (initialLoading) {
+          setInitialLoading(true);
+        } else {
+          setSearchLoading(true);
+        }
+
         console.log("🔄 Fetching shops with params:", {
           q: searchQuery,
           region: filters.region,
           district: filters.district,
-          star_min: filters.star_min,
-          star_max: filters.star_max,
           page: currentPage,
           limit: 12,
         });
 
-        const [shopsRes, regionsRes] = await Promise.all([
-          getShops({
-            q: searchQuery,
-            region: filters.region,
-            district: filters.district,
-            star_min: filters.star_min,
-            star_max: filters.star_max,
-            page: currentPage,
-            limit: 12,
-          }),
-          getRegions({ limit: 50 }),
-        ]);
+        const shopsRes = await getShops({
+          q: searchQuery,
+          region: filters.region,
+          district: filters.district,
+          page: currentPage,
+          limit: 12,
+        });
 
         console.log("📦 Shops response:", shopsRes);
-        console.log("🌍 Regions response:", regionsRes);
 
         // Debug: Check if shops data exists
         console.log("🔍 Shops data check:", {
@@ -85,15 +122,15 @@ const VendorsList = () => {
 
         setShops(shopsRes.shops || []);
         setTotalCount(shopsRes.count || 0);
-        setRegions(regionsRes.regions || []);
       } catch (err) {
         console.error("❌ Ma'lumotlarni yuklashda xatolik:", err);
       } finally {
-        setLoading(false);
+        setInitialLoading(false);
+        setSearchLoading(false);
       }
     };
 
-    fetchData();
+    fetchShops();
   }, [searchQuery, filters, currentPage]);
 
   const handleSearch = (e) => {
@@ -109,14 +146,14 @@ const VendorsList = () => {
     setFilters({
       region: "",
       district: "",
-      star_min: "",
-      star_max: "",
     });
     setSearchQuery("");
+    setInputValue("");
     setCurrentPage(1);
   };
 
-  if (loading) {
+  // Show full page loading only on initial load
+  if (initialLoading) {
     return (
       <section className="vendors-list py-80">
         <div className="container container-lg">
@@ -150,8 +187,8 @@ const VendorsList = () => {
                 type="text"
                 className="search-form__input common-input py-13 ps-16 pe-18 rounded-pill pe-44"
                 placeholder="Search shops by name..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
               />
               <button
                 type="submit"
@@ -196,30 +233,6 @@ const VendorsList = () => {
             </select>
           </div>
           <div className="col-lg-2 col-md-6 mb-16">
-            <input
-              type="number"
-              className="common-input w-100"
-              placeholder="Min star"
-              value={filters.star_min}
-              onChange={(e) => handleFilterChange("star_min", e.target.value)}
-              min="0"
-              max="5"
-              step="0.1"
-            />
-          </div>
-          <div className="col-lg-2 col-md-6 mb-16">
-            <input
-              type="number"
-              className="common-input w-100"
-              placeholder="Max star"
-              value={filters.star_max}
-              onChange={(e) => handleFilterChange("star_max", e.target.value)}
-              min="0"
-              max="5"
-              step="0.1"
-            />
-          </div>
-          <div className="col-lg-2 col-md-6 mb-16">
             <button
               onClick={clearFilters}
               className="btn btn-outline-secondary w-100"
@@ -228,7 +241,23 @@ const VendorsList = () => {
             </button>
           </div>
         </div>
-        <div className="row gy-4 vendor-card-wrapper">
+        <div className="row gy-4 vendor-card-wrapper position-relative">
+          {searchLoading && (
+            <div 
+              className="position-absolute top-0 start-0 w-100 d-flex align-items-center justify-content-center" 
+              style={{ 
+                zIndex: 10, 
+                minHeight: '400px',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(2px)'
+              }}
+            >
+              <div className="text-center">
+                <Spin text="Qidirilmoqda..." />
+                <p className="mt-16 text-neutral-600">Qidiruv natijalari yuklanmoqda...</p>
+              </div>
+            </div>
+          )}
           {shops.length > 0 ? (
             shops.map((shop) => (
               <div key={shop.id} className="col-xxl-3 col-lg-4 col-sm-6">
@@ -257,16 +286,6 @@ const VendorsList = () => {
                         {shop.name}
                       </Link>
                     </h6>
-
-                    {/* Star Rating */}
-                    {shop.star && (
-                      <div className="flex-center gap-4 mt-8 mb-8">
-                        <span className="text-warning-600 text-sm fw-bold">
-                          {parseFloat(shop.star).toFixed(1)}
-                        </span>
-                        <i className="ph-fill ph-star text-warning-600 text-sm" />
-                      </div>
-                    )}
 
                     {/* Product Count */}
                     <span className="text-heading text-sm d-block">

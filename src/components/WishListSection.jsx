@@ -216,15 +216,6 @@ const WishListSection = () => {
                                 </Link>
                               </h6>
                               <div className="flex-align gap-16 mb-16">
-                                <div className="flex-align gap-6">
-                                  <span className="text-md fw-medium text-warning-600 d-flex">
-                                    <i className="ph-fill ph-star" />
-                                  </span>
-                                  <span className="text-md fw-semibold text-gray-900">
-                                    4.5
-                                  </span>
-                                </div>
-                                <span className="text-sm fw-medium text-gray-200">|</span>
                                 <span className="text-neutral-600 text-sm">
                                   {book.like_count || 0} Like
                                 </span>
