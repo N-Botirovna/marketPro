@@ -255,7 +255,7 @@ const AuthLogin = () => {
                         className="text-gray-500 mt-6 d-block"
                         style={{ fontSize: "12px" }}
                       >
-                        {tAuth("phoneHint") || "Masalan: +998901234567 yoki boshqa davlat kodi"}
+                        {tAuth("phoneHint")}
                       </small>
                     </div>
                   </div>
