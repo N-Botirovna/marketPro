@@ -125,8 +125,8 @@
     },
     "Forms": {
         "phone": "Номер телефона",
-        "password": "Пароль",
-        "passwordPlaceholder": "Введите пароль",
+        "password": "Код",
+        "passwordPlaceholder": "Введите Код",
         "shopName": "Название магазина",
         "shopAboutPlaceholder": "Краткая информация о вашем магазине",
         "shopImage": "Изображение магазина"
@@ -146,8 +146,8 @@
     },
     "Errors": {
         "loginFailed": "Не удалось войти",
-        "checkPassword": "Не удалось войти. Проверьте пароль.",
-        "passwordMin": "Пароль должен содержать не менее 6 символов"
+        "checkPassword": "Не удалось войти. Проверьте Код.",
+        "passwordMin": "Код должен содержать не менее 6 символов"
     },
     "Search": {
         "noResults": "Нет книг, соответствующих критериям поиска",
@@ -174,8 +174,8 @@
     "Auth": {
         "welcome": "Добро пожаловать в Kitobzor!",
         "fillInfo": "Заполните следующую информацию для входа",
-        "getPasswordFromBot": "Перейдите в Telegram бота, чтобы получить пароль",
-        "enterPasswordFromBot": "Введите пароль, полученный от @kitobzoruz_bot",
+        "getPasswordFromBot": "Перейдите в Telegram бота, чтобы получить Код",
+        "enterPasswordFromBot": "Введите Код, полученный от @kitobzoruz_bot",
         "loggingIn": "Вход...",
         "invalidPhone": "Пожалуйста, введите правильный номер телефона (например: +998901234567)",
         "loginSuccess": "Вы успешно вошли в систему"
@@ -374,10 +374,10 @@
     "Account": {
         "usernameOrEmail": "Имя пользователя или адрес электронной почты",
         "firstName": "Имя",
-        "enterPassword": "Введите пароль",
+        "enterPassword": "Введите Код",
         "logIn": "Войти",
         "rememberMe": "Запомнить меня",
-        "forgotPassword": "Забыли пароль?",
+        "forgotPassword": "Забыли Код?",
         "register": "Регистрация",
         "username": "Имя пользователя",
         "writeUsername": "Введите имя пользователя",

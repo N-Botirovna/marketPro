@@ -93,10 +93,10 @@ const TopVendorsOne = () => {
                   </span>
 
                   {/* Location */}
-                  {(shop.region || shop.district) && (
+                  {(shop.district || shop.region) && (
                     <span className="text-gray-600 text-xs d-block mt-4">
                       {shop.region?.name && shop.district?.name
-                        ? `${shop.district.name}, ${shop.region.name}`
+                        ? `${shop.region.name}, ${shop.district.name}`
                         : shop.region?.name || shop.district?.name}
                     </span>
                   )}
