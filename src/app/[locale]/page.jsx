@@ -44,7 +44,7 @@ const page = () => {
 
       <ShortProductOne />
       {/* HotDealsOne */}
-      <HotDealsOne />
+      {/* <HotDealsOne /> */}
 
       {/* NewsletterOne */}
       <NewsletterOne />
@@ -62,6 +62,9 @@ const page = () => {
 };
 
 export default page;
+
+
+
 
 
 

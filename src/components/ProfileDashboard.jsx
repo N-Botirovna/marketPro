@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslations } from "next-intl";
 import { getUserProfile } from '@/services/auth';
 import { useAuth } from '@/hooks/useAuth';
-import { getUserPostedBooks, getUserArchivedBooks } from '@/services/books';
+import { getUserPostedBooks, getUserArchivedBooks, patchBook } from '@/services/books';
 import { getRegions } from '@/services/regions';
 import http from '@/lib/http';
 import { API_ENDPOINTS } from '@/config';
@@ -16,6 +16,7 @@ import ProfileTabs from './profile/ProfileTabs';
 const ProfileDashboard = () => {
   const { isAuthenticated, isLoading: authLoading, logout } = useAuth();
   const tProfile = useTranslations("ProfileDashboard");
+  const tProduct = useTranslations("ProductDetailsOne");
   const tProfileForm = useTranslations("ProfileForm");
   const tProfileMessages = useTranslations("Profile");
   const tLocation = useTranslations("Location");
@@ -25,6 +26,7 @@ const ProfileDashboard = () => {
   const [userBooks, setUserBooks] = useState([]);
   const [archivedBooks, setArchivedBooks] = useState([]);
   const [booksLoading, setBooksLoading] = useState(false);
+  const [archivingBookId, setArchivingBookId] = useState(null);
   const [showBookModal, setShowBookModal] = useState(false);
   const [editingBook, setEditingBook] = useState(null);
   
@@ -209,6 +211,41 @@ const ProfileDashboard = () => {
   const handleEditBook = (book) => {
     setEditingBook(book);
     setShowBookModal(true);
+  };
+
+  const handleArchiveBook = async (book) => {
+    if (!book?.id || !userData?.id) {
+      return;
+    }
+
+    if (!window.confirm(tProduct("archiveConfirm"))) {
+      return;
+    }
+
+    try {
+      setArchivingBookId(book.id);
+      setBooksLoading(true);
+
+      const response = await patchBook(book.id, { is_active: false });
+
+      if (response?.success === false) {
+        alert(
+          tProduct("archiveUnknownError", {
+            message: response?.message || tProduct("unknownError"),
+          })
+        );
+      } else {
+        alert(tProduct("archiveSuccess"));
+      }
+
+      await fetchBooksData(userData.id);
+    } catch (error) {
+      console.error("Error archiving book:", error);
+      alert(tProduct("archiveError"));
+    } finally {
+      setArchivingBookId(null);
+      setBooksLoading(false);
+    }
   };
 
   const handleBookSuccess = (book) => {
@@ -445,6 +482,8 @@ const ProfileDashboard = () => {
               booksLoading={booksLoading}
               onCreateBook={handleCreateBook}
               onEditBook={handleEditBook}
+            onArchiveBook={handleArchiveBook}
+            archivingBookId={archivingBookId}
             />
           </div>
         </div>

@@ -14,6 +14,8 @@ const ProfileTabs = ({
   booksLoading,
   onCreateBook,
   onEditBook,
+  onArchiveBook,
+  archivingBookId,
 }) => {
   const tProfile = useTranslations("ProfileDashboard");
 
@@ -53,6 +55,8 @@ const ProfileTabs = ({
                 onEdit={onEditBook}
                 currentUserId={userData?.id}
                 showEditForOwn={true}
+                onArchive={onArchiveBook}
+                isArchiving={archivingBookId === book.id}
               />
             </div>
           ))}
