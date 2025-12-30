@@ -279,10 +279,7 @@ const ProductDetailsOne = () => {
 
     try {
       setArchiving(true);
-      const formData = new FormData();
-      formData.append("is_active", "false");
-
-      const response = await patchBook(book.id, formData);
+      const response = await patchBook(book.id, { is_active: false });
       if (response.success) {
         alert(t("archiveSuccess"));
         // Refresh book data

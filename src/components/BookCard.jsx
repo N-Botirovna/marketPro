@@ -7,7 +7,16 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "./Toast";
 import { formatPrice } from "@/utils/formatPrice";
 
-const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn = true, onLikeUpdate }) => {
+const BookCard = ({
+  book,
+  onEdit,
+  onDelete,
+  onArchive,
+  currentUserId = null,
+  showEditForOwn = true,
+  onLikeUpdate,
+  isArchiving = false,
+}) => {
   if (!book) return null;
 
   const locale = useLocale();
@@ -171,6 +180,25 @@ const BookCard = ({ book, onEdit, onDelete, currentUserId = null, showEditForOwn
             title={tButtons("edit")}
           >
             <i className="ph ph-pencil text-xs"></i>
+          </button>
+        )}
+        {/* Archive Button */}
+        {showEditForOwn && onArchive && book?.is_active !== false && (
+          <button
+            className="btn btn-sm btn-outline-secondary rounded-circle p-8"
+            onClick={() => onArchive(book)}
+            title={tProduct("archiveButton")}
+            disabled={isArchiving}
+          >
+            {isArchiving ? (
+              <span
+                className="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              ></span>
+            ) : (
+              <i className="ph ph-archive text-xs"></i>
+            )}
           </button>
         )}
         {/* Delete Button */}
