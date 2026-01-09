@@ -1,7 +1,7 @@
 import axios from "axios";
-import { API_BASE_URL, AUTH_TOKEN_STORAGE_KEY } from "@/config";
+import { API_BASE_URL, API_ENDPOINTS, AUTH_TOKEN_STORAGE_KEY } from "@/config";
 import { getItem, removeItem, setItem, getCurrentLocale } from "@/utils/storage";
-import { refreshTokenIfNeeded } from "@/services/auth";
+
 
 // Simple in-memory cache for GET requests
 const cache = new Map();
@@ -80,11 +80,6 @@ httpClient.interceptors.request.use(async (config) => {
     // We'll let axios use its default adapter and resolve in response interceptor
     config._sharedPromiseResolve = requestResolve;
     config._sharedPromiseReject = requestReject;
-  }
-  
-  // Skip token refresh for refresh endpoint to prevent infinite loop
-  if (!config.skipAuthRefresh) {
-    await refreshTokenIfNeeded();
   }
   
   const token = getItem(AUTH_TOKEN_STORAGE_KEY);
@@ -202,7 +197,9 @@ httpClient.interceptors.response.use(
         }
         
         // Call refresh endpoint
-        const response = await axios.post(`${API_BASE_URL}api/v1/auth/refresh`, {
+        // Using string template to ensure we match the config path
+        // API_ENDPOINTS.AUTH.REFRESH is "api/v1/auth/refresh/"
+        const response = await axios.post(`${API_BASE_URL}${API_ENDPOINTS.AUTH.REFRESH}`, {
           refresh_token: refreshToken
         });
 
@@ -240,7 +237,11 @@ httpClient.interceptors.response.use(
         }
       } catch (refreshError) {
         if (process.env.NODE_ENV === 'development') {
-          console.error('❌ Token refresh failed:', refreshError);
+          console.error('❌ Token refresh failed. Logging out...', {
+            message: refreshError.message,
+            response: refreshError.response?.data,
+            status: refreshError.response?.status
+          });
         }
         processQueue(refreshError, null);
         

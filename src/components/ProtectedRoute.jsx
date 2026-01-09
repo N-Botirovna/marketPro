@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { isAuthenticated, refreshTokenIfNeeded, isRefreshTokenExpired } from "@/services/auth";
+import { isAuthenticated, isRefreshTokenExpired } from "@/services/auth";
 import { useTranslations } from "next-intl";
 import Spin from "./Spin";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -33,8 +33,15 @@ const ProtectedRoute = ({ children }) => {
         return;
       }
       
-      // Try to refresh token if needed (this will get new access token if refresh token exists)
-      await refreshTokenIfNeeded();
+      // PROACTIVELY TRY TO ENSURE WE HAVE A VALID TOKEN ON LOAD
+      // This is helpful for avoiding 401 on the very first render request
+      if (!isAuthenticated()) {
+         try {
+             await import('@/services/auth').then(m => m.refreshAccessToken());
+         } catch(e) {
+             // Ignore error here, isAuthenticated() will return false below if it failed
+         }
+      }
       
       // Now check authentication (this will return true if access token exists or refresh token is valid)
       const authenticated = isAuthenticated();
