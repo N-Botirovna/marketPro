@@ -11,9 +11,9 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import MaterialThemeProvider from "@/components/MaterialThemeProvider";
 
 export const metadata = {
-  title: "Digital Market Place NEXT Js Template",
+  title: "Kitobzor - Online Book Store",
   description:
-    "DpMarket – Digital Products Marketplace NEXT JS Template – A versatile and meticulously designed set of templates crafted to elevate your Digital Products Marketplace content and experiences.",
+    "Kitobzor - Online Book Store - A versatile and meticulously designed set of templates crafted to elevate your Digital Products Marketplace content and experiences.",
 };
 
 export default async function RootLayout({ children, params }) {
