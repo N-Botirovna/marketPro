@@ -213,7 +213,6 @@ const BookCard = ({
           </button>
         )}
       </div>
-      
       {book.percentage && (
         <span className='product-card__badge bg-danger-600 px-8 py-4 text-sm text-white'>
           -{book.percentage}%
