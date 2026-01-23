@@ -144,6 +144,7 @@ const BookCard = ({
       showToast({
         type: 'error',
         title: tCommon("error"),
+
         message: "Like qilishda xatolik yuz berdi",
         duration: 3000
       });
@@ -212,7 +213,6 @@ const BookCard = ({
           </button>
         )}
       </div>
-      
       {book.percentage && (
         <span className='product-card__badge bg-danger-600 px-8 py-4 text-sm text-white'>
           -{book.percentage}%
