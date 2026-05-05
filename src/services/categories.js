@@ -1,5 +1,6 @@
 import http from "@/lib/http";
 import { API_ENDPOINTS } from "@/config";
+import { normalizeListResponse } from "@/utils/normalizeResponse";
 
 const CATEGORY_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const categoriesCache = new Map();
@@ -41,13 +42,8 @@ export async function getBookCategories(params = {}) {
   const requestPromise = http
     .get(API_ENDPOINTS.BOOKS.CATEGORIES, { params })
     .then(({ data }) => {
-      const payload = {
-        categories: data?.result || data?.results || [],
-        count: data?.count || (data?.result?.length || 0),
-        next: data?.next || null,
-        previous: data?.previous || null,
-        raw: data,
-      };
+      const { result, count, next, previous, raw } = normalizeListResponse(data);
+      const payload = { categories: result, count, next, previous, raw };
 
       categoriesCache.set(cacheKey, {
         data: payload,
@@ -68,7 +64,7 @@ export async function getBookCategories(params = {}) {
 
 // Get single category by ID
 export async function getCategoryById(id) {
-  const { data } = await http.get(`api/v1/book/categories/${id}/`);
+  const { data } = await http.get(`${API_ENDPOINTS.BOOKS.CATEGORY_DETAIL}/${id}/`);
   return {
     category: data || null,
     raw: data,
@@ -78,11 +74,6 @@ export async function getCategoryById(id) {
 // Get book subcategories
 export async function getBookSubcategories(params = {}) {
   const { data } = await http.get(API_ENDPOINTS.BOOKS.SUBCATEGORIES, { params });
-  return {
-    subcategories: data?.result || data?.results || [],
-    count: data?.count || (data?.result?.length || 0),
-    next: data?.next || null,
-    previous: data?.previous || null,
-    raw: data,
-  };
+  const { result: subcategories, count, next, previous, raw } = normalizeListResponse(data);
+  return { subcategories, count, next, previous, raw };
 }

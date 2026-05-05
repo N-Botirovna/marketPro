@@ -63,7 +63,7 @@ export async function getRegions(params = {}) {
         count: data?.count || normalizedRegions.length || 0,
         next: data?.next || null,
         previous: data?.previous || null,
-        success: data?.success || false,
+        success: data?.success === true,
         raw: data,
       };
 
@@ -86,7 +86,7 @@ export async function getRegions(params = {}) {
 
 // Get single region by ID
 export async function getRegionById(id) {
-  const { data } = await http.get(`api/v1/base/regions/${id}/`);
+  const { data } = await http.get(`${API_ENDPOINTS.BASE.REGION_DETAIL}/${id}/`);
   return {
     region: data || null,
     raw: data,

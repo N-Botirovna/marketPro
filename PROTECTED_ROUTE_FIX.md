@@ -159,3 +159,6 @@ const protectedPages = [
 **Yechim:** Public/Protected sahifalar ro'yxati  
 **Status:** ✅ Fixed
 
+
+
+

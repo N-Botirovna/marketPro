@@ -1,114 +1,108 @@
-import { useState, useEffect, useCallback } from 'react';
-import { 
-  isAuthenticated, 
-  getAuthToken, 
-  isTokenExpired, 
+import { useState, useEffect, useCallback, useRef } from 'react';
+import {
+  getAuthToken,
+  isTokenExpired,
   isRefreshTokenExpired,
   refreshAccessToken,
-  logoutUser 
+  logoutUser,
 } from '@/services/auth';
 import { getItem } from '@/utils/storage';
+
+const devLog = (...args) => {
+  if (process.env.NODE_ENV === 'development') console.log(...args);
+};
 
 export const useAuth = () => {
   const [isAuth, setIsAuth] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState(null);
+  const abortRef = useRef(null);
 
   const checkAuthStatus = useCallback(async () => {
+    // Abort any in-flight check before starting a new one
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    const { signal } = controller;
+
+    // Single logout path — avoids 3 separate logoutUser + setState blocks
+    async function doLogout() {
+      await logoutUser();
+      if (signal.aborted) return;
+      setToken(null);
+      setIsAuth(false);
+    }
+
     try {
-      // Check if refresh token is expired first
       if (isRefreshTokenExpired()) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('⚠️ Refresh token expired, logging out...');
-        }
-        await logoutUser();
-        setToken(null);
-        setIsAuth(false);
-        setIsLoading(false);
+        devLog('⚠️ Refresh token expired, logging out...');
+        await doLogout();
         return;
       }
-      
+
       const currentToken = getAuthToken();
-      
-      // If no access token but refresh token exists, try to get a new one
+
       if (!currentToken) {
         const refreshToken = getItem('refresh_token');
         if (refreshToken && !isRefreshTokenExpired()) {
-          if (process.env.NODE_ENV === 'development') {
-            console.log('⚠️ No access token, but refresh token exists. Refreshing...');
-          }
-          
+          devLog('⚠️ No access token, but refresh token exists. Refreshing...');
           try {
-             await refreshAccessToken();
-             const newToken = getAuthToken();
-             setToken(newToken);
-             setIsAuth(true);
-          } catch (e) {
-            if (process.env.NODE_ENV === 'development') {
-              console.log('❌ Refresh failed, logging out...');
-            }
-            await logoutUser();
-            setToken(null);
-            setIsAuth(false);
+            await refreshAccessToken();
+            if (signal.aborted) return;
+            setToken(getAuthToken());
+            setIsAuth(true);
+          } catch {
+            devLog('❌ Refresh failed, logging out...');
+            await doLogout();
           }
-          
-          setIsLoading(false);
-          return;
         } else {
-          // No tokens at all
+          if (signal.aborted) return;
           setToken(null);
           setIsAuth(false);
-          setIsLoading(false);
-          return;
         }
+        return;
       }
-      
-      // Access token exists. We generally assume it's valid until the API says 401.
-      // But if it is clearly expired by pure time check, we can try to refresh proactively on load ONLY.
+
       if (isTokenExpired()) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('⚠️ Access token expired on load, refreshing...');
-        }
+        devLog('⚠️ Access token expired on load, refreshing...');
         try {
           await refreshAccessToken();
-          const newToken = getAuthToken();
-          setToken(newToken);
+          if (signal.aborted) return;
+          setToken(getAuthToken());
           setIsAuth(true);
-        } catch (e) {
-             // If refresh fails, we can either logout or just let the interceptor handle the next request failure.
-             // But for consistent UI state, let's logout if we are sure.
-             await logoutUser();
-             setToken(null);
-             setIsAuth(false);
+        } catch {
+          await doLogout();
         }
       } else {
-        // Token is valid, use it
+        if (signal.aborted) return;
         setToken(currentToken);
         setIsAuth(true);
       }
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error checking auth status:', error);
-      }
+      devLog('Error checking auth status:', error);
+      if (signal.aborted) return;
       setToken(null);
       setIsAuth(false);
     } finally {
-      setIsLoading(false);
+      if (!signal.aborted) setIsLoading(false);
     }
   }, []);
 
   const logout = useCallback(async () => {
+    // Abort any in-flight auth check to prevent state conflicts
+    abortRef.current?.abort();
     try {
       await logoutUser();
       setToken(null);
       setIsAuth(false);
     } catch (error) {
-      console.error('Logout error:', error);
+      devLog('Logout error:', error);
     }
   }, []);
 
   useEffect(() => {
     checkAuthStatus();
+    return () => abortRef.current?.abort();
   }, [checkAuthStatus]);
 
   return {
@@ -116,6 +110,6 @@ export const useAuth = () => {
     isLoading,
     token,
     logout,
-    refreshAuth: checkAuthStatus
+    refreshAuth: checkAuthStatus,
   };
 };

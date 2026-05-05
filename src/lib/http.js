@@ -3,6 +3,15 @@ import { API_BASE_URL, API_ENDPOINTS, AUTH_TOKEN_STORAGE_KEY } from "@/config";
 import { getItem, removeItem, setItem, getCurrentLocale } from "@/utils/storage";
 
 
+const isDev = process.env.NODE_ENV === 'development';
+
+const buildCacheKey = (url, params, locale) => {
+  const sortedParams = params
+    ? JSON.stringify(Object.keys(params).sort().reduce((acc, k) => { acc[k] = params[k]; return acc; }, {}))
+    : '{}';
+  return `${url}?${sortedParams}::${locale}`;
+};
+
 // Simple in-memory cache for GET requests
 const cache = new Map();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
@@ -19,7 +28,7 @@ const httpClient = axios.create({
 });
 
 httpClient.interceptors.request.use(async (config) => {
-  if (process.env.NODE_ENV === 'development') {
+  if (isDev) {
     console.log('🚀 HTTP Request:', {
       method: config.method?.toUpperCase(),
       url: config.url,
@@ -32,11 +41,11 @@ httpClient.interceptors.request.use(async (config) => {
 
   // Cache GET requests
   if (config.method === 'get') {
-    const cacheKey = `${config.url}?${JSON.stringify(config.params)}::${currentLocale}`;
+    const cacheKey = buildCacheKey(config.url, config.params, currentLocale);
     const cached = cache.get(cacheKey);
     
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-      if (process.env.NODE_ENV === 'development') {
+      if (isDev) {
         console.log('📦 Using cached response for:', config.url);
       }
       config.adapter = () => Promise.resolve({
@@ -52,7 +61,7 @@ httpClient.interceptors.request.use(async (config) => {
 
     // Request deduplication - if same request is already pending, return that promise
     if (pendingRequests.has(cacheKey)) {
-      if (process.env.NODE_ENV === 'development') {
+      if (isDev) {
         console.log('🔄 HTTP: Deduplicating request for:', config.url);
       }
       const pendingPromise = pendingRequests.get(cacheKey);
@@ -118,35 +127,33 @@ const processQueue = (error, token = null) => {
 
 httpClient.interceptors.response.use(
   (response) => {
-    if (process.env.NODE_ENV === 'development') {
+    if (isDev) {
       console.log('✅ HTTP Response:', {
         status: response.status,
         url: response.config.url,
       });
     }
 
-    // Cache GET responses and clean up pending requests
-    if (response.config.method === 'get') {
-      const cacheKey = response.config._cacheKey || 
-        `${response.config.url}?${JSON.stringify(response.config.params)}::${getCurrentLocale() || 'uz'}`;
-      
+    // Cache GET responses and clean up pending requests (original requests only)
+    if (response.config.method === 'get' && response.config._cacheKey) {
+      const cacheKey = response.config._cacheKey;
+
       cache.set(cacheKey, {
         data: response.data,
         timestamp: Date.now(),
       });
-      
-      // Resolve shared promise if it exists (for deduplication)
+
       if (response.config._sharedPromiseResolve) {
         response.config._sharedPromiseResolve(response);
       }
-      
+
       pendingRequests.delete(cacheKey);
     }
 
     return response;
   },
   async (error) => {
-    if (process.env.NODE_ENV === 'development') {
+    if (isDev) {
       console.log('❌ HTTP Error:', {
         status: error?.response?.status,
         url: error?.config?.url,
@@ -154,16 +161,14 @@ httpClient.interceptors.response.use(
       });
     }
 
-    // Clear pending request on error
-    if (error?.config?.method === 'get') {
-      const cacheKey = error.config._cacheKey || 
-        `${error.config.url}?${JSON.stringify(error.config.params)}::${getCurrentLocale() || 'uz'}`;
-      
-      // Reject shared promise if it exists (for deduplication)
+    // Clear pending request on error (original requests only)
+    if (error?.config?.method === 'get' && error.config._cacheKey) {
+      const cacheKey = error.config._cacheKey;
+
       if (error.config._sharedPromiseReject) {
         error.config._sharedPromiseReject(error);
       }
-      
+
       pendingRequests.delete(cacheKey);
     }
 
@@ -192,7 +197,7 @@ httpClient.interceptors.response.use(
           throw new Error('No refresh token available');
         }
 
-        if (process.env.NODE_ENV === 'development') {
+        if (isDev) {
           console.log('🔄 Attempting to refresh access token...');
         }
         
@@ -221,7 +226,7 @@ httpClient.interceptors.response.use(
             setItem('refresh_token', newRefreshToken);
           }
           
-          if (process.env.NODE_ENV === 'development') {
+          if (isDev) {
             console.log('✅ Access token refreshed successfully', {
               expiresIn: `${tokenExpiry}s`,
               expiresAt: new Date(expirationTime).toLocaleString()
@@ -236,7 +241,7 @@ httpClient.interceptors.response.use(
           throw new Error('No new access token received');
         }
       } catch (refreshError) {
-        if (process.env.NODE_ENV === 'development') {
+        if (isDev) {
           console.error('❌ Token refresh failed. Logging out...', {
             message: refreshError.message,
             response: refreshError.response?.data,

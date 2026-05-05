@@ -26,21 +26,20 @@ export async function getOrderById(id) {
 export async function createOrder(orderData) {
   const { data } = await http.post(API_ENDPOINTS.ORDERS.CREATE, orderData);
   return {
-    success: data?.success || false,
-    order: data?.order || null,
-    message: data?.message || null,
+    success: data?.success === true,
+    order: data?.order ?? null,
+    message: data?.message ?? null,
     raw: data,
   };
 }
 
 // Update order status (if allowed)
 export async function updateOrderStatus(orderId, status) {
-  const payload = { status };
-  const { data } = await http.put(`${API_ENDPOINTS.ORDERS.DETAIL}/${orderId}`, payload);
+  const { data } = await http.put(`${API_ENDPOINTS.ORDERS.DETAIL}/${orderId}`, { status });
   return {
-    success: data?.success || false,
-    order: data?.order || null,
-    message: data?.message || null,
+    success: data?.success === true,
+    order: data?.order ?? null,
+    message: data?.message ?? null,
     raw: data,
   };
 }
@@ -49,9 +48,9 @@ export async function updateOrderStatus(orderId, status) {
 export async function cancelOrder(orderId) {
   const { data } = await http.post(`${API_ENDPOINTS.ORDERS.DETAIL}/${orderId}/cancel`);
   return {
-    success: data?.success || false,
-    order: data?.order || null,
-    message: data?.message || null,
+    success: data?.success === true,
+    order: data?.order ?? null,
+    message: data?.message ?? null,
     raw: data,
   };
 }

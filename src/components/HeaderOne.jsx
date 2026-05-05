@@ -4,6 +4,7 @@ import { isAuthenticated, logoutUser, getAuthToken } from "@/services/auth";
 import { getBookCategories } from "@/services/categories";
 import { getRegions } from "@/services/regions";
 import { getLikedBooks } from "@/services/books";
+import { addLike, clearLikes, getAllLikes } from "@/utils/likeStorage";
 import { useAuth } from "@/hooks/useAuth";
 import CategoryDropdown from "./CategoryDropdown";
 import MaterialCategoryDropdown from "./MaterialCategoryDropdown";
@@ -128,19 +129,9 @@ const HeaderOne = () => {
           const books = response.books || [];
           const count = response.count || books.length || 0;
           
-          // localStorage'ga like qilingan kitoblar ro'yxatini saqlash
-          if (typeof window !== 'undefined' && books.length > 0) {
-            const likedMap = {};
-            books.forEach(book => {
-              if (book.id) {
-                likedMap[book.id] = {
-                  isLiked: true,
-                  likeCount: book.like_count || 1
-                };
-              }
-            });
-            localStorage.setItem('liked_books_map', JSON.stringify(likedMap));
-          }
+          books.forEach(book => {
+            if (book.id) addLike(book.id);
+          });
           
           setLikedBooksCount(count);
         } catch (err) {
@@ -149,10 +140,7 @@ const HeaderOne = () => {
         }
       } else {
         setLikedBooksCount(0);
-        // Logout qilinganda localStorage'ni tozalash
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('liked_books_map');
-        }
+        clearLikes();
       }
     };
 
@@ -162,16 +150,9 @@ const HeaderOne = () => {
   // Listen for like updates - localStorage'dan count hisoblash
   useEffect(() => {
     const updateCountFromStorage = () => {
-      if (isAuth && typeof window !== 'undefined') {
+      if (isAuth) {
         try {
-          const likedMap = localStorage.getItem('liked_books_map');
-          if (likedMap) {
-            const map = JSON.parse(likedMap);
-            const count = Object.keys(map).length;
-            setLikedBooksCount(count);
-          } else {
-            setLikedBooksCount(0);
-          }
+          setLikedBooksCount(getAllLikes().length);
         } catch (err) {
           console.error("Error reading liked count from storage:", err);
           setLikedBooksCount(0);
@@ -614,74 +595,6 @@ const HeaderOne = () => {
       </header>
       {/* ==================== Header End Here ==================== */}
 
-      <style jsx>{`
-        .form-location-wrapper {
-          overflow: visible !important;
-        }
-
-        .search-category {
-          overflow: visible !important;
-        }
-
-        .location-dropdown {
-          position: relative;
-          overflow: visible !important;
-        }
-
-        .location-dropdown__menu {
-          border-radius: 8px;
-        }
-
-        .location-dropdown__button:hover {
-          background-color: #f8f9fa;
-        }
-
-        .submenus-submenu {
-          border-radius: 8px;
-        }
-
-        /* Material UI Menu Overrides */
-        .MuiMenu-paper {
-          border-radius: 12px !important;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
-        }
-
-        .MuiMenuItem-root {
-          border-radius: 8px !important;
-          margin: 2px 8px !important;
-        }
-
-        .MuiMenuItem-root:hover {
-          background-color: #f5f5f5 !important;
-        }
-
-        .MuiButton-root {
-          text-transform: none !important;
-          border-radius: 8px !important;
-        }
-
-        @keyframes slideInUp {
-          from {
-            opacity: 0;
-            transform: translateY(10px) scale(0.98);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-
-        @keyframes fadeInScale {
-          from {
-            opacity: 0;
-            transform: scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-      `}</style>
     </>
   );
 };
