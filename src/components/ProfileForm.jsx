@@ -3,7 +3,7 @@
 import React from 'react';
 import { useTranslations } from "next-intl";
 
-const ProfileForm = ({ userData, formData, isEditing, onInputChange, onSave, onCancel }) => {
+const ProfileForm = ({ userData, formData, isEditing, onInputChange, onSave, onCancel, saving = false, saveError = null }) => {
   const tForm = useTranslations("ProfileForm");
 
   const handleCancel = () => {
@@ -149,20 +149,31 @@ const ProfileForm = ({ userData, formData, isEditing, onInputChange, onSave, onC
       </div>
 
       {isEditing && (
-        <div className="mb-32 d-flex gap-12">
-          <button
-            onClick={onSave}
-            className="btn btn-main py-10 px-24 text-sm fw-medium"
-          >
-            <i className="ph ph-check me-2"></i>
-            {tForm("saveChanges")}
-          </button>
-          <button
-            onClick={handleCancel}
-            className="btn btn-outline-secondary py-10 px-24 text-sm fw-medium"
-          >
-            {tForm("cancel")}
-          </button>
+        <div className="mb-32">
+          <div className="d-flex gap-12">
+            <button
+              onClick={onSave}
+              disabled={saving}
+              className="btn btn-main py-10 px-24 text-sm fw-medium"
+            >
+              {saving ? (
+                <span className="spinner-border spinner-border-sm me-6" role="status" aria-hidden="true" />
+              ) : (
+                <i className="ph ph-check me-2"></i>
+              )}
+              {tForm("saveChanges")}
+            </button>
+            <button
+              onClick={handleCancel}
+              disabled={saving}
+              className="btn btn-outline-secondary py-10 px-24 text-sm fw-medium"
+            >
+              {tForm("cancel")}
+            </button>
+          </div>
+          {saveError && (
+            <p className="text-danger text-sm mt-8 mb-0">{saveError}</p>
+          )}
         </div>
       )}
     </div>

@@ -2,7 +2,7 @@
 import { Link } from "@/i18n/navigation";
 import React, { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { likeBook } from "@/services/books";
+import { useLike } from "@/hooks/useLike";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "./Toast";
 import { formatPrice } from "@/utils/formatPrice";
@@ -28,34 +28,15 @@ const BookCard = ({
   const { isAuthenticated } = useAuth();
   const { showToast, ToastContainer } = useToast();
   
-  // Local storage'dan like holatini olish
-  const getStoredLikeState = () => {
-    if (typeof window === 'undefined') return null;
-    try {
-      const likedMap = localStorage.getItem('liked_books_map');
-      if (likedMap) {
-        const map = JSON.parse(likedMap);
-        return map[book?.id] || null;
-      }
-      return null;
-    } catch {
-      return null;
-    }
-  };
-
-  const storedState = getStoredLikeState();
-  const [isLiked, setIsLiked] = useState(storedState?.isLiked ?? (book?.is_liked === true));
-  const [likeCount, setLikeCount] = useState(storedState?.likeCount ?? (book?.like_count || 0));
-  const [liking, setLiking] = useState(false);
+  const { liked: isLiked, count: likeCount, liking, toggle, sync } = useLike(
+    book?.id, book?.is_liked, book?.like_count
+  );
   const [bookIdRef, setBookIdRef] = useState(book?.id);
 
-  // Update state FAQAT yangi kitobga o'tganda (ID o'zgarganda)
   useEffect(() => {
     if (book?.id && book.id !== bookIdRef) {
       setBookIdRef(book.id);
-      const stored = getStoredLikeState();
-      setIsLiked(stored?.isLiked ?? (book.is_liked === true));
-      setLikeCount(stored?.likeCount ?? (book.like_count || 0));
+      sync(book.id, book.is_liked, book.like_count);
     }
   }, [book?.id, bookIdRef]);
 
@@ -79,7 +60,7 @@ const BookCard = ({
   const handleLike = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!isAuthenticated) {
       showToast({
         type: 'info',
@@ -90,66 +71,16 @@ const BookCard = ({
       return;
     }
 
-    if (liking) return;
-
-    // Optimistic update
-    const previousLiked = isLiked;
-    const previousCount = likeCount;
-    const newLiked = !previousLiked;
-    const newCount = newLiked ? previousCount + 1 : Math.max(0, previousCount - 1);
-    
-    setIsLiked(newLiked);
-    setLikeCount(newCount);
-
     try {
-      setLiking(true);
-      const response = await likeBook(book.id);
-      
-      if (response.success) {
-        // Backend'dan kelgan is_liked bilan yangilash, count esa o'zimizda qoladi
-        setIsLiked(response.is_liked);
-        
-        // Count'ni backend bermagani uchun o'zimiz boshqaramiz
-        const finalCount = response.is_liked ? newCount : Math.max(0, newCount);
-        setLikeCount(finalCount);
-        
-        // Local storage'ga saqlash
-        if (typeof window !== 'undefined') {
-          const likedMap = localStorage.getItem('liked_books_map');
-          const map = likedMap ? JSON.parse(likedMap) : {};
-          
-          if (response.is_liked) {
-            map[book.id] = {
-              isLiked: true,
-              likeCount: finalCount
-            };
-          } else {
-            delete map[book.id];
-          }
-          
-          localStorage.setItem('liked_books_map', JSON.stringify(map));
-        }
-        
-        if (onLikeUpdate) {
-          onLikeUpdate(book.id, response.is_liked, finalCount);
-        }
-        
-        window.dispatchEvent(new Event(response.is_liked ? 'bookLiked' : 'bookUnliked'));
-      }
-    } catch (error) {
-      console.error("❌ Like error:", error);
-      setIsLiked(previousLiked);
-      setLikeCount(previousCount);
-      
+      const result = await toggle(book.id);
+      if (result && onLikeUpdate) onLikeUpdate(book.id, result.isLiked, result.count);
+    } catch {
       showToast({
         type: 'error',
         title: tCommon("error"),
-
         message: "Like qilishda xatolik yuz berdi",
         duration: 3000
       });
-    } finally {
-      setLiking(false);
     }
   };
 

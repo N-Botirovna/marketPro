@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { getLikedBooks, likeBook } from "@/services/books";
+import { removeLike } from "@/utils/likeStorage";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "./Toast";
 import { useTranslations, useLocale } from "next-intl";
@@ -57,14 +58,8 @@ const WishListSection = () => {
         // Ro'yxatdan o'chirish
         setBooks(prev => prev.filter(book => book.id !== bookId));
         
-        // localStorage'dan o'chirish
-        if (typeof window !== 'undefined') {
-          const likedMap = localStorage.getItem('liked_books_map');
-          const map = likedMap ? JSON.parse(likedMap) : {};
-          delete map[bookId];
-          localStorage.setItem('liked_books_map', JSON.stringify(map));
-        }
-        
+        removeLike(bookId);
+
         // Header'ni yangilash
         window.dispatchEvent(new Event('bookUnliked'));
         

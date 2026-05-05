@@ -1,8 +1,10 @@
 // Example component showing how to use the API responses
 import React, { useState, useEffect } from 'react';
 import UserProfile from '@/components/UserProfile';
+
 import { handleUserProfileResponse } from '@/utils/apiResponse';
 import Spin from '@/components/Spin';
+
 
 const UserProfileExample = () => {
   const [userData, setUserData] = useState(null);

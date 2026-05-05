@@ -1,22 +1,14 @@
 import http from "@/lib/http";
+import { API_ENDPOINTS } from "@/config";
+import { normalizeListResponse } from "@/utils/normalizeResponse";
 
-// Get banners
 export async function getBanners(params = {}) {
-  const { data } = await http.get("api/v1/base/banners/", { params });
-  return {
-    banners: data?.result || data?.results || [],
-    count: data?.count || (data?.result?.length || 0),
-    next: data?.next || null,
-    previous: data?.previous || null,
-    raw: data,
-  };
+  const { data } = await http.get(API_ENDPOINTS.BASE.BANNERS, { params });
+  const { result: banners, count, next, previous, raw } = normalizeListResponse(data);
+  return { banners, count, next, previous, raw };
 }
 
-// Get single banner by ID
 export async function getBannerById(id) {
-  const { data } = await http.get(`api/v1/base/banners/${id}/`);
-  return {
-    banner: data || null,
-    raw: data,
-  };
+  const { data } = await http.get(`${API_ENDPOINTS.BASE.BANNER_DETAIL}/${id}/`);
+  return { banner: data ?? null, raw: data };
 }

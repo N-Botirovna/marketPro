@@ -31,7 +31,10 @@
         "error": "Xatolik yuz berdi",
         "fillAllFields": "Iltimos, barcha maydonlarni to'ldiring",
         "currency": "so'm",
-        "all": "Barcha"
+        "all": "Barcha",
+        "info": "Ma'lumot",
+        "loginRequired": "Tizimga kiring",
+        "unknownUser": "Foydalanuvchi"
     },
     "Breadcrumb": {
         "home": "Bosh sahifa",

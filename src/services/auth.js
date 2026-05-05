@@ -31,8 +31,8 @@ function clearAuthStorage() {
 export async function requestOtp({ phone_number }) {
   const { data } = await http.post(API_ENDPOINTS.AUTH.REQUEST_OTP, { phone_number });
   return {
-    success: data?.success || false,
-    message: data?.message || null,
+    success: data?.success === true,
+    message: data?.message ?? null,
   };
 }
 
@@ -72,13 +72,13 @@ export async function loginWithPhoneOtp({ phone_number, otp_code }) {
 export async function registerUser(payload) {
   const { data } = await http.post(API_ENDPOINTS.AUTH.REGISTER, payload);
   return {
-    success: data?.success || false,
-    message: data?.message || null,
+    success: data?.success === true,
+    message: data?.message ?? null,
   };
 }
 
 export async function getUserProfile() {
-  const { data } = await http.get("api/v1/auth/me");
+  const { data } = await http.get(API_ENDPOINTS.AUTH.ME);
   return { user: data || null };
 }
 
@@ -167,8 +167,9 @@ export async function refreshAccessToken() {
 export async function logoutUser() {
   try {
     await http.post(API_ENDPOINTS.AUTH.LOGOUT);
-  } catch {}
-  finally {
+  } catch (error) {
+    devLog("⚠️ Logout API error (storage cleared anyway):", error?.message);
+  } finally {
     clearAuthStorage();
   }
 }

@@ -2,7 +2,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { getBookById, patchBook, likeBook } from "@/services/books";
+import { getBookById, patchBook } from "@/services/books";
+import { useLike } from "@/hooks/useLike";
 import Spin from "./Spin";
 import BookCreateModal from "./BookCreateModal";
 import { useAuth } from "@/hooks/useAuth";
@@ -27,24 +28,7 @@ const ProductDetailsOne = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [archiving, setArchiving] = useState(false);
   
-  // Local storage'dan like holatini olish
-  const getStoredLikeState = (bookId) => {
-    if (typeof window === 'undefined') return null;
-    try {
-      const likedMap = localStorage.getItem('liked_books_map');
-      if (likedMap) {
-        const map = JSON.parse(likedMap);
-        return map[bookId] || null;
-      }
-      return null;
-    } catch {
-      return null;
-    }
-  };
-  
-  const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
-  const [liking, setLiking] = useState(false);
+  const { liked: isLiked, count: likeCount, liking, toggle, sync } = useLike(null, false, 0);
   const fetchingRef = useRef(false);
   const lastIdRef = useRef(null);
 
@@ -107,10 +91,7 @@ const ProductDetailsOne = () => {
         const bookData = response.book;
         setBook(bookData);
         
-        // Local storage'dan yoki API'dan like holatini olish
-        const stored = getStoredLikeState(bookData?.id);
-        setIsLiked(stored?.isLiked ?? (bookData?.is_liked === true));
-        setLikeCount(stored?.likeCount ?? (bookData?.like_count || 0));
+        sync(bookData?.id, bookData?.is_liked, bookData?.like_count);
         setError(null);
       } catch (err) {
         if (!isMounted || abortController.signal.aborted) {
@@ -141,7 +122,7 @@ const ProductDetailsOne = () => {
 
   const handleLike = async (e) => {
     e.preventDefault();
-    
+
     if (!isAuthenticated) {
       showToast({
         type: 'info',
@@ -152,72 +133,20 @@ const ProductDetailsOne = () => {
       return;
     }
 
-    if (liking || !book) return;
-
-    const previousLiked = isLiked;
-    const previousCount = likeCount;
-    const newLiked = !previousLiked;
-    const newCount = newLiked ? previousCount + 1 : Math.max(0, previousCount - 1);
-    
-    setIsLiked(newLiked);
-    setLikeCount(newCount);
-    setBook(prev => ({
-      ...prev,
-      is_liked: newLiked,
-      like_count: newCount
-    }));
+    if (!book) return;
 
     try {
-      setLiking(true);
-      const response = await likeBook(book.id);
-      
-      if (response.success) {
-        setIsLiked(response.is_liked);
-        const finalCount = response.is_liked ? newCount : Math.max(0, newCount);
-        setLikeCount(finalCount);
-        setBook(prev => ({
-          ...prev,
-          is_liked: response.is_liked,
-          like_count: finalCount
-        }));
-        
-        // Local storage'ga saqlash
-        if (typeof window !== 'undefined') {
-          const likedMap = localStorage.getItem('liked_books_map');
-          const map = likedMap ? JSON.parse(likedMap) : {};
-          
-          if (response.is_liked) {
-            map[book.id] = {
-              isLiked: true,
-              likeCount: finalCount
-            };
-          } else {
-            delete map[book.id];
-          }
-          
-          localStorage.setItem('liked_books_map', JSON.stringify(map));
-        }
-        
-        window.dispatchEvent(new Event(response.is_liked ? 'bookLiked' : 'bookUnliked'));
+      const result = await toggle(book.id);
+      if (result) {
+        setBook(prev => ({ ...prev, is_liked: result.isLiked, like_count: result.count }));
       }
-    } catch (error) {
-      console.error("Like error:", error);
-      setIsLiked(previousLiked);
-      setLikeCount(previousCount);
-      setBook(prev => ({
-        ...prev,
-        is_liked: previousLiked,
-        like_count: previousCount
-      }));
-      
+    } catch {
       showToast({
         type: 'error',
         title: t("toastErrorTitle"),
         message: t("toastLikeErrorMessage"),
         duration: 3000
       });
-    } finally {
-      setLiking(false);
     }
   };
 

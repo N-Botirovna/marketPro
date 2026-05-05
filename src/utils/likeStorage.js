@@ -1,79 +1,50 @@
-// Like storage utility - localStorage bilan ishlash uchun
+const STORAGE_KEY = 'liked_ids';
 
-const LIKE_STORAGE_KEY = 'liked_books_map';
-
-// Barcha like qilingan kitoblarni olish
-export const getLikedBooksMap = () => {
-  if (typeof window === 'undefined') return {};
+function _read() {
+  if (typeof window === 'undefined') return [];
   try {
-    const stored = localStorage.getItem(LIKE_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : {};
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return {};
+    return [];
   }
-};
+}
 
-// Bitta kitobning like holatini olish
-export const getBookLikeState = (bookId) => {
-  const map = getLikedBooksMap();
-  return map[bookId] || null;
-};
+function _write(ids) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+  } catch {
+    // localStorage quota exceeded or unavailable — silently ignore
+  }
+}
 
-// Kitobning like holatini saqlash
-export const saveBookLikeState = (bookId, isLiked, likeCount) => {
+export function addLike(id) {
+  const ids = _read();
+  const key = String(id);
+  if (!ids.includes(key)) {
+    _write([...ids, key]);
+  }
+}
+
+export function removeLike(id) {
+  const key = String(id);
+  _write(_read().filter(existing => existing !== key));
+}
+
+export function isLiked(id) {
+  return _read().includes(String(id));
+}
+
+export function getAllLikes() {
+  return _read();
+}
+
+export function clearLikes() {
   if (typeof window === 'undefined') return;
   try {
-    const map = getLikedBooksMap();
-    
-    if (isLiked) {
-      // Like qilingan bo'lsa saqlash
-      map[bookId] = {
-        isLiked: true,
-        likeCount: likeCount || 1
-      };
-    } else {
-      // Unlike qilingan bo'lsa o'chirish
-      delete map[bookId];
-    }
-    
-    localStorage.setItem(LIKE_STORAGE_KEY, JSON.stringify(map));
-  } catch (error) {
-    console.error('Error saving like state:', error);
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // ignore
   }
-};
-
-// API'dan olingan liked books ro'yxatini saqlash
-export const initializeLikedBooksFromAPI = (likedBooks) => {
-  if (typeof window === 'undefined') return;
-  try {
-    const map = {};
-    likedBooks.forEach(book => {
-      if (book.id) {
-        map[book.id] = {
-          isLiked: true,
-          likeCount: book.like_count || 1
-        };
-      }
-    });
-    localStorage.setItem(LIKE_STORAGE_KEY, JSON.stringify(map));
-  } catch (error) {
-    console.error('Error initializing liked books:', error);
-  }
-};
-
-// Barcha like ma'lumotlarini o'chirish (logout uchun)
-export const clearLikedBooks = () => {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.removeItem(LIKE_STORAGE_KEY);
-  } catch (error) {
-    console.error('Error clearing liked books:', error);
-  }
-};
-
-// Like qilingan kitoblar sonini olish
-export const getLikedBooksCount = () => {
-  const map = getLikedBooksMap();
-  return Object.keys(map).length;
-};
-
+}

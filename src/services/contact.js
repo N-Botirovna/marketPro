@@ -1,12 +1,11 @@
 import http from "@/lib/http";
+import { API_ENDPOINTS } from "@/config";
 
-// Send contact message
 export async function sendContactMessage({ phone, message }) {
-  const payload = { phone, message };
-  const { data } = await http.post("api/v1/base/contact-us/", payload);
+  const { data } = await http.post(API_ENDPOINTS.BASE.CONTACT, { phone, message });
   return {
-    success: data?.success || false,
-    message: data?.message || null,
+    success: data?.success === true,
+    message: data?.message ?? null,
     raw: data,
   };
 }

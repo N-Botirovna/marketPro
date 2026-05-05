@@ -1,43 +1,17 @@
 import http from "@/lib/http";
 import { API_ENDPOINTS } from "@/config";
+import { normalizeListResponse } from "@/utils/normalizeResponse";
 
-// Get FAQs
 export async function getFaqs(params = {}) {
-  console.log('❓ Fetching FAQs with params:', params);
-  
-  // Filter out empty parameters
-  const cleanParams = {};
-  Object.keys(params).forEach(key => {
-    const value = params[key];
-    if (value !== '' && value !== null && value !== undefined) {
-      cleanParams[key] = value;
-    }
-  });
-  
-  console.log('🧹 Cleaned FAQ params:', cleanParams);
-  
-  try {
-    const { data } = await http.get(API_ENDPOINTS.BASE.FAQS, { params: cleanParams });
-    console.log('✅ FAQs API response:', data);
-    
-    return {
-      faqs: data?.results || data?.result || [],
-      count: data?.count || 0,
-      next: data?.next || null,
-      previous: data?.previous || null,
-      raw: data,
-    };
-  } catch (error) {
-    console.error('❌ FAQs API error:', error);
-    throw error;
-  }
+  const cleanParams = Object.fromEntries(
+    Object.entries(params).filter(([, v]) => v !== '' && v !== null && v !== undefined)
+  );
+  const { data } = await http.get(API_ENDPOINTS.BASE.FAQS, { params: cleanParams });
+  const { result: faqs, count, next, previous, raw } = normalizeListResponse(data);
+  return { faqs, count, next, previous, raw };
 }
 
-// Get single FAQ by ID
 export async function getFaqById(id) {
   const { data } = await http.get(`${API_ENDPOINTS.BASE.FAQS}${id}/`);
-  return {
-    faq: data || null,
-    raw: data,
-  };
+  return { faq: data ?? null, raw: data };
 }

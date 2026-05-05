@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { getUserPostedBooks, getUserArchivedBooks } from '@/services/books';
+import { updateUserProfile } from '@/services/auth';
 import ProfileForm from './ProfileForm';
 
 const UserProfile = ({ userData }) => {
@@ -11,6 +12,8 @@ const UserProfile = ({ userData }) => {
   const [booksLoading, setBooksLoading] = useState(true);
   const [archivedLoading, setArchivedLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('active');
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const [formData, setFormData] = useState({
     first_name: userData?.first_name || '',
     last_name: userData?.last_name || '',
@@ -29,10 +32,17 @@ const UserProfile = ({ userData }) => {
     }));
   };
 
-  const handleSave = () => {
-    // TODO: Implement save functionality
-    console.log('Saving profile data:', formData);
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setSaveError(null);
+      await updateUserProfile(formData);
+      setIsEditing(false);
+    } catch (err) {
+      setSaveError(err?.normalized?.message || err?.message || 'Saqlashda xatolik yuz berdi');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleEditToggle = () => {
@@ -75,13 +85,15 @@ const UserProfile = ({ userData }) => {
       /> */}
       
       <div className="row g-5">
-        <ProfileForm 
+        <ProfileForm
           userData={userData}
           formData={formData}
           isEditing={isEditing}
           onInputChange={handleInputChange}
           onSave={handleSave}
           onCancel={() => setIsEditing(false)}
+          saving={saving}
+          saveError={saveError}
         />
       </div>
 {/*       

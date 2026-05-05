@@ -3,6 +3,7 @@ import React, { useEffect, useState, memo } from "react";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { getBookById, getBooks, likeBook } from "@/services/books";
+import { isLiked as getIsLiked, addLike, removeLike } from "@/utils/likeStorage";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "./Toast";
 import dynamic from "next/dynamic";
@@ -224,20 +225,12 @@ const RecommendedOne = () => {
         );
         setBooks(filteredBooks);
         
-        // Initialize liked state with local storage
         const likedState = {};
-        let likedMap = {};
-        try {
-          const stored = localStorage.getItem('liked_books_map');
-          likedMap = stored ? JSON.parse(stored) : {};
-        } catch {}
-        
         filteredBooks.forEach(book => {
           if (book.id) {
-            const stored = likedMap[book.id];
             likedState[book.id] = {
-              isLiked: stored?.isLiked ?? (book.is_liked === true),
-              likeCount: stored?.likeCount ?? (book.like_count || 0)
+              isLiked: getIsLiked(book.id) || (book.is_liked === true),
+              likeCount: book.like_count || 0,
             };
           }
         });
@@ -355,20 +348,12 @@ const RecommendedOne = () => {
           [bookId]: updatedState
         }));
         
-        // Local storage'ga saqlash
-        if (typeof window !== 'undefined') {
-          const likedMap = localStorage.getItem('liked_books_map');
-          const map = likedMap ? JSON.parse(likedMap) : {};
-          
-          if (response.is_liked) {
-            map[bookId] = updatedState;
-          } else {
-            delete map[bookId];
-          }
-          
-          localStorage.setItem('liked_books_map', JSON.stringify(map));
+        if (response.is_liked) {
+          addLike(bookId);
+        } else {
+          removeLike(bookId);
         }
-        
+
         window.dispatchEvent(new Event(response.is_liked ? 'bookLiked' : 'bookUnliked'));
       }
     } catch (error) {

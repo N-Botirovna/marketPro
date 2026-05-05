@@ -69,6 +69,7 @@ const MaterialLocationDropdown = () => {
       </Button>
 
       <Menu
+        disableScrollLock
         anchorEl={anchorEl}
         open={open}
         onClose={handleMenuMouseLeave}
