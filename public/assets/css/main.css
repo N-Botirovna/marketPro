@@ -8234,6 +8234,7 @@ input:focus-visible {
   visibility: hidden;
   opacity: 0;
   overflow: hidden;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
 }
 
 .submenus-submenu__list li a {
