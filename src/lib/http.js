@@ -1,16 +1,13 @@
 import axios from "axios";
 import { API_BASE_URL, API_ENDPOINTS, AUTH_TOKEN_STORAGE_KEY } from "@/config";
-import { getItem, removeItem, setItem, getCurrentLocale } from "@/utils/storage";
-
+import { getItem, setItem, getCurrentLocale } from "@/utils/storage";
+import { clearAuthStorage } from "@/utils/authStorage";
+import { serializeParams } from "@/utils/serializeParams";
 
 const isDev = process.env.NODE_ENV === 'development';
 
-const buildCacheKey = (url, params, locale) => {
-  const sortedParams = params
-    ? JSON.stringify(Object.keys(params).sort().reduce((acc, k) => { acc[k] = params[k]; return acc; }, {}))
-    : '{}';
-  return `${url}?${sortedParams}::${locale}`;
-};
+const buildCacheKey = (url, params, locale) =>
+  `${url}?${serializeParams(params)}::${locale}`;
 
 // Simple in-memory cache for GET requests
 const cache = new Map();
@@ -249,12 +246,8 @@ httpClient.interceptors.response.use(
           });
         }
         processQueue(refreshError, null);
-        
-        // Clear tokens and redirect to login
-        removeItem(AUTH_TOKEN_STORAGE_KEY);
-        removeItem('refresh_token');
-        removeItem('token_expires_at');
-        removeItem('login_time');
+
+        clearAuthStorage();
         delete httpClient.defaults.headers.common['Authorization'];
         
         // Redirect to login with locale

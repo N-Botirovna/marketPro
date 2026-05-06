@@ -31,11 +31,13 @@ const TopVendorsOne = () => {
     };
   }, []);
 
+  const skeletonCards = Array.from({ length: 4 });
+
   return (
     <section className="top-vendors py-80">
       <div className="container container-lg">
         <div className="section-heading mb-6">
-          <div className="d-flex align-items-center justify-content-between flex-nowrap" style={{ 
+          <div className="d-flex align-items-center justify-content-between flex-nowrap" style={{
             display: 'flex !important',
             alignItems: 'center',
             justifyContent: 'space-between !important',
@@ -46,7 +48,7 @@ const TopVendorsOne = () => {
             <Link
               href="/vendor"
               className="btn btn-outline-main d-inline-flex align-items-center gap-6 rounded-pill px-16 py-8 text-sm fw-medium hover-bg-main-600 hover-text-white transition-1"
-              style={{ 
+              style={{
                 borderColor: '#299E60',
                 color: '#299E60',
                 textDecoration: 'none',
@@ -60,72 +62,72 @@ const TopVendorsOne = () => {
           </div>
         </div>
         <div className="row gy-4 vendor-card-wrapper">
-          {shops.map((shop) => (
-            <div key={shop.id} className="col-xxl-3 col-lg-4 col-sm-6">
-              <div className="vendor-card text-center px-16 pb-24">
-                <div className="">
-                  <div
-                    style={{
-                      position: "relative",
-                      width: 90,
-                      height: 90,
-                      margin: "12px auto",
-                      borderRadius: "50%",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <Image
-                      src={
-                        shop.picture || "/assets/images/thumbs/vendor-logo1.png"
-                      }
-                      alt={shop.name}
-                      fill
-                      sizes="80px"
-                      style={{ objectFit: "cover" }}
-                      loading="lazy"
-                    />
+          {loading
+            ? skeletonCards.map((_, i) => (
+                <div key={i} className="col-xxl-3 col-lg-4 col-sm-6">
+                  <div className="vendor-card text-center px-16 pb-24">
+                    <div style={{ width: 90, height: 90, borderRadius: '50%', background: '#f0f0f0', margin: '12px auto' }} />
+                    <div style={{ height: 16, background: '#f0f0f0', borderRadius: 4, margin: '8px auto', width: '60%' }} />
+                    <div style={{ height: 12, background: '#f0f0f0', borderRadius: 4, margin: '6px auto', width: '40%' }} />
                   </div>
-                  <h6 className="title mt-32">{shop.name}</h6>
-
-                  {/* Product Count */}
-                  <span className="text-heading text-sm d-block">
-                    {shop.book_count} mahsulot
-                  </span>
-
-                  {/* Location */}
-                  {(shop.district || shop.region) && (
-                    <span className="text-gray-600 text-xs d-block mt-4">
-                      {shop.region?.name && shop.district?.name
-                        ? `${shop.region.name}, ${shop.district.name}`
-                        : shop.region?.name || shop.district?.name}
-                    </span>
-                  )}
-
-                  {/* Working Hours */}
-                  {shop.working_days && shop.working_hours && (
-                    <span className="text-gray-600 text-xs d-block mt-4">
-                      {shop.working_days} {shop.working_hours}
-                    </span>
-                  )}
-
-                  {/* Post Service Badge */}
-                  {shop.has_post_service && (
-                    <span className="bg-main-50 text-main-600 px-12 py-4 rounded-pill text-xs d-inline-block mt-8 mb-8">
-                      <i className="ph ph-truck d-inline mr-4" />
-                      Yetkazib berish
-                    </span>
-                  )}
-
-                  <Link
-                    href={`/vendor-two-details?id=${shop.id}`}
-                    className="btn btn-main-two rounded-pill py-6 px-16 text-12 mt-8"
-                  >
-                    {tBread("exploreShop")}
-                  </Link>
                 </div>
-              </div>
-            </div>
-          ))}
+              ))
+            : shops.map((shop) => (
+                <div key={shop.id} className="col-xxl-3 col-lg-4 col-sm-6">
+                  <div className="vendor-card text-center px-16 pb-24">
+                    <div className="">
+                      <div
+                        style={{
+                          position: "relative",
+                          width: 90,
+                          height: 90,
+                          margin: "12px auto",
+                          borderRadius: "50%",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <Image
+                          src={shop.picture || "/assets/images/thumbs/vendor-logo1.png"}
+                          alt={shop.name}
+                          fill
+                          sizes="80px"
+                          style={{ objectFit: "cover" }}
+                          loading="lazy"
+                        />
+                      </div>
+                      <h6 className="title mt-32">{shop.name}</h6>
+                      <span className="text-heading text-sm d-block">
+                        {shop.book_count} mahsulot
+                      </span>
+                      {(shop.district || shop.region) && (
+                        <span className="text-gray-600 text-xs d-block mt-4">
+                          {shop.region?.name && shop.district?.name
+                            ? `${shop.region.name}, ${shop.district.name}`
+                            : shop.region?.name || shop.district?.name}
+                        </span>
+                      )}
+                      {shop.working_days && shop.working_hours && (
+                        <span className="text-gray-600 text-xs d-block mt-4">
+                          {shop.working_days} {shop.working_hours}
+                        </span>
+                      )}
+                      {shop.has_post_service && (
+                        <span className="bg-main-50 text-main-600 px-12 py-4 rounded-pill text-xs d-inline-block mt-8 mb-8">
+                          <i className="ph ph-truck d-inline mr-4" />
+                          Yetkazib berish
+                        </span>
+                      )}
+                      <Link
+                        href={`/vendor-two-details?id=${shop.id}`}
+                        className="btn btn-main-two rounded-pill py-6 px-16 text-12 mt-8"
+                      >
+                        {tBread("exploreShop")}
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))
+          }
         </div>
       </div>
     </section>

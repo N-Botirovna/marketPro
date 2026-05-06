@@ -1,12 +1,14 @@
-import BottomFooter from "@/components/BottomFooter";
+import dynamic from "next/dynamic";
 import Breadcrumb from "@/components/Breadcrumb";
 import AboutUs from "@/components/AboutUs";
-import FooterOne from "@/components/FooterOne";
-import HeaderOne from "@/components/HeaderOne";
 import ColorInit from "@/helper/ColorInit";
-import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
 import { getTranslations } from "next-intl/server";
+
+const FooterOne = dynamic(() => import("@/components/FooterOne"));
+const BottomFooter = dynamic(() => import("@/components/BottomFooter"));
+
+export const revalidate = 86400;
 
 export const metadata = {
   title: "Biz haqimizda - Kitobzor",
@@ -24,12 +26,6 @@ const page = async () => {
 
       {/* ScrollToTop */}
       <ScrollToTopInit color="#299E60" />
-
-      {/* Preloader */}
-      <Preloader />
-
-      {/* HeaderOne */}
-      <HeaderOne category={true} />
 
       {/* Breadcrumb */}
       <Breadcrumb title={tBreadcrumb("aboutUs")} />

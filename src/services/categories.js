@@ -1,28 +1,11 @@
 import http from "@/lib/http";
 import { API_ENDPOINTS } from "@/config";
 import { normalizeListResponse } from "@/utils/normalizeResponse";
+import { serializeParams } from "@/utils/serializeParams";
 
-const CATEGORY_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CATEGORY_CACHE_TTL = 5 * 60 * 1000;
+const CATEGORY_CACHE_MAX = 20;
 const categoriesCache = new Map();
-
-const serializeParams = (params = {}) => {
-  const entries = Object.entries(params).filter(
-    ([, value]) => value !== undefined && value !== null
-  );
-
-  if (entries.length === 0) {
-    return "__default__";
-  }
-
-  return JSON.stringify(
-    entries
-      .sort(([a], [b]) => (a > b ? 1 : a < b ? -1 : 0))
-      .reduce((acc, [key, value]) => {
-        acc[key] = value;
-        return acc;
-      }, {})
-  );
-};
 
 // Get book categories with basic memoization to avoid duplicate network requests
 export async function getBookCategories(params = {}) {
@@ -45,10 +28,10 @@ export async function getBookCategories(params = {}) {
       const { result, count, next, previous, raw } = normalizeListResponse(data);
       const payload = { categories: result, count, next, previous, raw };
 
-      categoriesCache.set(cacheKey, {
-        data: payload,
-        timestamp: Date.now(),
-      });
+      if (categoriesCache.size >= CATEGORY_CACHE_MAX) {
+        categoriesCache.delete(categoriesCache.keys().next().value);
+      }
+      categoriesCache.set(cacheKey, { data: payload, timestamp: Date.now() });
 
       return payload;
     })

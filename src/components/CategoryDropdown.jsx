@@ -1,7 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
-import { getBookCategories } from "@/services/categories";
+import { getBookCategories } from "@/services/categories"
+;
 
 const CategoryDropdown = () => {
   const [categories, setCategories] = useState([]);

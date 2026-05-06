@@ -1,13 +1,15 @@
+import dynamic from "next/dynamic";
 import ProfileDashboard from "@/components/ProfileDashboard";
-import BottomFooter from "@/components/BottomFooter";
 import Breadcrumb from "@/components/Breadcrumb";
-import FooterOne from "@/components/FooterOne";
-import ShippingOne from "@/components/ShippingOne";
 import ColorInit from "@/helper/ColorInit";
-import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
-import HeaderOne from "@/components/HeaderOne";
 import { getTranslations } from "next-intl/server";
+
+const ShippingOne = dynamic(() => import("@/components/ShippingOne"));
+const FooterOne = dynamic(() => import("@/components/FooterOne"));
+const BottomFooter = dynamic(() => import("@/components/BottomFooter"));
+
+export const revalidate = 3600;
 
 export const metadata = {
   title: "MarketPro - User Profile",
@@ -26,10 +28,6 @@ const page = async ({ params }) => {
 
       {/* ScrollToTop */}
       <ScrollToTopInit color='#FA6400' />
-
-      {/* Preloader */}
-      <Preloader />
-      <HeaderOne category={true} />
 
       {/* Breadcrumb */}
       <Breadcrumb title={tBreadcrumb("myAccount")} />

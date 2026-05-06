@@ -1,6 +1,10 @@
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "https://api-dev.kitobzor.uz/";
 
+export const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "+998 93 834 01 03";
+
+export const PUBLIC_PAGES = ["/login", "/register", "/forgot-password"];
+
 export const AUTH_TOKEN_STORAGE_KEY = "auth_token";
 
 export const API_ENDPOINTS = {

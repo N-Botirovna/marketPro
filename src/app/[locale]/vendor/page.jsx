@@ -1,14 +1,16 @@
-import BottomFooter from "@/components/BottomFooter";
+import dynamic from "next/dynamic";
 import BreadcrumbThree from "@/components/BreadcrumbThree";
-import FooterOne from "@/components/FooterOne";
-import HeaderOne from "@/components/HeaderOne";
-import NewsletterOne from "@/components/NewsletterOne";
-import ShippingOne from "@/components/ShippingOne";
 import VendorsList from "@/components/VendorsList";
 import ColorInit from "@/helper/ColorInit";
-import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
 import { getTranslations } from "next-intl/server";
+
+const ShippingOne = dynamic(() => import("@/components/ShippingOne"));
+const NewsletterOne = dynamic(() => import("@/components/NewsletterOne"));
+const FooterOne = dynamic(() => import("@/components/FooterOne"));
+const BottomFooter = dynamic(() => import("@/components/BottomFooter"));
+
+export const revalidate = 3600;
 
 export const metadata = {
   title: "MarketPro - E-commerce Next JS Template",
@@ -26,12 +28,6 @@ const page = async () => {
 
       {/* ScrollToTop */}
       <ScrollToTopInit color='#299E60' />
-
-      {/* Preloader */}
-      <Preloader />
-
-      {/* HeaderOne */}
-      <HeaderOne />
 
       {/* BreadcrumbThree */}
       <BreadcrumbThree title={tBreadcrumb("shops")} />

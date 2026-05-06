@@ -1,15 +1,15 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { isAuthenticated, logoutUser, getAuthToken } from "@/services/auth";
+import { isAuthenticated, logoutUser } from "@/services/auth";
 import { getBookCategories } from "@/services/categories";
 import { getRegions } from "@/services/regions";
 import { getLikedBooks } from "@/services/books";
 import { addLike, clearLikes, getAllLikes } from "@/utils/likeStorage";
 import { useAuth } from "@/hooks/useAuth";
-import CategoryDropdown from "./CategoryDropdown";
 import MaterialCategoryDropdown from "./MaterialCategoryDropdown";
 import MaterialLocationDropdown from "./MaterialLocationDropdown";
 import { useTranslations } from "next-intl";
+import { SUPPORT_PHONE } from "@/config";
 
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -19,7 +19,6 @@ const HeaderOne = () => {
   const { isAuthenticated: isAuth, isLoading: authLoading } = useAuth();
   const [scroll, setScroll] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userToken, setUserToken] = useState(null);
   const [categories, setCategories] = useState([]);
   const [regions, setRegions] = useState([]);
   const [hoveredRegionId, setHoveredRegionId] = useState(null);
@@ -50,55 +49,15 @@ const HeaderOne = () => {
   useEffect(() => {
     const authenticated = isAuthenticated();
     setIsLoggedIn(authenticated);
-    if (authenticated) {
-      const token = getAuthToken();
-      setUserToken(token);
-    } else {
-      setUserToken(null);
-      setLikedBooksCount(0);
-    }
+    if (!authenticated) setLikedBooksCount(0);
   }, [isAuth]);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const handleScroll = () => {
-        setScroll(window.pageYOffset > 150);
-      };
-
-      // Attach the scroll event listener
-      window.addEventListener("scroll", handleScroll);
-
-      // Initialize Select2 safely (dynamic import to ensure plugin is loaded)
-      let $instance = null;
-      (async () => {
-        try {
-          const $ = (await import("jquery")).default;
-          if (!window.jQuery) {
-            window.jQuery = $;
-            window.$ = $;
-          }
-          await import("select2");
-          const $el = $(".js-example-basic-single");
-          if ($el.length && typeof $el.select2 === "function") {
-            $el.select2();
-            $instance = $el;
-          }
-        } catch (e) {
-          console.error("Select2 init error:", e);
-        }
-      })();
-
-      // Cleanup function
-      return () => {
-        // Remove the scroll event listener
-        window.removeEventListener("scroll", handleScroll);
-
-        // Destroy Select2 instance if it exists
-        if ($instance && $instance.length && $instance.data("select2")) {
-          $instance.select2("destroy");
-        }
-      };
-    }
+    const handleScroll = () => {
+      setScroll(window.pageYOffset > 150);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
@@ -191,9 +150,7 @@ const HeaderOne = () => {
     setMenuActive(!menuActive);
   };
 
-  // Search control support
   const [activeSearch, setActiveSearch] = useState(false);
-  // const [searchQuery, setSearchQuery] = useState("");
   const handleSearchToggle = () => {
     setActiveSearch(!activeSearch);
   };
@@ -201,7 +158,7 @@ const HeaderOne = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/vendor-two?search=${encodeURIComponent(searchQuery.trim())}`);
       setActiveSearch(false);
     }
   };
@@ -421,7 +378,7 @@ const HeaderOne = () => {
                       {tHeader("customerService")}
                     </div>
                     <div className="fw-semibold text-gray-900">
-                    +998 93 834 01 03
+                      {SUPPORT_PHONE}
                     </div>
                   </div>
                 </div>

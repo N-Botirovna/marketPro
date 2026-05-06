@@ -1,40 +1,14 @@
 import http from "@/lib/http";
 import { API_ENDPOINTS } from "@/config";
+import { serializeParams } from "@/utils/serializeParams";
 
-const REGION_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const REGION_CACHE_TTL = 5 * 60 * 1000;
+const REGION_CACHE_MAX = 20;
 const regionsCache = new Map();
-
-const serializeParams = (params = {}) => {
-  const entries = Object.entries(params).filter(
-    ([, value]) => value !== undefined && value !== null && value !== ""
-  );
-
-  if (entries.length === 0) {
-    return "__default__";
-  }
-
-  return JSON.stringify(
-    entries
-      .sort(([a], [b]) => (a > b ? 1 : a < b ? -1 : 0))
-      .reduce((acc, [key, value]) => {
-        acc[key] = value;
-        return acc;
-      }, {})
-  );
-};
 
 // Get regions with districts (memoized to prevent duplicate requests on the client)
 export async function getRegions(params = {}) {
-  // Filter out empty parameters
-  const cleanParams = {};
-  Object.keys(params).forEach((key) => {
-    const value = params[key];
-    if (value !== "" && value !== null && value !== undefined) {
-      cleanParams[key] = value;
-    }
-  });
-
-  const cacheKey = serializeParams(cleanParams);
+  const cacheKey = serializeParams(params);
   const cachedEntry = regionsCache.get(cacheKey);
   const now = Date.now();
 
@@ -48,7 +22,7 @@ export async function getRegions(params = {}) {
   }
 
   const requestPromise = http
-    .get(API_ENDPOINTS.BASE.REGIONS, { params: cleanParams })
+    .get(API_ENDPOINTS.BASE.REGIONS, { params })
     .then(({ data }) => {
       const normalizedRegions = Array.isArray(data?.results)
         ? data.results
@@ -67,10 +41,10 @@ export async function getRegions(params = {}) {
         raw: data,
       };
 
-      regionsCache.set(cacheKey, {
-        data: payload,
-        timestamp: Date.now(),
-      });
+      if (regionsCache.size >= REGION_CACHE_MAX) {
+        regionsCache.delete(regionsCache.keys().next().value);
+      }
+      regionsCache.set(cacheKey, { data: payload, timestamp: Date.now() });
 
       return payload;
     })

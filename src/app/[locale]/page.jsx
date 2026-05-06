@@ -1,17 +1,17 @@
+import dynamic from "next/dynamic";
 import BannerOne from "@/components/BannerOne";
-import BottomFooter from "@/components/BottomFooter";
-import FaqSection from "@/components/FaqSection";
 import FeatureOne from "@/components/FeatureOne";
-import FooterOne from "@/components/FooterOne";
-import HeaderOne from "@/components/HeaderOne";
-import HotDealsOne from "@/components/HotDealsOne";
-import NewsletterOne from "@/components/NewsletterOne";
-import ShippingOne from "@/components/ShippingOne";
 import ShortProductOne from "@/components/ShortProductOne";
 import TopVendorsOne from "@/components/TopVendorsOne";
 import ColorInit from "@/helper/ColorInit";
-import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
+
+// Below-fold components — loaded after critical content
+const NewsletterOne = dynamic(() => import("@/components/NewsletterOne"));
+const ShippingOne = dynamic(() => import("@/components/ShippingOne"));
+const FaqSection = dynamic(() => import("@/components/FaqSection"));
+const FooterOne = dynamic(() => import("@/components/FooterOne"));
+const BottomFooter = dynamic(() => import("@/components/BottomFooter"));
 
 export const metadata = {
   title: "MarketPro - E-commerce Next JS Template",
@@ -22,17 +22,11 @@ export const metadata = {
 const page = () => {
   return (
     <>
-      {/* Preloader */}
-      <Preloader />
-
       {/* ScrollToTop */}
       <ScrollToTopInit color="#299E60" />
 
       {/* ColorInit */}
       <ColorInit color={false} />
-
-      {/* HeaderOne */}
-      <HeaderOne />
 
       {/* BannerOne */}
       <BannerOne />

@@ -1,13 +1,23 @@
 import createNextIntlPlugin from "next-intl/plugin";
+import { fileURLToPath } from "url";
+import path from "path";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
   poweredByHeader: false,
   compress: true,
+  outputFileTracingRoot: __dirname,
 
   images: {
-    domains: ["api.kitobzor.uz"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "api.kitobzor.uz",
+      },
+    ],
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 3600,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],

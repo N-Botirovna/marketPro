@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx next *)",
+      "Bash(Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue)",
+      "Read(//c/Users/user/**)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\user\\\\Desktop\\\\marketpro\\\\src\" -Recurse -Force)",
+      "Bash(Select-Object FullName, Extension)",
+      "Bash(Sort-Object FullName)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}

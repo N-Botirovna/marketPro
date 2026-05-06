@@ -12,9 +12,7 @@ import "slick-carousel/slick/slick-theme.css";
 
 const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
-// Slick navigation arrows as separate components
-function SampleNextArrow(props) {
-  const { className, onClick } = props;
+function ShortNextArrow({ className, onClick }) {
   return (
     <button
       type="button"
@@ -26,8 +24,7 @@ function SampleNextArrow(props) {
   );
 }
 
-function SamplePrevArrow(props) {
-  const { className, onClick } = props;
+function ShortPrevArrow({ className, onClick }) {
   return (
     <button
       type="button"
@@ -39,9 +36,84 @@ function SamplePrevArrow(props) {
   );
 }
 
+const ProductCard = memo(({ product }) => {
+  const hasValidId =
+    product.id &&
+    product.id !== null &&
+    product.id !== undefined &&
+    !product.id.toString().startsWith("placeholder") &&
+    product.id !== "placeholder";
+  const detailUrl = hasValidId ? `/product-details?id=${product.id}` : "#";
+
+  return (
+    <div className="flex-align gap-16 mb-24">
+      <div
+        className="w-90 h-90 rounded-12 border border-gray-100 shrink-0 overflow-hidden"
+        style={{ position: "relative", width: 90, height: 90 }}
+      >
+        {hasValidId ? (
+          <Link
+            href={detailUrl}
+            className="link"
+            style={{ display: "block", width: "100%", height: "100%" }}
+          >
+            <Image
+              src={product.picture}
+              alt={product.desc || "product"}
+              fill
+              sizes="90px"
+              style={{ objectFit: "cover" }}
+              loading="lazy"
+            />
+          </Link>
+        ) : (
+          <div style={{ width: "100%", height: "100%" }}>
+            <Image
+              src={product.picture}
+              alt={product.desc || "product"}
+              fill
+              sizes="90px"
+              style={{ objectFit: "cover" }}
+              loading="lazy"
+            />
+          </div>
+        )}
+      </div>
+      <div className="flex-1">
+        {product.author && (
+          <p className="text-xs text-gray-600 mb-4">{product.author}</p>
+        )}
+        <h6 className="text-sm fw-semibold mb-8 text-line-1">
+          {hasValidId ? (
+            <Link
+              href={detailUrl}
+              className="link hover-text-main-600 transition-1"
+            >
+              {product.desc}
+            </Link>
+          ) : (
+            <span className="text-gray-500">{product.desc}</span>
+          )}
+        </h6>
+        <div className="flex-align gap-8">
+          <span className="text-heading text-md fw-semibold">
+            {product.price1}
+          </span>
+          {product.price2 && (
+            <span className="text-gray-400 text-md fw-semibold">
+              {product.price2}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+ProductCard.displayName = "ProductCard";
+
 const ShortProductOne = () => {
   const locale = useLocale();
-  // 🔹 Memoized Slick settings
   const settings = useMemo(
     () => ({
       dots: false,
@@ -51,8 +123,8 @@ const ShortProductOne = () => {
       slidesToShow: 1,
       slidesToScroll: 1,
       autoplay: true,
-      nextArrow: <SampleNextArrow />,
-      prevArrow: <SamplePrevArrow />,
+      nextArrow: <ShortNextArrow />,
+      prevArrow: <ShortPrevArrow />,
       responsive: [
         { breakpoint: 768, settings: { arrows: false } },
         { breakpoint: 575, settings: { arrows: true } },
@@ -139,77 +211,6 @@ const ShortProductOne = () => {
 
     return slides;
   };
-
-  // 🔹 Product card
-  const ProductCard = memo(({ product }) => {
-    const hasValidId = product.id && 
-                       product.id !== null && 
-                       product.id !== undefined &&
-                       !product.id.toString().startsWith('placeholder') &&
-                       product.id !== 'placeholder';
-    const detailUrl = hasValidId ? `/product-details?id=${product.id}` : '#';
-    
-    return (
-      <div className="flex-align gap-16 mb-24" key={product.id}>
-        <div
-          className="w-90 h-90 rounded-12 border border-gray-100 shrink-0 overflow-hidden"
-          style={{ position: "relative", width: 90, height: 90 }}
-        >
-          {hasValidId ? (
-            <Link href={detailUrl} className="link" style={{ display: 'block', width: '100%', height: '100%' }}>
-              <Image
-                src={product.picture}
-                alt={product.desc || "product"}
-                fill
-                sizes="90px"
-                style={{ objectFit: "cover" }}
-                loading="lazy"
-              />
-            </Link>
-          ) : (
-            <div style={{ width: '100%', height: '100%' }}>
-              <Image
-                src={product.picture}
-                alt={product.desc || "product"}
-                fill
-                sizes="90px"
-                style={{ objectFit: "cover" }}
-                loading="lazy"
-              />
-            </div>
-          )}
-        </div>
-        <div className="flex-1">
-          {product.author && (
-            <p className="text-xs text-gray-600 mb-4">
-              {product.author}
-            </p>
-          )}
-          <h6 className="text-sm fw-semibold mb-8 text-line-1">
-            {hasValidId ? (
-              <Link href={detailUrl} className="link hover-text-main-600 transition-1">
-                {product.desc}
-              </Link>
-            ) : (
-              <span className="text-gray-500">{product.desc}</span>
-            )}
-          </h6>
-          <div className="flex-align gap-8">
-            <span className="text-heading text-md fw-semibold">
-              {product.price1}
-            </span>
-            {product.price2 && (
-              <span className="text-gray-400 text-md fw-semibold">
-                {product.price2}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  });
-
-  ProductCard.displayName = "ProductCard";
 
   // 🔹 Categories (title + data)
   const productCategories = [

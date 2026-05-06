@@ -33,7 +33,6 @@ export async function createShop(shopData) {
     return {
       success: false,
       message: error?.normalized?.message || error?.response?.data?.result || "Sotuvchi hisobi yaratishda xatolik yuz berdi",
-      error: error,
     };
   }
 }

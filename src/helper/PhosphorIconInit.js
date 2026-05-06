@@ -1,19 +1,25 @@
-'use client'
+"use client";
 import { useEffect } from "react";
+
+const WEIGHTS = ["thin", "light", "duotone"];
+const BASE = "https://unpkg.com/@phosphor-icons/web@2.1.1/src/";
+const LOADED_ID = "__phosphor_extra_loaded__";
+
 export default function PhosphorIconInit() {
-
   useEffect(() => {
-    var head = document.getElementsByTagName("head")[0];
+    if (document.getElementById(LOADED_ID)) return;
 
-    for (const weight of ["regular", "thin", "light", "bold", "fill", "duotone"]) {
-      var link = document.createElement("link");
+    const marker = document.createElement("meta");
+    marker.id = LOADED_ID;
+    document.head.appendChild(marker);
+
+    WEIGHTS.forEach((weight) => {
+      const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.type = "text/css";
-      link.href =
-        "https://unpkg.com/@phosphor-icons/web@2.1.1/src/" + weight + "/style.css";
-      head.appendChild(link);
-    }
-  }, [])
+      link.href = `${BASE}${weight}/style.css`;
+      document.head.appendChild(link);
+    });
+  }, []);
 
-  return null
+  return null;
 }

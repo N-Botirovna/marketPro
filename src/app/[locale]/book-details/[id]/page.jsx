@@ -1,12 +1,14 @@
+import dynamic from "next/dynamic";
 import Breadcrumb from "@/components/Breadcrumb";
 import BookDetails from "@/components/BookDetails";
-import FooterOne from "@/components/FooterOne";
-import HeaderOne from "@/components/HeaderOne";
-import ShippingTwo from "@/components/ShippingTwo";
 import ColorInit from "@/helper/ColorInit";
-import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
 import { getTranslations } from "next-intl/server";
+
+const ShippingTwo = dynamic(() => import("@/components/ShippingTwo"));
+const FooterOne = dynamic(() => import("@/components/FooterOne"));
+
+export const revalidate = 3600;
 
 export const metadata = {
   title: "Kitob tafsilotlari - MarketPro",
@@ -23,12 +25,6 @@ const BookDetailsPage = async ({ params }) => {
 
       {/* ScrollToTop */}
       <ScrollToTopInit color='#FA6400' />
-
-      {/* Preloader */}
-      <Preloader />
-
-      {/* HeaderOne */}
-      <HeaderOne category={true} />
 
       {/* Breadcrumb */}
       <Breadcrumb title={tBreadcrumb("bookDetails")} />

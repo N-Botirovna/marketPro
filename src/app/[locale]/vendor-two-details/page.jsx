@@ -1,13 +1,15 @@
-import BottomFooter from "@/components/BottomFooter";
+import dynamic from "next/dynamic";
 import Breadcrumb from "@/components/Breadcrumb";
-import FooterOne from "@/components/FooterOne";
-import HeaderOne from "@/components/HeaderOne";
-import ShippingOne from "@/components/ShippingOne";
 import VendorTwoDetails from "@/components/VendorTwoDetails";
 import ColorInit from "@/helper/ColorInit";
-import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
 import { getTranslations } from "next-intl/server";
+
+const ShippingOne = dynamic(() => import("@/components/ShippingOne"));
+const FooterOne = dynamic(() => import("@/components/FooterOne"));
+const BottomFooter = dynamic(() => import("@/components/BottomFooter"));
+
+export const revalidate = 3600;
 
 export const metadata = {
   title: "MarketPro - E-commerce Next JS Template",
@@ -15,7 +17,7 @@ export const metadata = {
     "MarketPro is a comprehensive and versatile Next JS template designed for e-commerce platforms, specifically tailored for multi vendor marketplaces. With its modern design and extensive feature set, MarketPro provides everything you need to create a robust and user-friendly online marketplace..",
 };
 
-const page = async ({ searchParams }) => {
+const page = async () => {
   const tBreadcrumb = await getTranslations("Breadcrumb");
 
   return (
@@ -25,12 +27,6 @@ const page = async ({ searchParams }) => {
 
       {/* ScrollToTop */}
       <ScrollToTopInit color='#FA6400' />
-
-      {/* Preloader */}
-      <Preloader />
-
-      {/* HeaderOne */}
-      <HeaderOne category={true} />
 
       {/* Breadcrumb */}
       <Breadcrumb title={tBreadcrumb("shopDetails")} />
