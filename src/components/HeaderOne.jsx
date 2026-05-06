@@ -210,7 +210,7 @@ const HeaderOne = () => {
               <div className="mobile-menu__logo">
                 <Link href="/" className="link">
                   <img src="/assets/images/logo/logo.png" alt="Logo" onError={(e) => {
-                    e.target.src = "/assets/images/logo1.png";
+                    e.target.src = "/assets/images/logo/logo.png";
                   }} />
                 </Link>
               </div>
@@ -326,7 +326,7 @@ const HeaderOne = () => {
               <div className="logo">
                 <Link href="/" className="link">
                   <img src="/assets/images/logo/logo.png" alt="Logo" onError={(e) => {
-                    e.target.src = "/assets/images/logo1.png";
+                    e.target.src = "/assets/images/logo/logo.png";
                   }} />
                 </Link>
               </div>

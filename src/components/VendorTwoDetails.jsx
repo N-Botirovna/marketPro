@@ -183,7 +183,7 @@ const VendorTwoDetails = () => {
             <div
               className="inner-banner-two bg-img rounded-16 overflow-hidden"
               style={{
-                backgroundImage: `url('assets/images/thumbs/inner-banner-two-bg.png')`,
+                backgroundImage: `url('/assets/images/thumbs/inner-banner-two-bg.png')`,
               }}
             >
               <div className="row bg-black">

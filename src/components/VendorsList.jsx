@@ -267,7 +267,7 @@ const VendorsList = () => {
                       src={
                         shop.picture ||
                         shop.logo ||
-                        "assets/images/thumbs/vendor-logo1.png"
+                        "/assets/images/thumbs/vendor-logo1.png"
                       }
                       alt={shop.name}
                       className="vendor-card__logo m-12"

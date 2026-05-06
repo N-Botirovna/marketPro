@@ -94,7 +94,7 @@ const CategoryDropdown = () => {
         {/* Mobil logo */}
         <div className="logo px-16 d-lg-none d-block">
           <Link href="/" className="link">
-            <img src="/assets/images/logo1.png" alt="Logo" />
+            <img src="/assets/images/logo/logo.png" alt="Logo" />
           </Link>
         </div>
 

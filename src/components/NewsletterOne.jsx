@@ -11,11 +11,11 @@ const NewsletterOne = () => {
         <div className="newsletter my-18">
             <div className="container container-lg">
                 <div className="newsletter-box position-relative rounded-16 flex-align gap-16 flex-wrap z-1">
-                    <img
-                        src="assets/images/bg/newsletter-bg.png"
+                    {/* <img
+                        src="/assets/images/bg/newsletter-bg.png"
                         alt="newsletter background"
                         className="position-absolute inset-block-start-0 inset-inline-start-0 z-n1 w-100 h-100 opacity-6"
-                    />
+                    /> */}
                     <div className="row align-items-center">
                         <div className="col-xl-6">
                             <div className="">
@@ -38,7 +38,7 @@ const NewsletterOne = () => {
                             </div>
                         </div>
                         <div className="col-xl-6 text-center d-xl-block d-none">
-                            <img src="assets/images/thumbs/newsletter-img.png" alt="newsletter books" />
+                            <img src="/assets/images/thumbs/newsletter-img.png" alt="newsletter books" />
                         </div>
                     </div>
                 </div>
