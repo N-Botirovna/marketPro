@@ -4,6 +4,7 @@ import React from 'react'
 import { useTranslations } from 'next-intl'
 
 
+
 const NewsletterOne = () => {
     const t = useTranslations('NewsletterOne')
     

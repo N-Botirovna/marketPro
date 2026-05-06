@@ -7,7 +7,12 @@
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\user\\\\Desktop\\\\marketpro\\\\src\" -Recurse -Force)",
       "Bash(Select-Object FullName, Extension)",
       "Bash(Sort-Object FullName)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(xargs grep -l 'src=\"assets/')",
+      "Bash(xargs sed -i 's|src=\"assets/|src=\"/assets/|g')",
+      "Bash(xargs sed -i -e 's|src='\\\\''assets/|src='\\\\''/assets/|g' -e 's|url\\(\"assets/|url\\(\"/assets/|g' -e 's|url\\('\\\\''assets/|url\\('\\\\''/assets/|g' -e 's|url\\(`assets/|url\\(`/assets/|g')",
+      "Bash(grep -rn \"src='assets/\\\\|src=\\\\\"assets/\\\\|url.*['\\\\\"\\\\`]assets/\" /c/Users/user/Desktop/marketpro/src --include=\"*.jsx\" --include=\"*.js\")",
+      "Bash(xargs sed -i 's|/assets/images/logo1\\\\.png|/assets/images/logo/logo.png|g')"
     ]
   }
 }

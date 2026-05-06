@@ -25,13 +25,13 @@ const httpClient = axios.create({
 });
 
 httpClient.interceptors.request.use(async (config) => {
-  if (isDev) {
-    console.log('🚀 HTTP Request:', {
-      method: config.method?.toUpperCase(),
-      url: config.url,
-      fullURL: `${config.baseURL}${config.url}`,
-    });
-  }
+  // if (isDev) {
+  //   console.log('🚀 HTTP Request:', {
+  //     method: config.method?.toUpperCase(),
+  //     url: config.url,
+  //     fullURL: `${config.baseURL}${config.url}`,
+  //   });
+  // }
 
   // Determine locale early for cache key and headers
   const currentLocale = getCurrentLocale() || 'uz';
@@ -124,12 +124,12 @@ const processQueue = (error, token = null) => {
 
 httpClient.interceptors.response.use(
   (response) => {
-    if (isDev) {
-      console.log('✅ HTTP Response:', {
-        status: response.status,
-        url: response.config.url,
-      });
-    }
+    // if (isDev) {
+    //   console.log('✅ HTTP Response:', {
+    //     status: response.status,
+    //     url: response.config.url,
+    //   });
+    // }
 
     // Cache GET responses and clean up pending requests (original requests only)
     if (response.config.method === 'get' && response.config._cacheKey) {
