@@ -93,7 +93,7 @@ const FeatureOne = () => {
           {
             breakpoint: 1699,
             settings: {
-              slidesToShow: Math.min(9, categories.length),
+              slidesToShow: Math.min(9, categories.length) || 1,
               infinite: true,
               autoplay: categories.length > 1,
               autoplaySpeed: 3000,
@@ -102,7 +102,7 @@ const FeatureOne = () => {
           {
             breakpoint: 1599,
             settings: {
-              slidesToShow: Math.min(8, categories.length),
+              slidesToShow: Math.min(8, categories.length) || 1,
               infinite: true,
               autoplay: categories.length > 1,
               autoplaySpeed: 3000,
@@ -111,7 +111,7 @@ const FeatureOne = () => {
           {
             breakpoint: 1399,
             settings: {
-              slidesToShow: Math.min(6, categories.length),
+              slidesToShow: Math.min(6, categories.length) || 1,
               infinite: true,
               autoplay: categories.length > 1,
               autoplaySpeed: 3000,
@@ -120,7 +120,7 @@ const FeatureOne = () => {
           {
             breakpoint: 992,
             settings: {
-              slidesToShow: Math.min(5, categories.length),
+              slidesToShow: Math.min(5, categories.length) || 1,
               infinite: true,
               autoplay: categories.length > 1,
               autoplaySpeed: 3000,
@@ -129,7 +129,7 @@ const FeatureOne = () => {
           {
             breakpoint: 768,
             settings: {
-              slidesToShow: Math.min(4, categories.length),
+              slidesToShow: Math.min(4, categories.length) || 1,
               infinite: true,
               autoplay: categories.length > 1,
               autoplaySpeed: 3000,
@@ -138,7 +138,7 @@ const FeatureOne = () => {
           {
             breakpoint: 575,
             settings: {
-              slidesToShow: Math.min(3, categories.length),
+              slidesToShow: Math.min(3, categories.length) || 1,
               infinite: true,
               autoplay: categories.length > 1,
               autoplaySpeed: 3000,
@@ -147,7 +147,7 @@ const FeatureOne = () => {
           {
             breakpoint: 424,
             settings: {
-              slidesToShow: Math.min(2, categories.length),
+              slidesToShow: Math.min(2, categories.length) || 1,
               infinite: true,
               autoplay: categories.length > 1,
               autoplaySpeed: 3000,
@@ -187,6 +187,7 @@ const FeatureOne = () => {
                     <Link
                       href={`/vendor-two?category=${encodeURIComponent(category.name)}`}
                       className="w-100 h-100 flex-center"
+                      style={{ position: "relative", display: "block", width: "100%", height: "100%" }}
                     >
                       <Image
                         src={

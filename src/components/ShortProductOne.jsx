@@ -55,7 +55,7 @@ const ProductCard = memo(({ product }) => {
           <Link
             href={detailUrl}
             className="link"
-            style={{ display: "block", width: "100%", height: "100%" }}
+            style={{ position: "relative", display: "block", width: "100%", height: "100%" }}
           >
             <Image
               src={product.picture}
@@ -67,7 +67,7 @@ const ProductCard = memo(({ product }) => {
             />
           </Link>
         ) : (
-          <div style={{ width: "100%", height: "100%" }}>
+          <div style={{ position: "relative", width: "100%", height: "100%" }}>
             <Image
               src={product.picture}
               alt={product.desc || "product"}
