@@ -94,7 +94,7 @@ const TestimonialOne = () => {
   return (
     <section
       className='testimonials py-120 bg-neutral-600 bg-img overflow-hidden'
-      style={{ backgroundImage: "url('assets/images/bg/pattern-two.png')" }}
+      style={{ backgroundImage: "url('/assets/images/bg/pattern-two.png')" }}
     >
       <div className='container container-lg'>
         <div className='row gy-4 align-items-center'>

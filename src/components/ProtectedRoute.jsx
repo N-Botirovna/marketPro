@@ -1,105 +1,76 @@
 "use client";
-import { useEffect, useState } from "react";
-import { isAuthenticated, isRefreshTokenExpired } from "@/services/auth";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { isAuthenticated, isRefreshTokenExpired, refreshAccessToken } from "@/services/auth";
 import { useTranslations } from "next-intl";
 import Spin from "./Spin";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { PUBLIC_PAGES } from "@/config";
+
+// useLayoutEffect on client, useEffect on server (avoids SSR warning)
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 const ProtectedRoute = ({ children }) => {
   const router = useRouter();
   const tLoad = useTranslations('Loading');
   const pathname = usePathname();
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAuth, setIsAuth] = useState(false);
+  const isPublicPage = PUBLIC_PAGES.includes(pathname);
+
+  // Start as "checking" — resolved synchronously before first paint via useLayoutEffect
   const [isChecking, setIsChecking] = useState(true);
+  const [isAuth, setIsAuth] = useState(false);
+  const refreshingRef = useRef(false);
 
-  // Pages that don't require authentication
-  const publicPages = ['/login', '/register', '/forgot-password'];
-  const isPublicPage = publicPages.includes(pathname);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      // Small delay to prevent flickering
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Check if refresh token is expired first
-      if (isRefreshTokenExpired()) {
-        setIsAuth(false);
-        setIsLoading(false);
-        setIsChecking(false);
-        if (!isPublicPage) {
-          router.push('/login');
-        }
-        return;
-      }
-      
-      // PROACTIVELY TRY TO ENSURE WE HAVE A VALID TOKEN ON LOAD
-      // This is helpful for avoiding 401 on the very first render request
-      if (!isAuthenticated()) {
-         try {
-             await import('@/services/auth').then(m => m.refreshAccessToken());
-         } catch(e) {
-             // Ignore error here, isAuthenticated() will return false below if it failed
-         }
-      }
-      
-      // Now check authentication (this will return true if access token exists or refresh token is valid)
-      const authenticated = isAuthenticated();
-      setIsAuth(authenticated);
-      setIsLoading(false);
+  // Runs synchronously before browser paint — no spinner flash for authenticated users
+  useIsomorphicLayoutEffect(() => {
+    if (isPublicPage) {
+      setIsAuth(true);
       setIsChecking(false);
+      return;
+    }
 
-      // If not authenticated and not on a public page, redirect to login
-      if (!authenticated && !isPublicPage) {
-        // Use locale-aware navigation
-        router.push('/login');
-      }
-    };
+    if (isRefreshTokenExpired()) {
+      setIsChecking(false);
+      router.push('/login');
+      return;
+    }
 
-    checkAuth();
-  }, [router, pathname, isPublicPage]);
+    if (isAuthenticated()) {
+      setIsAuth(true);
+      setIsChecking(false);
+      return;
+    }
 
-  // Always show loading spinner for protected pages during initial check
-  if (isChecking || (isLoading && !isPublicPage)) {
+    // Rare: has refresh token but no access token — async refresh
+    if (!refreshingRef.current) {
+      refreshingRef.current = true;
+      refreshAccessToken()
+        .then(() => {
+          setIsAuth(true);
+          setIsChecking(false);
+          refreshingRef.current = false;
+        })
+        .catch(() => {
+          setIsChecking(false);
+          refreshingRef.current = false;
+          router.push('/login');
+        });
+    }
+  }, [pathname, isPublicPage, router]);
+
+  // Only show spinner when actually refreshing token (rare case)
+  if (isChecking && !isAuth) {
     return (
-      <div 
-        className="d-flex justify-content-center align-items-center" 
-        style={{ 
-          height: '100vh',
-          width: '100vw',
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          backgroundColor: '#fff',
-          zIndex: 9999
-        }}
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: '100vh', width: '100vw', position: 'fixed', top: 0, left: 0, backgroundColor: '#fff', zIndex: 9999 }}
       >
         <Spin text={tLoad('loading')} />
       </div>
     );
   }
 
-  // If not authenticated and not on public page, don't render children
-  if (!isAuth && !isPublicPage) {
-    return (
-      <div 
-        className="d-flex justify-content-center align-items-center" 
-        style={{ 
-          height: '100vh',
-          width: '100vw',
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          backgroundColor: '#fff',
-          zIndex: 9999
-        }}
-      >
-        <Spin text={tLoad('redirecting')} />
-      </div>
-    );
-  }
+  if (!isAuth && !isPublicPage) return null;
 
-  // Render children for authenticated users or public pages
   return <>{children}</>;
 };
 

@@ -218,7 +218,7 @@ const FaqSection = () => {
                       aria-expanded={activeIndex === index}
                     >
                       <span className='faq-question'>{faq.question}</span>
-                      <i className={`ph-bold ph-caret-down faq-arrow ${activeIndex === index ? 'active' : ''}`}></i>
+                      <i className={`ph ph-caret-down faq-arrow ${activeIndex === index ? 'active' : ''}`}></i>
                     </button>
                     
                     <div className={`faq-content ${activeIndex === index ? 'show' : ''}`}>

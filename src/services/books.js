@@ -149,8 +149,7 @@ export async function createBookComment(bookId, comment, parentId = null) {
 
 export async function likeComment(commentId) {
   const { data } = await http.post(API_ENDPOINTS.BOOKS.COMMENT.LIKE, { comment_id: commentId });
-  // Backend returns 'Liked' or 'Unliked'
-  const isLiked = data?.result === 'Liked' || data?.message === 'Liked';
+  const isLiked = data?.result === 'Liked';
   return {
     success: data?.success === true,
     message: data?.result ?? data?.message ?? 'Comment liked successfully',

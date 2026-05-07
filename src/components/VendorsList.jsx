@@ -267,7 +267,7 @@ const VendorsList = () => {
                       src={
                         shop.picture ||
                         shop.logo ||
-                        "assets/images/thumbs/vendor-logo1.png"
+                        "/assets/images/thumbs/vendor-logo1.png"
                       }
                       alt={shop.name}
                       className="vendor-card__logo m-12"
@@ -347,7 +347,7 @@ const VendorsList = () => {
                 onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
               >
-                <i className="ph-bold ph-arrow-left" />
+                <i className="ph ph-arrow-left" />
               </button>
             </li>
             {Array.from(
@@ -376,7 +376,7 @@ const VendorsList = () => {
                 }
                 disabled={currentPage >= Math.ceil(totalCount / 12)}
               >
-                <i className="ph-bold ph-arrow-right" />
+                <i className="ph ph-arrow-right" />
               </button>
             </li>
           </ul>

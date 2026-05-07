@@ -8,7 +8,8 @@ import Image from "next/image";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-// Separate BannerImage component (no hooks inside parent component)
+const FALLBACK_SRC = "/assets/images/bg/banner-bg.png";
+
 const BannerImage = memo(({ src, alt, priority, fallbackSrc }) => (
   <div style={{ position: "relative", width: "100%", height: 380 }}>
     <Image
@@ -24,12 +25,38 @@ const BannerImage = memo(({ src, alt, priority, fallbackSrc }) => (
 
 BannerImage.displayName = "BannerImage";
 
+function BannerNextArrow({ className, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="Next slide"
+      className={`${className} slick-next slick-arrow flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1`}
+      style={{ zIndex: 10 }}
+    >
+      <i className="ph ph-caret-right" />
+    </button>
+  );
+}
+
+function BannerPrevArrow({ className, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="Previous slide"
+      className={`${className} slick-prev slick-arrow flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1`}
+      style={{ zIndex: 10 }}
+    >
+      <i className="ph ph-caret-left" />
+    </button>
+  );
+}
+
 const BannerOne = () => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const FALLBACK_SRC = "/assets/images/bg/banner-bg.png";
 
   useEffect(() => {
     let mounted = true;
@@ -54,36 +81,6 @@ const BannerOne = () => {
     };
   }, []);
 
-  // Slick arrows
-  function SampleNextArrow({ className, onClick }) {
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        aria-label="Next slide"
-        className={`${className} slick-next slick-arrow flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1`}
-        style={{ zIndex: 10 }}
-      >
-        <i className="ph ph-caret-right" />
-      </button>
-    );
-  }
-
-  function SamplePrevArrow({ className, onClick }) {
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        aria-label="Previous slide"
-        className={`${className} slick-prev slick-arrow flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1`}
-        style={{ zIndex: 10 }}
-      >
-        <i className="ph ph-caret-left" />
-      </button>
-    );
-  }
-
-  // Memoized settings
   const settings = useMemo(
     () => ({
       dots: false,
@@ -93,8 +90,8 @@ const BannerOne = () => {
       slidesToShow: 1,
       slidesToScroll: 1,
       initialSlide: 0,
-      nextArrow: <SampleNextArrow />,
-      prevArrow: <SamplePrevArrow />,
+      nextArrow: <BannerNextArrow />,
+      prevArrow: <BannerPrevArrow />,
       autoplay: banners.length > 1,
       autoplaySpeed: 6000,
       responsive: [
@@ -105,13 +102,12 @@ const BannerOne = () => {
     [banners.length]
   );
 
-  // Memoized slides
   const slides = useMemo(
     () =>
       banners.length
         ? banners
         : [{ id: "empty-1", title: "Welcome", image: FALLBACK_SRC }],
-    [banners, FALLBACK_SRC]
+    [banners]
   );
 
   // Early returns AFTER all hooks

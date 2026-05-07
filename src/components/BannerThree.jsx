@@ -2,7 +2,6 @@
 
 import React, { useEffect } from "react";
 import dynamic from "next/dynamic";
-import "animate.css";
 import { Link } from "@/i18n/navigation";
 const Slider = dynamic(() => import("react-slick"), { ssr: false });
 const BannerThree = () => {
@@ -52,17 +51,17 @@ const BannerThree = () => {
       data-background-image="/assets/images/shape/line-pattern.png"
     >
       <img
-        src="assets/images/shape/star-shape.png"
+        src="/assets/images/shape/star-shape.png"
         alt=""
         className="animation star-shape animation-rotate"
       />
       <img
-        src="assets/images/shape/star-shape.png"
+        src="/assets/images/shape/star-shape.png"
         alt=""
         className="animation star-shape style-two animation-rotate"
       />
       <img
-        src="assets/images/shape/line-shape.png"
+        src="/assets/images/shape/line-shape.png"
         alt=""
         className="animation line-shape opacity-75 animation-rotate"
       />
@@ -129,7 +128,7 @@ const BannerThree = () => {
                     data-tilt-scale="1.06"
                   >
                     <img
-                      src="assets/images/thumbs/banner-three-img1.png"
+                      src="/assets/images/thumbs/banner-three-img1.png"
                       alt=""
                     />
                   </div>
@@ -183,7 +182,7 @@ const BannerThree = () => {
                     data-tilt-scale="1.06"
                   >
                     <img
-                      src="assets/images/thumbs/banner-three-img2.png"
+                      src="/assets/images/thumbs/banner-three-img2.png"
                       alt=""
                     />
                   </div>
@@ -237,7 +236,7 @@ const BannerThree = () => {
                     data-tilt-scale="1.06"
                   >
                     <img
-                      src="assets/images/thumbs/banner-three-img3.png"
+                      src="/assets/images/thumbs/banner-three-img3.png"
                       alt=""
                     />
                   </div>

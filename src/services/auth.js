@@ -1,6 +1,7 @@
 import http from "@/lib/http";
 import { AUTH_TOKEN_STORAGE_KEY, API_ENDPOINTS } from "@/config";
-import { setItem, getItem, removeItem } from "@/utils/storage";
+import { setItem, getItem } from "@/utils/storage";
+import { clearAuthStorage } from "@/utils/authStorage";
 
 const devLog = (...args) => {
   if (process.env.NODE_ENV === "development") console.log(...args);
@@ -18,14 +19,6 @@ function getJwtExpiry(token) {
 function saveAccessToken(token, expiresIn = 4800) {
   setItem(AUTH_TOKEN_STORAGE_KEY, token);
   setItem("token_expires_at", Date.now() + expiresIn * 1000);
-}
-
-function clearAuthStorage() {
-  removeItem(AUTH_TOKEN_STORAGE_KEY);
-  removeItem("refresh_token");
-  removeItem("token_expires_at");
-  removeItem("login_time");
-  removeItem("user_data");
 }
 
 export async function requestOtp({ phone_number }) {

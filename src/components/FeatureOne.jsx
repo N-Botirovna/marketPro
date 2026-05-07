@@ -10,6 +10,32 @@ import "slick-carousel/slick/slick-theme.css";
 
 const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
+const FeatureNextArrow = memo(({ className, onClick, style }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`${className} flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1`}
+    style={style}
+    aria-label="Next"
+  >
+    <i className="ph ph-caret-right" />
+  </button>
+));
+FeatureNextArrow.displayName = "FeatureNextArrow";
+
+const FeaturePrevArrow = memo(({ className, onClick, style }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`${className} flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1`}
+    style={style}
+    aria-label="Prev"
+  >
+    <i className="ph ph-caret-left" />
+  </button>
+));
+FeaturePrevArrow.displayName = "FeaturePrevArrow";
+
 const FeatureOne = () => {
   const [categories, setCategories] = useState([]);
   const sliderRef = useRef(null);
@@ -34,34 +60,6 @@ const FeatureOne = () => {
     };
   }, []);
 
-  const SampleNextArrow = memo(({ className, onClick, style }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`${className} flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1`}
-      style={style}
-      aria-label="Next"
-    >
-      <i className="ph ph-caret-right" />
-    </button>
-  ));
-  
-  const SamplePrevArrow = memo(({ className, onClick, style }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`${className} flex-center rounded-circle bg-white text-xl hover-bg-main-600 hover-text-white transition-1`}
-      style={style}
-      aria-label="Prev"
-    >
-      <i className="ph ph-caret-left" />
-    </button>
-  ));
-  
-  SampleNextArrow.displayName = "SampleNextArrow";
-
-  SamplePrevArrow.displayName = "SamplePrevArrow";
-
   const settings = useMemo(
     () => {
       // Kategoriyalar sonini tekshiramiz - infinite uchun kamida slidesToShow dan ko'p bo'lishi kerak
@@ -77,8 +75,8 @@ const FeatureOne = () => {
         slidesToShow: Math.min(10, categories.length || 1),
         slidesToScroll: 1,
         initialSlide: 0,
-        nextArrow: <SampleNextArrow />,
-        prevArrow: <SamplePrevArrow />,
+        nextArrow: <FeatureNextArrow />,
+        prevArrow: <FeaturePrevArrow />,
         autoplay: canAutoplay,
         autoplaySpeed: 3000,
         pauseOnHover: true,
@@ -95,7 +93,7 @@ const FeatureOne = () => {
           {
             breakpoint: 1699,
             settings: {
-              slidesToShow: Math.min(9, categories.length),
+              slidesToShow: Math.min(9, categories.length) || 1,
               infinite: true,
               autoplay: categories.length > 1,
               autoplaySpeed: 3000,
@@ -104,7 +102,7 @@ const FeatureOne = () => {
           {
             breakpoint: 1599,
             settings: {
-              slidesToShow: Math.min(8, categories.length),
+              slidesToShow: Math.min(8, categories.length) || 1,
               infinite: true,
               autoplay: categories.length > 1,
               autoplaySpeed: 3000,
@@ -113,7 +111,7 @@ const FeatureOne = () => {
           {
             breakpoint: 1399,
             settings: {
-              slidesToShow: Math.min(6, categories.length),
+              slidesToShow: Math.min(6, categories.length) || 1,
               infinite: true,
               autoplay: categories.length > 1,
               autoplaySpeed: 3000,
@@ -122,7 +120,7 @@ const FeatureOne = () => {
           {
             breakpoint: 992,
             settings: {
-              slidesToShow: Math.min(5, categories.length),
+              slidesToShow: Math.min(5, categories.length) || 1,
               infinite: true,
               autoplay: categories.length > 1,
               autoplaySpeed: 3000,
@@ -131,7 +129,7 @@ const FeatureOne = () => {
           {
             breakpoint: 768,
             settings: {
-              slidesToShow: Math.min(4, categories.length),
+              slidesToShow: Math.min(4, categories.length) || 1,
               infinite: true,
               autoplay: categories.length > 1,
               autoplaySpeed: 3000,
@@ -140,7 +138,7 @@ const FeatureOne = () => {
           {
             breakpoint: 575,
             settings: {
-              slidesToShow: Math.min(3, categories.length),
+              slidesToShow: Math.min(3, categories.length) || 1,
               infinite: true,
               autoplay: categories.length > 1,
               autoplaySpeed: 3000,
@@ -149,7 +147,7 @@ const FeatureOne = () => {
           {
             breakpoint: 424,
             settings: {
-              slidesToShow: Math.min(2, categories.length),
+              slidesToShow: Math.min(2, categories.length) || 1,
               infinite: true,
               autoplay: categories.length > 1,
               autoplaySpeed: 3000,
@@ -189,6 +187,7 @@ const FeatureOne = () => {
                     <Link
                       href={`/vendor-two?category=${encodeURIComponent(category.name)}`}
                       className="w-100 h-100 flex-center"
+                      style={{ position: "relative", display: "block", width: "100%", height: "100%" }}
                     >
                       <Image
                         src={

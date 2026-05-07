@@ -1,21 +1,52 @@
 import axios from "axios";
 import { API_BASE_URL, API_ENDPOINTS, AUTH_TOKEN_STORAGE_KEY } from "@/config";
-import { getItem, removeItem, setItem, getCurrentLocale } from "@/utils/storage";
-
+import { getItem, setItem, getCurrentLocale } from "@/utils/storage";
+import { clearAuthStorage } from "@/utils/authStorage";
+import { serializeParams } from "@/utils/serializeParams";
 
 const isDev = process.env.NODE_ENV === 'development';
 
-const buildCacheKey = (url, params, locale) => {
-  const sortedParams = params
-    ? JSON.stringify(Object.keys(params).sort().reduce((acc, k) => { acc[k] = params[k]; return acc; }, {}))
-    : '{}';
-  return `${url}?${sortedParams}::${locale}`;
+// Per-endpoint TTL (ms). Match on URL substring — first match wins.
+const TTL_MAP = [
+  ['/regions',    24 * 60 * 60 * 1000], // 24 h — almost never changes
+  ['/faqs',       24 * 60 * 60 * 1000], // 24 h
+  ['/categories', 60 * 60 * 1000],       // 1 h
+  ['/banners',    30 * 60 * 1000],        // 30 min
+  ['/books',      10 * 60 * 1000],        // 10 min
+  ['/products',   10 * 60 * 1000],        // 10 min
+  ['/vendors',    10 * 60 * 1000],        // 10 min
+  ['/shops',      10 * 60 * 1000],        // 10 min
+  ['/giveaway',   10 * 60 * 1000],        // 10 min
+  // User-specific / mutable — never cache
+  ['/auth/',      0],
+  ['/orders',     0],
+  ['/profile',    0],
+  ['/liked',      0],
+  ['/like',       0],
+  ['/comment',    0],
+];
+
+const getTTL = (url = '') => {
+  for (const [segment, ttl] of TTL_MAP) {
+    if (url.includes(segment)) return ttl;
+  }
+  return 5 * 60 * 1000; // default 5 min
 };
 
-// Simple in-memory cache for GET requests
+// Last 12 chars of token as an opaque auth discriminator.
+// Prevents cross-user cache hits without storing the full token.
+const authSuffix = (token) => (token ? token.slice(-12) : 'anon');
+
+const buildCacheKey = (url, params, locale, token) =>
+  `${url}?${serializeParams(params)}::${locale}::${authSuffix(token)}`;
+
 const cache = new Map();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const pendingRequests = new Map();
+
+export const clearHttpCache = () => {
+  cache.clear();
+  pendingRequests.clear();
+};
 
 const httpClient = axios.create({
   baseURL: API_BASE_URL,
@@ -28,26 +59,32 @@ const httpClient = axios.create({
 });
 
 httpClient.interceptors.request.use(async (config) => {
-  if (isDev) {
-    console.log('🚀 HTTP Request:', {
-      method: config.method?.toUpperCase(),
-      url: config.url,
-      fullURL: `${config.baseURL}${config.url}`,
-    });
+  const currentLocale = getCurrentLocale() || 'uz';
+  const token = getItem(AUTH_TOKEN_STORAGE_KEY);
+
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
   }
 
-  // Determine locale early for cache key and headers
-  const currentLocale = getCurrentLocale() || 'uz';
+  config.headers = config.headers || {};
+  config.headers['Accept-Language'] = currentLocale;
 
-  // Cache GET requests
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+
+  // Only cache GET requests with TTL > 0
   if (config.method === 'get') {
-    const cacheKey = buildCacheKey(config.url, config.params, currentLocale);
+    const ttl = getTTL(config.url);
+
+    if (ttl === 0) return config; // skip cache for user-specific/mutable endpoints
+
+    const cacheKey = buildCacheKey(config.url, config.params, currentLocale, token);
     const cached = cache.get(cacheKey);
-    
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-      if (isDev) {
-        console.log('📦 Using cached response for:', config.url);
-      }
+
+    if (cached && Date.now() - cached.timestamp < ttl) {
+      if (isDev) console.log('📦 cache hit:', config.url);
       config.adapter = () => Promise.resolve({
         data: cached.data,
         status: 200,
@@ -59,82 +96,39 @@ httpClient.interceptors.request.use(async (config) => {
       return config;
     }
 
-    // Request deduplication - if same request is already pending, return that promise
+    // Request deduplication
     if (pendingRequests.has(cacheKey)) {
-      if (isDev) {
-        console.log('🔄 HTTP: Deduplicating request for:', config.url);
-      }
-      const pendingPromise = pendingRequests.get(cacheKey);
-      // Use adapter to return the pending promise instead of making a new request
-      config.adapter = () => pendingPromise;
+      if (isDev) console.log('🔄 dedup:', config.url);
+      config.adapter = () => pendingRequests.get(cacheKey);
       return config;
     }
-    
-    // Store cache key for cleanup in response interceptor
+
     config._cacheKey = cacheKey;
-    
-    // Create a promise that will be resolved when the actual request completes
-    // This promise will be shared with duplicate requests
-    let requestResolve;
-    let requestReject;
+    config._cacheTTL = ttl;
+
+    let requestResolve, requestReject;
     const sharedPromise = new Promise((resolve, reject) => {
       requestResolve = resolve;
       requestReject = reject;
     });
-    
-    // Store the promise so duplicate requests can use it
     pendingRequests.set(cacheKey, sharedPromise);
-    
-    // Mark that we need to resolve the shared promise in response interceptor
-    // We'll let axios use its default adapter and resolve in response interceptor
     config._sharedPromiseResolve = requestResolve;
     config._sharedPromiseReject = requestReject;
   }
-  
-  const token = getItem(AUTH_TOKEN_STORAGE_KEY);
-  if (token) {
-    config.headers = config.headers || {};
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  
-  // Attach locale header
-  config.headers = config.headers || {};
-  config.headers['Accept-Language'] = currentLocale;
 
-  // If data is FormData, remove Content-Type to let browser set it with boundary
-  if (config.data instanceof FormData) {
-    delete config.headers['Content-Type'];
-  }
-  
   return config;
 });
 
-// Flag to prevent multiple refresh attempts
 let isRefreshing = false;
 let failedQueue = [];
 
 const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
-  
+  failedQueue.forEach(prom => error ? prom.reject(error) : prom.resolve(token));
   failedQueue = [];
 };
 
 httpClient.interceptors.response.use(
   (response) => {
-    if (isDev) {
-      console.log('✅ HTTP Response:', {
-        status: response.status,
-        url: response.config.url,
-      });
-    }
-
-    // Cache GET responses and clean up pending requests (original requests only)
     if (response.config.method === 'get' && response.config._cacheKey) {
       const cacheKey = response.config._cacheKey;
 
@@ -143,10 +137,7 @@ httpClient.interceptors.response.use(
         timestamp: Date.now(),
       });
 
-      if (response.config._sharedPromiseResolve) {
-        response.config._sharedPromiseResolve(response);
-      }
-
+      response.config._sharedPromiseResolve?.(response);
       pendingRequests.delete(cacheKey);
     }
 
@@ -161,30 +152,20 @@ httpClient.interceptors.response.use(
       });
     }
 
-    // Clear pending request on error (original requests only)
     if (error?.config?.method === 'get' && error.config._cacheKey) {
-      const cacheKey = error.config._cacheKey;
-
-      if (error.config._sharedPromiseReject) {
-        error.config._sharedPromiseReject(error);
-      }
-
-      pendingRequests.delete(cacheKey);
+      error.config._sharedPromiseReject?.(error);
+      pendingRequests.delete(error.config._cacheKey);
     }
 
     const originalRequest = error.config;
 
-    // Handle 401 Unauthorized with token refresh
     if (error?.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
-        // If already refreshing, queue the request
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         }).then(token => {
           originalRequest.headers.Authorization = `Bearer ${token}`;
           return httpClient(originalRequest);
-        }).catch(err => {
-          return Promise.reject(err);
         });
       }
 
@@ -193,94 +174,54 @@ httpClient.interceptors.response.use(
 
       try {
         const refreshToken = getItem('refresh_token');
-        if (!refreshToken) {
-          throw new Error('No refresh token available');
-        }
+        if (!refreshToken) throw new Error('No refresh token available');
 
-        if (isDev) {
-          console.log('🔄 Attempting to refresh access token...');
-        }
-        
-        // Call refresh endpoint
-        // Using string template to ensure we match the config path
-        // API_ENDPOINTS.AUTH.REFRESH is "api/v1/auth/refresh/"
-        const response = await axios.post(`${API_BASE_URL}${API_ENDPOINTS.AUTH.REFRESH}`, {
-          refresh_token: refreshToken
-        });
+        const response = await axios.post(
+          `${API_BASE_URL}${API_ENDPOINTS.AUTH.REFRESH}`,
+          { refresh_token: refreshToken }
+        );
 
         const newAccessToken = response.data?.access_token;
         const newRefreshToken = response.data?.refresh_token;
         const expiresIn = response.data?.expires_in || response.data?.expires_in_seconds || 4800;
-        
-        if (newAccessToken) {
-          setItem(AUTH_TOKEN_STORAGE_KEY, newAccessToken);
-          httpClient.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
-          
-          // Update token expiration time
-          const tokenExpiry = expiresIn || 4800;
-          const expirationTime = Date.now() + (tokenExpiry * 1000);
-          setItem('token_expires_at', expirationTime);
-          
-          // Update refresh token if new one provided
-          if (newRefreshToken) {
-            setItem('refresh_token', newRefreshToken);
-          }
-          
-          if (isDev) {
-            console.log('✅ Access token refreshed successfully', {
-              expiresIn: `${tokenExpiry}s`,
-              expiresAt: new Date(expirationTime).toLocaleString()
-            });
-          }
-          processQueue(null, newAccessToken);
-          
-          // Retry the original request with new token
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          return httpClient(originalRequest);
-        } else {
-          throw new Error('No new access token received');
-        }
+
+        if (!newAccessToken) throw new Error('No new access token received');
+
+        setItem(AUTH_TOKEN_STORAGE_KEY, newAccessToken);
+        httpClient.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+        setItem('token_expires_at', Date.now() + expiresIn * 1000);
+        if (newRefreshToken) setItem('refresh_token', newRefreshToken);
+
+        processQueue(null, newAccessToken);
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        return httpClient(originalRequest);
       } catch (refreshError) {
-        if (isDev) {
-          console.error('❌ Token refresh failed. Logging out...', {
-            message: refreshError.message,
-            response: refreshError.response?.data,
-            status: refreshError.response?.status
-          });
-        }
+        if (isDev) console.error('❌ Token refresh failed:', refreshError.message);
         processQueue(refreshError, null);
-        
-        // Clear tokens and redirect to login
-        removeItem(AUTH_TOKEN_STORAGE_KEY);
-        removeItem('refresh_token');
-        removeItem('token_expires_at');
-        removeItem('login_time');
+        clearHttpCache();
+        clearAuthStorage();
         delete httpClient.defaults.headers.common['Authorization'];
-        
-        // Redirect to login with locale
+
         if (typeof window !== 'undefined') {
-          const currentLocale = getCurrentLocale() || 'uz';
-          window.location.href = `/${currentLocale}/login`;
+          const locale = getCurrentLocale() || 'uz';
+          window.location.href = `/${locale}/login`;
         }
-        
+
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
 
-    const normalized = {
-      status: error?.response?.status,
-      message:
-        error?.response?.data?.message ||
-        error?.message ||
-        "Unexpected error occurred",
-      data: error?.response?.data,
-    };
-    return Promise.reject({ ...error, normalized });
+    return Promise.reject({
+      ...error,
+      normalized: {
+        status: error?.response?.status,
+        message: error?.response?.data?.message || error?.message || 'Unexpected error occurred',
+        data: error?.response?.data,
+      },
+    });
   }
 );
 
 export default httpClient;
-
-

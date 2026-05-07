@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx next *)",
+      "Bash(Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue)",
+      "Read(//c/Users/user/**)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\user\\\\Desktop\\\\marketpro\\\\src\" -Recurse -Force)",
+      "Bash(Select-Object FullName, Extension)",
+      "Bash(Sort-Object FullName)",
+      "Bash(npx tsc *)",
+      "Bash(xargs grep -l 'src=\"assets/')",
+      "Bash(xargs sed -i 's|src=\"assets/|src=\"/assets/|g')",
+      "Bash(xargs sed -i -e 's|src='\\\\''assets/|src='\\\\''/assets/|g' -e 's|url\\(\"assets/|url\\(\"/assets/|g' -e 's|url\\('\\\\''assets/|url\\('\\\\''/assets/|g' -e 's|url\\(`assets/|url\\(`/assets/|g')",
+      "Bash(grep -rn \"src='assets/\\\\|src=\\\\\"assets/\\\\|url.*['\\\\\"\\\\`]assets/\" /c/Users/user/Desktop/marketpro/src --include=\"*.jsx\" --include=\"*.js\")",
+      "Bash(xargs sed -i 's|/assets/images/logo1\\\\.png|/assets/images/logo/logo.png|g')",
+      "Bash(node -e \"const pkg=require\\('./package.json'\\); const deps={...pkg.dependencies,...pkg.devDependencies}; const css=Object.keys\\(deps\\).filter\\(k=>k.includes\\('css'\\)||k.includes\\('purge'\\)||k.includes\\('postcss'\\)||k.includes\\('cssnano'\\)||k.includes\\('purgecss'\\)\\); console.log\\(css\\)\")",
+      "Bash(node -e \"const pkg=require\\('./package.json'\\); console.log\\(JSON.stringify\\({...pkg.dependencies,...pkg.devDependencies},null,0\\)\\)\")",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(JSON.stringify\\({...p.dependencies,...p.devDependencies},null,2\\)\\)\")",
+      "Bash(grep -rn \"import.*isotope\\\\|import.*wowjs\\\\|import.*WOW\\\\|import.*jquery\\\\|import.*\\\\$\\\\b\\\\|import.*select2\\\\|import.*react-fast-marquee\\\\|import.*Marquee\\\\|import.*react-slider\\\\|import.*@phosphor-icons/react\\\\|import.*@ramonak\" src/)",
+      "Bash(npm uninstall *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); const all={...p.dependencies,...p.devDependencies}; console.log\\('deps:', Object.keys\\(all\\).join\\(', '\\)\\)\")",
+      "Bash(git checkout *)",
+      "Bash(npm install *)"
+    ]
+  }
+}

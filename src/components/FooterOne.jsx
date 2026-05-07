@@ -8,7 +8,7 @@ const FooterOne = () => {
   return (
     <footer className="footer py-5">
       <img
-        src="assets/images/bg/body-bottom-bg.png"
+        src="/assets/images/bg/body-bottom-bg.png"
         alt="BG"
         className="body-bottom-bg"
       />
@@ -19,7 +19,7 @@ const FooterOne = () => {
               <div className="footer-item__logo mb-20">
                 <Link href="/">
                   <img src="/assets/images/logo/logo.png" alt="Logo" onError={(e) => {
-                    e.target.src = "/assets/images/logo1.png";
+                    e.target.src = "/assets/images/logo/logo.png";
                   }} />
                 </Link>
               </div>
@@ -127,10 +127,10 @@ const FooterOne = () => {
               </div>
               <div className="flex-align gap-8 mb-24">
                 <a href="https://www.apple.com/store" className="hover-opacity-80 transition-1">
-                  <img src="assets/images/thumbs/store-img1.png" alt="" />
+                  <img src="/assets/images/thumbs/store-img1.png" alt="" />
                 </a>
                 <a href="https://play.google.com/store/apps?hl=en" className="hover-opacity-80 transition-1">
-                  <img src="assets/images/thumbs/store-img2.png" alt="" />
+                  <img src="/assets/images/thumbs/store-img2.png" alt="" />
                 </a>
               </div>
               <ul className="flex-align gap-12">

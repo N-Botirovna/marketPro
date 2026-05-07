@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { getBookComments, createBookComment, likeComment, deleteComment } from "@/services/books";
 import { useAuth } from "@/hooks/useAuth";
+import { getAuthToken } from "@/services/auth";
 import { useToast } from "./Toast";
 import Spin from "./Spin";
 
@@ -22,45 +23,15 @@ const BookComments = ({ bookId }) => {
   const [expandedComments, setExpandedComments] = useState(new Set());
   const [currentUserId, setCurrentUserId] = useState(null);
 
-  // Get current user ID from JWT token
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const token = localStorage.getItem('auth_token');
-        
-        if (token) {
-          // JWT token'ni decode qilamiz (base64)
-          try {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(
-              atob(base64)
-                .split('')
-                .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                .join('')
-            );
-            
-            const decoded = JSON.parse(jsonPayload);
-            console.log('🔓 Decoded JWT:', decoded);
-            
-            // JWT'dan user_id yoki id'ni olamiz
-            const userId = decoded.user_id || decoded.id || decoded.sub;
-            
-            if (userId) {
-              console.log('✨ Found user ID from JWT:', userId);
-              setCurrentUserId(userId);
-            } else {
-              console.log('❌ User ID not found in JWT');
-            }
-          } catch (e) {
-            console.error('JWT decode error:', e);
-          }
-        } else {
-          console.log('❌ No auth_token in localStorage');
-        }
-      } catch (error) {
-        console.error('Error getting user:', error);
-      }
+    try {
+      const token = getAuthToken();
+      if (!token) return;
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const userId = payload?.user_id || payload?.id || payload?.sub;
+      if (userId) setCurrentUserId(userId);
+    } catch {
+      // invalid token — ignore
     }
   }, []);
 

@@ -183,7 +183,7 @@ const VendorTwoDetails = () => {
             <div
               className="inner-banner-two bg-img rounded-16 overflow-hidden"
               style={{
-                backgroundImage: `url('assets/images/thumbs/inner-banner-two-bg.png')`,
+                backgroundImage: `url('/assets/images/thumbs/inner-banner-two-bg.png')`,
               }}
             >
               <div className="row bg-black">
@@ -245,7 +245,7 @@ const VendorTwoDetails = () => {
                       grid === true && "border-main-600 text-white bg-main-600"
                     }`}
                   >
-                    <i className="ph-bold ph-list-dashes" />
+                    <i className="ph ph-list-dashes" />
                   </button>
                   <button
                     onClick={() => setGrid(false)}
@@ -274,7 +274,7 @@ const VendorTwoDetails = () => {
                   type="button"
                   className="w-48 h-48 d-lg-none d-flex flex-center border border-gray-100 rounded-6 text-2xl sidebar-btn"
                 >
-                  <i className="ph-bold ph-funnel" />
+                  <i className="ph ph-funnel" />
                 </button>
               </div>
             </div>

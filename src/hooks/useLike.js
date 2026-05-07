@@ -31,14 +31,14 @@ export function useLike(bookId, bookIsLiked, bookLikeCount) {
       const response = await likeBook(id);
 
       if (response.success) {
-        const finalCount = response.is_liked ? nextCount : Math.max(0, nextCount);
+        const finalCount = response.is_liked ? nextCount : Math.max(0, prevCount - 1);
         setLiked(response.is_liked);
         setCount(finalCount);
 
         if (response.is_liked) addLike(id);
         else removeLike(id);
 
-        window.dispatchEvent(new Event(response.is_liked ? "bookLiked" : "bookUnliked"));
+        window.dispatchEvent(new CustomEvent(response.is_liked ? "bookLiked" : "bookUnliked", { detail: { bookId: id } }));
         return { isLiked: response.is_liked, count: finalCount };
       }
       return null;

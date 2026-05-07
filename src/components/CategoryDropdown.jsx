@@ -1,7 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
-import { getBookCategories } from "@/services/categories";
+import { getBookCategories } from "@/services/categories"
+;
 
 const CategoryDropdown = () => {
   const [categories, setCategories] = useState([]);
@@ -93,7 +94,7 @@ const CategoryDropdown = () => {
         {/* Mobil logo */}
         <div className="logo px-16 d-lg-none d-block">
           <Link href="/" className="link">
-            <img src="/assets/images/logo1.png" alt="Logo" />
+            <img src="/assets/images/logo/logo.png" alt="Logo" />
           </Link>
         </div>
 

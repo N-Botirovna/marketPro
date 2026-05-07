@@ -6,9 +6,9 @@ import RouteScrollToTop from "@/helper/RouteScrollToTop";
 import "./font.css";
 import "./globals.scss";
 import "./performance.css";
-import PhosphorIconInit from "@/helper/PhosphorIconInit";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import MaterialThemeProvider from "@/components/MaterialThemeProvider";
+import Preloader from "@/helper/Preloader";
+import ConditionalHeader from "@/components/ConditionalHeader";
 
 export const metadata = {
   title: "Kitobzor - Online Book Store",
@@ -35,7 +35,9 @@ export default async function RootLayout({ children, params }) {
           crossOrigin="anonymous"
         />
         <link rel="dns-prefetch" href="https://api.kitobzor.uz" />
-        <link rel="preload" href="/assets/css/main.css" as="style" />
+        <link rel="preconnect" href="https://unpkg.com" crossOrigin="anonymous" />
+        <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" crossOrigin="anonymous" />
+        <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" crossOrigin="anonymous" />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=5"
@@ -43,12 +45,13 @@ export default async function RootLayout({ children, params }) {
       </head>
       <body suppressHydrationWarning={true}>
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <MaterialThemeProvider>
+            <Preloader />
             <BootstrapInit />
-            <PhosphorIconInit />
             <RouteScrollToTop />
-            <ProtectedRoute locale={locale}>{children}</ProtectedRoute>
-          </MaterialThemeProvider>
+            <ProtectedRoute locale={locale}>
+              <ConditionalHeader />
+              {children}
+            </ProtectedRoute>
         </NextIntlClientProvider>
       </body>
     </html>

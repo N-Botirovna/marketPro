@@ -1,17 +1,17 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import BottomFooter from "@/components/BottomFooter";
-import CounterSection from "@/components/CounterSection";
-import FooterOne from "@/components/FooterOne";
-import HeaderOne from "@/components/HeaderOne";
-import ShippingOne from "@/components/ShippingOne";
-import StepsSection from "@/components/StepsSection";
 import WhyBecomeSeller from "@/components/WhyBecomeSeller";
-import SellerRegistrationModal from "@/components/SellerRegistrationModal";
 import ColorInit from "@/helper/ColorInit";
-import Preloader from "@/helper/Preloader";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
+
+const CounterSection = dynamic(() => import("@/components/CounterSection"));
+const StepsSection = dynamic(() => import("@/components/StepsSection"));
+const ShippingOne = dynamic(() => import("@/components/ShippingOne"));
+const FooterOne = dynamic(() => import("@/components/FooterOne"));
+const BottomFooter = dynamic(() => import("@/components/BottomFooter"));
+const SellerRegistrationModal = dynamic(() => import("@/components/SellerRegistrationModal"));
 
 const BecomeSellerClient = () => {
   const tSeller = useTranslations("SellerRegistration");
@@ -38,11 +38,6 @@ const BecomeSellerClient = () => {
 
       {/* ScrollToTop */}
       <ScrollToTopInit color="#FA6400" />
-
-      {/* Preloader */}
-      <Preloader />
-
-      <HeaderOne category={true} />
 
       {/* WhyBecomeSeller */}
       <WhyBecomeSeller />

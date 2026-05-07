@@ -18,7 +18,7 @@ const ProductListOne = () => {
                 href="/product-details?id=2"
                 className="product-card__thumb flex-center"
               >
-                <img src="assets/images/thumbs/product-img1.png" alt="" />
+                <img src="/assets/images/thumbs/product-img1.png" alt="" />
               </Link>
               <div className="product-card__content mt-12">
                 <div className="product-card__price mb-16">
@@ -85,7 +85,7 @@ const ProductListOne = () => {
                 href="/product-details?id=2"
                 className="product-card__thumb flex-center"
               >
-                <img src="assets/images/thumbs/product-img2.png" alt="" />
+                <img src="/assets/images/thumbs/product-img2.png" alt="" />
               </Link>
               <div className="product-card__content mt-12">
                 <div className="product-card__price mb-16">
@@ -152,7 +152,7 @@ const ProductListOne = () => {
                 href="/product-details?id=3"
                 className="product-card__thumb flex-center"
               >
-                <img src="assets/images/thumbs/product-img3.png" alt="" />
+                <img src="/assets/images/thumbs/product-img3.png" alt="" />
               </Link>
               <div className="product-card__content mt-12">
                 <div className="product-card__price mb-16">
@@ -219,7 +219,7 @@ const ProductListOne = () => {
                 href="/product-details?id=2"
                 className="product-card__thumb flex-center"
               >
-                <img src="assets/images/thumbs/product-img1.png" alt="" />
+                <img src="/assets/images/thumbs/product-img1.png" alt="" />
               </Link>
               <div className="product-card__content mt-12">
                 <div className="product-card__price mb-16">
@@ -286,7 +286,7 @@ const ProductListOne = () => {
                 href="/product-details?id=5"
                 className="product-card__thumb flex-center"
               >
-                <img src="assets/images/thumbs/product-img5.png" alt="" />
+                <img src="/assets/images/thumbs/product-img5.png" alt="" />
               </Link>
               <div className="product-card__content mt-12">
                 <div className="product-card__price mb-16">
@@ -353,7 +353,7 @@ const ProductListOne = () => {
                 href="/product-details?id=6"
                 className="product-card__thumb flex-center"
               >
-                <img src="assets/images/thumbs/product-img6.png" alt="" />
+                <img src="/assets/images/thumbs/product-img6.png" alt="" />
               </Link>
               <div className="product-card__content mt-12">
                 <div className="product-card__price mb-16">
