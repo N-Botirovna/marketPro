@@ -58,7 +58,7 @@ const FooterOne = () => {
                 </li>
                 <li className="mb-12">
                   <Link
-                    href="/shop"
+                    href="/contact"
                     className="text-sm text-gray-600 hover-text-main-500 transition-1"
                   >
                     {tF("info.privacy")}

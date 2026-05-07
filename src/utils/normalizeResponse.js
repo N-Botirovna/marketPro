@@ -3,13 +3,18 @@
  * Handles both `result` and `results` API response shapes.
  */
 export function normalizeListResponse(data) {
-  const raw = data?.result ?? data?.results ?? null;
-  const result = Array.isArray(raw) ? raw : [];
+  const inner = data?.result ?? data;
+  const result = Array.isArray(inner)
+    ? inner
+    : Array.isArray(inner?.results)
+    ? inner.results
+    : [];
+  const meta = Array.isArray(data?.result) ? data : (data?.result ?? data);
   return {
     result,
-    count: data?.count ?? result.length,
-    next: data?.next ?? null,
-    previous: data?.previous ?? null,
+    count: meta?.count ?? result.length,
+    next: meta?.next ?? null,
+    previous: meta?.previous ?? null,
     success: data?.success === true,
     raw: data,
   };

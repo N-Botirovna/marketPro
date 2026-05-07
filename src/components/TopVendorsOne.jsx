@@ -6,10 +6,11 @@ import { getShops } from "@/services/shops";
 import { useTranslations } from "next-intl";
 
 const TopVendorsOne = () => {
+  console.log("TopVendorsOne rendered");
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
   const tCommon = useTranslations("Common");
-  const tBread = useTranslations("Breadcrumb")
+  const tBread = useTranslations("Breadcrumb");
 
   useEffect(() => {
     let mounted = true;
@@ -23,6 +24,7 @@ const TopVendorsOne = () => {
         console.error("Failed to fetch shops:", error);
       } finally {
         if (mounted) setLoading(false);
+        console.log("shops");
       }
     };
     fetchShops();
@@ -37,24 +39,32 @@ const TopVendorsOne = () => {
     <section className="top-vendors py-80">
       <div className="container container-lg">
         <div className="section-heading mb-6">
-          <div className="d-flex align-items-center justify-content-between flex-nowrap" style={{
-            display: 'flex !important',
-            alignItems: 'center',
-            justifyContent: 'space-between !important',
-            width: '100%',
-            gap: '16px'
-          }}>
-            <h5 className="mb-0 fw-semibold" style={{ margin: 0, flexShrink: 0 }}>{tCommon("shops")}</h5>
+          <div
+            className="d-flex align-items-center justify-content-between flex-nowrap"
+            style={{
+              display: "flex !important",
+              alignItems: "center",
+              justifyContent: "space-between !important",
+              width: "100%",
+              gap: "16px",
+            }}
+          >
+            <h5
+              className="mb-0 fw-semibold"
+              style={{ margin: 0, flexShrink: 0 }}
+            >
+              {tCommon("shops")}
+            </h5>
             <Link
               href="/vendor"
               className="btn btn-outline-main d-inline-flex align-items-center gap-6 rounded-pill px-16 py-8 text-sm fw-medium hover-bg-main-600 hover-text-white transition-1"
               style={{
-                borderColor: '#299E60',
-                color: '#299E60',
-                textDecoration: 'none',
-                whiteSpace: 'nowrap',
+                borderColor: "#299E60",
+                color: "#299E60",
+                textDecoration: "none",
+                whiteSpace: "nowrap",
                 flexShrink: 0,
-                marginLeft: 'auto'
+                marginLeft: "auto",
               }}
             >
               {tCommon("viewAll")}
@@ -66,9 +76,33 @@ const TopVendorsOne = () => {
             ? skeletonCards.map((_, i) => (
                 <div key={i} className="col-xxl-3 col-lg-4 col-sm-6">
                   <div className="vendor-card text-center px-16 pb-24">
-                    <div style={{ width: 90, height: 90, borderRadius: '50%', background: '#f0f0f0', margin: '12px auto' }} />
-                    <div style={{ height: 16, background: '#f0f0f0', borderRadius: 4, margin: '8px auto', width: '60%' }} />
-                    <div style={{ height: 12, background: '#f0f0f0', borderRadius: 4, margin: '6px auto', width: '40%' }} />
+                    <div
+                      style={{
+                        width: 90,
+                        height: 90,
+                        borderRadius: "50%",
+                        background: "#f0f0f0",
+                        margin: "12px auto",
+                      }}
+                    />
+                    <div
+                      style={{
+                        height: 16,
+                        background: "#f0f0f0",
+                        borderRadius: 4,
+                        margin: "8px auto",
+                        width: "60%",
+                      }}
+                    />
+                    <div
+                      style={{
+                        height: 12,
+                        background: "#f0f0f0",
+                        borderRadius: 4,
+                        margin: "6px auto",
+                        width: "40%",
+                      }}
+                    />
                   </div>
                 </div>
               ))
@@ -87,7 +121,10 @@ const TopVendorsOne = () => {
                         }}
                       >
                         <Image
-                          src={shop.picture || "/assets/images/thumbs/vendor-logo1.png"}
+                          src={
+                            shop.picture ||
+                            "/assets/images/thumbs/vendor-logo1.png"
+                          }
                           alt={shop.name}
                           fill
                           sizes="80px"
@@ -126,8 +163,7 @@ const TopVendorsOne = () => {
                     </div>
                   </div>
                 </div>
-              ))
-          }
+              ))}
         </div>
       </div>
     </section>

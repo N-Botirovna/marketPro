@@ -193,7 +193,7 @@ const VendorTwoDetails = () => {
                     <h6 className="text-white">Daily Offer</h6>
                     <h3 className="my-32 text-white">SALE 48% OFF</h3>
                     <Link
-                      href="/shop"
+                      href="/vendor"
                       className="btn btn-main d-inline-flex align-items-center rounded-8 gap-8"
                     >
                       Banner Image qo'shaylik 
