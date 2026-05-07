@@ -1,3 +1,4 @@
+import "./page.scss";
 import dynamic from "next/dynamic";
 import BreadcrumbTwo from "@/components/BreadcrumbTwo";
 import ProductDetailsOne from "@/components/ProductDetailsOne";
@@ -10,6 +11,8 @@ const ShippingOne = dynamic(() => import("@/components/ShippingOne"));
 const NewsletterOne = dynamic(() => import("@/components/NewsletterOne"));
 const FooterOne = dynamic(() => import("@/components/FooterOne"));
 const BottomFooter = dynamic(() => import("@/components/BottomFooter"));
+
+export const revalidate = 3600;
 
 export const metadata = {
   title: "MarketPro - E-commerce Next JS Template",

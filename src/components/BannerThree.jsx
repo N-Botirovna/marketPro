@@ -2,7 +2,6 @@
 
 import React, { useEffect } from "react";
 import dynamic from "next/dynamic";
-import "animate.css";
 import { Link } from "@/i18n/navigation";
 const Slider = dynamic(() => import("react-slick"), { ssr: false });
 const BannerThree = () => {

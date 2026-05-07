@@ -309,7 +309,7 @@ const BookShopSection = () => {
                       grid === true && "border-main-600 text-white bg-main-600"
                     }`}
                   >
-                    <i className="ph-bold ph-list-dashes" />
+                    <i className="ph ph-list-dashes" />
                   </button>
                   <button
                     onClick={() => setGrid(false)}
@@ -353,7 +353,7 @@ const BookShopSection = () => {
                   type="button"
                   className="w-44 h-44 d-lg-none d-flex flex-center border border-gray-100 rounded-6 text-2xl sidebar-btn"
                 >
-                  <i className="ph-bold ph-funnel" />
+                  <i className="ph ph-funnel" />
                 </button>
               </div>
             </div>

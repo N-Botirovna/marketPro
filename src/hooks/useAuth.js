@@ -7,6 +7,7 @@ import {
   logoutUser,
 } from '@/services/auth';
 import { getItem } from '@/utils/storage';
+import { clearHttpCache } from '@/lib/http';
 
 const devLog = (...args) => {
   if (process.env.NODE_ENV === 'development') console.log(...args);
@@ -89,14 +90,15 @@ export const useAuth = () => {
   }, []);
 
   const logout = useCallback(async () => {
-    // Abort any in-flight auth check to prevent state conflicts
     abortRef.current?.abort();
     try {
       await logoutUser();
+      clearHttpCache();
       setToken(null);
       setIsAuth(false);
     } catch (error) {
       devLog('Logout error:', error);
+      clearHttpCache();
     }
   }, []);
 

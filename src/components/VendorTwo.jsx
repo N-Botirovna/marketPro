@@ -531,7 +531,7 @@ const VendorTwo = () => {
                   grid === true && "border-main-600 text-white bg-main-600"
                 }`}
               >
-                <i className="ph-bold ph-list-dashes" />
+                <i className="ph ph-list-dashes" />
               </button>
             </div>
             <button
@@ -539,7 +539,7 @@ const VendorTwo = () => {
               type="button"
               className="w-48 h-48 d-lg-none d-flex flex-center border border-gray-100 rounded-6 text-2xl sidebar-btn"
             >
-              <i className="ph-bold ph-funnel" />
+              <i className="ph ph-funnel" />
             </button>
           </div>
         </div>
@@ -811,7 +811,7 @@ const VendorTwo = () => {
                             : "text-neutral-600 hover-bg-main-600 hover-text-white hover-border-main-600"
                         }`}
                       >
-                        <i className="ph-bold ph-arrow-left" />
+                        <i className="ph ph-arrow-left" />
                       </button>
                     </li>
                     {getPageNumbers().map((pageNum) => (
@@ -838,7 +838,7 @@ const VendorTwo = () => {
                             : "text-neutral-600 hover-bg-main-600 hover-text-white hover-border-main-600"
                         }`}
                       >
-                        <i className="ph-bold ph-arrow-right" />
+                        <i className="ph ph-arrow-right" />
                       </button>
                     </li>
                   </ul>

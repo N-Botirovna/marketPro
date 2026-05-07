@@ -34,14 +34,10 @@ export default async function RootLayout({ children, params }) {
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        <link rel="preconnect" href="https://unpkg.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://api.kitobzor.uz" />
-        <link rel="dns-prefetch" href="https://unpkg.com" />
-        <link rel="stylesheet" href="/assets/css/main.css" />
-        {/* Phosphor Icons - load directly in head so icons appear immediately */}
+        <link rel="preconnect" href="https://unpkg.com" crossOrigin="anonymous" />
         <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" crossOrigin="anonymous" />
         <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css" crossOrigin="anonymous" />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=5"

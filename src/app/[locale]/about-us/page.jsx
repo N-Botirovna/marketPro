@@ -1,3 +1,4 @@
+import "./page.scss";
 import dynamic from "next/dynamic";
 import Breadcrumb from "@/components/Breadcrumb";
 import AboutUs from "@/components/AboutUs";

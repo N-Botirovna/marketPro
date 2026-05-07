@@ -455,7 +455,7 @@ const VendorsListTwo = () => {
                   type="button"
                   className="w-44 h-44 d-lg-none d-flex flex-center border border-gray-100 rounded-6 text-2xl sidebar-btn"
                 >
-                  <i className="ph-bold ph-funnel" />
+                  <i className="ph ph-funnel" />
                 </button>
               </div>
             </div>
@@ -1513,7 +1513,7 @@ const VendorsListTwo = () => {
                   className="page-link h-64 w-64 flex-center text-xxl rounded-circle fw-medium text-neutral-600 border border-gray-100"
                   href="#"
                 >
-                  <i className="ph-bold ph-arrow-left" />
+                  <i className="ph ph-arrow-left" />
                 </Link>
               </li>
               <li className="page-item active">
@@ -1577,7 +1577,7 @@ const VendorsListTwo = () => {
                   className="page-link h-64 w-64 flex-center text-xxl rounded-circle fw-medium text-neutral-600 border border-gray-100"
                   href="#"
                 >
-                  <i className="ph-bold ph-arrow-right" />
+                  <i className="ph ph-arrow-right" />
                 </Link>
               </li>
             </ul>

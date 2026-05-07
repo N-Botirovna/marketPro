@@ -707,14 +707,14 @@ const ProductDetailsTwo = () => {
                           </p>
                           <div className="flex-align gap-20 mt-44">
                             <button className="flex-align gap-12 text-gray-700 hover-text-main-600">
-                              <i className="ph-bold ph-thumbs-up" />
+                              <i className="ph ph-thumbs-up" />
                               Like
                             </button>
                             <Link
                               href="#comment-form"
                               className="flex-align gap-12 text-gray-700 hover-text-main-600"
                             >
-                              <i className="ph-bold ph-arrow-bend-up-left" />
+                              <i className="ph ph-arrow-bend-up-left" />
                               Replay
                             </Link>
                           </div>
@@ -745,14 +745,14 @@ const ProductDetailsTwo = () => {
                           </p>
                           <div className="flex-align gap-20 mt-44">
                             <button className="flex-align gap-12 text-gray-700 hover-text-main-600">
-                              <i className="ph-bold ph-thumbs-up" />
+                              <i className="ph ph-thumbs-up" />
                               Like
                             </button>
                             <Link
                               href="#comment-form"
                               className="flex-align gap-12 text-gray-700 hover-text-main-600"
                             >
-                              <i className="ph-bold ph-arrow-bend-up-left" />
+                              <i className="ph ph-arrow-bend-up-left" />
                               Replay
                             </Link>
                           </div>
