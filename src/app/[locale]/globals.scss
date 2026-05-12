@@ -1,49 +1,49 @@
 // ─── Bootstrap: selective import (unused components excluded) ────────────────
 // Core (required by all components)
-@import "~bootstrap/scss/functions";
-@import "~bootstrap/scss/variables";
-@import "~bootstrap/scss/variables-dark";
-@import "~bootstrap/scss/maps";
-@import "~bootstrap/scss/mixins";
-@import "~bootstrap/scss/utilities";
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
 
 // Base
-@import "~bootstrap/scss/root";
-@import "~bootstrap/scss/reboot";
-@import "~bootstrap/scss/type";
-@import "~bootstrap/scss/images";
+@import "bootstrap/scss/root";
+@import "bootstrap/scss/reboot";
+@import "bootstrap/scss/type";
+@import "bootstrap/scss/images";
 
 // Layout
-@import "~bootstrap/scss/containers";
-@import "~bootstrap/scss/grid";
-@import "~bootstrap/scss/helpers";
+@import "bootstrap/scss/containers";
+@import "bootstrap/scss/grid";
+@import "bootstrap/scss/helpers";
 
 // Utilities API (generates d-flex, mt-*, text-*, etc.)
-@import "~bootstrap/scss/utilities/api";
+@import "bootstrap/scss/utilities/api";
 
 // Components — only those found in JSX class names
-@import "~bootstrap/scss/transitions";
-@import "~bootstrap/scss/buttons";
-@import "~bootstrap/scss/forms";
-@import "~bootstrap/scss/nav";
-@import "~bootstrap/scss/navbar";
-@import "~bootstrap/scss/dropdown";
-@import "~bootstrap/scss/card";
-@import "~bootstrap/scss/close";
-@import "~bootstrap/scss/modal";
-@import "~bootstrap/scss/progress";
-@import "~bootstrap/scss/spinners";
-@import "~bootstrap/scss/breadcrumb";
-@import "~bootstrap/scss/alert";
-@import "~bootstrap/scss/tables";
-@import "~bootstrap/scss/pagination";
+@import "bootstrap/scss/transitions";
+@import "bootstrap/scss/buttons";
+@import "bootstrap/scss/forms";
+@import "bootstrap/scss/nav";
+@import "bootstrap/scss/navbar";
+@import "bootstrap/scss/dropdown";
+@import "bootstrap/scss/card";
+@import "bootstrap/scss/close";
+@import "bootstrap/scss/modal";
+@import "bootstrap/scss/progress";
+@import "bootstrap/scss/spinners";
+@import "bootstrap/scss/breadcrumb";
+@import "bootstrap/scss/alert";
+@import "bootstrap/scss/tables";
+@import "bootstrap/scss/pagination";
 // Excluded (zero usage): carousel, offcanvas, tooltip, popover,
 //                        toasts, list-group, placeholder
 
 // ─── Project SASS: global layers only ────────────────────────────────────────
 // Page-specific partials are imported in each route's page.jsx
-@import "/public/assets/sass/abstracts/index";
-@import "/public/assets/sass/utilities/index";
-@import "/public/assets/sass/components/index";
-@import "/public/assets/sass/layout/index";
-@import "/public/assets/sass/extra";
+@import "../../../public/assets/sass/abstracts/index";
+@import "../../../public/assets/sass/utilities/index";
+@import "../../../public/assets/sass/components/index";
+@import "../../../public/assets/sass/layout/index";
+@import "../../../public/assets/sass/extra";
