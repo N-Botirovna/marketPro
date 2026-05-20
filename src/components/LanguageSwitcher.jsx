@@ -1,122 +1,193 @@
 "use client";
-import { usePathname, useRouter } from "@/i18n/navigation";
-import { useLocale } from "next-intl";
-import { useState, useRef, useEffect } from "react";
 
-const languages = [
-  { code: "uz", short: "uz" },
-  { code: "ru", short: "ru" },
-  { code: "en", short: "en" }
+import React, { useEffect, useRef, useState } from "react";
+import { useLocale } from "next-intl";
+import { usePathname, useRouter } from "@/i18n/navigation";
+
+const LANGUAGES = [
+  { code: "uz", short: "UZ", label: "O‘zbekcha" },
+  { code: "ru", short: "RU", label: "Русский" },
+  { code: "en", short: "EN", label: "English" },
 ];
 
-export default function LanguageSwitcher({ className = "" }) {
+/**
+ * Language switcher styled to match the kz-header family.
+ *
+ * Trigger is a compact circular button showing the two-letter active
+ * locale code (e.g. "UZ"). Popover lists the three locales with native
+ * name + ISO code badge. Selection persists for the next visit and
+ * triggers a locale-aware navigation.
+ */
+const LanguageSwitcher = ({ className = "" }) => {
   const router = useRouter();
   const pathname = usePathname();
   const activeLocale = useLocale();
   const [open, setOpen] = useState(false);
-  const btnRef = useRef(null);
+  const wrapRef = useRef(null);
 
   useEffect(() => {
-    function onClick(e) {
-      if (btnRef.current && !btnRef.current.contains(e.target)) setOpen(false);
-    }
-    if (open) document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
+    if (!open) return undefined;
+    const onDown = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
   }, [open]);
 
-  const current = languages.find((l) => l.code === activeLocale);
+  const current = LANGUAGES.find((l) => l.code === activeLocale) || LANGUAGES[0];
 
-  const handleChange = (code) => {
+  const choose = (code) => {
     setOpen(false);
-    if (code !== activeLocale) {
-      // Use the correct next-intl API to switch locale while preserving pathname
-      // pathname from usePathname() already excludes locale, so we pass it with locale option
-      try {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('NEXT_LOCALE', code);
-          localStorage.setItem('locale', code);
-        }
-      } catch {}
-      router.replace(pathname, { locale: code });
+    if (code === activeLocale) return;
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("NEXT_LOCALE", code);
+        localStorage.setItem("locale", code);
+      }
+    } catch {
+      /* localStorage blocked — server middleware will fall back */
     }
+    router.replace(pathname, { locale: code });
   };
 
   return (
-    <div ref={btnRef} className={`minimal-lang-wrap position-relative ${className}`}>
+    <div ref={wrapRef} className={`kz-lang ${className}`}>
       <button
         type="button"
-        className="d-flex align-items-center px-2 py-1 bg-transparent gap-1"
-        aria-haspopup="true"
+        onClick={() => setOpen((p) => !p)}
+        className="kz-lang__btn"
+        aria-haspopup="menu"
         aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-        style={{
-          border: "none",
-          background: "none",
-          fontSize: 15,
-          fontWeight: 700,
-          color: "#191919",
-          textTransform: "uppercase",
-          letterSpacing: ".5px"
-        }}
+        aria-label={current.label}
       >
-        <span>{current?.short}</span>
-        <span style={{
-          fontSize: 13,
-          marginLeft: 2,
-          color: "#666",
-          transform: `rotate(${open ? "180deg" : "0deg"})`,
-          transition: "transform 0.18s"
-        }}>▼</span>
+        <span className="kz-lang__code">{current.short}</span>
       </button>
+
       {open && (
-        <div
-          className="mt-2 p-1 minimal-lang-dropdown"
-          style={{
-            position: "absolute",
-            right: 0,
-            zIndex: 1000,
-            background: "#fff",
-            borderRadius: 8,
-            minWidth: 72,
-            boxShadow: "0 2px 14px rgba(0,0,0,0.06)"
-          }}
-        >
-          {languages.map((lang) => (
-            <button
-              key={lang.code}
-              className="d-flex align-items-center w-100 px-3 py-1"
-              style={{
-                background: lang.code === activeLocale ? "#f2f2f7" : "transparent",
-                fontWeight: lang.code === activeLocale ? 700 : 400,
-                color: lang.code === activeLocale ? "#111" : "#444",
-                border: "none",
-                borderRadius: 6,
-                fontSize: 14,
-                minWidth: 62,
-                textTransform: "uppercase",
-                letterSpacing: ".5px",
-                gap: 4,
-                cursor: lang.code === activeLocale ? "default" : "pointer",
-                justifyContent: "center"
-              }}
-              type="button"
-              disabled={lang.code === activeLocale}
-              onClick={() => handleChange(lang.code)}
-            >
-              {lang.short}
-              {lang.code === activeLocale &&
-                <span style={{ marginLeft: 4, fontSize: 14, color: "#2ecc40" }}>✔</span>
-              }
-            </button>
-          ))}
+        <div className="kz-lang__menu" role="menu">
+          {LANGUAGES.map((lang) => {
+            const active = lang.code === activeLocale;
+            return (
+              <button
+                key={lang.code}
+                type="button"
+                onClick={() => choose(lang.code)}
+                className={`kz-lang__item ${active ? "kz-lang__item--active" : ""}`}
+                role="menuitem"
+                disabled={active}
+              >
+                <span className="kz-lang__item-code">{lang.short}</span>
+                <span className="kz-lang__item-label">{lang.label}</span>
+                {active && (
+                  <i className="ph-fill ph-check kz-lang__item-check" aria-hidden="true" />
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
+
       <style jsx>{`
-        .minimal-lang-dropdown button:focus {
-          outline: none;
-          background: #e8e8e8;
+        .kz-lang {
+          position: relative;
+          display: inline-block;
+        }
+        .kz-lang__btn {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          border: none;
+          background: transparent;
+          color: var(--text-primary, #111827);
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.15s ease;
+        }
+        @media (min-width: 576px) {
+          .kz-lang__btn {
+            width: 40px;
+            height: 40px;
+          }
+        }
+        .kz-lang__btn:hover {
+          background: var(--surface-muted, #f3f4f6);
+        }
+        .kz-lang__btn:focus-visible {
+          outline: 2px solid var(--main-600, hsl(148, 59%, 39%));
+          outline-offset: 2px;
+        }
+        .kz-lang__code {
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+        }
+
+        .kz-lang__menu {
+          position: absolute;
+          top: calc(100% + 6px);
+          right: 0;
+          min-width: 200px;
+          background: var(--surface-card, #fff);
+          border: 1px solid var(--border-subtle, #e5e7eb);
+          border-radius: 12px;
+          box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+          padding: 6px;
+          z-index: 110;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        .kz-lang__item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          width: 100%;
+          padding: 9px 12px;
+          border-radius: 8px;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          color: var(--text-primary, #111827);
+          font-size: 14px;
+          text-align: left;
+        }
+        .kz-lang__item:hover {
+          background: var(--surface-muted, #f3f4f6);
+        }
+        .kz-lang__item:disabled {
+          cursor: default;
+        }
+        .kz-lang__item--active {
+          background: var(--surface-muted, #f3f4f6);
+          font-weight: 700;
+        }
+        .kz-lang__item-code {
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+          color: var(--text-secondary, #4b5563);
+          background: var(--surface-page, #fff);
+          padding: 3px 7px;
+          border-radius: 6px;
+          flex-shrink: 0;
+          border: 1px solid var(--border-subtle, #e5e7eb);
+          min-width: 30px;
+          text-align: center;
+        }
+        .kz-lang__item-label {
+          flex: 1;
+        }
+        .kz-lang__item-check {
+          color: var(--main-600, hsl(148, 59%, 39%));
+          font-size: 14px;
         }
       `}</style>
     </div>
   );
-}
+};
+
+export default LanguageSwitcher;

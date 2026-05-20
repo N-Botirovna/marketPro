@@ -1,7 +1,7 @@
 "use client";
 import { usePathname } from "@/i18n/navigation";
-import HeaderOne from "./HeaderOne";
 import { PUBLIC_PAGES } from "@/config";
+import HeaderOne from "./HeaderOne";
 
 export default function ConditionalHeader() {
   const pathname = usePathname();

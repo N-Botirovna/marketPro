@@ -1,6 +1,6 @@
-import { getRequestConfig } from 'next-intl/server';
-import { routing } from '@/i18n/routing';
-import { hasLocale } from 'next-intl';
+import { getRequestConfig } from "next-intl/server";
+import { hasLocale } from "next-intl";
+import { routing } from "@/i18n/routing";
 export default getRequestConfig(async ({ requestLocale }) => {
   // Agar locale kelmagan bo‘lsa — default locale ni olamiz
   let locale = requestLocale;
@@ -13,19 +13,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   return {
     locale,
-    messages
+    messages,
   };
 });
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,21 +1,23 @@
 import dynamic from "next/dynamic";
+import { getTranslations } from "next-intl/server";
 import Breadcrumb from "@/components/Breadcrumb";
 import Contact from "@/components/Contact";
 import ColorInit from "@/helper/ColorInit";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
-import { getTranslations } from "next-intl/server";
 
-const FaqSection = dynamic(() => import("@/components/FaqSection"));
-const ShippingOne = dynamic(() => import("@/components/ShippingOne"));
+// FaqSection used to render below the contact form. It was pulled — FAQ
+// has a dedicated page reachable from the header menu and footer link,
+// so embedding it on contact (and previously on home) was duplicating
+// the surface and stretching every page taller than it needed to be.
 const FooterOne = dynamic(() => import("@/components/FooterOne"));
 const BottomFooter = dynamic(() => import("@/components/BottomFooter"));
 
 export const revalidate = 86400;
 
 export const metadata = {
-  title: "MarketPro - E-commerce Next JS Template",
+  title: "Aloqa — Kitobzor",
   description:
-    "MarketPro is a comprehensive and versatile Next JS template designed for e-commerce platforms, specifically tailored for multi vendor marketplaces. With its modern design and extensive feature set, MarketPro provides everything you need to create a robust and user-friendly online marketplace..",
+    "Kitobzor jamoasi bilan bog'lanish: savol, taklif yoki muammoingiz bo'lsa, biz bilan aloqaga chiqing.",
 };
 
 const page = async () => {
@@ -27,19 +29,13 @@ const page = async () => {
       <ColorInit color={true} />
 
       {/* ScrollToTop */}
-      <ScrollToTopInit color='#FA6400' />
+      <ScrollToTopInit color="#FA6400" />
 
       {/* Breadcrumb */}
       <Breadcrumb title={tBreadcrumb("contact")} />
 
       {/* Contact */}
       <Contact />
-
-      {/* FAQ Section */}
-      <FaqSection />
-
-      {/* ShippingOne */}
-      <ShippingOne />
 
       {/* FooterOne */}
       <FooterOne />

@@ -1,12 +1,11 @@
 "use client";
 import React, { useState, useEffect, memo, useCallback } from "react";
-import { Link } from "@/i18n/navigation";
 import Image from "next/image";
-import { getShops } from "@/services/shops";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import { getShops } from "@/services/shops";
 
 const TopVendorsOne = () => {
-  console.log("TopVendorsOne rendered");
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
   const tCommon = useTranslations("Common");
@@ -20,11 +19,10 @@ const TopVendorsOne = () => {
         if (mounted) {
           setShops(response.shops || []);
         }
-      } catch (error) {
-        console.error("Failed to fetch shops:", error);
+      } catch {
+        /* non-critical — Sentry already captures via axios interceptor */
       } finally {
         if (mounted) setLoading(false);
-        console.log("shops");
       }
     };
     fetchShops();
@@ -49,10 +47,7 @@ const TopVendorsOne = () => {
               gap: "16px",
             }}
           >
-            <h5
-              className="mb-0 fw-semibold"
-              style={{ margin: 0, flexShrink: 0 }}
-            >
+            <h5 className="mb-0 fw-semibold" style={{ margin: 0, flexShrink: 0 }}>
               {tCommon("shops")}
             </h5>
             <Link
@@ -121,10 +116,7 @@ const TopVendorsOne = () => {
                         }}
                       >
                         <Image
-                          src={
-                            shop.picture ||
-                            "/assets/images/thumbs/vendor-logo1.png"
-                          }
+                          src={shop.picture || "/assets/images/thumbs/vendor-logo1.png"}
                           alt={shop.name}
                           fill
                           sizes="80px"
@@ -155,7 +147,7 @@ const TopVendorsOne = () => {
                         </span>
                       )}
                       <Link
-                        href={`/vendor-two-details?id=${shop.id}`}
+                        href={`/shops/${shop.id}`}
                         className="btn btn-main-two rounded-pill py-6 px-16 text-12 mt-8"
                       >
                         {tBread("exploreShop")}

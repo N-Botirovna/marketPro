@@ -1,16 +1,17 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   getAuthToken,
   isTokenExpired,
   isRefreshTokenExpired,
   refreshAccessToken,
   logoutUser,
-} from '@/services/auth';
-import { getItem } from '@/utils/storage';
-import { clearHttpCache } from '@/lib/http';
+} from "@/services/auth";
+import { getItem } from "@/utils/storage";
+import { clearHttpCache } from "@/lib/http";
+import { useStorageSync, notifyAuthChange } from "@/hooks/useStorageSync";
 
 const devLog = (...args) => {
-  if (process.env.NODE_ENV === 'development') console.log(...args);
+  if (process.env.NODE_ENV === "development") console.log(...args);
 };
 
 export const useAuth = () => {
@@ -36,7 +37,7 @@ export const useAuth = () => {
 
     try {
       if (isRefreshTokenExpired()) {
-        devLog('⚠️ Refresh token expired, logging out...');
+        devLog("⚠️ Refresh token expired, logging out...");
         await doLogout();
         return;
       }
@@ -44,16 +45,16 @@ export const useAuth = () => {
       const currentToken = getAuthToken();
 
       if (!currentToken) {
-        const refreshToken = getItem('refresh_token');
+        const refreshToken = getItem("refresh_token");
         if (refreshToken && !isRefreshTokenExpired()) {
-          devLog('⚠️ No access token, but refresh token exists. Refreshing...');
+          devLog("⚠️ No access token, but refresh token exists. Refreshing...");
           try {
             await refreshAccessToken();
             if (signal.aborted) return;
             setToken(getAuthToken());
             setIsAuth(true);
           } catch {
-            devLog('❌ Refresh failed, logging out...');
+            devLog("❌ Refresh failed, logging out...");
             await doLogout();
           }
         } else {
@@ -65,7 +66,7 @@ export const useAuth = () => {
       }
 
       if (isTokenExpired()) {
-        devLog('⚠️ Access token expired on load, refreshing...');
+        devLog("⚠️ Access token expired on load, refreshing...");
         try {
           await refreshAccessToken();
           if (signal.aborted) return;
@@ -80,7 +81,7 @@ export const useAuth = () => {
         setIsAuth(true);
       }
     } catch (error) {
-      devLog('Error checking auth status:', error);
+      devLog("Error checking auth status:", error);
       if (signal.aborted) return;
       setToken(null);
       setIsAuth(false);
@@ -96,11 +97,25 @@ export const useAuth = () => {
       clearHttpCache();
       setToken(null);
       setIsAuth(false);
+      notifyAuthChange({ key: "auth_token", reason: "logout" });
     } catch (error) {
-      devLog('Logout error:', error);
+      devLog("Logout error:", error);
       clearHttpCache();
+      notifyAuthChange({ key: "auth_token", reason: "logout-error" });
     }
   }, []);
+
+  // Re-run auth check when another tab logs out (storage event) or the
+  // current tab fires a manual notifyAuthChange.
+  useStorageSync(
+    useCallback(
+      (detail) => {
+        devLog("🔁 auth storage sync:", detail);
+        checkAuthStatus();
+      },
+      [checkAuthStatus],
+    ),
+  );
 
   useEffect(() => {
     checkAuthStatus();

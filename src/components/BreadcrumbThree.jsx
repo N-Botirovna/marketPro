@@ -1,10 +1,14 @@
-"use client";
 import React from "react";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
 
-const BreadcrumbThree = ({ title }) => {
-  const tBreadcrumb = useTranslations("Breadcrumb");
+/**
+ * Server-rendered breadcrumb variant (green-50 background) used by the
+ * vendor page. See Breadcrumb.jsx for the rationale on staying off the
+ * client bundle.
+ */
+const BreadcrumbThree = async ({ title }) => {
+  const tBreadcrumb = await getTranslations("Breadcrumb");
 
   return (
     <div className="breadcrumb mb-0 py-26 bg-main-50">
@@ -13,10 +17,7 @@ const BreadcrumbThree = ({ title }) => {
           <h6 className="mb-0">{title}</h6>
           <ul className="flex-align gap-8 flex-wrap">
             <li className="text-sm">
-              <Link
-                href="/"
-                className="text-gray-900 flex-align gap-8 hover-text-main-600"
-              >
+              <Link href="/" className="text-gray-900 flex-align gap-8 hover-text-main-600">
                 <i className="ph ph-house" />
                 {tBreadcrumb("home")}
               </Link>

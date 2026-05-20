@@ -1,0 +1,47 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "rules": {
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "import/order": [
+      "warn",
+      {
+        "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
+        "newlines-between": "ignore",
+        "alphabetize": { "order": "ignore" }
+      }
+    ],
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "next/link",
+            "message": "Use locale-aware Link from @/i18n/navigation instead."
+          },
+          {
+            "name": "next/navigation",
+            "importNames": ["redirect", "useRouter", "usePathname"],
+            "message": "Use locale-aware helpers from @/i18n/navigation instead."
+          }
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "JSXAttribute[name.name='dangerouslySetInnerHTML']",
+        "message": "Route user-controlled HTML through sanitizeHtml() in src/lib/sanitize.js. Add an // eslint-disable-next-line comment to acknowledge after sanitizing."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["src/lib/sanitize.js", "src/components/BookDetails.jsx"],
+      "rules": {
+        "no-restricted-syntax": "off"
+      }
+    }
+  ],
+  "ignorePatterns": ["node_modules/", ".next/", "out/", "public/", "tests/"]
+}

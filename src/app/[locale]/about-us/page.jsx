@@ -1,10 +1,10 @@
 import "./page.scss";
 import dynamic from "next/dynamic";
+import { getTranslations } from "next-intl/server";
 import Breadcrumb from "@/components/Breadcrumb";
 import AboutUs from "@/components/AboutUs";
 import ColorInit from "@/helper/ColorInit";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
-import { getTranslations } from "next-intl/server";
 
 const FooterOne = dynamic(() => import("@/components/FooterOne"));
 const BottomFooter = dynamic(() => import("@/components/BottomFooter"));
@@ -44,4 +44,3 @@ const page = async () => {
 };
 
 export default page;
-

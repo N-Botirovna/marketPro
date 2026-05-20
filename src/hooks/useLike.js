@@ -1,19 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { likeBook } from "@/services/books";
 import { addLike, removeLike, isLiked as checkIsLiked } from "@/utils/likeStorage";
 
 export function useLike(bookId, bookIsLiked, bookLikeCount) {
-  const [liked, setLiked] = useState(
-    () => checkIsLiked(bookId) || bookIsLiked === true
-  );
+  const [liked, setLiked] = useState(() => checkIsLiked(bookId) || bookIsLiked === true);
   const [count, setCount] = useState(bookLikeCount || 0);
   const [liking, setLiking] = useState(false);
 
-  const sync = (id, isLikedFlag, likeCount) => {
+  // Stable identity matters: callers (e.g. BookDetails) put `sync` in a
+  // useEffect dep array. Recreating it on every render would loop the
+  // effect — fetch → setBook → render → new sync → fetch again.
+  const sync = useCallback((id, isLikedFlag, likeCount) => {
     setLiked(checkIsLiked(id) || isLikedFlag === true);
     setCount(likeCount || 0);
-  };
+  }, []);
 
   const toggle = async (id) => {
     if (liking || !id) return null;
@@ -38,7 +39,11 @@ export function useLike(bookId, bookIsLiked, bookLikeCount) {
         if (response.is_liked) addLike(id);
         else removeLike(id);
 
-        window.dispatchEvent(new CustomEvent(response.is_liked ? "bookLiked" : "bookUnliked", { detail: { bookId: id } }));
+        window.dispatchEvent(
+          new CustomEvent(response.is_liked ? "bookLiked" : "bookUnliked", {
+            detail: { bookId: id },
+          }),
+        );
         return { isLiked: response.is_liked, count: finalCount };
       }
       return null;

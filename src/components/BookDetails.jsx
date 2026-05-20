@@ -1,635 +1,700 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+
+import React, { useEffect, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import {
+  Box,
+  Stack,
+  Chip,
+  Typography,
+  Button,
+  Divider,
+  Avatar,
+  Skeleton,
+  IconButton,
+} from "@mui/material";
 import { getBookById } from "@/services/books";
 import { useLike } from "@/hooks/useLike";
 import { useAuth } from "@/hooks/useAuth";
+import { openShareSheet } from "@/lib/shareSheet";
+import { resolveMediaUrl } from "@/utils/mediaUrl";
 import BookCreateModal from "./BookCreateModal";
-import Spin from "./Spin";
 import { useToast } from "./Toast";
+
+// Book.type colours mirror BookChatRow / home feed so the same badge
+// palette appears across the app.
+const TYPE_VISUAL = {
+  seller: {
+    color: "#0d9488",
+    bg: "rgba(13, 148, 136, 0.12)",
+    icon: "ph-fill ph-shopping-cart-simple",
+  },
+  gift: { color: "#15803d", bg: "rgba(34, 197, 94, 0.14)", icon: "ph-fill ph-gift" },
+  exchange: {
+    color: "#b45309",
+    bg: "rgba(245, 158, 11, 0.14)",
+    icon: "ph-fill ph-arrows-clockwise",
+  },
+  rent: { color: "#4338ca", bg: "rgba(99, 102, 241, 0.14)", icon: "ph-fill ph-clock" },
+};
+
+const TYPE_I18N_KEY = {
+  seller: "sell",
+  gift: "gift",
+  exchange: "exchange",
+  rent: "rent",
+};
 
 const BookDetails = ({ bookId }) => {
   const locale = useLocale();
   const tBook = useTranslations("BookDetails");
   const tCommon = useTranslations("Common");
-  const tCategories = useTranslations("Categories");
   const tButtons = useTranslations("Buttons");
-  const tProduct = useTranslations("ProductDetailsOne");
+  const tShare = useTranslations("Share");
+
   const { isAuthenticated } = useAuth();
   const { showToast, ToastContainer } = useToast();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
-  
-  const { liked: isLiked, count: likeCount, liking, toggle, sync } = useLike(null, false, 0);
-  const fetchingRef = useRef(false);
-  const lastBookIdRef = useRef(null);
 
-  // Helper function to get localized field value
-  const getLocalizedField = (fieldPrefix) => {
-    if (!book) return '';
-    const localizedKey = `${fieldPrefix}_${locale}`;
-    const fallbackKey = `${fieldPrefix}_uz`;
-    return book[localizedKey] || book[fallbackKey] || book[fieldPrefix] || '';
-  };
+  const { liked, count: likeCount, liking, toggle, sync } = useLike(null, false, 0);
 
+  // ── Fetch ────────────────────────────────────────────────────────────
+  // Only `bookId` should trigger a re-fetch. `sync` and `tBook` are stable
+  // for the lifetime of this component (sync is useCallback'd in useLike;
+  // tBook from next-intl is locale-stable) — listing them in deps caused
+  // a re-fetch loop that made the page flicker as it cycled
+  // setLoading(true) → render → fetch → setBook → render → re-run effect.
   useEffect(() => {
-    if (!bookId) return;
-    
-    // Agar bir xil bookId uchun so'rov allaqachon ketayotgan bo'lsa, qayta yuborma
-    if (fetchingRef.current && lastBookIdRef.current === bookId) {
-      console.log('🚫 BookDetails: Duplicate request blocked for bookId:', bookId);
-      return;
-    }
+    if (!bookId) return undefined;
+    let alive = true;
 
-    // Agar bookId o'zgarmagan bo'lsa va ma'lumot allaqachon yuklangan bo'lsa, qayta yuborma
-    if (lastBookIdRef.current === bookId && book) {
-      console.log('🚫 BookDetails: Request skipped, data already loaded for bookId:', bookId);
-      return;
-    }
+    setLoading(true);
+    setError(null);
 
-    console.log('📥 BookDetails: Starting fetch for bookId:', bookId);
-    fetchingRef.current = true;
-    lastBookIdRef.current = bookId;
-    let isMounted = true;
-    const abortController = new AbortController();
-
-    const fetchBookDetails = async () => {
-      try {
-        setLoading(true);
-        console.log('🌐 BookDetails: Calling getBookById for:', bookId);
-        const response = await getBookById(bookId);
-        
-        if (!isMounted || abortController.signal.aborted) {
-          console.log('🚫 BookDetails: Request aborted for bookId:', bookId);
-          fetchingRef.current = false;
-          return;
-        }
-        
-        console.log('✅ BookDetails: Received response for bookId:', bookId);
-        const bookData = response.book;
-        setBook(bookData);
-        
-        sync(bookData?.id, bookData?.is_liked, bookData?.like_count);
-        setError(null);
-      } catch (err) {
-        if (!isMounted || abortController.signal.aborted) {
-          fetchingRef.current = false;
-          return;
-        }
-        console.error('❌ BookDetails: Error for bookId:', bookId, err);
-        setError(err.message || tBook("loadError"));
-      } finally {
-        fetchingRef.current = false;
-        if (isMounted && !abortController.signal.aborted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchBookDetails();
+    getBookById(bookId)
+      .then((res) => {
+        if (!alive) return;
+        const data = res.book;
+        setBook(data);
+        sync(data?.id, data?.is_liked, data?.like_count);
+      })
+      .catch((err) => {
+        if (!alive) return;
+        setError(err?.message || tBook("loadError"));
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
 
     return () => {
-      console.log('🧹 BookDetails: Cleanup for bookId:', bookId);
-      isMounted = false;
-      abortController.abort();
-      // Cleanup faqat bookId o'zgarganda
-      if (lastBookIdRef.current !== bookId) {
-        fetchingRef.current = false;
-      }
+      alive = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- see comment above
   }, [bookId]);
 
+  // ── Locale-aware field reader ────────────────────────────────────────
+  // Backend modeltranslation publishes `name`, `name_uz`, `name_ru`,
+  // `name_en` etc. Prefer the active locale, fall back to default, then
+  // the raw field — matches the home feed behaviour.
+  const localized = (prefix) => {
+    if (!book) return "";
+    return book[`${prefix}_${locale}`] || book[`${prefix}_uz`] || book[prefix] || "";
+  };
+
+  // ── Helpers ──────────────────────────────────────────────────────────
+  const formatPrice = (price) => new Intl.NumberFormat(locale).format(Number(price) || 0);
+
+  const formatDate = (d) =>
+    d
+      ? new Date(d).toLocaleDateString(locale, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })
+      : "—";
+
+  const conditionLabel = (cond, isUsedFallback) => {
+    if (cond === "brand_new") return tBook("conditionBrandNew");
+    if (cond === "like_new") return tBook("conditionLikeNew");
+    if (cond === "good") return tBook("conditionGood");
+    // Legacy `is_used` flag — back-compat for rows pre-condition migration.
+    return isUsedFallback ? tBook("conditionLikeNew") : tBook("conditionBrandNew");
+  };
+
+  const scriptLabel = (s) =>
+    s === "latin"
+      ? tBook("latin")
+      : s === "cyrillic"
+        ? tBook("cyrillic")
+        : s === "arabic"
+          ? tBook("arabic")
+          : s || "—";
+
+  const coverLabel = (c) =>
+    c === "hard" ? tBook("hardCover") : c === "soft" ? tBook("softCover") : c || "—";
+
+  // ── Like ─────────────────────────────────────────────────────────────
   const handleLike = async () => {
     if (!isAuthenticated) {
       showToast({
-        type: 'info',
-        title: tCommon("info") || "Ma'lumot",
-        message: "Like qilish uchun tizimga kiring",
-        duration: 3000
+        type: "info",
+        title: tCommon("info"),
+        message: tBook("likeRequiresAuth"),
+        duration: 3000,
       });
       return;
     }
-
     if (!book) return;
-
     try {
-      const result = await toggle(book.id);
-      if (result) {
-        setBook(prev => ({ ...prev, is_liked: result.isLiked, like_count: result.count }));
+      const res = await toggle(book.id);
+      if (res) {
+        setBook((prev) => ({ ...prev, is_liked: res.isLiked, like_count: res.count }));
       }
     } catch {
       showToast({
-        type: 'error',
+        type: "error",
         title: tCommon("error"),
-        message: "Like qilishda xatolik yuz berdi",
-        duration: 3000
+        message: tBook("likeFailed"),
+        duration: 3000,
       });
     }
   };
 
-  const formatPrice = (price) => {
-    if (!price && price !== 0) return "0";
-    return new Intl.NumberFormat(locale).format(price);
-  };
-
-  const formatDate = (date) =>
-    new Date(date).toLocaleDateString(locale, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
+  // ── Share ────────────────────────────────────────────────────────────
+  const handleShare = () => {
+    if (!book) return;
+    const bookTitle = book[`name_${locale}`] || book.name_uz || book.name || "Kitob";
+    openShareSheet({
+      title: bookTitle,
+      text: `${bookTitle} — Kitobzor`,
+      url: typeof window !== "undefined" ? window.location.pathname : "",
     });
-
-  const getTypeLabel = (type) => {
-    switch (type) {
-      case "gift":
-        return tBook("gift");
-      case "exchange":
-        return tBook("exchange");
-      case "seller":
-        return tBook("sell");
-      default:
-        return type;
-    }
   };
 
-  const getTypeColor = (type) => {
-    switch (type) {
-      case "gift":
-        return "bg-success";
-      case "exchange":
-        return "bg-warning";
-      case "seller":
-        return "bg-primary";
-      default:
-        return "bg-secondary";
-    }
-  };
-
-  const getOwnerTypeLabel = (ownerType) => {
-    switch (ownerType) {
-      case "user":
-        return tBook("user");
-      case "shop":
-        return tBook("shop");
-      default:
-        return ownerType;
-    }
-  };
-
-  const getCoverTypeLabel = (coverType) => {
-    switch (coverType) {
-      case "hard":
-        return tBook("hardCover");
-      case "soft":
-        return tBook("softCover");
-      default:
-        return coverType;
-    }
-  };
-
-  const getScriptTypeLabel = (scriptType) => {
-    switch (scriptType) {
-      case "latin":
-        return tBook("latin");
-      case "cyrillic":
-        return tBook("cyrillic");
-      case "arabic":
-        return tBook("arabic");
-      default:
-        return scriptType;
-    }
-  };
-
-  const getConditionLabel = (isUsed) =>
-    isUsed ? tCategories("likeNew") : tCategories("new");
-
-  const isOwnBook = () => {
-    if (!isAuthenticated || !book?.posted_by?.id) return false;
-    return true;
-  };
-
+  // ── Loading / error / empty ──────────────────────────────────────────
   if (loading) {
     return (
-      <section className="py-80">
-        <div className="container container-lg">
-          <div className="text-center">
-            <Spin text={tBook("loading") || ""} />
-          </div>
-        </div>
-      </section>
+      <Box sx={{ maxWidth: 980, mx: "auto", px: { xs: 2, md: 3 }, py: { xs: 3, md: 5 } }}>
+        <Stack direction={{ xs: "column", md: "row" }} spacing={{ xs: 2.5, md: 4 }}>
+          <Skeleton
+            variant="rounded"
+            sx={{
+              width: { xs: "100%", md: 320 },
+              height: { xs: 320, md: 440 },
+              flexShrink: 0,
+              borderRadius: 3,
+            }}
+          />
+          <Stack spacing={1.5} sx={{ flex: 1 }}>
+            <Skeleton variant="text" width="40%" height={28} />
+            <Skeleton variant="text" width="80%" height={36} />
+            <Skeleton variant="text" width="50%" />
+            <Skeleton variant="rounded" height={48} sx={{ mt: 2 }} />
+          </Stack>
+        </Stack>
+      </Box>
     );
   }
 
   if (error) {
     return (
-      <section className="py-80">
-        <div className="container container-lg">
-          <div className="text-center">
-            <p className="text-danger">{error}</p>
-          </div>
-        </div>
-      </section>
+      <Box sx={{ maxWidth: 720, mx: "auto", px: 2, py: 5, textAlign: "center" }}>
+        <Typography color="error">{error}</Typography>
+      </Box>
     );
   }
 
   if (!book) {
     return (
-      <section className="py-80">
-        <div className="container container-lg">
-          <div className="text-center">
-            <p className="text-muted">{tBook("notFound")}</p>
-          </div>
-        </div>
-      </section>
+      <Box sx={{ maxWidth: 720, mx: "auto", px: 2, py: 5, textAlign: "center" }}>
+        <Typography sx={{ color: "var(--text-muted)" }}>{tBook("notFound")}</Typography>
+      </Box>
     );
   }
 
+  // ── Derived ──────────────────────────────────────────────────────────
+  const typeKey = (book.type || "").toLowerCase();
+  const visual = TYPE_VISUAL[typeKey];
+  const typeText = tBook(TYPE_I18N_KEY[typeKey] || "sell");
+  const isMonetary = typeKey === "seller" || typeKey === "rent";
+
+  const tg = book?.posted_by?.telegram_username;
+  const phone = book?.posted_by?.app_phone_number || book?.posted_by?.phone_number || null;
+  const tgHandle = tg ? tg.replace(/^@/, "") : null;
+  const phoneClean = phone ? phone.replace(/\s/g, "") : null;
+  // next-intl resolves the `{name}` placeholder when the values dict is
+  // passed inline. Doing a manual `.replace("{name}", ...)` made the call
+  // arity-mismatch in next-intl v4 and the helper returned the raw key
+  // path ("BookDetails.contactPrefill") instead of the formatted string.
+  const contactBody = encodeURIComponent(tBook("contactPrefill", { name: book?.name || "" }));
+  const tgUrl = tgHandle ? `https://t.me/${tgHandle}?text=${contactBody}` : null;
+
+  const ownerName =
+    book.shop?.name ||
+    [book.posted_by?.first_name, book.posted_by?.last_name].filter(Boolean).join(" ") ||
+    tBook("user");
+  const ownerSub = book.shop ? tBook("shop") : book.posted_by?.region?.name || tBook("user");
+  const ownerPic = book.shop?.picture || book.posted_by?.picture || null;
+
+  const canEdit = Boolean(book.can_update);
+
   return (
-    <section className="py-80">
-      <div className="container container-lg">
-        <div className="row gy-5">
-          <div className="col-lg-6">
-            <div className="product-details__thumb">
-              <div className="product-details__thumb-main">
-                <img
-                  src={
-                    book.picture || "/assets/images/thumbs/book-placeholder.png"
-                  }
-                  alt={book.name}
-                  className="w-100 rounded-16"
-                  style={{ height: "500px", objectFit: "cover" }}
-                  onError={(e) => {
-                    e.target.src = "/assets/images/thumbs/book-placeholder.png";
+    <Box
+      component="section"
+      sx={{
+        bgcolor: "var(--surface-page)",
+        py: { xs: 2.5, md: 4 },
+      }}
+    >
+      <Box sx={{ maxWidth: 980, mx: "auto", px: { xs: 2, md: 3 } }}>
+        {/* ─── Top: cover + main meta ─────────────────────────────── */}
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          spacing={{ xs: 2.5, md: 4 }}
+          alignItems="flex-start"
+        >
+          {/* Cover. `objectFit: contain` keeps the whole cover visible —
+              never crops the title or author off a tall scan. The soft
+              backdrop fills any letterboxed area so it looks intentional. */}
+          <Box
+            sx={{
+              width: { xs: "100%", md: 320 },
+              flexShrink: 0,
+              borderRadius: 3,
+              overflow: "hidden",
+              bgcolor: "var(--surface-muted)",
+              border: "1px solid var(--border-subtle)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              aspectRatio: { xs: "3 / 4", md: "auto" },
+              minHeight: { md: 440 },
+              maxHeight: { md: 520 },
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element -- already lazy + sized */}
+            <img
+              src={resolveMediaUrl(book.picture, "/assets/images/thumbs/book-placeholder.png")}
+              alt={localized("name") || book.name || ""}
+              loading="eager"
+              onError={(e) => {
+                e.currentTarget.src = "/assets/images/thumbs/book-placeholder.png";
+              }}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                display: "block",
+              }}
+            />
+          </Box>
+
+          {/* Right column — title, price, primary actions. */}
+          <Stack spacing={2} sx={{ flex: 1, minWidth: 0, width: "100%" }}>
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+              {visual && (
+                <Chip
+                  icon={<i className={visual.icon} style={{ fontSize: 14 }} />}
+                  label={typeText}
+                  size="small"
+                  sx={{
+                    fontWeight: 600,
+                    bgcolor: visual.bg,
+                    color: visual.color,
+                    border: "none",
+                    "& .MuiChip-icon": { color: visual.color, ml: "6px" },
                   }}
                 />
-              </div>
-            </div>
-          </div>
-
-          <div className="col-lg-6">
-            <div className="product-details__content">
-              <div className="mb-16">
-                <span className={`badge ${getTypeColor(book.type)} text-white`}>
-                  {getTypeLabel(book.type)}
-                </span>
-                {book.is_used && (
-                  <span className="badge bg-dark text-white ms-8">
-                    {tCategories("likeNew")}
-                  </span>
-                )}
-              </div>
-
-              <h1 className="product-details__title text-3xl fw-bold mb-16">
-                {getLocalizedField("name") || tBook("bookName")}
-              </h1>
-
-              <div className="mb-16">
-                <span className="text-gray-600 me-8">
-                  <i className="ph ph-user me-4"></i>
-                  {tBook("author")}
-                </span>
-                <span className="fw-medium">
-                  {getLocalizedField("author") || tBook("unknownAuthor")}
-                </span>
-              </div>
-
-              {book.language && (
-                <div className="mb-16">
-                  <span className="text-gray-600 me-8">
-                    <i className="ph ph-globe me-4"></i>
-                    {tBook("language")}
-                  </span>
-                  <span className="fw-medium">{book.language}</span>
-                </div>
               )}
-
-              {book.script_type && (
-                <div className="mb-16">
-                  <span className="text-gray-600 me-8">
-                    <i className="ph ph-text-aa me-4"></i>
-                    {tBook("scriptType")}
-                  </span>
-                  <span className="fw-medium">
-                    {getScriptTypeLabel(book.script_type)}
-                  </span>
-                </div>
+              <Chip
+                label={conditionLabel(book.condition, book.is_used)}
+                size="small"
+                variant="outlined"
+                sx={{ fontWeight: 600 }}
+              />
+              {canEdit && (
+                <Chip
+                  icon={<i className="ph ph-user-check" style={{ fontSize: 14 }} />}
+                  label={tBook("ownBookHint")}
+                  size="small"
+                  sx={{
+                    fontWeight: 600,
+                    bgcolor: "rgba(99, 102, 241, 0.12)",
+                    color: "#4338ca",
+                    border: "none",
+                    "& .MuiChip-icon": { color: "#4338ca", ml: "6px" },
+                  }}
+                />
               )}
+            </Stack>
 
-              {book.cover_type && (
-                <div className="mb-16">
-                  <span className="text-gray-600 me-8">
-                    <i className="ph ph-book me-4"></i>
-                    {tBook("cover")}
-                  </span>
-                  <span className="fw-medium">
-                    {getCoverTypeLabel(book.cover_type)}
-                  </span>
-                </div>
-              )}
+            <Box>
+              <Typography
+                component="h1"
+                sx={{
+                  fontSize: { xs: 22, md: 26 },
+                  fontWeight: 700,
+                  lineHeight: 1.25,
+                  letterSpacing: "-0.01em",
+                  color: "var(--text-primary)",
+                  wordBreak: "break-word",
+                }}
+              >
+                {localized("name") || tBook("bookName")}
+              </Typography>
+              <Typography
+                sx={{
+                  mt: 0.5,
+                  fontSize: 14,
+                  color: "var(--text-secondary)",
+                }}
+              >
+                {localized("author") || tBook("unknownAuthor")}
+              </Typography>
+            </Box>
 
-              {book.publication_year && (
-                <div className="mb-16">
-                  <span className="text-gray-600 me-8">
-                    <i className="ph ph-calendar me-4"></i>
-                    {tBook("publicationYear")}
-                  </span>
-                  <span className="fw-medium">{book.publication_year}</span>
-                </div>
-              )}
-
-              {book.pages && (
-                <div className="mb-16">
-                  <span className="text-gray-600 me-8">
-                    <i className="ph ph-file-text me-4"></i>
-                    {tBook("pages")}
-                  </span>
-                  <span className="fw-medium">
-                    {book.pages} {tBook("pagesUnit")}
-                  </span>
-                </div>
-              )}
-
-              {book.isbn && (
-                <div className="mb-16">
-                  <span className="text-gray-600 me-8">
-                    <i className="ph ph-barcode me-4"></i>
-                    {tBook("isbn")}
-                  </span>
-                  <span className="fw-medium">{book.isbn}</span>
-                </div>
-              )}
-
-              <div className="mb-16">
-                <div className="d-flex align-items-center">
-                  {book.posted_by?.picture && (
-                    <img
-                      src={book.posted_by.picture}
-                      alt={book.posted_by.first_name}
-                      className="rounded-circle me-12"
-                      style={{ width: "40px", height: "40px" }}
-                    />
-                  )}
-                  <div>
-                    <div className="fw-medium">
-                      {(() => {
-                        const parts = [
-                          book.posted_by?.first_name,
-                          book.posted_by?.last_name,
-                        ].filter(Boolean);
-                        return parts.length ? parts.join(" ") : tProduct("unknown");
-                      })()}
-                    </div>
-                    <small className="text-gray-500">
-                      {getOwnerTypeLabel(book.owner_type)}
-                    </small>
-                  </div>
-                </div>
-              </div>
-
-              {/* Shop Info */}
-              {book.shop && (
-                <div className="mb-16">
-                  <div className="d-flex align-items-center">
-                    {book.shop.picture && (
-                      <img
-                        src={book.shop.picture}
-                        alt={book.shop.name}
-                        className="rounded-circle me-12"
-                        style={{ width: "32px", height: "32px" }}
-                      />
-                    )}
-                    <div>
-                      <div className="fw-medium">{book.shop.name}</div>
-                      <small className="text-gray-500">{tBook("shop")}</small>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Price */}
-              <div className="product-details__price mb-24">
-                {book.discount_price ? (
-                  <div>
-                    <span className="text-main-600 fw-bold text-2xl">
-                      {formatPrice(book.discount_price)} {tCommon("currency")}
-                    </span>
-                    <span className="text-decoration-line-through text-gray-500 ms-16">
-                      {formatPrice(book.price)} {tCommon("currency")}
-                    </span>
-                    {book.percentage && (
-                      <span className="badge bg-danger ms-16">
-                        -{book.percentage}%
-                      </span>
-                    )}
-                  </div>
-                ) : (
-                  <span className="text-main-600 fw-bold text-2xl">
-                    {formatPrice(book.price)} {tCommon("currency")}
-                  </span>
-                )}
-              </div>
-
-              {/* Seller Information */}
-              <div className="mb-24 p-16 bg-gray-50 rounded-12">
-                <div className="d-flex align-items-center justify-content-between">
-                  <div className="d-flex align-items-center">
-                    <i className="ph ph-storefront text-main-600 me-8"></i>
-                    <span className="text-gray-600 me-8">{tBook("seller")}</span>
-                    <span className="fw-medium">
-                      {book.shop?.name ||
-                        `${book.posted_by?.first_name || tProduct("unknown")} ${
-                          book.posted_by?.last_name || ""
-                        }`.trim()}
-                    </span>
-                  </div>
-                  {isOwnBook() && (
-                    <button
-                      className="btn btn-sm btn-outline-main"
-                      onClick={() => setShowEditModal(true)}
-                    >
-                      <i className="ph ph-pencil me-4"></i>
-                      {tButtons("edit")}
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Stats */}
-              <div className="d-flex align-items-center gap-24 mb-24">
-                {book.like_count && (
-                  <div className="d-flex align-items-center">
-                    <i className="ph ph-heart text-danger me-4"></i>
-                    <span>{book.like_count}</span>
-                  </div>
-                )}
-                {book.view_count && (
-                  <div className="d-flex align-items-center">
-                    <i className="ph ph-eye text-primary me-4"></i>
-                    <span>{book.view_count}</span>
-                  </div>
-                )}
-                {book.comment_count && (
-                  <div className="d-flex align-items-center">
-                    <i className="ph ph-chat-circle text-info me-4"></i>
-                    <span>{book.comment_count}</span>
-                  </div>
-                )}
-                <div className="d-flex align-items-center">
-                  <i className="ph ph-calendar text-gray-500 me-4"></i>
-                  <span className="text-gray-500">
-                    {formatDate(book.created_at)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="d-flex gap-16 flex-wrap">
-                <button className="btn btn-main px-32 py-16">
-                  <i className="ph ph-shopping-cart me-8"></i>
-                  {tBook("addToCart")}
-                </button>
-                <button 
-                  onClick={handleLike}
-                  disabled={liking || !isAuthenticated}
-                  className={`btn ${isLiked ? 'btn-danger' : 'btn-outline-danger'} px-32 py-16 d-flex align-items-center gap-8`}
+            {/* Price / non-monetary state */}
+            {isMonetary && book.price ? (
+              <Stack
+                direction="row"
+                alignItems="baseline"
+                spacing={1.25}
+                flexWrap="wrap"
+                useFlexGap
+              >
+                <Typography
+                  sx={{
+                    fontSize: { xs: 22, md: 26 },
+                    fontWeight: 800,
+                    color: "var(--main-600, hsl(148, 59%, 39%))",
+                  }}
                 >
-                  <i className={`${isLiked ? 'ph-fill' : 'ph'} ph-heart text-lg`}></i>
-                  <span>{isLiked ? "Liked" : tBook("favorites")}</span>
-                  {likeCount > 0 && (
-                    <span className={`badge ${isLiked ? 'bg-white text-danger-600' : 'bg-danger-600 text-white'}`}>
-                      {likeCount}
-                    </span>
-                  )}
-                </button>
-                <button className="btn btn-outline-secondary px-32 py-16">
-                  <i className="ph ph-share-network me-8"></i>
-                  {tBook("share")}
-                </button>
-              </div>
+                  {formatPrice(book.discount_price || book.price)}{" "}
+                  <Box
+                    component="span"
+                    sx={{ fontSize: 14, fontWeight: 600, color: "var(--text-secondary)" }}
+                  >
+                    {tCommon("currency")}
+                  </Box>
+                </Typography>
+                {book.discount_price && (
+                  <>
+                    <Typography
+                      sx={{
+                        fontSize: 14,
+                        color: "var(--text-muted)",
+                        textDecoration: "line-through",
+                      }}
+                    >
+                      {formatPrice(book.price)} {tCommon("currency")}
+                    </Typography>
+                    {book.percentage ? (
+                      <Chip
+                        label={`−${book.percentage}%`}
+                        size="small"
+                        sx={{
+                          bgcolor: "rgba(239, 68, 68, 0.12)",
+                          color: "#b91c1c",
+                          fontWeight: 700,
+                        }}
+                      />
+                    ) : null}
+                  </>
+                )}
+              </Stack>
+            ) : null}
 
-              {/* Contact Seller */}
-              <div className="mt-32 p-24 bg-gray-50 rounded-16">
-                <h6 className="mb-16">{tBook("contactSeller")}</h6>
-                <div className="d-flex gap-12 flex-wrap">
-                  <button className="btn btn-outline-primary px-24 py-12">
-                    <i className="ph ph-phone me-8"></i>
-                    {tBook("phone")}
-                  </button>
-                  <button className="btn btn-outline-success px-24 py-12">
-                    <i className="ph ph-messenger-logo me-8"></i>
-                    {tBook("message")}
-                  </button>
-                  <button className="btn btn-outline-info px-24 py-12">
-                    <i className="ph ph-telegram-logo me-8"></i>
-                    {tBook("telegram")}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+            {/* Primary actions */}
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+              {tgUrl ? (
+                <Button
+                  component="a"
+                  href={tgUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant="contained"
+                  startIcon={<i className="ph-fill ph-telegram-logo" />}
+                  sx={{
+                    bgcolor: "#0088cc",
+                    textTransform: "none",
+                    fontWeight: 700,
+                    "&:hover": { bgcolor: "#0077b3" },
+                    flex: { xs: 1, sm: "0 1 auto" },
+                  }}
+                >
+                  {tBook("telegram")}
+                </Button>
+              ) : phoneClean ? (
+                <Button
+                  component="a"
+                  href={`tel:${phoneClean}`}
+                  variant="contained"
+                  startIcon={<i className="ph-fill ph-phone" />}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 700,
+                    flex: { xs: 1, sm: "0 1 auto" },
+                  }}
+                >
+                  {tBook("phone")}
+                </Button>
+              ) : null}
 
-        {/* Description */}
-        {(getLocalizedField("description") || book.description) && (
-          <div className="row mt-80">
-            <div className="col-12">
-              <div className="border border-gray-100 rounded-16 p-32">
-                <h5 className="mb-24">{tBook("aboutBook")}</h5>
-                <p className="text-gray-700 line-height-1-6">
-                  {getLocalizedField("description") || book.description}
-                </p>
-              </div>
-            </div>
-          </div>
+              <IconButton
+                onClick={handleShare}
+                aria-label={tShare("shareBook")}
+                title={tShare("shareBook")}
+                sx={{
+                  width: 44,
+                  height: 44,
+                  border: "1px solid var(--border-subtle)",
+                  color: "var(--main-700, hsl(148, 59%, 31%))",
+                  bgcolor: "var(--surface-card)",
+                  borderRadius: 2,
+                  "&:hover": {
+                    bgcolor: "var(--main-50, hsl(148, 59%, 95%))",
+                  },
+                }}
+              >
+                <i className="ph ph-share-network" />
+              </IconButton>
+
+              <IconButton
+                onClick={handleLike}
+                disabled={liking}
+                aria-label={tBook("favorites")}
+                sx={{
+                  width: 44,
+                  height: 44,
+                  border: "1px solid var(--border-subtle)",
+                  color: liked ? "#dc2626" : "var(--text-secondary)",
+                  bgcolor: liked ? "rgba(239, 68, 68, 0.08)" : "var(--surface-card)",
+                  borderRadius: 2,
+                  "&:hover": { bgcolor: "var(--surface-muted)" },
+                }}
+              >
+                <i className={`${liked ? "ph-fill" : "ph"} ph-heart`} />
+              </IconButton>
+
+              {canEdit && (
+                <IconButton
+                  onClick={() => setShowEditModal(true)}
+                  aria-label={tButtons("edit")}
+                  sx={{
+                    width: 44,
+                    height: 44,
+                    border: "1px solid var(--border-subtle)",
+                    color: "var(--text-secondary)",
+                    bgcolor: "var(--surface-card)",
+                    borderRadius: 2,
+                    "&:hover": { bgcolor: "var(--surface-muted)" },
+                  }}
+                >
+                  <i className="ph ph-pencil-simple" />
+                </IconButton>
+              )}
+            </Stack>
+
+            {/* Seller card — one place, no duplicates. */}
+            <Stack
+              direction="row"
+              spacing={1.5}
+              alignItems="center"
+              sx={{
+                p: 1.5,
+                borderRadius: 2.5,
+                bgcolor: "var(--surface-card)",
+                border: "1px solid var(--border-subtle)",
+              }}
+            >
+              <Avatar
+                src={ownerPic || undefined}
+                alt={ownerName}
+                sx={{ width: 44, height: 44, bgcolor: "var(--surface-muted)" }}
+              >
+                {ownerName?.[0] || "?"}
+              </Avatar>
+              <Box sx={{ minWidth: 0, flex: 1 }}>
+                <Typography
+                  sx={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {ownerName}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: 12,
+                    color: "var(--text-muted)",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {ownerSub}
+                </Typography>
+              </Box>
+            </Stack>
+          </Stack>
+        </Stack>
+
+        {/* ─── Description ───────────────────────────────────────────── */}
+        {(localized("description") || book.description) && (
+          <Box sx={{ mt: { xs: 3, md: 5 } }}>
+            <SectionHeading icon="ph-fill ph-book-open" text={tBook("aboutBook")} />
+            <Typography
+              sx={{
+                color: "var(--text-secondary)",
+                lineHeight: 1.65,
+                whiteSpace: "pre-wrap",
+                fontSize: 14.5,
+              }}
+            >
+              {localized("description") || book.description}
+            </Typography>
+          </Box>
         )}
 
-        {/* Additional Info */}
-        <div className="row mt-40">
-          <div className="col-12">
-            <div className="border border-gray-100 rounded-16 p-32">
-              <h5 className="mb-24">{tBook("additionalInfo")}</h5>
-              <div className="row">
-                <div className="col-md-6">
-                  <div className="mb-16">
-                    <strong>{tBook("bookType")}</strong> {getTypeLabel(book.type)}
-                  </div>
-                  <div className="mb-16">
-                    <strong>{tBook("condition")}</strong> {getConditionLabel(book.is_used)}
-                  </div>
-                  <div className="mb-16">
-                    <strong>{tBook("owner")}</strong> {getOwnerTypeLabel(book.owner_type)}
-                  </div>
-                  {book.language && (
-                    <div className="mb-16">
-                      <strong>{tBook("language")}</strong> {book.language}
-                    </div>
-                  )}
-                  {book.script_type && (
-                    <div className="mb-16">
-                      <strong>{tBook("scriptType")}</strong> {getScriptTypeLabel(book.script_type)}
-                    </div>
-                  )}
-                </div>
-                <div className="col-md-6">
-                  {book.cover_type && (
-                    <div className="mb-16">
-                      <strong>{tBook("cover")}</strong> {getCoverTypeLabel(book.cover_type)}
-                    </div>
-                  )}
-                  {book.publication_year && (
-                    <div className="mb-16">
-                      <strong>{tBook("publicationYear")}</strong> {book.publication_year}
-                    </div>
-                  )}
-                  {book.pages && (
-                    <div className="mb-16">
-                      <strong>{tBook("pages")}</strong> {book.pages} {tBook("pagesUnit")}
-                    </div>
-                  )}
-                  {book.isbn && (
-                    <div className="mb-16">
-                      <strong>{tBook("isbn")}</strong> {book.isbn}
-                    </div>
-                  )}
-                  <div className="mb-16">
-                    <strong>{tBook("createdDate")}</strong> {formatDate(book.created_at)}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* ─── Details list — fold of all metadata, single source. ── */}
+        <Box sx={{ mt: { xs: 3, md: 4 } }}>
+          <SectionHeading icon="ph-fill ph-list-bullets" text={tBook("detailsTitle")} />
+          <Box
+            sx={{
+              borderRadius: 2.5,
+              border: "1px solid var(--border-subtle)",
+              bgcolor: "var(--surface-card)",
+              overflow: "hidden",
+            }}
+          >
+            <DetailRow label={tBook("language")} value={book.language} />
+            <DetailRow label={tBook("scriptType")} value={scriptLabel(book.script_type)} />
+            <DetailRow label={tBook("cover")} value={coverLabel(book.cover_type)} />
+            <DetailRow label={tBook("publicationYear")} value={book.publication_year} />
+            <DetailRow
+              label={tBook("pages")}
+              value={book.pages ? `${book.pages} ${tBook("pagesUnit")}` : null}
+            />
+            <DetailRow label={tBook("isbn")} value={book.isbn} />
+            <DetailRow label={tBook("postedOn")} value={formatDate(book.created_at)} last />
+          </Box>
+        </Box>
 
-        {/* Update Permission */}
-        {book.can_update && (
-          <div className="row mt-40">
-            <div className="col-12">
-              <div className="alert alert-info border border-info rounded-16 p-24">
-                <div className="d-flex align-items-center">
-                  <i className="ph ph-info text-info me-12"></i>
-                  <span>{tBook("canUpdate")}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* ─── Stats — small, contextual ───────────────────────────── */}
+        <Stack
+          direction="row"
+          spacing={3}
+          sx={{
+            mt: 3,
+            color: "var(--text-muted)",
+            fontSize: 13,
+            flexWrap: "wrap",
+            rowGap: 1,
+          }}
+        >
+          {likeCount > 0 && (
+            <Stat icon="ph-fill ph-heart" iconColor="#dc2626" text={String(likeCount)} />
+          )}
+          {book.view_count > 0 && (
+            <Stat icon="ph-fill ph-eye" iconColor="#2563eb" text={String(book.view_count)} />
+          )}
+          {book.comment_count > 0 && (
+            <Stat
+              icon="ph-fill ph-chat-circle"
+              iconColor="#0ea5e9"
+              text={String(book.comment_count)}
+            />
+          )}
+        </Stack>
 
-        {/* Edit Book Modal */}
+        {/* Edit modal */}
         <BookCreateModal
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
-          onSuccess={(updatedBook) => {
-            setBook(updatedBook);
+          onSuccess={(updated) => {
+            setBook(updated);
             setShowEditModal(false);
           }}
           editBook={book}
         />
-      </div>
-      <ToastContainer />
-    </section>
+        <ToastContainer />
+      </Box>
+    </Box>
   );
 };
+
+// ── Local presentational helpers ───────────────────────────────────────
+
+const SectionHeading = ({ icon, text }) => (
+  <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+    <Box
+      sx={{
+        width: 28,
+        height: 28,
+        borderRadius: "50%",
+        bgcolor: "var(--surface-muted)",
+        color: "var(--text-secondary)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: 14,
+      }}
+    >
+      <i className={icon} aria-hidden="true" />
+    </Box>
+    <Typography component="h2" sx={{ fontSize: 16, fontWeight: 700 }}>
+      {text}
+    </Typography>
+  </Stack>
+);
+
+const DetailRow = ({ label, value, last }) => {
+  if (value == null || value === "" || value === "—") return null;
+  return (
+    <Stack
+      direction="row"
+      sx={{
+        px: 1.75,
+        py: 1.25,
+        borderBottom: last ? "none" : "1px solid var(--border-subtle)",
+        gap: 2,
+      }}
+    >
+      <Typography
+        sx={{
+          flex: "0 0 38%",
+          fontSize: 13,
+          color: "var(--text-muted)",
+        }}
+      >
+        {label}
+      </Typography>
+      <Typography
+        sx={{
+          flex: 1,
+          fontSize: 13.5,
+          fontWeight: 600,
+          color: "var(--text-primary)",
+          wordBreak: "break-word",
+        }}
+      >
+        {value}
+      </Typography>
+    </Stack>
+  );
+};
+
+const Stat = ({ icon, iconColor, text }) => (
+  <Stack direction="row" spacing={0.75} alignItems="center">
+    <i className={icon} style={{ color: iconColor, fontSize: 14 }} aria-hidden="true" />
+    <span>{text}</span>
+  </Stack>
+);
 
 export default BookDetails;

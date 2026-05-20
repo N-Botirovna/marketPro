@@ -2,6 +2,7 @@ import http from "@/lib/http";
 import { AUTH_TOKEN_STORAGE_KEY, API_ENDPOINTS } from "@/config";
 import { setItem, getItem } from "@/utils/storage";
 import { clearAuthStorage } from "@/utils/authStorage";
+import { withIdempotency } from "@/lib/idempotency";
 
 const devLog = (...args) => {
   if (process.env.NODE_ENV === "development") console.log(...args);
@@ -21,19 +22,15 @@ function saveAccessToken(token, expiresIn = 4800) {
   setItem("token_expires_at", Date.now() + expiresIn * 1000);
 }
 
-export async function requestOtp({ phone_number }) {
-  const { data } = await http.post(API_ENDPOINTS.AUTH.REQUEST_OTP, { phone_number });
-  return {
-    success: data?.success === true,
-    message: data?.message ?? null,
-  };
-}
-
 export async function loginWithPhoneOtp({ phone_number, otp_code }) {
-  const { data } = await http.post(API_ENDPOINTS.AUTH.LOGIN, {
-    phone_number,
-    otp_code,
-  });
+  const { data } = await http.post(
+    API_ENDPOINTS.AUTH.LOGIN,
+    {
+      phone_number,
+      otp_code,
+    },
+    withIdempotency(),
+  );
 
   const accessToken = data?.access_token;
   const refreshToken = data?.refresh_token;
@@ -62,11 +59,34 @@ export async function loginWithPhoneOtp({ phone_number, otp_code }) {
   };
 }
 
-export async function registerUser(payload) {
-  const { data } = await http.post(API_ENDPOINTS.AUTH.REGISTER, payload);
+/**
+ * Code-only login. The bot mints a short-lived 6-digit OTP; the user types
+ * it once, no phone number step. Server resolves the user from the active
+ * OTP row and returns the same JWT envelope as loginWithPhoneOtp.
+ */
+export async function loginWithCode(otp_code) {
+  const { data } = await http.post(
+    API_ENDPOINTS.AUTH.LOGIN_BY_CODE,
+    { otp_code },
+    withIdempotency(),
+  );
+
+  const accessToken = data?.access_token;
+  const refreshToken = data?.refresh_token;
+  const expiresIn = data?.expires_in || data?.expires_in_seconds;
+
+  if (accessToken) {
+    saveAccessToken(accessToken, expiresIn);
+    setItem("login_time", Date.now());
+  }
+  if (refreshToken) {
+    setItem("refresh_token", refreshToken);
+  }
+
   return {
-    success: data?.success === true,
-    message: data?.message ?? null,
+    access_token: accessToken || null,
+    refresh_token: refreshToken || null,
+    user: data?.user || null,
   };
 }
 
@@ -85,7 +105,8 @@ export async function updateUserProfile(profileData) {
   try {
     const { data } = await http.patch(
       API_ENDPOINTS.AUTH.UPDATE_PROFILE,
-      profileData
+      profileData,
+      withIdempotency(),
     );
 
     return {
@@ -132,14 +153,11 @@ export async function refreshAccessToken() {
     const { data } = await http.post(
       API_ENDPOINTS.AUTH.REFRESH,
       { refresh_token: refreshToken },
-      { skipAuthRefresh: true }
+      { skipAuthRefresh: true },
     );
 
     if (data?.access_token) {
-      saveAccessToken(
-        data.access_token,
-        data?.expires_in || data?.expires_in_seconds
-      );
+      saveAccessToken(data.access_token, data?.expires_in || data?.expires_in_seconds);
     }
 
     if (data?.refresh_token) {
@@ -157,14 +175,57 @@ export async function refreshAccessToken() {
   }
 }
 
-export async function logoutUser() {
-  try {
-    await http.post(API_ENDPOINTS.AUTH.LOGOUT);
-  } catch (error) {
-    devLog("⚠️ Logout API error (storage cleared anyway):", error?.message);
-  } finally {
-    clearAuthStorage();
+/**
+ * Single-use ticket login. Bot mints a ticket bound to a Telegram user and
+ * sends a deep-link URL; this exchanges that ticket for a JWT pair and
+ * persists it the same way `loginWithPhoneOtp` does. The ticket is one-use
+ * (Redis-backed on the server) so a leaked URL can't be replayed.
+ */
+export async function loginWithTicket(ticket) {
+  if (!ticket) throw new Error("ticket is required");
+  const { data } = await http.post(
+    API_ENDPOINTS.AUTH.TICKET_LOGIN,
+    { ticket },
+    { skipAuthRefresh: true },
+  );
+
+  const accessToken = data?.access_token;
+  const refreshToken = data?.refresh_token;
+  const expiresIn = data?.expires_in || data?.expires_in_seconds;
+
+  if (accessToken) {
+    saveAccessToken(accessToken, expiresIn);
+    setItem("login_time", Date.now());
   }
+  if (refreshToken) {
+    setItem("refresh_token", refreshToken);
+  }
+  return {
+    access_token: accessToken || null,
+    refresh_token: refreshToken || null,
+    user: data?.user || null,
+  };
+}
+
+export async function logoutUser() {
+  // H-3: tell the backend to blacklist the refresh token before we drop
+  // it locally. If the network call fails (offline, server down,
+  // already-blacklisted token), we still proceed with the local wipe —
+  // the user clicked logout, and the access token is short-lived. We
+  // never block logout on the network.
+  const refreshToken = getItem("refresh_token");
+  if (refreshToken) {
+    try {
+      await http.post(
+        API_ENDPOINTS.AUTH.LOGOUT,
+        { refresh_token: refreshToken },
+        { skipAuthRefresh: true },
+      );
+    } catch (error) {
+      devLog("Logout API failed; clearing local state anyway:", error);
+    }
+  }
+  clearAuthStorage();
 }
 
 export function isAuthenticated() {

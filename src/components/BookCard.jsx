@@ -1,11 +1,13 @@
 "use client";
-import { Link } from "@/i18n/navigation";
 import React, { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { useLike } from "@/hooks/useLike";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "./Toast";
 import { formatPrice } from "@/utils/formatPrice";
+import { openShareSheet } from "@/lib/shareSheet";
+import { resolveMediaUrl } from "@/utils/mediaUrl";
+import { useToast } from "./Toast";
 
 const BookCard = ({
   book,
@@ -17,20 +19,29 @@ const BookCard = ({
   onLikeUpdate,
   isArchiving = false,
 }) => {
-  if (!book) return null;
-
+  // Hooks MUST run on every render in the same order — putting
+  // `if (!book) return null` above them would change the call order
+  // between mounts and produce React's "rules of hooks" crash. Call all
+  // hooks first, then short-circuit the render below.
   const locale = useLocale();
   const tBookCard = useTranslations("BookCard");
   const tCommon = useTranslations("Common");
   const tButtons = useTranslations("Buttons");
   const tWishList = useTranslations("WishList");
   const tProduct = useTranslations("ProductDetailsOne");
+  const tType = useTranslations("BookTypeChips");
+  const tShare = useTranslations("Share");
+  // tShare keys consumed: shareBook (aria/title on the share button below).
   const { isAuthenticated } = useAuth();
   const { showToast, ToastContainer } = useToast();
-  
-  const { liked: isLiked, count: likeCount, liking, toggle, sync } = useLike(
-    book?.id, book?.is_liked, book?.like_count
-  );
+
+  const {
+    liked: isLiked,
+    count: likeCount,
+    liking,
+    toggle,
+    sync,
+  } = useLike(book?.id, book?.is_liked, book?.like_count);
   const [bookIdRef, setBookIdRef] = useState(book?.id);
 
   useEffect(() => {
@@ -38,15 +49,16 @@ const BookCard = ({
       setBookIdRef(book.id);
       sync(book.id, book.is_liked, book.like_count);
     }
-  }, [book?.id, bookIdRef]);
+  }, [book?.id, book?.is_liked, book?.like_count, bookIdRef, sync]);
+
+  if (!book) return null;
 
   // Helper function to get localized field value
   const getLocalizedField = (fieldPrefix) => {
     const localizedKey = `${fieldPrefix}_${locale}`;
     const fallbackKey = `${fieldPrefix}_uz`;
-    return book[localizedKey] || book[fallbackKey] || book[fieldPrefix] || '';
+    return book[localizedKey] || book[fallbackKey] || book[fieldPrefix] || "";
   };
-
 
   const sellerName =
     book.shop?.name ||
@@ -57,16 +69,27 @@ const BookCard = ({
   const isOwnBook = currentUserId && book.posted_by?.id === currentUserId;
   const showEditButton = showEditForOwn && isOwnBook && onEdit;
 
+  const handleShare = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const bookName = getLocalizedField("name") || tBookCard("noName");
+    openShareSheet({
+      title: bookName,
+      text: `${bookName} — Kitobzor`,
+      url: `/${locale}/book-details/${book.id}`,
+    });
+  };
+
   const handleLike = async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (!isAuthenticated) {
       showToast({
-        type: 'info',
+        type: "info",
         title: tCommon("info") || "Ma'lumot",
         message: "Like qilish uchun tizimga kiring",
-        duration: 3000
+        duration: 3000,
       });
       return;
     }
@@ -76,155 +99,155 @@ const BookCard = ({
       if (result && onLikeUpdate) onLikeUpdate(book.id, result.isLiked, result.count);
     } catch {
       showToast({
-        type: 'error',
+        type: "error",
         title: tCommon("error"),
         message: "Like qilishda xatolik yuz berdi",
-        duration: 3000
+        duration: 3000,
       });
     }
   };
 
   return (
-    <div className='product-card h-100 p-8 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2'>
-      {/* Action Buttons - Top Right */}
-      <div className="position-absolute top-0 end-0 p-8 d-flex gap-4 z-2">
-        {/* Like Button */}
+    <div className="book-card product-card h-100 p-8 p-sm-12 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
+      <div className="book-card__actions">
+        <button
+          type="button"
+          onClick={handleShare}
+          className="book-card__action-btn is-share"
+          aria-label={tShare("shareBook")}
+          title={tShare("shareBook")}
+        >
+          <i className="ph ph-share-network" aria-hidden="true" />
+        </button>
         {isAuthenticated && (
           <button
+            type="button"
             onClick={handleLike}
-            className={`btn btn-sm rounded-circle p-10 border-0 transition-1 ${
-              isLiked 
-                ? 'bg-danger-600 text-white hover-bg-danger-700' 
-                : 'bg-white text-gray-600 hover-bg-danger-50 hover-text-danger-600 shadow-sm'
-            }`}
+            className={`book-card__action-btn ${isLiked ? "is-liked" : ""}`}
             disabled={liking}
-            title={isLiked ? "Like olib tashlash" : "Like qo'shish"}
-            style={{ width: '36px', height: '36px' }}
+            aria-label={isLiked ? tProduct("removeLike") : tProduct("addLike")}
+            title={isLiked ? tProduct("removeLike") : tProduct("addLike")}
           >
-            <i className={`${isLiked ? 'ph-fill' : 'ph'} ph-heart text-md`} />
+            <i className={`${isLiked ? "ph-fill" : "ph"} ph-heart`} aria-hidden="true" />
           </button>
         )}
-        {/* Edit Button */}
         {showEditButton && (
-          <button 
-            className="btn btn-sm btn-outline-main rounded-circle p-8"
+          <button
+            type="button"
+            className="book-card__action-btn is-edit"
             onClick={() => onEdit(book)}
+            aria-label={tButtons("edit")}
             title={tButtons("edit")}
           >
-            <i className="ph ph-pencil text-xs"></i>
+            <i className="ph-fill ph-pencil-simple" aria-hidden="true" />
           </button>
         )}
-        {/* Archive Button */}
         {showEditForOwn && onArchive && book?.is_active !== false && (
           <button
-            className="btn btn-sm btn-outline-secondary rounded-circle p-8"
+            type="button"
+            className="book-card__action-btn is-archive"
             onClick={() => onArchive(book)}
+            aria-label={tProduct("archiveButton")}
             title={tProduct("archiveButton")}
             disabled={isArchiving}
           >
             {isArchiving ? (
-              <span
-                className="spinner-border spinner-border-sm"
-                role="status"
-                aria-hidden="true"
-              ></span>
+              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
             ) : (
-              <i className="ph ph-archive text-xs"></i>
+              <i className="ph-fill ph-archive" aria-hidden="true" />
             )}
           </button>
         )}
-        {/* Delete Button */}
         {onDelete && (
-          <button 
-            className="btn btn-sm btn-outline-danger rounded-circle p-8"
+          <button
+            type="button"
+            className="book-card__action-btn is-delete"
             onClick={() => onDelete(book)}
+            aria-label={tWishList("delete")}
             title={tWishList("delete")}
           >
-            <i className="ph ph-trash text-xs"></i>
+            <i className="ph-fill ph-trash" aria-hidden="true" />
           </button>
         )}
       </div>
       {book.percentage && (
-        <span className='product-card__badge bg-danger-600 px-8 py-4 text-sm text-white'>
+        <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
           -{book.percentage}%
         </span>
       )}
-      
-      <Link href={`/product-details?id=${book.id}`} className='product-card__thumb flex-center' style={{ height: '220px' }}>
-        <img 
-          src={book.picture || 'assets/images/thumbs/product-img7.png'} 
+
+      <Link href={`/book-details/${book.id}`} className="book-card__thumb flex-center">
+        <img
+          src={resolveMediaUrl(book.picture, "/assets/images/thumbs/product-img7.png")}
           alt={book.name}
-          style={{ maxHeight: '100%', width: 'auto', objectFit: 'contain' }}
+          loading="lazy"
         />
       </Link>
 
-      <div className='product-card__content p-sm-2'>
-        <h6 className='title text-lg fw-semibold mt-12 mb-8'>
-          <Link href={`/product-details?id=${book.id}`} className='link text-line-2'>
+      <div className="book-card__content mt-12">
+        <h6 className="book-card__title mb-8">
+          <Link href={`/book-details/${book.id}`} className="link text-line-2">
             {getLocalizedField("name") || tBookCard("noName")}
           </Link>
         </h6>
 
-        <div className='flex-align gap-4 mb-8'>
-          <span className='text-main-600 text-md d-flex'>
-            <i className='ph-fill ph-user' />
-          </span>
-          <span className='text-gray-500 text-xs'>
+        <div className="book-card__meta-row mb-8">
+          <i className="ph-fill ph-user book-card__meta-icon" aria-hidden="true" />
+          <span className="book-card__meta-text">
             {getLocalizedField("author") || tCommon("unknownAuthor")}
           </span>
         </div>
-        
-        <div className='flex-align gap-4 mb-8'>
-          <span className='text-main-600 text-md d-flex'>
-            <i className='ph-fill ph-book-open' />
+
+        {book.publication_year && (
+          <div className="book-card__meta-row mb-8">
+            <i className="ph-fill ph-calendar-blank book-card__meta-icon" aria-hidden="true" />
+            <span className="book-card__meta-text">{book.publication_year}</span>
+          </div>
+        )}
+
+        <div className="book-card__price mb-8">
+          {book.type === "gift" ? (
+            <span className="book-card__price-current text-success">{tType("gift")}</span>
+          ) : book.type === "exchange" ? (
+            <span className="book-card__price-current text-warning">{tType("exchange")}</span>
+          ) : book.price ? (
+            <>
+              <span className="book-card__price-current">
+                {formatPrice(book.discount_price || book.price, locale)}
+              </span>
+              {book.discount_price && (
+                <span className="book-card__price-old">{formatPrice(book.price, locale)}</span>
+              )}
+            </>
+          ) : null}
+        </div>
+
+        <div className="book-card__counters">
+          <span className="book-card__counter">
+            <i className="ph ph-eye" aria-hidden="true" />
+            {book.view_count || 0}
           </span>
-          <span className='text-gray-500 text-xs'>
-            {book.publisher || tBookCard("unknownPublisher")}
+          {likeCount > 0 && (
+            <span className="book-card__counter">
+              <i className="ph ph-heart" aria-hidden="true" />
+              {likeCount}
+            </span>
+          )}
+        </div>
+
+        <div className="book-card__meta-row mt-8">
+          <i className="ph-fill ph-storefront book-card__meta-icon" aria-hidden="true" />
+          <span className="book-card__meta-text book-card__seller">
+            {`${tCommon("seller")}: ${sellerName}`}
           </span>
         </div>
 
-        <div className='product-card__content mt-12'>
-          <div className='product-card__price mb-8'>
-            <span className='text-heading text-md fw-semibold'>
-              {formatPrice(book.discount_price || book.price, locale)}
-            </span>
-            {book.discount_price && (
-              <span className='text-gray-400 text-md fw-semibold text-decoration-line-through ms-8'>
-                {formatPrice(book.price, locale)}
-              </span>
-            )}
-          </div>
-          
-          <div className='flex-align gap-6'>
-            <span className='text-xs fw-bold text-gray-600'>
-              <i className='ph ph-eye me-4'></i>
-              {book.view_count || 0}
-            </span>
-            {likeCount > 0 && (
-              <span className='text-xs fw-bold text-gray-500 d-flex align-items-center gap-2'>
-                <i className='ph ph-heart text-xs' />
-                {likeCount}
-              </span>
-            )}
-          </div>
-
-          {/* Seller Information */}
-          <div className='flex-align gap-4 mt-8'>
-            <span className='text-main-600 text-sm d-flex'>
-              <i className='ph-fill ph-storefront' />
-            </span>
-            <span className='text-gray-600 text-xs'>
-              {`${tCommon("seller")}: ${sellerName}`}
-            </span>
-          </div>
-
-          <Link
-            href={`/product-details?id=${book.id}`}
-            className='product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-pill flex-align gap-8 mt-16 w-100 justify-content-center'
-          >
-            {tBookCard("viewDetails")} <i className='ph ph-arrow-right' />
-          </Link>
-        </div>
+        <Link
+          href={`/book-details/${book.id}`}
+          className="book-card__cta btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white rounded-pill flex-align gap-8 mt-16 w-100 justify-content-center"
+        >
+          {tBookCard("viewDetails")} <i className="ph ph-arrow-right" aria-hidden="true" />
+        </Link>
       </div>
       <ToastContainer />
     </div>
