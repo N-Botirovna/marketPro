@@ -1,44 +1,52 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { getUserProfile } from '@/services/auth';
-import { useAuth } from '@/hooks/useAuth';
-import { getUserPostedBooks, getUserArchivedBooks, patchBook } from '@/services/books';
-import { getRegions } from '@/services/regions';
-import http from '@/lib/http';
-import { API_ENDPOINTS } from '@/config';
-import Spin from './Spin';
-import BookCreateModal from './BookCreateModal';
-import ProfileSidebar from './profile/ProfileSidebar';
-import ProfileTabs from './profile/ProfileTabs';
+import { Box, Stack, Button } from "@mui/material";
+import { getUserProfile, updateUserProfile } from "@/services/auth";
+import { useAuth } from "@/hooks/useAuth";
+import { getUserPostedBooks, getUserArchivedBooks, patchBook } from "@/services/books";
+import { getRegions } from "@/services/regions";
+import { getShopsByOwner } from "@/services/shops";
+import { mapValidationError } from "@/lib/mapValidationError";
+import Spin from "./Spin";
+import BookCreateModal from "./BookCreateModal";
+import ProfileHero from "./profile/ProfileHero";
+import ProfileStoryBar from "./profile/ProfileStoryBar";
+import ProfileInfoList from "./profile/ProfileInfoList";
+import ProfileEditModal from "./profile/ProfileEditModal";
+import ProfileTabs from "./profile/ProfileTabs";
+import StoryCreateModal from "./profile/StoryCreateModal";
+import { useToast } from "./Toast";
 
 const ProfileDashboard = () => {
   const { isAuthenticated, isLoading: authLoading, logout } = useAuth();
   const tProfile = useTranslations("ProfileDashboard");
   const tProduct = useTranslations("ProductDetailsOne");
-  const tProfileForm = useTranslations("ProfileForm");
   const tProfileMessages = useTranslations("Profile");
-  const tLocation = useTranslations("Location");
+  const tCommon = useTranslations("Common");
+  const { showToast, ToastContainer } = useToast();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('books');
+  const [activeTab, setActiveTab] = useState("books");
   const [userBooks, setUserBooks] = useState([]);
   const [archivedBooks, setArchivedBooks] = useState([]);
+  const [userShops, setUserShops] = useState([]);
   const [booksLoading, setBooksLoading] = useState(false);
   const [archivingBookId, setArchivingBookId] = useState(null);
   const [showBookModal, setShowBookModal] = useState(false);
+  const [showStoryModal, setShowStoryModal] = useState(false);
   const [editingBook, setEditingBook] = useState(null);
-  
+
   // Profile editing states
   const profileDefaults = {
-    first_name: '',
-    last_name: '',
-    app_phone_number: '',
-    bio: '',
-    region: '',
-    district: '',
-    location_text: '',
+    first_name: "",
+    last_name: "",
+    app_phone_number: "",
+    bio: "",
+    region: "",
+    district: "",
+    location_text: "",
   };
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -49,24 +57,23 @@ const ProfileDashboard = () => {
   const [regions, setRegions] = useState([]);
   const [regionsLoading, setRegionsLoading] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
-  const fileInputRef = useRef(null);
 
   const getIdAsString = (value) => {
-    if (value === null || value === undefined) return '';
-    if (typeof value === 'object') {
+    if (value === null || value === undefined) return "";
+    if (typeof value === "object") {
       if (value.id !== undefined && value.id !== null) {
         return String(value.id);
       }
-      if ('value' in value && value.value !== undefined && value.value !== null) {
+      if ("value" in value && value.value !== undefined && value.value !== null) {
         return String(value.value);
       }
-      return '';
+      return "";
     }
     return String(value);
   };
 
   const toNumberOrNull = (value) => {
-    if (value === '' || value === null || value === undefined) {
+    if (value === "" || value === null || value === undefined) {
       return null;
     }
     const parsed = Number(value);
@@ -74,41 +81,38 @@ const ProfileDashboard = () => {
   };
 
   const normalizeProfileData = (user) => ({
-    first_name: user?.first_name || '',
-    last_name: user?.last_name || '',
-    app_phone_number: user?.app_phone_number || '',
-    bio: user?.bio || '',
+    first_name: user?.first_name || "",
+    last_name: user?.last_name || "",
+    app_phone_number: user?.app_phone_number || "",
+    bio: user?.bio || "",
     region: getIdAsString(user?.region),
     district: getIdAsString(user?.district),
-    location_text: user?.location_text || '',
+    location_text: user?.location_text || "",
   });
 
   const normalizeProfileStateMerge = (data = {}) => {
     const normalized = { ...data };
-    if ('region' in normalized) {
+    if ("region" in normalized) {
       normalized.region =
         normalized.region !== undefined && normalized.region !== null
           ? String(normalized.region)
-          : '';
+          : "";
     }
-    if ('district' in normalized) {
+    if ("district" in normalized) {
       normalized.district =
         normalized.district !== undefined && normalized.district !== null
           ? String(normalized.district)
-          : '';
+          : "";
     }
     return normalized;
   };
 
   const hasProfileDifferences = (current, original = originalProfileData) => {
-    const keys = new Set([
-      ...Object.keys(original || {}),
-      ...Object.keys(current || {})
-    ]);
+    const keys = new Set([...Object.keys(original || {}), ...Object.keys(current || {})]);
 
     for (const key of keys) {
-      const currentValue = current?.[key] ?? '';
-      const originalValue = original?.[key] ?? '';
+      const currentValue = current?.[key] ?? "";
+      const originalValue = original?.[key] ?? "";
       if (currentValue !== originalValue) {
         return true;
       }
@@ -118,14 +122,14 @@ const ProfileDashboard = () => {
   };
 
   const findRegionById = (id) => {
-    if (id === null || id === undefined || id === '') return null;
-    return regions.find(region => String(region.id) === String(id)) || null;
+    if (id === null || id === undefined || id === "") return null;
+    return regions.find((region) => String(region.id) === String(id)) || null;
   };
 
   const findDistrictById = (districtId) => {
-    if (districtId === null || districtId === undefined || districtId === '') return null;
+    if (districtId === null || districtId === undefined || districtId === "") return null;
     for (const region of regions) {
-      const district = region?.districts?.find(d => String(d.id) === String(districtId));
+      const district = region?.districts?.find((d) => String(d.id) === String(districtId));
       if (district) {
         return district;
       }
@@ -134,23 +138,23 @@ const ProfileDashboard = () => {
   };
 
   const getRegionDisplayName = () => {
-    if (userData?.region && typeof userData.region === 'object') {
-      return userData.region.name || '';
+    if (userData?.region && typeof userData.region === "object") {
+      return userData.region.name || "";
     }
     if (userData?.region_name) {
       return userData.region_name;
     }
-    if (userData?.region !== undefined && userData?.region !== null && userData?.region !== '') {
+    if (userData?.region !== undefined && userData?.region !== null && userData?.region !== "") {
       return findRegionById(userData.region)?.name || String(userData.region);
     }
     if (profileFormData.region) {
-      return findRegionById(profileFormData.region)?.name || '';
+      return findRegionById(profileFormData.region)?.name || "";
     }
-    return '';
+    return "";
   };
 
   const applyProfileUpdate = (updatedUser, fallbackData = null) => {
-    if (updatedUser && typeof updatedUser === 'object') {
+    if (updatedUser && typeof updatedUser === "object") {
       setUserData(updatedUser);
       initializeProfileForm(updatedUser);
       return;
@@ -158,7 +162,7 @@ const ProfileDashboard = () => {
 
     if (fallbackData) {
       const normalizedFallback = normalizeProfileStateMerge(fallbackData);
-      setUserData(prev => ({
+      setUserData((prev) => ({
         ...prev,
         ...normalizedFallback,
       }));
@@ -172,19 +176,23 @@ const ProfileDashboard = () => {
   };
 
   const getDistrictDisplayName = () => {
-    if (userData?.district && typeof userData.district === 'object') {
-      return userData.district.name || '';
+    if (userData?.district && typeof userData.district === "object") {
+      return userData.district.name || "";
     }
     if (userData?.district_name) {
       return userData.district_name;
     }
-    if (userData?.district !== undefined && userData?.district !== null && userData?.district !== '') {
+    if (
+      userData?.district !== undefined &&
+      userData?.district !== null &&
+      userData?.district !== ""
+    ) {
       return findDistrictById(userData.district)?.name || String(userData.district);
     }
     if (profileFormData.district) {
-      return findDistrictById(profileFormData.district)?.name || '';
+      return findDistrictById(profileFormData.district)?.name || "";
     }
-    return '';
+    return "";
   };
 
   const fetchBooksData = async (userId) => {
@@ -192,14 +200,49 @@ const ProfileDashboard = () => {
       setBooksLoading(true);
       const [activeResponse, archivedResponse] = await Promise.all([
         getUserPostedBooks(userId, 20),
-        getUserArchivedBooks(userId, 20)
+        getUserArchivedBooks(userId, 20),
       ]);
       setUserBooks(activeResponse.books || []);
       setArchivedBooks(archivedResponse.books || []);
     } catch (error) {
-      console.error('Error fetching books data:', error);
+      console.error("Error fetching books data:", error);
     } finally {
       setBooksLoading(false);
+    }
+  };
+
+  const fetchShopsData = async (userId) => {
+    try {
+      const response = await getShopsByOwner(userId, 12);
+      setUserShops(response.shops || []);
+    } catch (error) {
+      console.error("Error fetching shops data:", error);
+      setUserShops([]);
+    }
+  };
+
+  const handleShareProfile = async () => {
+    if (typeof window === "undefined") return;
+    const url = `${window.location.origin}/uz/user/${userData?.id || ""}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: [userData?.first_name, userData?.last_name].filter(Boolean).join(" ") || "Profile",
+          url,
+        });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        showToast({
+          type: "success",
+          title: tCommon("success"),
+          message: tProfile("shareCopied"),
+          duration: 2500,
+        });
+      }
+    } catch (error) {
+      if (error?.name !== "AbortError") {
+        console.error("Share failed:", error);
+      }
     }
   };
 
@@ -229,19 +272,33 @@ const ProfileDashboard = () => {
       const response = await patchBook(book.id, { is_active: false });
 
       if (response?.success === false) {
-        alert(
-          tProduct("archiveUnknownError", {
+        showToast({
+          type: "error",
+          title: tCommon("error"),
+          message: tProduct("archiveUnknownError", {
             message: response?.message || tProduct("unknownError"),
-          })
-        );
+          }),
+          duration: 4000,
+        });
       } else {
-        alert(tProduct("archiveSuccess"));
+        showToast({
+          type: "success",
+          title: tCommon("success"),
+          message: tProduct("archiveSuccess"),
+          duration: 3000,
+        });
       }
 
       await fetchBooksData(userData.id);
     } catch (error) {
       console.error("Error archiving book:", error);
-      alert(tProduct("archiveError"));
+      const mapped = mapValidationError(error);
+      showToast({
+        type: "error",
+        title: tCommon("error"),
+        message: mapped.general || tProduct("archiveError"),
+        duration: 4000,
+      });
     } finally {
       setArchivingBookId(null);
       setBooksLoading(false);
@@ -260,53 +317,60 @@ const ProfileDashboard = () => {
     setEditingBook(null);
   };
 
-  const handleAvatarButtonClick = () => {
-    if (avatarUploading) {
-      return;
-    }
-    fileInputRef.current?.click();
-  };
-
   const handleAvatarChange = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     const formData = new FormData();
-    formData.append('picture', file);
+    formData.append("picture", file);
 
     try {
       setAvatarUploading(true);
-      const { data } = await http.patch(API_ENDPOINTS.AUTH.UPDATE_PROFILE, formData);
-      const updatedUser = data?.user || data;
-      applyProfileUpdate(updatedUser);
-      alert(tProfileMessages("updated"));
+      const { user } = await updateUserProfile(formData);
+      applyProfileUpdate(user);
+      showToast({
+        type: "success",
+        title: tCommon("success"),
+        message: tProfileMessages("updated"),
+        duration: 3000,
+      });
     } catch (error) {
-      console.error('💥 Error updating avatar:', error);
-      console.error('Error details:', error.response?.data || error.message);
-      console.error('Error status:', error.response?.status);
-      alert(tProfileMessages("updateError"));
+      console.error("💥 Error updating avatar:", error);
+      const mapped = mapValidationError(error);
+      showToast({
+        type: "error",
+        title: tCommon("error"),
+        message: mapped.general || tProfileMessages("updateError"),
+        duration: 4000,
+      });
     } finally {
       setAvatarUploading(false);
       if (event.target) {
-        event.target.value = '';
+        event.target.value = "";
       }
     }
   };
 
-  // Profile editing functions
-  const initializeProfileForm = (user) => {
+  // Profile editing functions. useCallback so the user-data effect's dep
+  // array stays stable — otherwise the effect re-runs every render and
+  // /me would be re-fetched in a loop. `normalizeProfileData` is a pure
+  // helper defined inside the component; its identity changes each
+  // render, but it only captures `getIdAsString`, which is itself pure —
+  // so omitting it from deps is safe.
+  const initializeProfileForm = useCallback((user) => {
     const normalized = normalizeProfileData(user || {});
     setProfileFormData(normalized);
     setOriginalProfileData(normalized);
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleProfileInputChange = (e) => {
     const { name, value } = e.target;
-    setProfileFormData(prev => {
+    setProfileFormData((prev) => {
       const nextState = {
         ...prev,
         [name]: value,
-        ...(name === 'region' ? { district: '' } : {})
+        ...(name === "region" ? { district: "" } : {}),
       };
       setHasChanges(hasProfileDifferences(nextState, originalProfileData));
       return nextState;
@@ -328,7 +392,7 @@ const ProfileDashboard = () => {
   const handleSaveProfile = async () => {
     try {
       setSaving(true);
-      
+
       // Prepare data for API (only include fields that can be updated)
       const updateData = {
         first_name: profileFormData.first_name,
@@ -345,41 +409,43 @@ const ProfileDashboard = () => {
         Object.entries(updateData).filter(
           ([_, value]) =>
             value !== null &&
-            value !== '' &&
+            value !== "" &&
             value !== undefined &&
-            !(typeof value === 'number' && Number.isNaN(value))
-        )
+            !(typeof value === "number" && Number.isNaN(value)),
+        ),
       );
 
-      console.log('🔄 Sending PATCH request to v1/auth/me/update with data:', cleanedData);
-      console.log('📡 API Endpoint:', API_ENDPOINTS.AUTH.UPDATE_PROFILE);
-      console.log('🌐 Full URL:', `${process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.kitobzor.uz/'}${API_ENDPOINTS.AUTH.UPDATE_PROFILE}`);
+      const { success, user } = await updateUserProfile(cleanedData);
 
-      // Direct API call
-      const { data } = await http.patch(API_ENDPOINTS.AUTH.UPDATE_PROFILE, cleanedData);
-      
-      console.log('📥 API Response:', data);
-      
-      const success = data?.success !== false;
-      
       if (success) {
-        console.log('✅ Profile updated successfully:', data?.message || 'Profile updated successfully');
-        const updatedUser = data?.user || data;
-        applyProfileUpdate(updatedUser, cleanedData);
+        applyProfileUpdate(user, cleanedData);
         setIsEditingProfile(false);
         setHasChanges(false);
-        
-        // Show success message
-        alert(tProfileMessages("updated"));
+
+        showToast({
+          type: "success",
+          title: tCommon("success"),
+          message: tProfileMessages("updated"),
+          duration: 3000,
+        });
       } else {
-        console.error('❌ Failed to update profile:', data?.message || 'Unknown error');
-        alert(tProfileMessages("updateError"));
+        console.error("❌ Failed to update profile:", message || "Unknown error");
+        showToast({
+          type: "error",
+          title: tCommon("error"),
+          message: tProfileMessages("updateError"),
+          duration: 4000,
+        });
       }
     } catch (error) {
-      console.error('💥 Error updating profile:', error);
-      console.error('Error details:', error.response?.data || error.message);
-      console.error('Error status:', error.response?.status);
-      alert(tProfileMessages("updateError"));
+      console.error("💥 Error updating profile:", error);
+      const mapped = mapValidationError(error);
+      showToast({
+        type: "error",
+        title: tCommon("error"),
+        message: mapped.general || tProfileMessages("updateError"),
+        duration: 4000,
+      });
     } finally {
       setSaving(false);
     }
@@ -391,23 +457,23 @@ const ProfileDashboard = () => {
         const response = await getUserProfile();
         const user = response.user || response.raw;
         setUserData(user);
-        
+
         // Initialize profile form data
         initializeProfileForm(user);
-        
-        // Fetch books data after user data is loaded
+
+        // Fetch books and shops data after user data is loaded
         if (user?.id) {
-          await fetchBooksData(user.id);
+          await Promise.all([fetchBooksData(user.id), fetchShopsData(user.id)]);
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error("Error fetching user data:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchUserData();
-  }, [isAuthenticated, authLoading]);
+  }, [isAuthenticated, authLoading, initializeProfileForm]);
 
   useEffect(() => {
     const fetchRegionsData = async () => {
@@ -416,7 +482,7 @@ const ProfileDashboard = () => {
         const response = await getRegions({ limit: 100 });
         setRegions(response.regions || []);
       } catch (error) {
-        console.error('Error fetching regions data:', error);
+        console.error("Error fetching regions data:", error);
       } finally {
         setRegionsLoading(false);
       }
@@ -432,9 +498,9 @@ const ProfileDashboard = () => {
 
   if (loading) {
     return (
-      <section className='account py-80'>
-        <div className='container container-lg'>
-          <div className='d-flex justify-content-center align-items-center py-80'>
+      <section className="account py-80">
+        <div className="container container-lg">
+          <div className="d-flex justify-content-center align-items-center py-80">
             <Spin text={tProfile("loadingData")} />
           </div>
         </div>
@@ -442,54 +508,115 @@ const ProfileDashboard = () => {
     );
   }
 
-  return (
-    <section className='account py-60' style={{backgroundColor: '#f8f9fa'}}>
-      <div className='container container-lg'>
-        <div className='row g-4'>
-          <div className='col-lg-4'>
-            <ProfileSidebar
-              userData={userData}
-              userBooksCount={userBooks.length}
-              archivedBooksCount={archivedBooks.length}
-              isEditingProfile={isEditingProfile}
-              profileFormData={profileFormData}
-              regions={regions}
-              regionsLoading={regionsLoading}
-              districtOptions={districtOptions}
-              hasChanges={hasChanges}
-              saving={saving}
-              avatarUploading={avatarUploading}
-              fileInputRef={fileInputRef}
-              onAvatarButtonClick={handleAvatarButtonClick}
-              onAvatarChange={handleAvatarChange}
-              onInputChange={handleProfileInputChange}
-              onEditProfile={handleEditProfile}
-              onCancelEdit={handleCancelEdit}
-              onSaveProfile={handleSaveProfile}
-              onLogout={logout}
-              regionDisplayName={regionDisplayName}
-              districtDisplayName={districtDisplayName}
-            />
-          </div>
+  const locationParts = [regionDisplayName, districtDisplayName].filter(Boolean);
+  const locationChip = locationParts.join(" · ");
+  const locationFull = [...locationParts, userData?.location_text].filter(Boolean).join(" · ");
+  const roleLabel =
+    userData?.user_type === "bookshop" ? tProfile("bookshopOwner") : tProfile("user");
 
-          <div className='col-lg-8'>
-            <ProfileTabs
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-              userData={userData}
-              userBooks={userBooks}
-              archivedBooks={archivedBooks}
-              booksLoading={booksLoading}
-              onCreateBook={handleCreateBook}
-              onEditBook={handleEditBook}
+  return (
+    <Box
+      sx={{
+        bgcolor: "var(--surface-page)",
+        color: "var(--text-primary)",
+        minHeight: "100vh",
+        py: { xs: 2.5, md: 5 },
+      }}
+    >
+      <Box
+        sx={{
+          maxWidth: 720,
+          mx: "auto",
+          px: { xs: 2, md: 3 },
+        }}
+      >
+        <Stack spacing={{ xs: 2, md: 2.5 }}>
+          <ProfileHero
+            user={userData}
+            stats={{
+              books: userBooks.length,
+              archive: archivedBooks.length,
+              shops: userShops.length,
+            }}
+            avatarUploading={avatarUploading}
+            onAvatarChange={handleAvatarChange}
+            onEditClick={handleEditProfile}
+            onShareClick={handleShareProfile}
+            locationLine={locationChip}
+            roleLabel={roleLabel}
+          />
+
+          <ProfileStoryBar books={userBooks} shops={userShops} onAddBookClick={handleCreateBook} />
+
+          {userShops.length > 0 && (
+            <Box sx={{ textAlign: "center" }}>
+              <Button
+                variant="contained"
+                onClick={() => setShowStoryModal(true)}
+                startIcon={
+                  <i
+                    className="ph ph-paper-plane-tilt"
+                    style={{ fontSize: 18 }}
+                    aria-hidden="true"
+                  />
+                }
+                sx={{
+                  textTransform: "none",
+                  fontWeight: 600,
+                  borderRadius: 5,
+                  px: 3,
+                }}
+              >
+                {tProfile("addStory")}
+              </Button>
+            </Box>
+          )}
+
+          <ProfileInfoList user={userData} locationLine={locationFull} />
+
+          <ProfileTabs
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            userData={userData}
+            userBooks={userBooks}
+            archivedBooks={archivedBooks}
+            userShops={userShops}
+            booksLoading={booksLoading}
+            onCreateBook={handleCreateBook}
+            onEditBook={handleEditBook}
             onArchiveBook={handleArchiveBook}
             archivingBookId={archivingBookId}
-            />
-          </div>
-        </div>
-      </div>
-      
-      {/* Book Create/Edit Modal */}
+          />
+
+          <Box sx={{ textAlign: "center", pt: 2 }}>
+            <Button
+              variant="text"
+              color="error"
+              onClick={logout}
+              startIcon={
+                <i className="ph ph-sign-out" style={{ fontSize: 18 }} aria-hidden="true" />
+              }
+              sx={{ textTransform: "none", fontWeight: 600 }}
+            >
+              {tProfile("logout")}
+            </Button>
+          </Box>
+        </Stack>
+      </Box>
+
+      <ProfileEditModal
+        open={isEditingProfile}
+        onClose={handleCancelEdit}
+        profileFormData={profileFormData}
+        onInputChange={handleProfileInputChange}
+        regions={regions}
+        regionsLoading={regionsLoading}
+        districtOptions={districtOptions}
+        hasChanges={hasChanges}
+        saving={saving}
+        onSave={handleSaveProfile}
+      />
+
       <BookCreateModal
         isOpen={showBookModal}
         onClose={handleCloseModal}
@@ -497,7 +624,15 @@ const ProfileDashboard = () => {
         editBook={editingBook}
       />
 
-    </section>
+      <StoryCreateModal
+        open={showStoryModal}
+        onClose={() => setShowStoryModal(false)}
+        shops={userShops}
+        onCreated={() => setShowStoryModal(false)}
+      />
+
+      <ToastContainer />
+    </Box>
   );
 };
 

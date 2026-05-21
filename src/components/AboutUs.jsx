@@ -1,8 +1,9 @@
 "use client";
 import React from "react";
-import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { Link } from "@/i18n/navigation";
+import { openSellerModal } from "@/lib/sellerModal";
 import TopVendorsOne from "./TopVendorsOne";
 import Contact from "./Contact";
 
@@ -70,24 +71,18 @@ const AboutUs = () => {
           <div className="row gy-4 align-items-center">
             <div className="col-lg-6">
               <div className="about-hero__content">
-                <h1 className="text-3xl fw-bold mb-16 text-heading">
-                  {tAbout("hero.title")}
-                </h1>
-                <p className="text-gray-700 mb-24 line-height-1-7">
-                  {tAbout("hero.description")}
-                </p>
+                <h1 className="text-3xl fw-bold mb-16 text-heading">{tAbout("hero.title")}</h1>
+                <p className="text-gray-700 mb-24 line-height-1-7">{tAbout("hero.description")}</p>
                 <div className="d-flex gap-12 flex-wrap">
-                  <Link
-                    href="/become-seller"
-                    className="btn btn-main px-24 py-12 rounded-pill"
+                  <button
+                    type="button"
+                    onClick={openSellerModal}
+                    className="btn btn-main px-24 py-12 rounded-pill border-0"
                   >
                     <i className="ph ph-storefront me-8" />
                     {tButtons("becomeSeller")}
-                  </Link>
-                  <Link
-                    href="/contact"
-                    className="btn btn-outline-main px-24 py-12 rounded-pill"
-                  >
+                  </button>
+                  <Link href="/contact" className="btn btn-outline-main px-24 py-12 rounded-pill">
                     <i className="ph ph-envelope me-8" />
                     {tAbout("hero.contactUs")}
                   </Link>
@@ -98,7 +93,12 @@ const AboutUs = () => {
               <div className="about-hero__image position-relative">
                 <div
                   className="rounded-12 overflow-hidden"
-                  style={{ position: "relative", height: "350px" }}
+                  style={{
+                    position: "relative",
+                    aspectRatio: "4 / 3",
+                    minHeight: 220,
+                    maxHeight: 400,
+                  }}
                 >
                   <Image
                     src="/assets/images/thumbs/banner-img1.png"
@@ -112,9 +112,7 @@ const AboutUs = () => {
                 <div className="position-absolute bottom-0 start-0 bg-main-500 text-white px-20 py-12 rounded-12 m-12">
                   <div className="d-flex align-items-center gap-8">
                     <i className="ph-fill ph-book text-lg" />
-                    <div className="text-sm fw-medium">
-                      {tAbout("hero.slogan")}
-                    </div>
+                    <div className="text-sm fw-medium">{tAbout("hero.slogan")}</div>
                   </div>
                 </div>
               </div>
@@ -141,9 +139,7 @@ const AboutUs = () => {
                   <div className={`${stat.color} text-3xl mb-12`}>
                     <i className={stat.icon} />
                   </div>
-                  <h3 className="text-2xl fw-bold text-heading mb-8">
-                    {stat.number}
-                  </h3>
+                  <h3 className="text-2xl fw-bold text-heading mb-8">{stat.number}</h3>
                   <p className="text-gray-600 text-sm">{stat.label}</p>
                 </div>
               </div>
@@ -162,9 +158,7 @@ const AboutUs = () => {
                   <i className="ph-fill ph-target text-2xl" />
                 </div>
                 <h3 className="text-xl fw-bold mb-12 text-heading">{tAbout("mission.title")}</h3>
-                <p className="text-gray-700 line-height-1-7">
-                  {tAbout("mission.description")}
-                </p>
+                <p className="text-gray-700 line-height-1-7">{tAbout("mission.description")}</p>
               </div>
             </div>
             <div className="col-lg-6">
@@ -173,9 +167,7 @@ const AboutUs = () => {
                   <i className="ph-fill ph-eye text-2xl" />
                 </div>
                 <h3 className="text-xl fw-bold mb-12 text-heading">{tAbout("vision.title")}</h3>
-                <p className="text-gray-700 line-height-1-7">
-                  {tAbout("vision.description")}
-                </p>
+                <p className="text-gray-700 line-height-1-7">{tAbout("vision.description")}</p>
               </div>
             </div>
           </div>
@@ -187,9 +179,7 @@ const AboutUs = () => {
         <div className="container container-lg">
           <div className="section-heading text-center mb-32">
             <h5 className="text-2xl fw-bold mb-8 text-heading">{tAbout("features.title")}</h5>
-            <p className="text-gray-600">
-              {tAbout("features.subtitle")}
-            </p>
+            <p className="text-gray-600">{tAbout("features.subtitle")}</p>
           </div>
           <div className="row gy-3">
             {features.map((feature, index) => (
@@ -199,9 +189,7 @@ const AboutUs = () => {
                     <i className={`${feature.icon} text-2xl`} />
                   </div>
                   <h6 className="text-md fw-semibold mb-8 text-heading">{feature.title}</h6>
-                  <p className="text-gray-600 text-sm line-height-1-6">
-                    {feature.description}
-                  </p>
+                  <p className="text-gray-600 text-sm line-height-1-6">{feature.description}</p>
                 </div>
               </div>
             ))}
@@ -214,9 +202,7 @@ const AboutUs = () => {
         <div className="container container-lg">
           <div className="section-heading text-center mb-32">
             <h5 className="text-2xl fw-bold mb-8 text-heading">{tAbout("shops.title")}</h5>
-            <p className="text-gray-600">
-              {tAbout("shops.subtitle")}
-            </p>
+            <p className="text-gray-600">{tAbout("shops.subtitle")}</p>
           </div>
           <TopVendorsOne />
         </div>
@@ -227,9 +213,7 @@ const AboutUs = () => {
         <div className="container container-lg">
           <div className="section-heading text-center mb-32">
             <h5 className="text-2xl fw-bold mb-8 text-heading">{tAbout("contact.title")}</h5>
-            <p className="text-gray-600">
-              {tAbout("contact.subtitle")}
-            </p>
+            <p className="text-gray-600">{tAbout("contact.subtitle")}</p>
           </div>
           <Contact />
         </div>
@@ -240,17 +224,18 @@ const AboutUs = () => {
         <div className="container container-lg">
           <div className="cta-box bg-main-500 text-white rounded-12 p-32 text-center">
             <h3 className="text-2xl fw-bold mb-12">{tAbout("cta.title")}</h3>
-            <p className="mb-24" style={{ maxWidth: '500px', margin: '0 auto', opacity: 0.95 }}>
+            <p className="mb-24" style={{ maxWidth: "500px", margin: "0 auto", opacity: 0.95 }}>
               {tAbout("cta.description")}
             </p>
             <div className="d-flex gap-12 justify-content-center flex-wrap">
-              <Link
-                href="/become-seller"
-                className="btn bg-white text-main-500 px-24 py-12 rounded-pill hover-bg-gray-100 fw-medium"
+              <button
+                type="button"
+                onClick={openSellerModal}
+                className="btn bg-white text-main-500 px-24 py-12 rounded-pill hover-bg-gray-100 fw-medium border-0"
               >
                 <i className="ph ph-storefront me-8" />
                 {tButtons("becomeSeller")}
-              </Link>
+              </button>
               <Link
                 href="/vendor-two"
                 className="btn btn-outline-white px-24 py-12 rounded-pill hover-bg-white hover-text-main-500 fw-medium"
@@ -267,4 +252,3 @@ const AboutUs = () => {
 };
 
 export default AboutUs;
-

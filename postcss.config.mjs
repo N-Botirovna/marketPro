@@ -24,6 +24,11 @@ const safelistPatterns = [
   /^position-/, /^top-/, /^bottom-/, /^start-/, /^end-/,
   /^translate-/, /^inset-/, /^visually-/,
   /^bg-/, /^link-/,
+  // Responsive aspect-ratio + body lock utilities (defined in globals.scss)
+  /^aspect-/,
+  /^body-/,
+  // Form validation utilities (Bootstrap is-invalid + custom FieldError)
+  /^is-invalid$/, /^is-valid$/, /^invalid-feedback$/, /^valid-feedback$/,
 ];
 
 /** @type {import('postcss-load-config').Config} */

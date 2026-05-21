@@ -1,557 +1,784 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { isAuthenticated, logoutUser } from "@/services/auth";
-import { getBookCategories } from "@/services/categories";
-import { getRegions } from "@/services/regions";
+
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { useTranslations } from "next-intl";
+import { isAuthenticated } from "@/services/auth";
 import { getLikedBooks } from "@/services/books";
 import { addLike, clearLikes, getAllLikes } from "@/utils/likeStorage";
 import { useAuth } from "@/hooks/useAuth";
-import MaterialCategoryDropdown from "./MaterialCategoryDropdown";
-import MaterialLocationDropdown from "./MaterialLocationDropdown";
-import { useTranslations } from "next-intl";
-import { SUPPORT_PHONE } from "@/config";
-
-import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
+import { openSellerModal } from "@/lib/sellerModal";
+import ThemeToggle from "./ThemeToggle";
 import LanguageSwitcher from "./LanguageSwitcher";
+
+/**
+ * Telegram-inspired header.
+ *
+ *   Desktop : [☰] [🟢 kitobzor]                       [🌙] [🌐] [👤]
+ *   Mobile  : [☰] [🟢 kitobzor]                                  [👤]
+ *
+ * The hamburger opens a slide-in drawer (Telegram-style) holding the
+ * secondary nav — Profile, Wishlist, Open shop, About, Contact, FAQ,
+ * Privacy, Settings (theme + language), Logout. The header bar itself
+ * only carries the brand, quick theme/language toggles (desktop), and a
+ * single avatar button.
+ *
+ * Primary site navigation (Shops, Community books, Contact) used to live
+ * here but was removed — those surfaces are already represented as cards
+ * on the homepage, and the drawer surfaces Contact/etc. directly.
+ */
 const HeaderOne = () => {
-  let pathname = usePathname();
-  const router = useRouter();
-  const { isAuthenticated: isAuth, isLoading: authLoading } = useAuth();
-  const [scroll, setScroll] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [regions, setRegions] = useState([]);
-  const [hoveredRegionId, setHoveredRegionId] = useState(null);
-  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [likedBooksCount, setLikedBooksCount] = useState(0);
+  const pathname = usePathname();
+  const { isAuthenticated: isAuth, isLoading: authLoading, logout } = useAuth();
   const tHeader = useTranslations("Header");
-  const tCategories = useTranslations("Categories");
 
-  // Close dropdown when clicking outside
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [likedBooksCount, setLikedBooksCount] = useState(0);
+  const [scroll, setScroll] = useState(false);
+  const [menuActive, setMenuActive] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
+
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (showLocationDropdown && !event.target.closest(".location-dropdown")) {
-        setShowLocationDropdown(false);
-      }
-    };
-
-    if (showLocationDropdown) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showLocationDropdown]);
-
-  // Sync with useAuth hook
-  useEffect(() => {
-    const authenticated = isAuthenticated();
-    setIsLoggedIn(authenticated);
-    if (!authenticated) setLikedBooksCount(0);
+    setIsLoggedIn(isAuthenticated());
   }, [isAuth]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScroll(window.pageYOffset > 150);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScroll(window.pageYOffset > 24);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [categoriesRes, regionsRes] = await Promise.all([
-          getBookCategories({ limit: 20 }),
-          getRegions({ limit: 50 }),
-        ]);
-        setCategories(categoriesRes.categories || []);
-        setRegions(regionsRes.regions || []);
-      } catch (err) {
-        console.error("Ma'lumotlarni yuklashda xatolik:", err);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // Fetch liked books count va localStorage'ni initialize qilish
   useEffect(() => {
     if (authLoading) return;
-
-    const fetchLikedBooksCount = async () => {
-      if (isAuth) {
-        try {
-          const response = await getLikedBooks();
-          const books = response.books || [];
-          const count = response.count || books.length || 0;
-          
-          books.forEach(book => {
-            if (book.id) addLike(book.id);
-          });
-          
-          setLikedBooksCount(count);
-        } catch (err) {
-          console.error("Liked books count xatolik:", err);
-          setLikedBooksCount(0);
-        }
-      } else {
+    const fetchCount = async () => {
+      if (!isAuth) {
         setLikedBooksCount(0);
         clearLikes();
+        return;
+      }
+      try {
+        const res = await getLikedBooks();
+        const books = res.books || [];
+        books.forEach((b) => b?.id && addLike(b.id));
+        setLikedBooksCount(res.count || books.length || 0);
+      } catch {
+        setLikedBooksCount(0);
       }
     };
-
-    fetchLikedBooksCount();
+    fetchCount();
   }, [isAuth, authLoading]);
 
-  // Listen for like updates - localStorage'dan count hisoblash
   useEffect(() => {
-    const updateCountFromStorage = () => {
-      if (isAuth) {
-        try {
-          setLikedBooksCount(getAllLikes().length);
-        } catch (err) {
-          console.error("Error reading liked count from storage:", err);
-          setLikedBooksCount(0);
-        }
+    if (!isAuth) return undefined;
+    const sync = () => {
+      try {
+        setLikedBooksCount(getAllLikes().length);
+      } catch {
+        /* localStorage blocked — keep previous count */
       }
     };
-
-    window.addEventListener('bookLiked', updateCountFromStorage);
-    window.addEventListener('bookUnliked', updateCountFromStorage);
-
+    window.addEventListener("bookLiked", sync);
+    window.addEventListener("bookUnliked", sync);
     return () => {
-      window.removeEventListener('bookLiked', updateCountFromStorage);
-      window.removeEventListener('bookUnliked', updateCountFromStorage);
+      window.removeEventListener("bookLiked", sync);
+      window.removeEventListener("bookUnliked", sync);
     };
   }, [isAuth]);
 
-  // Handle logout
-  const handleLogout = async () => {
+  useEffect(() => {
+    if (typeof document === "undefined") return undefined;
+    document.body.classList.toggle("body-no-scroll", menuActive);
+    return () => document.body.classList.remove("body-no-scroll");
+  }, [menuActive]);
+
+  useEffect(() => {
+    setMenuActive(false);
+    setProfileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!profileOpen) return undefined;
+    const onDown = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [profileOpen]);
+
+  const closeAll = useCallback(() => {
+    setMenuActive(false);
+    setProfileOpen(false);
+  }, []);
+
+  const handleSellerClick = useCallback(() => {
+    closeAll();
+    openSellerModal();
+  }, [closeAll]);
+
+  const handleLogout = useCallback(async () => {
+    closeAll();
     try {
-      await logoutUser();
-      setIsLoggedIn(false);
-      setUserToken(null);
-      router.push("/login");
-    } catch (error) {
-      console.error("Logout error:", error);
-      // Force logout even if API call fails
-      setIsLoggedIn(false);
-      setUserToken(null);
-      router.push("/login");
+      await logout();
+    } catch {
+      /* logout swallows errors itself — best-effort */
     }
-  };
-
-  // Mobile menu control support
-  const [menuActive, setMenuActive] = useState(false);
-  const handleMenuToggle = () => {
-    setMenuActive(!menuActive);
-  };
-
-  const [activeSearch, setActiveSearch] = useState(false);
-  const handleSearchToggle = () => {
-    setActiveSearch(!activeSearch);
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/vendor-two?search=${encodeURIComponent(searchQuery.trim())}`);
-      setActiveSearch(false);
-    }
-  };
+  }, [closeAll, logout]);
 
   return (
     <>
-      <div className="overlay" />
-      <div className={`side-overlay ${menuActive && "show"}`} />
-      {/* ==================== Search Box Start Here ==================== */}
-      <form
-        onSubmit={handleSearch}
-        className={`search-box ${activeSearch && "active"}`}
-      >
-        <button
-          onClick={handleSearchToggle}
-          type="button"
-          className="search-box__close position-absolute inset-block-start-0 inset-inline-end-0 m-16 w-48 h-48 border border-gray-100 rounded-circle flex-center text-white hover-text-gray-800 hover-bg-white text-2xl transition-1"
-        >
-          <i className="ph ph-x" />
-        </button>
-        <div className="container">
-          <div className="position-relative">
-            <input
-              type="text"
-              className="form-control py-16 px-24 text-xl rounded-pill pe-64"
-              placeholder={tHeader("searchPlaceholder")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button
-              type="submit"
-              className="w-48 h-48 bg-main-600 rounded-circle flex-center text-xl text-white position-absolute top-50 translate-middle-y inset-inline-end-0 me-8"
-            >
-              <i className="ph ph-magnifying-glass" />
-            </button>
-          </div>
-        </div>
-      </form>
-      {/* ==================== Search Box End Here ==================== */}
-      {/* ==================== Mobile Menu Start Here ==================== */}
-      <div
-        className={`mobile-menu scroll-sm d-lg-none d-block ${
-          menuActive && "active"
-        }`}
-      >
-        <div className="container container-lg">
-          <div className="mobile-menu__wrapper">
-            <div className="mobile-menu__header d-flex justify-content-between align-items-center">
-              <div className="mobile-menu__logo">
-                <Link href="/" className="link">
-                  <img src="/assets/images/logo/logo.png" alt="Logo" onError={(e) => {
-                    e.target.src = "/assets/images/logo/logo.png";
-                  }} />
-                </Link>
-              </div>
+      <header className={`kz-header ${scroll ? "kz-header--scrolled" : ""}`} role="banner">
+        <div className="kz-header__inner">
+          {/* Hamburger — always visible (Telegram style). Opens the
+              secondary-nav drawer. */}
+          <button
+            type="button"
+            onClick={() => setMenuActive((p) => !p)}
+            className="kz-header__icon-btn"
+            aria-label={tHeader("menu")}
+            aria-expanded={menuActive}
+          >
+            <i className="ph ph-list" />
+          </button>
+
+          <Link href="/" className="kz-header__logo" aria-label="Kitobzor" onClick={closeAll}>
+            <span className="kz-header__logo-mark">
+              <Image
+                src="/assets/images/logo/kitobzor-logo.png"
+                alt=""
+                width={36}
+                height={36}
+                priority
+              />
+            </span>
+            <span className="kz-header__logo-text">kitobzor</span>
+          </Link>
+
+          {/* Right cluster: theme · language · profile. All three stay
+              visible on every breakpoint — settings shouldn't disappear
+              on mobile. They simply tighten up below 576px. */}
+          <div className="kz-header__right">
+            <ThemeToggle />
+            <LanguageSwitcher />
+
+            <div className="kz-header__profile" ref={profileRef}>
               <button
-                onClick={handleMenuToggle}
-                className="mobile-menu__close d-flex flex-center"
+                type="button"
+                onClick={() => setProfileOpen((p) => !p)}
+                className={`kz-header__avatar ${isLoggedIn ? "kz-header__avatar--auth" : ""}`}
+                aria-haspopup="menu"
+                aria-expanded={profileOpen}
+                aria-label={tHeader("account")}
               >
-                <i className="ph ph-x text-2xl" />
-              </button>
-            </div>
-            <div className="mobile-menu__content">
-              <ul className="mobile-menu__list">
-                <li className="mobile-menu__item">
-                  <Link href="/" className="mobile-menu__link">
-                    {tHeader("home")}
-                  </Link>
-                </li>
-                <li className="mobile-menu__item">
-                  <Link href="/shop" className="mobile-menu__link">
-                    {tHeader("shop")}
-                  </Link>
-                </li>
-                <li className="mobile-menu__item">
-                  <Link href="/blog" className="mobile-menu__link">
-                    {tHeader("blog")}
-                  </Link>
-                </li>
-                <li className="mobile-menu__item">
-                  <Link href="/contact" className="mobile-menu__link">
-                    {tHeader("contact")}
-                  </Link>
-                </li>
-                {isLoggedIn ? (
-                  <>
-                    <li className="mobile-menu__item">
-                      <Link href="/account" className="mobile-menu__link">
-                        {tHeader("myAccount")}
-                      </Link>
-                    </li>
-                    <li className="mobile-menu__item">
-                      <button
-                        onClick={handleLogout}
-                        className="mobile-menu__link w-100 text-start"
-                      >
-                        Chiqish
-                      </button>
-                    </li>
-                  </>
-                ) : (
-                  <li className="mobile-menu__item">
-                    <Link href="/login" className="mobile-menu__link">
-                      {tHeader("login")}
-                    </Link>
-                  </li>
+                <i className={isLoggedIn ? "ph-fill ph-user" : "ph ph-user"} aria-hidden="true" />
+                {isLoggedIn && likedBooksCount > 0 && (
+                  <span className="kz-header__profile-dot" aria-hidden="true" />
                 )}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* ==================== Mobile Menu End Here ==================== */}
-      {/* ======================= Top Header Start ========================= */}
-      <div className="top-header bg-main-600 py-8 d-none d-lg-block">
-        <div className="container container-lg">
-          <div className="row align-items-center">
-            <div className="col-lg-6">
-              <div className="top-header__left flex-align gap-16">
-                <div className="flex-align gap-8">
-                  <i className="ph ph-phone text-white text-sm" />
-                  <a
-                    href="tel:++998938340103"
-                    className="text-white text-sm hover-text-main-200"
-                  >
-                    +998 93 834 01 03
-                  </a>
-                </div>
-                <div className="flex-align gap-8">
-                  <i className="ph ph-envelope text-white text-sm" />
-                  <a
-                    href="mailto:kitobzor.help@gmail.com"
-                    className="text-white text-sm hover-text-main-200"
-                  >
-                    kitobzor.help@gmail.com
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="col-lg-6">
-              <div className="top-header__right flex-align justify-content-end gap-16">
-                <div className="flex-align gap-8">
-                  <i className="ph ph-truck text-white text-sm" />
-                  <span className="text-white text-sm">
-                    {tHeader("freeShipping")}
-                  </span>
-                </div>
-                <div className="flex-align gap-8">
-                  <i className="ph ph-clock text-white text-sm" />
-                  <span className="text-white text-sm">
-                    {tHeader("workHours")}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* ======================= Top Header End ========================= */}
-      {/* ======================= Middle Header Start ========================= */}
-      <div className="middle-header d-none d-lg-block">
-        <div className="container container-lg">
-          <div className="row align-items-center">
-            <div className="col-lg-3">
-              <div className="logo">
-                <Link href="/" className="link">
-                  <img src="/assets/images/logo/logo.png" alt="Logo" onError={(e) => {
-                    e.target.src = "/assets/images/logo/logo.png";
-                  }} />
-                </Link>
-              </div>
-            </div>
-            <div className="col-lg-6">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (searchQuery.trim()) {
-                    router.push(
-                      `/vendor-two?search=${encodeURIComponent(
-                        searchQuery.trim()
-                      )}`
-                    );
-                  }
-                }}
-                className="flex-align flex-wrap form-location-wrapper"
-                style={{ overflow: "visible" }}
-              >
-                <div
-                  className="search-category d-flex h-48 select-border-end-0 radius-end-0 search-form d-sm-flex d-none position-relative"
-                  style={{ overflow: "visible" }}
-                >
-                  <MaterialLocationDropdown />
-                </div>
-                <div className="search-form__wrapper position-relative">
-                  <input
-                    type="text"
-                    className="search-form__input common-input py-13 ps-16 pe-18 rounded-end-pill pe-44"
-                    placeholder={tHeader("searchPlaceholder")}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <button
-                    type="submit"
-                    className="w-32 h-32 bg-main-600 rounded-circle flex-center text-xl text-white position-absolute top-50 translate-middle-y inset-inline-end-0 me-8"
-                  >
-                    <i className="ph ph-magnifying-glass" />
-                  </button>
-                </div>
-              </form>
-            </div>
-            <div className="col-lg-3">
-              <div className="middle-header__right flex-align justify-content-end gap-16">
-                <div className="flex-align gap-8">
-                  <i className="ph ph-headset text-main-600 text-2xl" />
-                  <div>
-                    <div className="text-sm text-gray-500">
-                      {tHeader("customerService")}
-                    </div>
-                    <div className="fw-semibold text-gray-900">
-                      {SUPPORT_PHONE}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* ======================= Middle Header End ========================= */}
-      {/* ==================== Header Start Here ==================== */}
-      <header
-        className={`header bg-white border-bottom border-gray-100 ${
-          scroll && "fixed-header"
-        }`}
-      >
-        <div className="container container-lg">
-          <nav className="header-inner d-flex justify-content-between gap-8">
-            <div className="flex-align menu-category-wrapper z-30">
-              {/* Material UI Category Dropdown Start */}
-              <MaterialCategoryDropdown />
-              {/* Material UI Category Dropdown End  */}
-            </div>
-            {/* Menu Start  */}
-            <div className="header-menu d-lg-block d-none">
-              {/* Nav Menu Start */}
-              <ul className="nav-menu flex-align ">
-                <li className="on-hover-item nav-menu__item has-submenu">
-                  <Link href="/" className="nav-menu__link">
-                    {tHeader("shop")}
-                  </Link>
-                  <ul className="on-hover-dropdown common-dropdown nav-submenu scroll-sm">
-                    <li className="common-dropdown__item nav-submenu__item">
-                      <Link
-                        href="/vendor-two?is_used=false"
-                        className="common-dropdown__link nav-submenu__link"
-                      >
-                        {tCategories("newBooks")}
-                      </Link>
-                    </li>
-                    <li className="common-dropdown__item nav-submenu__item">
-                      <Link
-                        href="/vendor-two?is_used=true"
-                        className="common-dropdown__link nav-submenu__link"
-                      >
-                        {tCategories("likeNewBooks")}
-                      </Link>
-                    </li>
-                    <li className="common-dropdown__item nav-submenu__item">
-                      <Link
-                        href="/vendor-two?type=gift"
-                        className="common-dropdown__link nav-submenu__link"
-                      >
-                        {tCategories("giftBooks")}
-                      </Link>
-                    </li>
-                  </ul>
-                </li>
-                <li className="nav-menu__item">
-                  <Link href="/vendor" className="nav-menu__link">
-                    {tHeader("shops")}
-                  </Link>
-                </li>
-                <li className="nav-menu__item">
-                  <Link href="/become-seller" className="nav-menu__link">
-                    {tHeader("becomeSeller")}
-                  </Link>
-                </li>
-                <li className="nav-menu__item">
-                  <Link href="/contact" className="nav-menu__link">
-                    {tHeader("contact")}
-                  </Link>
-                </li>
-              </ul>
-              {/* Nav Menu End */}
-            </div>
-            {/* Menu End  */}
-            {/* Right Side Start */}
-            <div className="header-right flex-align gap-16">
-              {/* Search Icon Start */}
-              <button
-                onClick={handleSearchToggle}
-                className="search-icon flex-align d-lg-none d-flex gap-4 item-hover"
-              >
-                <i className="ph ph-magnifying-glass text-2xl" />
               </button>
-              {/* Search Icon End */}
-              {/* Wishlist Icon Start */}
-              <Link
-                href="/wishlist"
-                className="wishlist-icon flex-align gap-4 item-hover position-relative"
-                style={{ position: "relative", display: "inline-flex" }}
-              >
-                <i
-                  className="ph ph-heart text-2xl"
-                  style={{ position: "relative", zIndex: 1 }}
-                />
-                <span
-                  className="wishlist-count bg-main-600 text-white rounded-circle flex-center position-absolute"
-                  style={{
-                    top: "-6px",
-                    right: "-8px",
-                    minWidth: "18px",
-                    height: "18px",
-                    fontSize: "10px",
-                    fontWeight: "700",
-                    padding: "0 5px",
-                    lineHeight: "1",
-                    border: "2px solid white",
-                    boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
-                    zIndex: 2,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  {likedBooksCount > 99 ? '99+' : likedBooksCount}
-                </span>
-              </Link>
-              {/* Wishlist Icon End */}
-              <LanguageSwitcher />
-              {/* User Icon Start */}
-              {isLoggedIn ? (
-                <div className="dropdown">
-                  <Link
-                    href="#"
-                    className="user-icon flex-align gap-4 item-hover dropdown-toggle"
-                    data-bs-toggle="dropdown"
-                  >
-                    <i className="ph ph-user text-2xl" />
-                    <span className="d-none d-sm-block">
-                      {tHeader("myAccount")}
-                    </span>
-                  </Link>
-                  <ul className="dropdown-menu">
-                    <li>
-                      <Link href="/account" className="dropdown-item">
-                        <i className="ph ph-user me-8"></i>
-                        {tHeader("profile")}
+
+              {profileOpen && (
+                <div className="kz-header__menu" role="menu">
+                  {isLoggedIn ? (
+                    <>
+                      <Link href="/account" className="kz-header__menu-item" role="menuitem">
+                        <i className="ph ph-user" />
+                        <span>{tHeader("profile")}</span>
                       </Link>
-                    </li>
-                    <li>
-                      <button onClick={handleLogout} className="dropdown-item">
-                        <i className="ph ph-sign-out me-8"></i>
-                        {tHeader("logout")}
+                      <Link href="/wishlist" className="kz-header__menu-item" role="menuitem">
+                        <i className="ph ph-heart" />
+                        <span>{tHeader("wishlist")}</span>
+                        {likedBooksCount > 0 && (
+                          <span className="kz-header__menu-count">
+                            {likedBooksCount > 99 ? "99+" : likedBooksCount}
+                          </span>
+                        )}
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={handleSellerClick}
+                        className="kz-header__menu-item"
+                        role="menuitem"
+                      >
+                        <i className="ph ph-storefront" />
+                        <span>{tHeader("becomeSeller")}</span>
                       </button>
-                    </li>
-                  </ul>
+                      <div className="kz-header__menu-divider" />
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="kz-header__menu-item kz-header__menu-item--danger"
+                        role="menuitem"
+                      >
+                        <i className="ph ph-sign-out" />
+                        <span>{tHeader("logout")}</span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/login" className="kz-header__menu-item" role="menuitem">
+                        <i className="ph ph-sign-in" />
+                        <span>{tHeader("login")}</span>
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={handleSellerClick}
+                        className="kz-header__menu-item"
+                        role="menuitem"
+                      >
+                        <i className="ph ph-storefront" />
+                        <span>{tHeader("becomeSeller")}</span>
+                      </button>
+                    </>
+                  )}
                 </div>
-              ) : (
-                <Link
-                  href="/login"
-                  className="user-icon flex-align gap-4 item-hover"
-                >
-                  <i className="ph ph-user text-2xl" />
-                  <span className="d-none d-sm-block">{tHeader("login")}</span>
-                </Link>
               )}
-              {/* User Icon End */}
-              {/* Mobile Menu Toggle Start */}
-              <button
-                onClick={handleMenuToggle}
-                className="mobile-menu-toggle d-lg-none d-flex flex-center"
-              >
-                <i className="ph ph-list text-2xl" />
-              </button>
-              {/* Mobile Menu Toggle End */}
             </div>
-            {/* Right Side End */}
-          </nav>
+          </div>
         </div>
       </header>
-      {/* ==================== Header End Here ==================== */}
 
+      {/* ─── Slide-in drawer (Telegram side menu) ──────────────── */}
+      {menuActive && <div className="kz-drawer-backdrop" onClick={() => setMenuActive(false)} />}
+      <aside
+        className={`kz-drawer ${menuActive ? "kz-drawer--open" : ""}`}
+        aria-hidden={!menuActive}
+      >
+        <div className="kz-drawer__head">
+          <Link
+            href="/"
+            onClick={() => setMenuActive(false)}
+            className="kz-drawer__logo"
+            aria-label="Kitobzor"
+          >
+            <span className="kz-drawer__logo-mark">
+              <Image src="/assets/images/logo/kitobzor-logo.png" alt="" width={32} height={32} />
+            </span>
+            <span>kitobzor</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => setMenuActive(false)}
+            className="kz-header__icon-btn"
+            aria-label="Close"
+          >
+            <i className="ph ph-x" />
+          </button>
+        </div>
+
+        <nav className="kz-drawer__nav" aria-label="Main menu">
+          {isLoggedIn ? (
+            <>
+              <Link
+                href="/account"
+                onClick={() => setMenuActive(false)}
+                className="kz-drawer__link"
+              >
+                <i className="ph ph-user-circle" />
+                <span>{tHeader("profile")}</span>
+              </Link>
+              <Link
+                href="/wishlist"
+                onClick={() => setMenuActive(false)}
+                className="kz-drawer__link"
+              >
+                <i className="ph ph-heart" />
+                <span>{tHeader("wishlist")}</span>
+                {likedBooksCount > 0 && (
+                  <span className="kz-header__menu-count">
+                    {likedBooksCount > 99 ? "99+" : likedBooksCount}
+                  </span>
+                )}
+              </Link>
+            </>
+          ) : (
+            <Link href="/login" onClick={() => setMenuActive(false)} className="kz-drawer__link">
+              <i className="ph ph-sign-in" />
+              <span>{tHeader("login")}</span>
+            </Link>
+          )}
+          <button type="button" onClick={handleSellerClick} className="kz-drawer__link">
+            <i className="ph ph-storefront" />
+            <span>{tHeader("becomeSeller")}</span>
+          </button>
+
+          <div className="kz-drawer__divider" />
+
+          <Link href="/about-us" onClick={() => setMenuActive(false)} className="kz-drawer__link">
+            <i className="ph ph-info" />
+            <span>{tHeader("aboutUs")}</span>
+          </Link>
+          <Link href="/contact" onClick={() => setMenuActive(false)} className="kz-drawer__link">
+            <i className="ph ph-chat-circle-text" />
+            <span>{tHeader("contact")}</span>
+          </Link>
+          <Link href="/faq" onClick={() => setMenuActive(false)} className="kz-drawer__link">
+            <i className="ph ph-question" />
+            <span>{tHeader("faq")}</span>
+          </Link>
+          <Link href="/policies" onClick={() => setMenuActive(false)} className="kz-drawer__link">
+            <i className="ph ph-shield-check" />
+            <span>{tHeader("privacy")}</span>
+          </Link>
+
+          <div className="kz-drawer__divider" />
+
+          {/* Settings group: theme + language inline like Telegram's
+              "Settings" expanded section. Mobile gets them here since the
+              header hides them <576px. */}
+          <div className="kz-drawer__section-label">{tHeader("settings")}</div>
+          <div className="kz-drawer__row">
+            <div className="kz-drawer__row-label">
+              <i className="ph ph-paint-brush" />
+              <span>{tHeader("appearance")}</span>
+            </div>
+            <ThemeToggle />
+          </div>
+          <div className="kz-drawer__row">
+            <div className="kz-drawer__row-label">
+              <i className="ph ph-globe" />
+              <span>{tHeader("language")}</span>
+            </div>
+            <LanguageSwitcher />
+          </div>
+
+          {isLoggedIn && (
+            <>
+              <div className="kz-drawer__divider" />
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="kz-drawer__link kz-drawer__link--danger"
+              >
+                <i className="ph ph-sign-out" />
+                <span>{tHeader("logout")}</span>
+              </button>
+            </>
+          )}
+        </nav>
+      </aside>
+
+      <style jsx>{`
+        .kz-header {
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          background: var(--surface-card, #fff);
+          border-bottom: 1px solid transparent;
+          transition:
+            box-shadow 0.18s ease,
+            border-color 0.18s ease;
+        }
+        .kz-header--scrolled {
+          border-bottom-color: var(--border-subtle, #e5e7eb);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+        }
+        .kz-header__inner {
+          max-width: 1240px;
+          margin: 0 auto;
+          padding: 0 8px;
+          height: 56px;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+        @media (min-width: 576px) {
+          .kz-header__inner {
+            padding: 0 12px;
+            gap: 8px;
+            height: 60px;
+          }
+        }
+        @media (min-width: 992px) {
+          .kz-header__inner {
+            padding: 0 24px;
+            gap: 14px;
+            height: 64px;
+          }
+        }
+
+        /* :global so the rules survive next-intl Link not forwarding the
+           styled-jsx scope class. */
+        :global(.kz-header__logo),
+        :global(.kz-header__logo):hover,
+        :global(.kz-header__logo):focus,
+        :global(.kz-header__logo):visited {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          flex: 0 1 auto;
+          min-width: 0;
+          text-decoration: none;
+          color: var(--text-primary, #111827);
+        }
+        :global(.kz-header__logo-mark) {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          overflow: hidden;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: #e7f1ea;
+          flex-shrink: 0;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+        }
+        :global(.kz-header__logo-mark img) {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        :global(.kz-header__logo-text) {
+          font-size: 16px;
+          font-weight: 800;
+          letter-spacing: -0.02em;
+          line-height: 1;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          color: var(--text-primary, #111827);
+        }
+        /* Hide wordmark on the tightest phones so the right cluster
+           always fits. The logo mark itself stays. */
+        @media (max-width: 419px) {
+          :global(.kz-header__logo-text) {
+            display: none;
+          }
+        }
+        @media (min-width: 576px) {
+          :global(.kz-header__logo-mark) {
+            width: 36px;
+            height: 36px;
+          }
+          :global(.kz-header__logo-text) {
+            font-size: 18px;
+          }
+        }
+        @media (min-width: 992px) {
+          :global(.kz-header__logo) {
+            gap: 10px;
+          }
+          :global(.kz-header__logo-mark) {
+            width: 40px;
+            height: 40px;
+          }
+          :global(.kz-header__logo-text) {
+            font-size: 19px;
+          }
+        }
+
+        .kz-header__right {
+          margin-left: auto;
+          display: inline-flex;
+          align-items: center;
+          gap: 0;
+          flex-shrink: 0;
+        }
+        @media (min-width: 576px) {
+          .kz-header__right {
+            gap: 2px;
+          }
+        }
+        @media (min-width: 992px) {
+          .kz-header__right {
+            gap: 6px;
+          }
+        }
+
+        .kz-header__icon-btn {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          border: none;
+          background: transparent;
+          color: var(--text-primary, #111827);
+          font-size: 20px;
+          line-height: 1;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: background 0.15s ease;
+          flex-shrink: 0;
+        }
+        @media (min-width: 576px) {
+          .kz-header__icon-btn {
+            width: 40px;
+            height: 40px;
+            font-size: 22px;
+          }
+        }
+        .kz-header__icon-btn:hover {
+          background: var(--surface-muted, #f3f4f6);
+        }
+        .kz-header__icon-btn:focus-visible {
+          outline: 2px solid var(--main-600, hsl(148, 59%, 39%));
+          outline-offset: 2px;
+        }
+
+        .kz-header__profile {
+          position: relative;
+        }
+        .kz-header__avatar {
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          border: 1.5px solid var(--border-subtle, #e5e7eb);
+          background: var(--surface-page, #fff);
+          color: var(--text-secondary, #4b5563);
+          font-size: 16px;
+          line-height: 1;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          margin-left: 2px;
+          transition:
+            background 0.15s ease,
+            color 0.15s ease,
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+        }
+        @media (min-width: 576px) {
+          .kz-header__avatar {
+            width: 36px;
+            height: 36px;
+            font-size: 18px;
+            margin-left: 4px;
+          }
+        }
+        .kz-header__avatar:hover {
+          background: var(--surface-muted, #f3f4f6);
+          border-color: var(--text-secondary, #4b5563);
+        }
+        .kz-header__avatar:focus-visible {
+          outline: 2px solid var(--main-600, hsl(148, 59%, 39%));
+          outline-offset: 2px;
+        }
+        .kz-header__avatar--auth {
+          background: linear-gradient(135deg, hsl(148, 59%, 45%) 0%, hsl(148, 59%, 32%) 100%);
+          color: #fff;
+          border-color: transparent;
+          box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
+        }
+        .kz-header__avatar--auth:hover {
+          background: linear-gradient(135deg, hsl(148, 59%, 48%) 0%, hsl(148, 59%, 35%) 100%);
+          color: #fff;
+        }
+        .kz-header__profile-dot {
+          position: absolute;
+          top: -2px;
+          right: -2px;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: #ef4444;
+          border: 2px solid var(--surface-page, #fff);
+        }
+
+        .kz-header__menu {
+          position: absolute;
+          top: calc(100% + 6px);
+          right: 0;
+          min-width: 220px;
+          background: var(--surface-card, #fff);
+          border: 1px solid var(--border-subtle, #e5e7eb);
+          border-radius: 12px;
+          box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+          padding: 6px;
+          z-index: 110;
+        }
+        :global(.kz-header__menu-item),
+        :global(.kz-header__menu-item):hover,
+        :global(.kz-header__menu-item):focus,
+        :global(.kz-header__menu-item):visited {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          width: 100%;
+          padding: 10px 12px;
+          border-radius: 8px;
+          color: var(--text-primary, #111827);
+          font-size: 14px;
+          font-weight: 600;
+          text-decoration: none;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          text-align: left;
+        }
+        :global(.kz-header__menu-item i) {
+          font-size: 18px;
+          color: var(--text-secondary, #4b5563);
+          flex-shrink: 0;
+        }
+        :global(.kz-header__menu-item):hover {
+          background: var(--surface-muted, #f3f4f6);
+        }
+        :global(.kz-header__menu-item--danger),
+        :global(.kz-header__menu-item--danger):hover {
+          color: #dc2626;
+        }
+        :global(.kz-header__menu-item--danger i) {
+          color: #dc2626;
+        }
+        .kz-header__menu-divider {
+          height: 1px;
+          background: var(--border-subtle, #e5e7eb);
+          margin: 6px 4px;
+        }
+        .kz-header__menu-count {
+          margin-left: auto;
+          min-width: 22px;
+          height: 20px;
+          padding: 0 6px;
+          border-radius: 999px;
+          background: var(--main-600, hsl(148, 59%, 39%));
+          color: #fff;
+          font-size: 11px;
+          font-weight: 700;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        /* ─── Drawer ───────────────────────────────────────────── */
+        .kz-drawer {
+          position: fixed;
+          top: 0;
+          left: 0;
+          height: 100dvh;
+          width: min(86vw, 320px);
+          background: var(--surface-card, #fff);
+          z-index: 200;
+          transform: translateX(-100%);
+          transition: transform 0.22s ease;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 6px 0 24px rgba(0, 0, 0, 0.12);
+        }
+        .kz-drawer--open {
+          transform: translateX(0);
+        }
+        .kz-drawer-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.45);
+          z-index: 199;
+          backdrop-filter: blur(2px);
+        }
+        .kz-drawer__head {
+          padding: 12px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid var(--border-subtle, #e5e7eb);
+        }
+        :global(.kz-drawer__logo),
+        :global(.kz-drawer__logo):hover,
+        :global(.kz-drawer__logo):visited {
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          text-decoration: none;
+          color: var(--text-primary, #111827);
+          font-weight: 800;
+          font-size: 17px;
+          letter-spacing: -0.02em;
+        }
+        :global(.kz-drawer__logo-mark) {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          overflow: hidden;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: #e7f1ea;
+        }
+        :global(.kz-drawer__logo-mark img) {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        .kz-drawer__nav {
+          flex: 1;
+          padding: 8px;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        :global(.kz-drawer__link),
+        :global(.kz-drawer__link):hover,
+        :global(.kz-drawer__link):focus,
+        :global(.kz-drawer__link):visited {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          padding: 12px 14px;
+          border-radius: 10px;
+          color: var(--text-primary, #111827);
+          font-size: 15px;
+          font-weight: 600;
+          text-decoration: none;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          text-align: left;
+          width: 100%;
+        }
+        :global(.kz-drawer__link i) {
+          font-size: 22px;
+          color: var(--text-secondary, #4b5563);
+          flex-shrink: 0;
+        }
+        :global(.kz-drawer__link):hover {
+          background: var(--surface-muted, #f3f4f6);
+        }
+        :global(.kz-drawer__link--danger),
+        :global(.kz-drawer__link--danger):hover {
+          color: #dc2626;
+        }
+        :global(.kz-drawer__link--danger i) {
+          color: #dc2626;
+        }
+        .kz-drawer__divider {
+          height: 1px;
+          background: var(--border-subtle, #e5e7eb);
+          margin: 8px 4px;
+        }
+        .kz-drawer__section-label {
+          font-size: 11px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: var(--text-muted, #6b7280);
+          padding: 8px 14px 4px;
+        }
+        .kz-drawer__row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 6px 14px;
+          gap: 12px;
+        }
+        .kz-drawer__row-label {
+          display: inline-flex;
+          align-items: center;
+          gap: 14px;
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--text-primary, #111827);
+        }
+        .kz-drawer__row-label :global(i) {
+          font-size: 20px;
+          color: var(--text-secondary, #4b5563);
+        }
+      `}</style>
     </>
   );
 };

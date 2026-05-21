@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
@@ -6,15 +7,110 @@ import RouteScrollToTop from "@/helper/RouteScrollToTop";
 import "./font.css";
 import "./globals.scss";
 import "./performance.css";
+// Phosphor icons — self-hosted from node_modules (H-12). The package's
+// `exports` field maps `/regular` and `/fill` directly to the CSS, so
+// webpack resolves them and inlines the woff font references at build
+// time. No runtime CDN dependency.
+import "@phosphor-icons/web/regular";
+import "@phosphor-icons/web/fill";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import Preloader from "@/helper/Preloader";
 import ConditionalHeader from "@/components/ConditionalHeader";
+import MaterialThemeProvider from "@/components/MaterialThemeProvider";
+import { themeBootstrapScript } from "@/lib/theme";
+import { initSentryClient } from "@/lib/sentry";
+import { getSiteUrl } from "@/config/env";
+import JsonLd from "@/components/seo/JsonLd";
+import { organizationLd, webSiteLd } from "@/lib/seo/jsonLd";
 
-export const metadata = {
-  title: "Kitobzor - Online Book Store",
-  description:
-    "Kitobzor - Online Book Store - A versatile and meticulously designed set of templates crafted to elevate your Digital Products Marketplace content and experiences.",
+// Defer below-the-fold layout widgets so their JS isn't in the layout
+// chunk that ships on every navigation:
+//   * AnonymousLoginNudge waits 60s before doing anything anyway.
+//   * AuthRequiredModal only mounts in response to an `auth:required` event.
+// (We don't pass `ssr: false` — Next 15 forbids it inside Server Components.
+// These already declare "use client", so SSR just renders empty shells;
+// the win is purely code-splitting the chunk out of the initial layout.)
+const AnonymousLoginNudge = dynamic(() => import("@/components/AnonymousLoginNudge"), {
+  loading: () => null,
+});
+const AuthRequiredModal = dynamic(() => import("@/components/auth/AuthRequiredModal"), {
+  loading: () => null,
+});
+// SellerRegistrationModal mount point — listens for the global
+// "seller-modal:open" event dispatched by every "Kitob do'kon ochish" CTA
+// on the site. The form chunk itself is dynamic'd inside SellerModalMount,
+// so it isn't fetched until the user actually opens the modal.
+const SellerModalMount = dynamic(() => import("@/components/SellerModalMount"), {
+  loading: () => null,
+});
+// Floating "post a book" button (Telegram-style new-chat FAB) + its modal
+// mount-point. The button lives in the layout so it persists across page
+// transitions and dispatches an event the mount-point listens for.
+const PostBookFab = dynamic(() => import("@/components/PostBookFab"), {
+  loading: () => null,
+});
+const PostBookMount = dynamic(() => import("@/components/PostBookMount"), {
+  loading: () => null,
+});
+// Global share sheet — mounted at the layout root so any component can
+// dispatch `share-sheet:open` and get a Telegram/WhatsApp/SMS picker.
+const ShareSheetMount = dynamic(() => import("@/components/ShareSheetMount"), {
+  loading: () => null,
+});
+
+if (typeof window !== "undefined") {
+  initSentryClient();
+}
+
+// metadataBase makes relative OG/Twitter image URLs resolve against our
+// public origin. Without it, Telegram/Facebook scrapers see a relative
+// path and skip the rich preview card — defeating the point of shared
+// links. Set via NEXT_PUBLIC_SITE_URL in production deployments.
+//
+// Note: `metadata` is the default per-page export. generateMetadata in
+// individual pages must spread `alternates.languages` themselves —
+// Next.js does NOT inherit from the parent because alternates are
+// page-specific. The root values here only apply when a page renders
+// without its own generateMetadata.
+const SITE_URL = getSiteUrl();
+const HREFLANG_MAP = {
+  uz: `${SITE_URL}/uz`,
+  ru: `${SITE_URL}/ru`,
+  en: `${SITE_URL}/en`,
+  "x-default": `${SITE_URL}/uz`,
 };
+
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: "Kitobzor — kitoblar marketplace'i",
+      template: "%s | Kitobzor",
+    },
+    description:
+      locale === "ru"
+        ? "Kitobzor — маркетплейс книг в Узбекистане. Покупайте, продавайте, обменивайте и дарите книги."
+        : locale === "en"
+          ? "Kitobzor — Uzbekistan's book marketplace. Buy, sell, exchange or gift new and used books."
+          : "Kitobzor — O'zbekistondagi kitoblar marketplace'i. Yangi va o'qilgan kitoblarni sotib oling, sotvering, sovg'a qiling yoki almashtiring.",
+    openGraph: {
+      siteName: "Kitobzor",
+      type: "website",
+      locale: locale === "ru" ? "ru_RU" : locale === "en" ? "en_US" : "uz_UZ",
+      alternateLocale: ["uz_UZ", "ru_RU", "en_US"].filter(
+        (l) => l !== (locale === "ru" ? "ru_RU" : locale === "en" ? "en_US" : "uz_UZ"),
+      ),
+      images: [{ url: "/assets/images/logo/kitobzor-logo.png", alt: "Kitobzor" }],
+    },
+    icons: {
+      icon: "/favicon.ico",
+    },
+    alternates: {
+      canonical: `${SITE_URL}/${locale}`,
+      languages: HREFLANG_MAP,
+    },
+  };
+}
 
 export default async function RootLayout({ children, params }) {
   const { locale } = await params;
@@ -28,33 +124,38 @@ export default async function RootLayout({ children, params }) {
   return (
     <html lang={locale}>
       <head>
+        {/* Site-wide JSON-LD: Organization + WebSite (search-box).
+            Page-level Book/BreadcrumbList/FAQPage schemas are injected
+            from the individual page components. */}
+        <JsonLd data={[organizationLd({ locale }), webSiteLd({ locale })]} />
+        {/* eslint-disable-next-line no-restricted-syntax -- static bootstrap, no user input; runs BEFORE hydration to prevent light/dark flash */}
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://api.kitobzor.uz" />
-        <link rel="preconnect" href="https://unpkg.com" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" crossOrigin="anonymous" />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=5"
-        />
+        {/* Phosphor icon sheets are now self-hosted via webpack CSS imports
+            in this file's top-level imports (H-12). No CDN trust required;
+            CSP no longer needs to whitelist unpkg.com. */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       </head>
       <body suppressHydrationWarning={true}>
         <NextIntlClientProvider locale={locale} messages={messages}>
-            <Preloader />
+          <MaterialThemeProvider>
             <BootstrapInit />
             <RouteScrollToTop />
             <ProtectedRoute locale={locale}>
               <ConditionalHeader />
               {children}
+              <AnonymousLoginNudge />
+              <AuthRequiredModal />
+              <SellerModalMount />
+              <PostBookFab />
+              <PostBookMount />
+              <ShareSheetMount />
             </ProtectedRoute>
+          </MaterialThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>
   );
 }
-

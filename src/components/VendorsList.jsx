@@ -1,11 +1,12 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { getShops } from "@/services/shops";
 import { getRegions } from "@/services/regions";
+import { resolveMediaUrl } from "@/utils/mediaUrl";
 import Spin from "./Spin";
-import { useTranslations } from "next-intl";
 
 const VendorsList = () => {
   const searchParams = useSearchParams();
@@ -17,7 +18,12 @@ const VendorsList = () => {
   const [inputValue, setInputValue] = useState("");
   const debounceTimerRef = useRef(null);
   const regionsLoadedRef = useRef(false);
-  const tBread = useTranslations("Breadcrumb")
+  // We need to know "is this the very first fetch?" without putting it in
+  // the effect deps — otherwise the effect re-runs when the boolean flips,
+  // causing a duplicate fetch. A ref carries the flag across renders
+  // without triggering a re-render itself.
+  const firstFetchRef = useRef(true);
+  const tBread = useTranslations("Breadcrumb");
   const [filters, setFilters] = useState({
     region: "",
     district: "",
@@ -83,24 +89,16 @@ const VendorsList = () => {
     }
   }, []);
 
-  // Fetch shops data
+  // Fetch shops data. First fetch shows the full-page spinner; subsequent
+  // fetches (filter/search/page change) show the inline "searching" state.
   useEffect(() => {
     const fetchShops = async () => {
       try {
-        // Show loading only for search/filter changes, not initial load
-        if (initialLoading) {
+        if (firstFetchRef.current) {
           setInitialLoading(true);
         } else {
           setSearchLoading(true);
         }
-
-        console.log("🔄 Fetching shops with params:", {
-          q: searchQuery,
-          region: filters.region,
-          district: filters.district,
-          page: currentPage,
-          limit: 12,
-        });
 
         const shopsRes = await getShops({
           q: searchQuery,
@@ -110,21 +108,14 @@ const VendorsList = () => {
           limit: 12,
         });
 
-        console.log("📦 Shops response:", shopsRes);
-
-        // Debug: Check if shops data exists
-        console.log("🔍 Shops data check:", {
-          hasShops: !!shopsRes.shops,
-          shopsLength: shopsRes.shops?.length || 0,
-          shopsType: typeof shopsRes.shops,
-          rawData: shopsRes.raw,
-        });
-
         setShops(shopsRes.shops || []);
         setTotalCount(shopsRes.count || 0);
-      } catch (err) {
-        console.error("❌ Ma'lumotlarni yuklashda xatolik:", err);
+      } catch {
+        // Non-critical for the UI — the list just stays empty and the
+        // user can retry by adjusting filters. Surface to Sentry via the
+        // axios interceptor, no need to log here.
       } finally {
+        firstFetchRef.current = false;
         setInitialLoading(false);
         setSearchLoading(false);
       }
@@ -158,8 +149,8 @@ const VendorsList = () => {
       <section className="vendors-list py-80">
         <div className="container container-lg">
           <div className="text-center py-80">
-            <Spin text="Ma'lumotlar yuklanmoqda..." />
-            <p className="mt-16">Ma'lumotlar yuklanmoqda...</p>
+            <Spin text={tBread("loading")} />
+            <p className="mt-16">{tBread("loading")}</p>
           </div>
         </div>
       </section>
@@ -174,7 +165,7 @@ const VendorsList = () => {
             {totalCount > 0
               ? `Showing ${(currentPage - 1) * 12 + 1}-${Math.min(
                   currentPage * 12,
-                  totalCount
+                  totalCount,
                 )} of ${totalCount} results`
               : "No shops found"}
           </span>
@@ -233,23 +224,20 @@ const VendorsList = () => {
             </select>
           </div>
           <div className="col-lg-2 col-md-6 mb-16">
-            <button
-              onClick={clearFilters}
-              className="btn btn-outline-secondary w-100"
-            >
+            <button onClick={clearFilters} className="btn btn-outline-secondary w-100">
               Tozalash
             </button>
           </div>
         </div>
         <div className="row gy-4 vendor-card-wrapper position-relative">
           {searchLoading && (
-            <div 
-              className="position-absolute top-0 start-0 w-100 d-flex align-items-center justify-content-center" 
-              style={{ 
-                zIndex: 10, 
-                minHeight: '400px',
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(2px)'
+            <div
+              className="position-absolute top-0 start-0 w-100 d-flex align-items-center justify-content-center"
+              style={{
+                zIndex: 10,
+                minHeight: "400px",
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                backdropFilter: "blur(2px)",
               }}
             >
               <div className="text-center">
@@ -264,11 +252,10 @@ const VendorsList = () => {
                 <div className="vendor-card text-center px-16 pb-24">
                   <div className="">
                     <img
-                      src={
-                        shop.picture ||
-                        shop.logo ||
-                        "/assets/images/thumbs/vendor-logo1.png"
-                      }
+                      src={resolveMediaUrl(
+                        shop.picture || shop.logo,
+                        "/assets/images/thumbs/vendor-logo1.png",
+                      )}
                       alt={shop.name}
                       className="vendor-card__logo m-12"
                       style={{
@@ -279,18 +266,13 @@ const VendorsList = () => {
                       }}
                     />
                     <h6 className="title mt-32">
-                      <Link
-                        href={`/vendor-two-details?id=${shop.id}`}
-                        className=""
-                      >
+                      <Link href={`/shops/${shop.id}`} className="">
                         {shop.name}
                       </Link>
                     </h6>
 
                     {/* Product Count */}
-                    <span className="text-heading text-sm d-block">
-                      {shop.book_count} mahsulot
-                    </span>
+                    <span className="text-heading text-sm d-block">{shop.book_count} mahsulot</span>
 
                     {/* Location */}
                     {(shop.region || shop.district) && (
@@ -317,7 +299,7 @@ const VendorsList = () => {
                     )}
 
                     <Link
-                      href={`/vendor-two-details?id=${shop.id}`}
+                      href={`/shops/${shop.id}`}
                       className="bg-white text-neutral-600 hover-bg-main-600 hover-text-white rounded-pill py-6 px-16 text-12 mt-8 inline-block"
                     >
                       {tBread("exploreShop")}
@@ -330,11 +312,8 @@ const VendorsList = () => {
             <div className="col-12 text-center py-80">
               <div className="text-gray-500">
                 <i className="ph ph-store text-6xl mb-16"></i>
-                <h5 className="mb-8">Hech qanday do'kon topilmadi</h5>
-                <p>
-                  Qidiruv mezonlarini o'zgartiring yoki barcha filtrlarni
-                  tozalang
-                </p>
+                <h5 className="mb-8">{tBread("noShopsFound")}</h5>
+                <p>{tBread("adjustFilters")}</p>
               </div>
             </div>
           )}
@@ -350,14 +329,8 @@ const VendorsList = () => {
                 <i className="ph ph-arrow-left" />
               </button>
             </li>
-            {Array.from(
-              { length: Math.ceil(totalCount / 12) },
-              (_, i) => i + 1
-            ).map((page) => (
-              <li
-                key={page}
-                className={`page-item ${currentPage === page ? "active" : ""}`}
-              >
+            {Array.from({ length: Math.ceil(totalCount / 12) }, (_, i) => i + 1).map((page) => (
+              <li key={page} className={`page-item ${currentPage === page ? "active" : ""}`}>
                 <button
                   className="page-link h-64 w-64 flex-center text-md rounded-circle fw-medium text-neutral-600 border border-gray-100"
                   onClick={() => setCurrentPage(page)}
@@ -370,9 +343,7 @@ const VendorsList = () => {
               <button
                 className="page-link h-64 w-64 flex-center text-xxl rounded-circle fw-medium text-neutral-600 border border-gray-100"
                 onClick={() =>
-                  setCurrentPage((prev) =>
-                    Math.min(Math.ceil(totalCount / 12), prev + 1)
-                  )
+                  setCurrentPage((prev) => Math.min(Math.ceil(totalCount / 12), prev + 1))
                 }
                 disabled={currentPage >= Math.ceil(totalCount / 12)}
               >

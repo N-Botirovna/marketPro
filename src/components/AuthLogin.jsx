@@ -1,106 +1,91 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { loginWithPhoneOtp } from "@/services/auth";
-import Spin from "./Spin";
-import { useToast } from "./Toast";
+import { useSearchParams } from "next/navigation";
+import { loginWithCode } from "@/services/auth";
+import { getBotUsername, getBotUrl } from "@/config/env";
 import { useRouter } from "@/i18n/navigation";
+import { mapValidationError } from "@/lib/mapValidationError";
+import Spin from "./Spin";
+import FieldError from "./FieldError";
+import { useToast } from "./Toast";
+
+const CODE_LENGTH = 6;
+
+function sanitizeNextPath(raw) {
+  if (typeof raw !== "string") return null;
+  if (!raw.startsWith("/") || raw.startsWith("//")) return null;
+  if (/^\/[^/]+\/login(\?|$|\/)/.test(raw)) return null;
+  return raw;
+}
 
 const AuthLogin = () => {
   const tAuth = useTranslations("Auth");
-  const tForms = useTranslations("Forms");
-  const tCommon = useTranslations("Common");
   const tErrors = useTranslations("Errors");
-  const tButtons = useTranslations("Buttons");
+  const tCommon = useTranslations("Common");
   const tAccount = useTranslations("Account");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextParam = sanitizeNextPath(searchParams?.get("next"));
   const { showToast, ToastContainer } = useToast();
-  const [phoneNumber, setPhoneNumber] = useState("+998");
-  const [password, setPassword] = useState("");
+
+  const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fieldError, setFieldError] = useState("");
+  const inputRef = useRef(null);
+  // Resolve the bot identity once per mount — env access is cheap but the
+  // memo keeps the JSX read-site obviously stable.
+  const botUsername = useMemo(() => getBotUsername(), []);
+  const botUrl = useMemo(() => getBotUrl(), []);
 
-  const validatePhoneNumber = (phone) => {
-    // Xalqaro telefon raqam formatini tekshiramiz
-    // + bilan boshlanadi va kamida 10 ta raqam bo'lishi kerak
-    const phoneRegex = /^\+[1-9][0-9]{9,14}$/;
-    return phoneRegex.test(phone);
+  useEffect(() => {
+    // Auto-focus the input so the user can paste/type without an extra tap.
+    inputRef.current?.focus();
+  }, []);
+
+  const handleChange = (event) => {
+    // Keep only digits, cap at CODE_LENGTH. This lets the browser's OTP
+    // autofill (autocomplete="one-time-code") drop the whole code in at
+    // once on iOS/Android.
+    const cleaned = event.target.value.replace(/\D/g, "").slice(0, CODE_LENGTH);
+    setCode(cleaned);
+    if (fieldError) setFieldError("");
+    if (error) setError("");
   };
 
-  const handlePhoneChange = (e) => {
-    let value = e.target.value;
-    
-    // Agar bo'sh bo'lsa, +998 ni qaytaramiz
-    if (!value || value.trim() === "") {
-      setPhoneNumber("+998");
-      return;
-    }
-    
-    // Faqat + va raqamlarni qoldiramiz
-    let cleaned = value.replace(/[^+0-9]/g, "");
-    
-    // Agar + bilan boshlanmasa, + qo'shamiz
-    if (!cleaned.startsWith("+")) {
-      cleaned = "+" + cleaned;
-    }
-    
-    // + dan keyin faqat raqamlar bo'lishi kerak
-    if (cleaned === "+") {
-      setPhoneNumber("+");
-    } else {
-      const afterPlus = cleaned.substring(1);
-      // + dan keyin faqat raqamlar bo'lishi kerak va maksimal 15 ta raqam
-      const digits = afterPlus.replace(/[^0-9]/g, "").substring(0, 15);
-      setPhoneNumber("+" + digits);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setError("");
+    setFieldError("");
 
-    if (!phoneNumber || !password) {
-      setError(tCommon("fillAllFields"));
-      return;
-    }
-
-    if (!validatePhoneNumber(phoneNumber)) {
-      setError(tAuth("invalidPhone") || "Iltimos, to'g'ri xalqaro telefon raqam kiriting (masalan: +998901234567)");
-      return;
-    }
-
-    if (password.length < 6) {
-      setError(tErrors("passwordMin"));
+    if (code.length !== CODE_LENGTH) {
+      setFieldError(tAuth("codeMin"));
       return;
     }
 
     setLoading(true);
     try {
-      const res = await loginWithPhoneOtp({
-        phone_number: phoneNumber,
-        otp_code: password,
-      });
-
-      if (res.access_token || res.token) {
+      const res = await loginWithCode(code);
+      if (res.access_token) {
         showToast({
           type: "success",
           title: tCommon("success"),
           message: tAuth("loginSuccess"),
-          duration: 2000,
+          duration: 1500,
         });
-        setTimeout(() => {
-          router.push("/");
-        }, 2000);
+        setTimeout(() => router.push(nextParam || "/"), 800);
       } else {
         setError(tErrors("checkPassword"));
       }
     } catch (err) {
-      console.error("Login error:", err);
-      const message =
-        err?.normalized?.message ||
-        err?.response?.data?.message ||
-        tErrors("loginFailed");
-      setError(message);
+      const mapped = mapValidationError(err);
+      const fieldMsg = mapped.fields?.otp_code || mapped.fields?.code;
+      if (fieldMsg) {
+        setFieldError(fieldMsg);
+      } else {
+        setError(mapped.general || tErrors("loginFailed"));
+      }
     } finally {
       setLoading(false);
     }
@@ -108,217 +93,105 @@ const AuthLogin = () => {
 
   return (
     <>
-      <style jsx>{`
-        .telegram-section {
-          background: linear-gradient(135deg, #0088cc 0%, #229ed9 100%);
-          border-radius: 10px;
-          padding: 18px;
-          margin-bottom: 18px;
-        }
-
-        .telegram-icon {
-          width: 38px;
-          height: 38px;
-          background: white;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 10px;
-          box-shadow: 0 3px 10px rgba(0, 136, 204, 0.3);
-        }
-
-        .telegram-button {
-          background: white;
-          color: #0088cc;
-          border: 2px solid white;
-          border-radius: 7px;
-          padding: 9px 18px;
-          font-weight: 600;
-          text-decoration: none;
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          transition: all 0.3s ease;
-          font-size: 14px;
-        }
-
-        .telegram-button:hover {
-          background: #0088cc;
-          color: white;
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(0, 136, 204, 0.4);
-        }
-
-        .form-container {
-          background: white;
-          border-radius: 16px;
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-          border: 1px solid #e5e7eb;
-          transition: all 0.3s ease;
-        }
-
-        .form-container:hover {
-          border-color: #fa6400;
-          box-shadow: 0 15px 50px rgba(250, 100, 0, 0.15);
-        }
-
-        .welcome-title {
-          background: linear-gradient(135deg, #fa6400 0%, #ff8c00 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-      `}</style>
       <section
         className="account"
         style={{
           minHeight: "90vh",
           display: "flex",
           alignItems: "center",
-          paddingTop: "40px",
-          paddingBottom: "40px",
+          padding: "32px 12px",
         }}
       >
         <div className="container container-lg">
           <div className="row justify-content-center">
-            <div className="col-xl-4 col-lg-5 col-md-7 col-sm-9">
-              <div className="text-center mb-28">
-                <h2
-                  className="fw-bold mb-12 welcome-title"
-                  style={{ fontSize: "1.75rem" }}
+            <div className="col-xl-4 col-lg-5 col-md-7 col-sm-10 col-12">
+              <form
+                onSubmit={handleSubmit}
+                style={{
+                  background: "#fff",
+                  borderRadius: 16,
+                  boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
+                  border: "1px solid #eef0f3",
+                  padding: "28px 24px",
+                }}
+              >
+                <div className="text-center mb-24">
+                  <h1 className="fw-bold mb-8" style={{ fontSize: "1.4rem", lineHeight: 1.2 }}>
+                    {tAuth("codeOnlyTitle")}
+                  </h1>
+                  <p className="text-gray-600 mb-0" style={{ fontSize: "0.92rem" }}>
+                    {tAuth("codeOnlyDescription", { bot: `@${botUsername}` })}
+                  </p>
+                </div>
+
+                <label
+                  htmlFor="otp-code"
+                  className="text-neutral-900 mb-8 fw-medium d-block"
+                  style={{ fontSize: "0.92rem" }}
                 >
-                  {tAuth("welcome")}
-                </h2>
-                <p className="text-gray-600" style={{ fontSize: "0.95rem" }}>
-                  {tAuth("fillInfo")}
-                </p>
-              </div>
+                  {tAuth("codeLabel")}
+                </label>
+                <input
+                  ref={inputRef}
+                  id="otp-code"
+                  name="otp"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="\d{6}"
+                  autoComplete="one-time-code"
+                  enterKeyHint="go"
+                  placeholder={tAuth("codePlaceholder")}
+                  value={code}
+                  onChange={handleChange}
+                  maxLength={CODE_LENGTH}
+                  className="common-input"
+                  style={{
+                    textAlign: "center",
+                    fontSize: "1.6rem",
+                    letterSpacing: "0.5em",
+                    padding: "14px 12px 14px 18px",
+                    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                  }}
+                  aria-describedby="otp-hint"
+                />
+                <small
+                  id="otp-hint"
+                  className="text-gray-500 mt-8 d-block text-center"
+                  style={{ fontSize: "0.78rem" }}
+                >
+                  {tAuth("codeHint")}
+                </small>
+                <FieldError message={fieldError} />
 
-              <form onSubmit={handleSubmit}>
-                <div className="form-container px-24 py-28">
-                  <div className="text-center mb-20">
-                    <div className="telegram-section">
-                      <div className="telegram-icon">
-                        <i className="ph ph-telegram-logo text-lg text-blue-600"></i>
-                      </div>
-                      <h6
-                        className="text-white fw-bold mb-6"
-                        style={{ fontSize: "1rem" }}
-                      >
-                        @kitobzoruz_bot
-                      </h6>
-                      <p
-                        className="text-white mb-10 opacity-90"
-                        style={{ fontSize: "13px" }}
-                      >
-                        {tAuth("getPasswordFromBot")}
-                      </p>
-                      <a
-                        href="https://t.me/kitobzoruz_bot"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="telegram-button"
-                      >
-                        <i className="ph ph-telegram-logo"></i>
-                        {tButtons("goToBot")}
-                      </a>
-                    </div>
+                {error && (
+                  <div
+                    className="alert alert-danger d-flex align-items-center gap-6 mt-16 mb-0"
+                    style={{ padding: "10px 14px", fontSize: "0.88rem" }}
+                  >
+                    <i className="ph ph-warning" aria-hidden="true" />
+                    <span>{error}</span>
                   </div>
-                  <div className="mb-18">
-                    <label
-                      htmlFor="phone"
-                      className="text-neutral-900 mb-6 fw-medium d-block"
-                      style={{ fontSize: "0.95rem" }}
-                    >
-                      {tForms("phone")} <span className="text-danger">*</span>
-                    </label>
-                    <div style={{ position: "relative" }}>
-                      <input
-                        type="tel"
-                        className="common-input"
-                        id="phone"
-                        name="phone"
-                        placeholder="+998901234567"
-                        value={phoneNumber}
-                        onChange={handlePhoneChange}
-                        required
-                        autoComplete="tel"
-                        maxLength={16}
-                        inputMode="tel"
-                        style={{
-                          padding: "12px 16px",
-                          fontSize: "14px",
-                        }}
-                      />
-                      <small
-                        className="text-gray-500 mt-6 d-block"
-                        style={{ fontSize: "12px" }}
-                      >
-                        {tAuth("phoneHint")}
-                      </small>
-                    </div>
-                  </div>
+                )}
 
-                  <div className="mb-18">
-                    <label
-                      htmlFor="password"
-                      className="text-neutral-900 mb-6 fw-medium d-block"
-                      style={{ fontSize: "0.95rem" }}
-                    >
-                      {tForms("password")} <span className="text-danger">*</span>
-                    </label>
-                    <input
-                      type="password"
-                      className="common-input"
-                      id="password"
-                      name="password"
-                      autoComplete="off"
-                      placeholder={tForms("passwordPlaceholder")}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      style={{ padding: "12px 16px", fontSize: "14px" }}
-                    />
-                    <small
-                      className="text-gray-500 mt-6 d-block"
-                      style={{ fontSize: "13px" }}
-                    >
-                      {tAuth("enterPasswordFromBot")}
-                    </small>
-                  </div>
-                  {error && (
-                    <div className="mb-18">
-                      <div
-                        className="alert alert-danger d-flex align-items-center gap-6"
-                        style={{ padding: "12px 16px" }}
-                      >
-                        <i
-                          className="ph ph-warning"
-                          style={{ fontSize: "1rem" }}
-                        ></i>
-                        <span style={{ fontSize: "14px" }}>{error}</span>
-                      </div>
-                    </div>
-                  )}
+                <button
+                  type="submit"
+                  className="btn btn-main w-100 mt-20"
+                  style={{ padding: "14px 24px", fontSize: "0.98rem" }}
+                  disabled={loading || code.length !== CODE_LENGTH}
+                >
+                  {loading ? <Spin size="sm" text={tAuth("loggingIn") || ""} /> : tAccount("logIn")}
+                </button>
 
-                  <div className="mb-16 mt-24">
-                    <button
-                      type="submit"
-                      className="btn btn-main w-100"
-                      style={{ padding: "14px 32px", fontSize: "15px" }}
-                      disabled={loading || !phoneNumber || !password}
-                    >
-                      {loading ? (
-                        <>
-                          <Spin size="sm" text={tAuth("loggingIn") || ""} />
-                          {tAuth("loggingIn")}
-                        </>
-                      ) : (
-                        tAccount("logIn")
-                      )}
-                    </button>
-                  </div>
+                <div className="text-center mt-20" style={{ fontSize: "0.85rem" }}>
+                  <span className="text-gray-500">{tAuth("noCodeYet")} </span>
+                  <a
+                    href={botUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "#0088cc", fontWeight: 600 }}
+                  >
+                    {tAuth("openBot")}
+                  </a>
                 </div>
               </form>
             </div>

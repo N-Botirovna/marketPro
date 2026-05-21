@@ -2,10 +2,10 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import BookCard from "./BookCard";
-import Spin from "./Spin";
 import { getUserById } from "@/services/auth";
 import { getBooksByUser } from "@/services/books";
+import BookCard from "./BookCard";
+import Spin from "./Spin";
 
 const UserPublicProfile = ({ userId }) => {
   const tProfile = useTranslations("ProfileDashboard");
@@ -86,10 +86,7 @@ const UserPublicProfile = ({ userId }) => {
   }, [user, tProfile]);
 
   const phoneNumber = user?.app_phone_number || tUserProfile("phoneHidden");
-  const locationText =
-    user?.location_text ||
-    user?.point ||
-    tUserProfile("locationFallback");
+  const locationText = user?.location_text || user?.point || tUserProfile("locationFallback");
 
   if (loadingUser) {
     return (
@@ -104,11 +101,7 @@ const UserPublicProfile = ({ userId }) => {
   }
 
   if (!user) {
-    return (
-      <div className="text-center py-80 text-gray-600">
-        {tUserProfile("notFound")}
-      </div>
-    );
+    return <div className="text-center py-80 text-gray-600">{tUserProfile("notFound")}</div>;
   }
 
   return (
@@ -120,37 +113,28 @@ const UserPublicProfile = ({ userId }) => {
               <div className="text-center">
                 <span className="d-inline-flex w-120 h-120 rounded-circle overflow-hidden bg-gray-50 mb-16">
                   <img
-                    src={
-                      user.picture || "/assets/images/thumbs/user-placeholder.png"
-                    }
+                    src={user.picture || "/assets/images/thumbs/user-placeholder.png"}
                     alt={fullName}
                     className="w-100 h-100"
                     style={{ objectFit: "cover" }}
                     onError={(e) => {
-                      e.currentTarget.src =
-                        "/assets/images/thumbs/user-placeholder.png";
+                      e.currentTarget.src = "/assets/images/thumbs/user-placeholder.png";
                     }}
                   />
                 </span>
                 <h4 className="text-gray-900 mb-4">{fullName}</h4>
-                <p className="text-sm text-gray-500 mb-0">
-                  {tProfile("user")}
-                </p>
+                <p className="text-sm text-gray-500 mb-0">{tProfile("user")}</p>
               </div>
 
               <div className="mt-32">
-                <h6 className="text-sm text-gray-600 mb-12">
-                  {tUserProfile("infoTitle")}
-                </h6>
+                <h6 className="text-sm text-gray-600 mb-12">{tUserProfile("infoTitle")}</h6>
                 <div className="d-flex flex-column gap-12">
                   <div className="d-flex align-items-center gap-12">
                     <span className="w-40 h-40 rounded-circle bg-main-50 text-main-600 flex-center">
                       <i className="ph ph-phone text-md" />
                     </span>
                     <div>
-                      <p className="text-xs text-gray-500 mb-4">
-                        {tProfile("phone")}
-                      </p>
+                      <p className="text-xs text-gray-500 mb-4">{tProfile("phone")}</p>
                       <p className="text-sm text-gray-900 mb-0">{phoneNumber}</p>
                     </div>
                   </div>
@@ -159,12 +143,8 @@ const UserPublicProfile = ({ userId }) => {
                       <i className="ph ph-map-pin text-md" />
                     </span>
                     <div>
-                      <p className="text-xs text-gray-500 mb-4">
-                        {tCommon("location")}
-                      </p>
-                      <p className="text-sm text-gray-900 mb-0">
-                        {locationText}
-                      </p>
+                      <p className="text-xs text-gray-500 mb-4">{tCommon("location")}</p>
+                      <p className="text-sm text-gray-900 mb-0">{locationText}</p>
                     </div>
                   </div>
                 </div>
@@ -172,9 +152,7 @@ const UserPublicProfile = ({ userId }) => {
 
               {user?.bio && (
                 <div className="mt-32">
-                  <h6 className="text-sm text-gray-600 mb-12">
-                    {tProfile("bioTitle")}
-                  </h6>
+                  <h6 className="text-sm text-gray-600 mb-12">{tProfile("bioTitle")}</h6>
                   <p className="text-sm text-gray-600 mb-0">{user.bio}</p>
                 </div>
               )}
@@ -184,9 +162,7 @@ const UserPublicProfile = ({ userId }) => {
           <div className="col-lg-8">
             <div className="d-flex align-items-center justify-content-between mb-24 flex-wrap gap-12">
               <div>
-                <h5 className="text-gray-900 mb-4">
-                  {tUserProfile("booksHeading")}
-                </h5>
+                <h5 className="text-gray-900 mb-4">{tUserProfile("booksHeading")}</h5>
                 <span className="text-sm text-gray-500">
                   {tUserProfile("booksCount", { count: books.length })}
                 </span>
@@ -216,5 +192,3 @@ const UserPublicProfile = ({ userId }) => {
 };
 
 export default UserPublicProfile;
-
-

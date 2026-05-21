@@ -1,50 +1,23 @@
-import "./page.scss";
-import dynamic from "next/dynamic";
-import Breadcrumb from "@/components/Breadcrumb";
-import VendorTwoDetails from "@/components/VendorTwoDetails";
-import ColorInit from "@/helper/ColorInit";
-import ScrollToTopInit from "@/helper/ScrollToTopInit";
-import { getTranslations } from "next-intl/server";
+import { notFound } from "next/navigation";
+import { permanentRedirect } from "@/i18n/navigation";
 
-const ShippingOne = dynamic(() => import("@/components/ShippingOne"));
-const FooterOne = dynamic(() => import("@/components/FooterOne"));
-const BottomFooter = dynamic(() => import("@/components/BottomFooter"));
+// Legacy route. The Telegram-style refactor moved shop detail to /shops/[id]
+// with a proper path parameter. Preserve old bookmarks by redirecting:
+//   /uz/vendor-two-details?id=42  →  /uz/shops/42
+// Without an id, fall back to /shops list. 308 (permanent) so search
+// engines transfer the destination's authority to the canonical URL.
+const Page = async ({ params, searchParams }) => {
+  const { locale } = await params;
+  const sp = await searchParams;
+  const shopId = sp?.id;
 
-export const revalidate = 3600;
+  if (shopId) {
+    permanentRedirect({ href: `/shops/${shopId}`, locale });
+  }
+  permanentRedirect({ href: "/shops", locale });
 
-export const metadata = {
-  title: "MarketPro - E-commerce Next JS Template",
-  description:
-    "MarketPro is a comprehensive and versatile Next JS template designed for e-commerce platforms, specifically tailored for multi vendor marketplaces. With its modern design and extensive feature set, MarketPro provides everything you need to create a robust and user-friendly online marketplace..",
+  // Unreachable — Next.js throws on redirect — but satisfies type-checkers.
+  notFound();
 };
 
-const page = async () => {
-  const tBreadcrumb = await getTranslations("Breadcrumb");
-
-  return (
-    <>
-      {/* ColorInit */}
-      <ColorInit color={true} />
-
-      {/* ScrollToTop */}
-      <ScrollToTopInit color='#FA6400' />
-
-      {/* Breadcrumb */}
-      <Breadcrumb title={tBreadcrumb("shopDetails")} />
-
-      {/* VendorTwoDetails */}
-      <VendorTwoDetails />
-
-      {/* ShippingOne */}
-      <ShippingOne />
-
-      {/* FooterOne */}
-      <FooterOne />
-
-      {/* BottomFooter */}
-      <BottomFooter />
-    </>
-  );
-};
-
-export default page;
+export default Page;

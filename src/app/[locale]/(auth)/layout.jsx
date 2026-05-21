@@ -1,16 +1,7 @@
 export const metadata = {
-  title: "Auth - MarketPro",
+  title: "Kirish — Kitobzor",
 };
 
 export default function AuthLayout({ children }) {
   return <>{children}</>;
 }
-
-
-
-
-
-
-
-
-

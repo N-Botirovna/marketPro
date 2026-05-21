@@ -1,259 +1,445 @@
 "use client";
-import React, { useEffect, useState } from "react";
+
+import React, { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { getLikedBooks, likeBook } from "@/services/books";
-import { removeLike } from "@/utils/likeStorage";
+import { getLikedBooks } from "@/services/books";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "./Toast";
-import { useTranslations, useLocale } from "next-intl";
-import Spin from "./Spin";
+import BookCard from "./BookCard";
 
+const SKELETON_CARDS = 6;
+
+/**
+ * Wishlist surface — responsive card grid.
+ *
+ * The previous version was a 4-column table that horizontally scrolled
+ * on phones and looked stale on desktop. This rewrite uses the same
+ * BookCard the home/community grids use, so:
+ *
+ *   - One source of truth for thumbnail aspect, like-toggle, share, price.
+ *   - The heart icon in the card already toggles the like — tapping it
+ *     "removes" the book from the wishlist (we drop it from state when
+ *     the toggle returns isLiked=false). No extra "remove" column needed.
+ *   - Layout matches the rest of the app at every breakpoint
+ *     (col-12 → col-sm-6 → col-lg-4 → col-xl-3).
+ *
+ * Empty / unauth / loading states each get a dedicated panel that
+ * leads the user back into the funnel (browse books, sign in) instead
+ * of dead-ending on a centered icon.
+ */
 const WishListSection = () => {
   const { isAuthenticated } = useAuth();
   const { showToast, ToastContainer } = useToast();
-  const locale = useLocale();
   const tCommon = useTranslations("Common");
-  const tWishList = useTranslations("WishList");
-  
+  const t = useTranslations("WishList");
+
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [removing, setRemoving] = useState({});
+
+  // `useToast` returns a brand-new `showToast` reference every render and
+  // `next-intl` translators are also recreated per render. Listing them as
+  // effect deps would re-fire the fetch on every state update → setLoading
+  // bounces → the page flickers between skeleton and loaded views.
+  // Park them on a ref so the effect only reacts to `isAuthenticated`.
+  const toastRef = useRef(showToast);
+  const tRef = useRef(tCommon);
+  toastRef.current = showToast;
+  tRef.current = tCommon;
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchLikedBooks();
-    } else {
+    if (!isAuthenticated) {
+      setBooks([]);
       setLoading(false);
+      return undefined;
     }
+    let alive = true;
+    setLoading(true);
+    getLikedBooks()
+      .then((response) => {
+        if (!alive) return;
+        setBooks(response.books || []);
+      })
+      .catch(() => {
+        if (!alive) return;
+        toastRef.current?.({
+          type: "error",
+          title: tRef.current?.("error"),
+          duration: 3000,
+        });
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
   }, [isAuthenticated]);
 
-  const fetchLikedBooks = async () => {
-    try {
-      setLoading(true);
-      const response = await getLikedBooks();
-      setBooks(response.books || []);
-    } catch (error) {
-      console.error("Liked books xatolik:", error);
-      showToast({
-        type: 'error',
-        title: tCommon("error") || "Xatolik",
-        message: "Ma'lumotlarni yuklashda xatolik",
-        duration: 3000
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRemove = async (bookId) => {
-    if (removing[bookId]) return;
-
-    try {
-      setRemoving(prev => ({ ...prev, [bookId]: true }));
-      
-      // Unlike qilish uchun /like API'ga so'rov yuborish
-      const response = await likeBook(bookId);
-      
-      if (response.success) {
-        // Ro'yxatdan o'chirish
-        setBooks(prev => prev.filter(book => book.id !== bookId));
-        
-        removeLike(bookId);
-
-        // Header'ni yangilash
-        window.dispatchEvent(new Event('bookUnliked'));
-        
-        showToast({
-          type: 'success',
-          title: tCommon("success") || "Muvaffaqiyatli",
-          message: "Wishlist'dan olib tashlandi",
-          duration: 3000
-        });
+  // BookCard fires this when the heart is toggled. Unliking → the book is
+  // no longer a wishlist member, so drop it locally and emit the global
+  // event so the header counter syncs.
+  const handleLikeUpdate = (bookId, isLiked) => {
+    if (isLiked === false) {
+      setBooks((prev) => prev.filter((b) => b.id !== bookId));
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("bookUnliked"));
       }
-    } catch (error) {
-      console.error("Remove error:", error);
       showToast({
-        type: 'error',
-        title: tCommon("error") || "Xatolik",
-        message: "Kitobni olib tashlashda xatolik",
-        duration: 3000
+        type: "success",
+        title: t("removedToast"),
+        duration: 2200,
       });
-    } finally {
-      setRemoving(prev => ({ ...prev, [bookId]: false }));
     }
   };
 
-  const getLocalizedField = (book, fieldPrefix) => {
-    if (!book) return '';
-    const localizedKey = `${fieldPrefix}_${locale}`;
-    const fallbackKey = `${fieldPrefix}_uz`;
-    return book[localizedKey] || book[fallbackKey] || book[fieldPrefix] || '';
-  };
-
-  const formatPrice = (price) => {
-    if (price === null || price === undefined) return "0";
-    return `${new Intl.NumberFormat(locale).format(price)} ${tCommon("currency") || "so'm"}`;
-  };
-
+  // ── Unauthenticated gate ──────────────────────────────────────────
   if (!isAuthenticated) {
     return (
-      <section className="cart py-80">
-        <div className="container container-lg">
-          <div className="text-center py-80">
-            <i className="ph ph-heart text-gray-300 text-5xl mb-16"></i>
-            <h5 className="text-gray-500 mb-8">Tizimga kiring</h5>
-            <p className="text-gray-400 text-sm mb-24">
-              Wishlist'ni ko'rish uchun tizimga kiring
-            </p>
-            <Link href="/login" className="btn btn-main">
-              Kirish
-            </Link>
-          </div>
+      <section className="kz-wish">
+        <div className="kz-wish__inner">
+          <EmptyPanel
+            icon="ph-fill ph-lock-key"
+            title={t("loginGateTitle")}
+            body={t("loginGateBody")}
+            ctaLabel={t("login")}
+            ctaHref="/login"
+          />
         </div>
+        <WishStyles />
       </section>
     );
   }
 
+  // ── Loading ───────────────────────────────────────────────────────
   if (loading) {
     return (
-      <section className="cart py-80">
-        <div className="container container-lg">
-          <div className="text-center py-80">
-            <Spin text="Yuklanmoqda..." />
+      <section className="kz-wish">
+        <div className="kz-wish__inner">
+          <header className="kz-wish__head">
+            <div className="kz-wish__head-text">
+              <h1 className="kz-wish__title">{t("heroTitle")}</h1>
+              <p className="kz-wish__subtitle">{t("heroSubtitle")}</p>
+            </div>
+          </header>
+          <div className="row g-3 g-md-4">
+            {Array.from({ length: SKELETON_CARDS }).map((_, i) => (
+              <div key={i} className="col-12 col-sm-6 col-lg-4 col-xl-3">
+                <div className="kz-wish__skel">
+                  <div className="kz-wish__skel-thumb" />
+                  <div className="kz-wish__skel-line kz-wish__skel-line--80" />
+                  <div className="kz-wish__skel-line kz-wish__skel-line--60" />
+                  <div className="kz-wish__skel-line kz-wish__skel-line--40" />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
+        <WishStyles />
       </section>
     );
   }
 
+  // ── Empty (signed-in but no liked books) ─────────────────────────
   if (books.length === 0) {
     return (
-      <section className="cart py-80">
-        <div className="container container-lg">
-          <div className="text-center py-80">
-            <i className="ph ph-heart text-gray-300 text-5xl mb-16"></i>
-            <h5 className="text-gray-500 mb-8">Wishlist bo'sh</h5>
-            <p className="text-gray-400 text-sm mb-24">
-              Hozircha like qilingan kitoblar yo'q
-            </p>
-            <Link href="/vendor-two" className="btn btn-main">
-              Kitoblar sahifasiga o'tish
-            </Link>
-          </div>
-          <ToastContainer />
+      <section className="kz-wish">
+        <div className="kz-wish__inner">
+          <EmptyPanel
+            icon="ph-fill ph-heart-break"
+            title={t("empty")}
+            body={t("emptyHint")}
+            ctaLabel={t("browseBooks")}
+            ctaHref="/community/all"
+          />
         </div>
+        <WishStyles />
+        <ToastContainer />
       </section>
     );
   }
 
+  // ── Populated grid ────────────────────────────────────────────────
   return (
-    <section className="cart py-80">
-      <div className="container container-lg">
-        <div className="row gy-4">
-          <div className="col-lg-12">
-            <div className="cart-table border border-gray-100 rounded-8">
-              <div className="overflow-x-auto scroll-sm scroll-sm-horizontal">
-                <table className="table rounded-8 overflow-hidden">
-                  <thead>
-                    <tr className="border-bottom border-neutral-100">
-                      <th className="h6 mb-0 text-lg fw-bold px-40 py-32 border-end border-neutral-100">
-                        {tWishList("delete") || "O'chirish"}
-                      </th>
-                      <th className="h6 mb-0 text-lg fw-bold px-40 py-32 border-end border-neutral-100">
-                        {tWishList("productName") || "Kitob nomi"}
-                      </th>
-                      <th className="h6 mb-0 text-lg fw-bold px-40 py-32 border-end border-neutral-100">
-                        {tWishList("unitPrice") || "Narxi"}
-                      </th>
-  
-                      <th className="h6 mb-0 text-lg fw-bold px-40 py-32" />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {books.map((book) => (
-                      <tr key={book.id}>
-                        <td className="px-40 py-32 border-end border-neutral-100">
-                          <button
-                            type="button"
-                            onClick={() => handleRemove(book.id)}
-                            disabled={removing[book.id]}
-                            className="remove-tr-btn flex-align gap-12 hover-text-danger-600"
-                          >
-                            <i className="ph ph-x-circle text-2xl d-flex" />
-                            {removing[book.id] ? "Kutilmoqda..." : (tWishList("remove") || "O'chirish")}
-                          </button>
-                        </td>
-                        <td className="px-40 py-32 border-end border-neutral-100">
-                          <div className="table-product d-flex align-items-center gap-24">
-                            <Link
-                              href={`/product-details?id=${book.id}`}
-                              className="table-product__thumb border border-gray-100 rounded-8 flex-center"
-                              style={{ width: "100px", height: "120px", overflow: "hidden" }}
-                            >
-                              <img
-                                src={book.picture || "assets/images/thumbs/product-two-img1.png"}
-                                alt={getLocalizedField(book, "name")}
-                                style={{
-                                  maxWidth: "100%",
-                                  maxHeight: "100%",
-                                  objectFit: "contain"
-                                }}
-                              />
-                            </Link>
-                            <div className="table-product__content text-start">
-                              <h6 className="title text-lg fw-semibold mb-8">
-                                <Link
-                                  href={`/product-details?id=${book.id}`}
-                                  className="link text-line-2"
-                                  tabIndex={0}
-                                >
-                                  {getLocalizedField(book, "name") || "Noma'lum kitob"}
-                                </Link>
-                              </h6>
-                              <div className="flex-align gap-16 mb-16">
-                                <span className="text-neutral-600 text-sm">
-                                  {book.like_count || 0} Like
-                                </span>
-                              </div>
-                              <div className="flex-align gap-16">
-                                <span className="text-sm text-gray-600">
-                                  {getLocalizedField(book, "author") || "Muallif noma'lum"}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-40 py-32 border-end border-neutral-100">
-                          <span className="text-lg h6 mb-0 fw-semibold">
-                            {formatPrice(book.discount_price || book.price)}
-                          </span>
-                          {book.discount_price && (
-                            <span className="text-md text-gray-400 text-decoration-line-through d-block mt-4">
-                              {formatPrice(book.price)}
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-40 py-32">
-                          <Link
-                            href={`/product-details?id=${book.id}`}
-                            className="product-card__cart btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white py-11 px-24 rounded-8 flex-center gap-8 fw-medium"
-                            tabIndex={0}
-                          >
-                            {tWishList("viewDetails")}
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+    <section className="kz-wish">
+      <div className="kz-wish__inner">
+        <header className="kz-wish__head">
+          <div className="kz-wish__head-text">
+            <h1 className="kz-wish__title">
+              <i className="ph-fill ph-heart" aria-hidden="true" />
+              {t("heroTitle")}
+            </h1>
+            <p className="kz-wish__subtitle">{t("heroSubtitle")}</p>
           </div>
+          <div className="kz-wish__head-meta">
+            <span className="kz-wish__count">
+              {t(books.length === 1 ? "countOne" : "countMany", {
+                count: books.length,
+              })}
+            </span>
+            <Link href="/community/all" className="kz-wish__browse">
+              <i className="ph ph-magnifying-glass" aria-hidden="true" />
+              <span>{t("browseMore")}</span>
+            </Link>
+          </div>
+        </header>
+
+        <div className="row g-3 g-md-4">
+          {books.map((book) => (
+            <div key={book.id} className="col-12 col-sm-6 col-lg-4 col-xl-3">
+              <BookCard book={book} onLikeUpdate={handleLikeUpdate} />
+            </div>
+          ))}
         </div>
       </div>
       <ToastContainer />
+      <WishStyles />
     </section>
   );
 };
+
+// ─── Helpers ────────────────────────────────────────────────────────
+
+const EmptyPanel = ({ icon, title, body, ctaLabel, ctaHref }) => (
+  <div className="kz-wish__empty">
+    <span className="kz-wish__empty-icon" aria-hidden="true">
+      <i className={icon} />
+    </span>
+    <h2 className="kz-wish__empty-title">{title}</h2>
+    <p className="kz-wish__empty-body">{body}</p>
+    <Link href={ctaHref} className="kz-wish__empty-cta">
+      {ctaLabel}
+      <i className="ph-bold ph-arrow-right" aria-hidden="true" />
+    </Link>
+  </div>
+);
+
+const WishStyles = () => (
+  // eslint-disable-next-line no-restricted-syntax -- static internal CSS, no user input
+  <style
+    dangerouslySetInnerHTML={{
+      __html: `
+    .kz-wish {
+      padding: 20px 0 56px;
+      background: var(--surface-page, #fff);
+      min-height: 60vh;
+    }
+    @media (min-width: 768px) {
+      .kz-wish { padding: 32px 0 72px; }
+    }
+    .kz-wish__inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 12px;
+    }
+    @media (min-width: 992px) {
+      .kz-wish__inner { padding: 0 24px; }
+    }
+
+    .kz-wish__head {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding: 18px 18px 16px;
+      border-radius: 16px;
+      background: linear-gradient(135deg,
+        hsl(148, 38%, 96%) 0%,
+        hsl(168, 38%, 95%) 50%,
+        hsl(20, 100%, 97%) 100%);
+      border: 1px solid var(--border-subtle, #e5e7eb);
+    }
+    @media (min-width: 768px) {
+      .kz-wish__head {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 22px 26px;
+        margin-bottom: 26px;
+      }
+    }
+    .kz-wish__head-text { min-width: 0; }
+    .kz-wish__title {
+      margin: 0 0 6px;
+      font-size: clamp(20px, 4vw, 28px);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: var(--text-primary, #0f172a);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .kz-wish__title i {
+      color: #ef4444;
+      font-size: 22px;
+    }
+    .kz-wish__subtitle {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-secondary, #64748b);
+      line-height: 1.5;
+      max-width: 540px;
+    }
+    @media (min-width: 768px) {
+      .kz-wish__subtitle { font-size: 14px; }
+    }
+
+    .kz-wish__head-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+    .kz-wish__count {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--surface-card, #fff);
+      color: var(--text-primary, #0f172a);
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--border-subtle, #e5e7eb);
+    }
+    .kz-wish__browse {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--main-600, hsl(148, 59%, 39%));
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+    .kz-wish__browse:hover {
+      background: var(--main-700, hsl(148, 59%, 32%));
+      color: #fff;
+    }
+    .kz-wish__browse:active { transform: scale(0.97); }
+    .kz-wish__browse i { font-size: 14px; line-height: 1; }
+
+    /* ─── Empty / login-gate panel ──────────────────────────────── */
+    .kz-wish__empty {
+      max-width: 460px;
+      margin: 24px auto 32px;
+      padding: 32px 22px;
+      border-radius: 18px;
+      background: var(--surface-card, #fff);
+      border: 1px solid var(--border-subtle, #e5e7eb);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+      text-align: center;
+    }
+    @media (min-width: 768px) {
+      .kz-wish__empty {
+        margin: 48px auto 64px;
+        padding: 48px 32px;
+      }
+    }
+    .kz-wish__empty-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: linear-gradient(135deg,
+        rgba(239, 68, 68, 0.14) 0%,
+        rgba(250, 100, 0, 0.14) 100%);
+      color: #ef4444;
+      font-size: 34px;
+      margin-bottom: 18px;
+    }
+    .kz-wish__empty-title {
+      margin: 0 0 8px;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-primary, #0f172a);
+    }
+    @media (min-width: 768px) {
+      .kz-wish__empty-title { font-size: 20px; }
+    }
+    .kz-wish__empty-body {
+      margin: 0 0 22px;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--text-secondary, #64748b);
+    }
+    .kz-wish__empty-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: 999px;
+      background: linear-gradient(135deg,
+        hsl(148, 70%, 45%) 0%,
+        hsl(168, 65%, 38%) 100%);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 10px 22px rgba(34, 197, 94, 0.32);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .kz-wish__empty-cta:hover {
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 14px 26px rgba(34, 197, 94, 0.4);
+    }
+    .kz-wish__empty-cta i { font-size: 15px; }
+
+    /* ─── Skeleton card ─────────────────────────────────────────── */
+    .kz-wish__skel {
+      border: 1px solid var(--border-subtle, #e5e7eb);
+      border-radius: 16px;
+      padding: 10px;
+      background: var(--surface-card, #fff);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .kz-wish__skel-thumb {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      border-radius: 12px;
+      background: linear-gradient(90deg,
+        var(--surface-muted, #f1f5f9) 0%,
+        var(--surface-card, #fff) 50%,
+        var(--surface-muted, #f1f5f9) 100%);
+      background-size: 200% 100%;
+      animation: kzWishShimmer 1.4s ease-in-out infinite;
+    }
+    .kz-wish__skel-line {
+      height: 12px;
+      border-radius: 999px;
+      background: linear-gradient(90deg,
+        var(--surface-muted, #f1f5f9) 0%,
+        var(--surface-card, #fff) 50%,
+        var(--surface-muted, #f1f5f9) 100%);
+      background-size: 200% 100%;
+      animation: kzWishShimmer 1.4s ease-in-out infinite;
+    }
+    .kz-wish__skel-line--80 { width: 80%; }
+    .kz-wish__skel-line--60 { width: 60%; }
+    .kz-wish__skel-line--40 { width: 40%; }
+
+    @keyframes kzWishShimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .kz-wish__skel-thumb,
+      .kz-wish__skel-line {
+        animation: none;
+      }
+    }
+  `,
+    }}
+  />
+);
 
 export default WishListSection;

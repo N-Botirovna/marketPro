@@ -47,3 +47,720 @@
 @import "../../../public/assets/sass/components/index";
 @import "../../../public/assets/sass/layout/index";
 @import "../../../public/assets/sass/extra";
+
+// ─── Theme tokens (light = default, dark = `[data-theme="dark"]`) ────────────
+:root {
+  --surface-page: #f4f5f7;
+  --surface-card: #ffffff;
+  --surface-muted: #f8fafc;
+  --surface-elevated: #ffffff;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-on-brand: #ffffff;
+
+  --border-subtle: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.16);
+
+  --shadow-card: 0 2px 6px rgba(15, 23, 42, 0.06);
+  --shadow-elevated: 0 4px 12px rgba(15, 23, 42, 0.1);
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --surface-page: #0f172a;
+  --surface-card: #1e293b;
+  --surface-muted: #1a2336;
+  --surface-elevated: #273549;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 6px 16px rgba(0, 0, 0, 0.5);
+
+  color-scheme: dark;
+}
+
+// Smoothly transition surfaces when toggling theme
+body,
+.book-card,
+.book-card__action-btn {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+// Apply page-level theme tokens to body so plain HTML pages pick up the dark
+// background without each component opting in individually.
+body {
+  background-color: var(--surface-page);
+  color: var(--text-primary);
+}
+
+// In dark mode, many Bootstrap-styled cards/sections in legacy markup still
+// use `bg-white` / `text-gray-600` etc. These rules map those tokens to the
+// theme surfaces so the rest of the app picks up dark mode without a
+// component-by-component rewrite.
+[data-theme="dark"] {
+  .bg-white,
+  .bg-body,
+  .bg-body-tertiary,
+  .bg-gray-50,
+  .bg-gray-100 {
+    background-color: var(--surface-card) !important;
+  }
+
+  .text-heading,
+  .text-gray-900,
+  .text-gray-800 {
+    color: var(--text-primary) !important;
+  }
+
+  .text-gray-700,
+  .text-gray-600,
+  .text-gray-500 {
+    color: var(--text-secondary) !important;
+  }
+
+  .text-gray-400,
+  .text-gray-300 {
+    color: var(--text-muted) !important;
+  }
+
+  .border,
+  .border-gray-100,
+  .border-gray-200,
+  .border-gray-300 {
+    border-color: var(--border-subtle) !important;
+  }
+
+  .product-card,
+  .book-card,
+  .card {
+    background-color: var(--surface-card);
+    color: var(--text-primary);
+    border-color: var(--border-subtle);
+  }
+
+  // Inputs and form controls
+  .form-control,
+  .form-select {
+    background-color: var(--surface-muted);
+    color: var(--text-primary);
+    border-color: var(--border-subtle);
+
+    &::placeholder {
+      color: var(--text-muted);
+    }
+    &:focus {
+      background-color: var(--surface-muted);
+      color: var(--text-primary);
+      border-color: var(--main-500, hsl(148, 59%, 49%));
+    }
+  }
+
+  // Modal/dropdown surfaces
+  .modal-content,
+  .dropdown-menu {
+    background-color: var(--surface-elevated);
+    color: var(--text-primary);
+    border-color: var(--border-subtle);
+  }
+
+  .book-card__action-btn {
+    background-color: var(--surface-elevated);
+    color: var(--text-secondary);
+    border-color: var(--border-subtle);
+  }
+
+  // Bootstrap's .btn-close ships an inline-data SVG that paints the X in
+  // near-black (#000). On a dark modal surface that's invisible. Invert the
+  // glyph so it stays legible without swapping the icon.
+  .btn-close {
+    filter: invert(1) brightness(2);
+  }
+}
+
+// ─── Responsive aspect-ratio utilities ───────────────────────────────────────
+// Bootstrap 5.3's `.ratio-*` works only with absolute-positioned children.
+// These work on any element via CSS `aspect-ratio`. Used to replace fixed
+// pixel heights in BookCard, BannerOne, BookDetails, PostCard, etc.
+.aspect-3-4 {
+  aspect-ratio: 3 / 4;
+}
+.aspect-4-3 {
+  aspect-ratio: 4 / 3;
+}
+.aspect-16-9 {
+  aspect-ratio: 16 / 9;
+}
+.aspect-16-7 {
+  aspect-ratio: 16 / 7;
+}
+.aspect-1-1 {
+  aspect-ratio: 1 / 1;
+}
+
+// Mobile body scroll lock — toggled by HeaderOne when the mobile drawer opens.
+body.body-no-scroll {
+  overflow: hidden;
+  touch-action: none;
+}
+
+// ─── Home page Telegram-style chips ──────────────────────────────────────────
+.home-type-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+
+  i {
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  &:hover {
+    background-color: var(--main-600, hsl(148, 59%, 39%));
+    border-color: transparent;
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--main-600, hsl(148, 59%, 39%));
+    outline-offset: 2px;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+// ─── BookCard action buttons (top-right corner) ──────────────────────────────
+// Always-visible action chips. Replaces the previous low-contrast
+// outline-button approach where icons looked invisible against the white
+// card surface until the user hovered.
+.book-card__actions {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 3;
+}
+
+.book-card__action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background-color: #ffffff;
+  color: var(--neutral-700, #475569);
+  font-size: 18px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  i {
+    line-height: 1;
+  }
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--main-600, hsl(148, 59%, 39%));
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &.is-liked {
+    background-color: var(--danger-600, #dc2626);
+    color: #ffffff;
+    border-color: transparent;
+
+    &:hover {
+      background-color: var(--danger-700, #b91c1c);
+    }
+  }
+
+  &.is-edit {
+    color: var(--main-700, hsl(148, 59%, 31%));
+
+    &:hover {
+      background-color: var(--main-50, hsl(148, 59%, 95%));
+      color: var(--main-700, hsl(148, 59%, 31%));
+    }
+  }
+
+  &.is-archive {
+    color: #b45309;
+
+    &:hover {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+  }
+
+  &.is-delete {
+    color: var(--danger-600, #dc2626);
+
+    &:hover {
+      background-color: #fee2e2;
+      color: var(--danger-700, #b91c1c);
+    }
+  }
+
+  &.is-share {
+    color: var(--main-700, hsl(148, 59%, 31%));
+
+    &:hover {
+      background-color: var(--main-50, hsl(148, 59%, 95%));
+      color: var(--main-700, hsl(148, 59%, 31%));
+    }
+  }
+}
+
+@media (max-width: 575.98px) {
+  .book-card__actions {
+    top: 8px;
+    right: 8px;
+    gap: 4px;
+  }
+
+  .book-card__action-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
+  }
+}
+
+// ─── BookCard responsive content layout ──────────────────────────────────────
+.book-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+
+  &__thumb {
+    aspect-ratio: 3 / 4;
+    width: 100%;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    background-color: var(--neutral-50, #f8fafc);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.25s ease;
+    }
+  }
+
+  &:hover .book-card__thumb img {
+    transform: scale(1.04);
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  &__title {
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.3;
+    font-size: clamp(14px, 1.6vw, 17px);
+
+    .link {
+      color: var(--neutral-900, #0f172a);
+      text-decoration: none;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
+
+  &__meta-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  &__meta-icon {
+    color: var(--main-600, hsl(148, 59%, 39%));
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  &__meta-text {
+    font-size: clamp(11px, 1.2vw, 13px);
+    color: var(--neutral-500, #64748b);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__seller {
+    color: var(--neutral-600, #475569);
+  }
+
+  &__price {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  &__price-current {
+    font-size: clamp(14px, 1.6vw, 17px);
+    font-weight: 700;
+    color: var(--neutral-900, #0f172a);
+  }
+
+  &__price-old {
+    font-size: clamp(12px, 1.3vw, 14px);
+    color: var(--neutral-400, #94a3b8);
+    text-decoration: line-through;
+  }
+
+  &__counters {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--neutral-500, #64748b);
+
+    i {
+      font-size: 14px;
+    }
+  }
+
+  &__cta {
+    font-size: clamp(12px, 1.3vw, 14px);
+    padding: 10px 18px;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .book-card {
+    &__cta {
+      padding: 9px 14px;
+      font-size: 13px;
+    }
+  }
+}
+
+// ─── ProfileTabs (sticky nav, horizontal scroll on mobile) ───────────────────
+// Only the nav row sticks; content scrolls past it. `position: sticky` on a
+// child of an `overflow: hidden` ancestor is broken, so the wrapper must not
+// clip overflow on the y-axis. We keep overflow: hidden for the rounded
+// corners but allow the nav to stick to the viewport top.
+.profile-tabs {
+  background-color: var(--surface-card);
+  color: var(--text-primary);
+  border-color: var(--border-subtle) !important;
+  box-shadow: var(--shadow-card);
+  overflow: visible;
+
+  &__nav-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background-color: var(--surface-card);
+    border-bottom: 1px solid var(--border-subtle);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+
+    // Subtle shadow appears once the nav crosses the top of the viewport
+    // (visible whenever the sticky offset is engaged).
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -8px;
+      height: 8px;
+      pointer-events: none;
+      background: linear-gradient(to bottom, rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0));
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    // We can't reliably detect "is stuck" in CSS, but the gradient looks
+    // natural even when the nav is at rest; reveal it whenever the nav is
+    // not at the very top of its scroll parent.
+    @supports (animation-timeline: scroll()) {
+      &::after {
+        opacity: 1;
+      }
+    }
+  }
+
+  &__nav {
+    display: flex;
+    gap: 4px;
+    padding: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &__btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    i {
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    &:hover {
+      background-color: var(--surface-muted);
+      color: var(--text-primary);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--main-600, hsl(148, 59%, 39%));
+      outline-offset: 2px;
+    }
+
+    &.is-active {
+      background-color: var(--main-600, hsl(148, 59%, 39%));
+      color: #ffffff;
+    }
+  }
+}
+
+@media (max-width: 575.98px) {
+  .profile-tabs__btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+// ─── Profile tabs section header (title + CTA row) ───────────────────────────
+// On wide screens it's a single line: [title][badge] ........ [Add button].
+// On narrow phones the title alone can fill the row, so we let the CTA wrap
+// underneath and collapse it to an icon-only round chip so the "Add book"
+// label never clips the right edge.
+.profile-tabs__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.profile-tabs__head-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.profile-tabs__head-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  i {
+    font-size: 16px;
+    line-height: 1;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .profile-tabs__head {
+    margin-bottom: 16px;
+  }
+  .profile-tabs__head-cta {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    gap: 0;
+    flex-shrink: 0;
+
+    i {
+      font-size: 18px;
+    }
+  }
+  .profile-tabs__head-cta-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+// ─── BookDetails responsive ──────────────────────────────────────────────────
+.book-details {
+  &__section {
+    padding-block: clamp(24px, 6vw, 80px);
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  &__action-btn {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+
+    i {
+      font-size: 18px;
+      line-height: 1;
+    }
+  }
+
+  &__contact-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  &__contact-btn {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+
+    i {
+      font-size: 16px;
+      line-height: 1;
+    }
+  }
+}
+
+@media (max-width: 575.98px) {
+  .book-details {
+    &__actions {
+      flex-direction: column;
+
+      .book-details__action-btn {
+        width: 100%;
+      }
+    }
+
+    &__action-btn {
+      padding: 12px 16px;
+    }
+
+    &__contact-row {
+      flex-direction: column;
+
+      .book-details__contact-btn {
+        width: 100%;
+      }
+    }
+  }
+}
