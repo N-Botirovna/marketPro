@@ -24,6 +24,10 @@ const VendorsList = () => {
   // without triggering a re-render itself.
   const firstFetchRef = useRef(true);
   const tBread = useTranslations("Breadcrumb");
+  const tBtn = useTranslations("Buttons");
+  const tLoc = useTranslations("Location");
+  const tVendor = useTranslations("Vendor");
+  const tLoading = useTranslations("Loading");
   const [filters, setFilters] = useState({
     region: "",
     district: "",
@@ -163,11 +167,12 @@ const VendorsList = () => {
         <div className="flex-between flex-wrap gap-8 mb-40">
           <span className="text-neutral-600 fw-medium px-40 py-12 rounded-pill border border-neutral-100">
             {totalCount > 0
-              ? `Showing ${(currentPage - 1) * 12 + 1}-${Math.min(
-                  currentPage * 12,
-                  totalCount,
-                )} of ${totalCount} results`
-              : "No shops found"}
+              ? tVendor("showingResults", {
+                  start: (currentPage - 1) * 12 + 1,
+                  end: Math.min(currentPage * 12, totalCount),
+                  total: totalCount,
+                })
+              : tBread("noShopsFound")}
           </span>
           <div className="flex-align gap-16">
             <form
@@ -177,7 +182,7 @@ const VendorsList = () => {
               <input
                 type="text"
                 className="search-form__input common-input py-13 ps-16 pe-18 rounded-pill pe-44"
-                placeholder="Search shops by name..."
+                placeholder={tVendor("searchPlaceholder")}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
               />
@@ -199,7 +204,7 @@ const VendorsList = () => {
               value={filters.region}
               onChange={(e) => handleFilterChange("region", e.target.value)}
             >
-              <option value="">Barcha viloyatlar</option>
+              <option value="">{tLoc("allRegions")}</option>
               {regions.map((region) => (
                 <option key={region.id} value={region.id}>
                   {region.name}
@@ -213,7 +218,7 @@ const VendorsList = () => {
               value={filters.district}
               onChange={(e) => handleFilterChange("district", e.target.value)}
             >
-              <option value="">Barcha tumanlar</option>
+              <option value="">{tLoc("allDistricts")}</option>
               {regions
                 .find((r) => r.id === parseInt(filters.region))
                 ?.districts?.map((district) => (
@@ -225,7 +230,7 @@ const VendorsList = () => {
           </div>
           <div className="col-lg-2 col-md-6 mb-16">
             <button onClick={clearFilters} className="btn btn-outline-secondary w-100">
-              Tozalash
+              {tBtn("clear")}
             </button>
           </div>
         </div>
@@ -241,8 +246,8 @@ const VendorsList = () => {
               }}
             >
               <div className="text-center">
-                <Spin text="Qidirilmoqda..." />
-                <p className="mt-16 text-neutral-600">Qidiruv natijalari yuklanmoqda...</p>
+                <Spin text={tLoading("searching")} />
+                <p className="mt-16 text-neutral-600">{tLoading("searchResults")}</p>
               </div>
             </div>
           )}

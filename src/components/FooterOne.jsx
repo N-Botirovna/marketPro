@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { openSellerModal } from "@/lib/sellerModal";
+import { getFacebookUrl, getInstagramUrl, getTelegramChannelUrl } from "@/config/env";
 
 /**
  * Footer — three balanced columns:
@@ -284,7 +285,7 @@ const FooterOne = () => {
               <ul className="d-flex gap-12 list-unstyled m-0">
                 <li>
                   <a
-                    href="https://t.me/kitobzoruz"
+                    href={getTelegramChannelUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Telegram"
@@ -303,7 +304,7 @@ const FooterOne = () => {
                 </li>
                 <li>
                   <a
-                    href="https://instagram.com/kitobzoruz"
+                    href={getInstagramUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Instagram"
@@ -322,7 +323,7 @@ const FooterOne = () => {
                 </li>
                 <li>
                   <a
-                    href="https://facebook.com/kitobzoruz"
+                    href={getFacebookUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Facebook"

@@ -4,17 +4,21 @@ import React, { useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
+// Native-name labels intentionally stay outside the i18n bundle: language
+// names should always render in their own script regardless of the active
+// locale (an English speaker still sees "Русский" not "Russian").
 const LANGUAGES = [
   { code: "uz", short: "UZ", label: "O‘zbekcha" },
   { code: "ru", short: "RU", label: "Русский" },
   { code: "en", short: "EN", label: "English" },
+  { code: "kaa", short: "QQ", label: "Qaraqalpaqsha" },
 ];
 
 /**
  * Language switcher styled to match the kz-header family.
  *
  * Trigger is a compact circular button showing the two-letter active
- * locale code (e.g. "UZ"). Popover lists the three locales with native
+ * locale code (e.g. "UZ"). Popover lists the four locales with native
  * name + ISO code badge. Selection persists for the next visit and
  * triggers a locale-aware navigation.
  */

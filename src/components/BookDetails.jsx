@@ -18,6 +18,7 @@ import { useLike } from "@/hooks/useLike";
 import { useAuth } from "@/hooks/useAuth";
 import { openShareSheet } from "@/lib/shareSheet";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import { localizedField } from "@/utils/localizedField";
 import BookCreateModal from "./BookCreateModal";
 import { useToast } from "./Toast";
 
@@ -166,7 +167,7 @@ const BookDetails = ({ bookId }) => {
   // ── Share ────────────────────────────────────────────────────────────
   const handleShare = () => {
     if (!book) return;
-    const bookTitle = book[`name_${locale}`] || book.name_uz || book.name || "Kitob";
+    const bookTitle = localizedField(book, "name", locale) || tBook("untitled");
     openShareSheet({
       title: bookTitle,
       text: `${bookTitle} — Kitobzor`,

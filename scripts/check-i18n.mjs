@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 /**
- * check-i18n.mjs — compare key sets across src/messages/{uz,ru,en}.json.
+ * check-i18n.mjs — compare key sets across src/messages/{uz,ru,en,kaa}.json.
  *
  * Run via `npm run i18n:check`. Exits non-zero if any locale is missing a key
  * present in another. Used by CI to keep translations in sync.
  *
  * `uz` is the default locale (most complete by convention), but the script
- * is locale-symmetric: a key missing in any one of the three is a failure.
+ * is locale-symmetric: a key missing in any one of the four is a failure.
+ *
+ * Keep this list aligned with `src/i18n/routing.js:locales`. We can't import
+ * that file directly (it lives in the bundled tree, alias-aware imports
+ * aren't available in this plain ESM script), so it's a small mirror.
  */
 
 import fs from "node:fs/promises";
@@ -15,7 +19,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const MESSAGES_DIR = path.resolve(__dirname, "../src/messages");
-const LOCALES = ["uz", "ru", "en"];
+const LOCALES = ["uz", "ru", "en", "kaa"];
 
 function flattenKeys(obj, prefix = "") {
   const out = [];

@@ -1,11 +1,31 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Box, Stack, Typography, CircularProgress, Button } from "@mui/material";
 import { useRouter } from "@/i18n/navigation";
 import Spin from "@/components/Spin";
-import { loginWithTicket } from "@/services/auth";
+import { getUserProfile, loginWithTicket } from "@/services/auth";
+import { routing } from "@/i18n/routing";
+
+// Bot stores the user's preferred language as a full English name
+// (`User.language`'s `Languages` enum in the backend); the frontend
+// uses ISO locale prefixes. Mapping mirrors:
+//   - bot/api_client/client.py:233 (sends Accept-Language)
+//   - back-end/users/api_endpoints/Ticket/views.py (builds redirect URL)
+const LANG_NAME_TO_LOCALE = {
+  uzbek: "uz",
+  russian: "ru",
+  english: "en",
+  karakalpak: "kaa",
+};
+
+function resolveUserLocale(rawLanguage) {
+  if (!rawLanguage) return null;
+  const key = String(rawLanguage).trim().toLowerCase();
+  const candidate = LANG_NAME_TO_LOCALE[key] || key;
+  return routing.locales.includes(candidate) ? candidate : null;
+}
 
 /**
  * Telegram-style auto-login surface.
@@ -21,6 +41,7 @@ import { loginWithTicket } from "@/services/auth";
 const AutoLoginClient = ({ ticket, next = "/" }) => {
   const t = useTranslations("AutoLogin");
   const router = useRouter();
+  const currentLocale = useLocale();
   const [state, setState] = useState("loading"); // loading | success | error
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -32,29 +53,48 @@ const AutoLoginClient = ({ ticket, next = "/" }) => {
     }
 
     let alive = true;
-    loginWithTicket(ticket)
-      .then(() => {
+    (async () => {
+      try {
+        await loginWithTicket(ticket);
         if (!alive) return;
+
+        // Read the user's preferred language from /me/ and align the URL.
+        // The bot redirect already aims at the right locale (Ticket view
+        // builds `/{locale}/auth/auto?...`), but a user who bookmarked an
+        // old `/uz/auth/auto?...` link or whose preference changed since
+        // gets corrected here. Best-effort: ignore failures and keep the
+        // current locale.
+        let targetLocale = currentLocale;
+        try {
+          const { user } = await getUserProfile();
+          const preferred = resolveUserLocale(user?.language);
+          if (preferred) targetLocale = preferred;
+        } catch {
+          /* /me/ unavailable — fall back to URL locale */
+        }
+        if (!alive) return;
+
         setState("success");
-        // Hand off to the requested destination. Slight delay so the user
-        // sees the success flash; feels less jarring than insta-redirect.
         const safeNext = next && next.startsWith("/") ? next : "/";
+        // Strip any leading locale prefix in `next` so the locale option
+        // takes effect; next-intl's router prepends the locale.
+        const stripped = safeNext.replace(/^\/(uz|ru|en|kaa)(?=\/|$)/, "") || "/";
         window.setTimeout(() => {
-          router.replace(safeNext);
+          router.replace(stripped, { locale: targetLocale });
         }, 500);
-      })
-      .catch((err) => {
+      } catch (err) {
         if (!alive) return;
         setState("error");
         const code = err?.response?.data?.code;
         if (code === "ticket_invalid") setErrorMsg(t("ticketInvalid"));
         else setErrorMsg(err?.normalized?.message || t("genericError"));
-      });
+      }
+    })();
 
     return () => {
       alive = false;
     };
-  }, [ticket, next, router, t]);
+  }, [ticket, next, router, t, currentLocale]);
 
   return (
     <Box

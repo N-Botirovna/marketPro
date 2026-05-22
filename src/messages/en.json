@@ -83,7 +83,8 @@
     "contactSeller": "Contact seller",
     "save": "Save",
     "edit": "Edit",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "clear": "Clear"
   },
   "Sections": {
     "topVendors": {
@@ -134,7 +135,9 @@
   },
   "Loading": {
     "loading": "Loading...",
-    "redirecting": "Redirecting..."
+    "redirecting": "Redirecting...",
+    "searching": "Searching...",
+    "searchResults": "Loading search results..."
   },
   "Seller": {
     "createSuccess": "Seller account created successfully!",
@@ -249,7 +252,8 @@
     "ownBookHint": "This is your listing",
     "stats_likes": "{count, plural, one {# like} other {# likes}}",
     "stats_views": "{count, plural, one {# view} other {# views}}",
-    "stats_comments": "{count, plural, one {# comment} other {# comments}}"
+    "stats_comments": "{count, plural, one {# comment} other {# comments}}",
+    "untitled": "Book"
   },
   "BookCard": {
     "noName": "Book Name Not Available",
@@ -789,6 +793,9 @@
     "title": "Book shops",
     "seeAll": "See all"
   },
+  "ShopCard": {
+    "bookSuffix": "books"
+  },
   "HomeBookList": {
     "seeAll": "See all",
     "sellTitle": "Books for sale",
@@ -839,6 +846,15 @@
     "viewMore": "Read more",
     "promoteStory": "Post as story",
     "promotedBadge": "New announcement",
+    "cta": {
+      "openInTelegram": "Open in Telegram",
+      "openInInstagram": "Open in Instagram",
+      "openInYoutube": "Open in YouTube",
+      "openInTiktok": "Open in TikTok",
+      "openInFacebook": "Open in Facebook",
+      "openInTwitter": "Open in X",
+      "openLink": "Open source"
+    },
     "shopBannersTitle": "Shop announcements",
     "ariaSlide": "Slide {n} of {total}",
     "ariaPause": "Pause autoplay",
@@ -893,5 +909,9 @@
     "targetCopy": "Copy link",
     "targetInstagram": "Instagram",
     "instagramHint": "Link copied — paste it in your Instagram story or DM"
+  },
+  "Vendor": {
+    "searchPlaceholder": "Search shops by name...",
+    "showingResults": "Showing {start}-{end} of {total} results"
   }
 }

@@ -34,6 +34,11 @@ function buildHomeLanguageAlternates() {
 // alternates from the parent layout — when a page exports its own
 // metadata, it replaces the layout's alternates entirely. So we must
 // re-emit hreflang here even though the layout sets them site-wide.
+// kaa falls through to the uz copy for now (placeholder strategy until a
+// translator delivers Karakalpak prose); OG locale tag still uses kaa_UZ
+// so social previews label the page correctly.
+const OG_LOCALE = { uz: "uz_UZ", ru: "ru_RU", en: "en_US", kaa: "kaa_UZ" };
+
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   const desc =
@@ -60,7 +65,7 @@ export async function generateMetadata({ params }) {
       description: desc,
       url: `${SITE_URL}/${locale}`,
       siteName: "Kitobzor",
-      locale: locale === "ru" ? "ru_RU" : locale === "en" ? "en_US" : "uz_UZ",
+      locale: OG_LOCALE[locale] || OG_LOCALE.uz,
       type: "website",
     },
   };

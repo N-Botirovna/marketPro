@@ -83,7 +83,8 @@
     "contactSeller": "Связаться с продавцом",
     "save": "Сохранить",
     "edit": "Редактировать",
-    "cancel": "Отмена"
+    "cancel": "Отмена",
+    "clear": "Очистить"
   },
   "Sections": {
     "topVendors": {
@@ -134,7 +135,9 @@
   },
   "Loading": {
     "loading": "Загрузка...",
-    "redirecting": "Перенаправление..."
+    "redirecting": "Перенаправление...",
+    "searching": "Идёт поиск...",
+    "searchResults": "Загружаются результаты поиска..."
   },
   "Seller": {
     "createSuccess": "Аккаунт продавца успешно создан!",
@@ -249,7 +252,8 @@
     "ownBookHint": "Это ваше объявление",
     "stats_likes": "{count, plural, one {# лайк} few {# лайка} many {# лайков} other {# лайков}}",
     "stats_views": "{count, plural, one {# просмотр} few {# просмотра} many {# просмотров} other {# просмотров}}",
-    "stats_comments": "{count, plural, one {# комментарий} few {# комментария} many {# комментариев} other {# комментариев}}"
+    "stats_comments": "{count, plural, one {# комментарий} few {# комментария} many {# комментариев} other {# комментариев}}",
+    "untitled": "Книга"
   },
   "BookCard": {
     "noName": "Название книги отсутствует",
@@ -789,6 +793,9 @@
     "title": "Книжные магазины",
     "seeAll": "Все"
   },
+  "ShopCard": {
+    "bookSuffix": "книг"
+  },
   "HomeBookList": {
     "seeAll": "Все",
     "sellTitle": "Книги на продажу",
@@ -839,6 +846,15 @@
     "viewMore": "Подробнее",
     "promoteStory": "В сторис",
     "promotedBadge": "Новое объявление",
+    "cta": {
+      "openInTelegram": "Открыть в Telegram",
+      "openInInstagram": "Открыть в Instagram",
+      "openInYoutube": "Открыть в YouTube",
+      "openInTiktok": "Открыть в TikTok",
+      "openInFacebook": "Открыть в Facebook",
+      "openInTwitter": "Открыть в X",
+      "openLink": "Перейти к источнику"
+    },
     "shopBannersTitle": "Объявления магазина",
     "ariaSlide": "Слайд {n} из {total}",
     "ariaPause": "Остановить автопрокрутку",
@@ -893,5 +909,9 @@
     "targetCopy": "Скопировать ссылку",
     "targetInstagram": "Instagram",
     "instagramHint": "Ссылка скопирована — вставьте её в Instagram сторис или ЛС"
+  },
+  "Vendor": {
+    "searchPlaceholder": "Поиск магазинов по названию...",
+    "showingResults": "Показано: {start}-{end} из {total}"
   }
 }

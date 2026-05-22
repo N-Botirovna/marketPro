@@ -94,11 +94,12 @@ export function getBotUrl({ start } = {}) {
 }
 
 // ── Social channels ────────────────────────────────────────────────────
-// Defaults match the production accounts; both can be overridden via
-// env so dev/staging point at test channels.
+// Defaults match the production accounts; all of them can be overridden
+// via env so dev/staging point at test channels.
 
 const DEFAULT_TG_CHANNEL = "kitobzor";
 const DEFAULT_IG_HANDLE = "kitobzor.uz";
+const DEFAULT_FB_HANDLE = "kitobzoruz";
 
 function cleanHandle(raw, fallback) {
   const v = (raw || "")
@@ -106,6 +107,7 @@ function cleanHandle(raw, fallback) {
     .replace(/^@/, "")
     .replace(/^https?:\/\/t\.me\//, "")
     .replace(/^https?:\/\/(?:www\.)?instagram\.com\//, "")
+    .replace(/^https?:\/\/(?:www\.)?facebook\.com\//, "")
     .replace(/\/+$/, "");
   return v || fallback;
 }
@@ -124,4 +126,12 @@ export function getInstagramHandle() {
 
 export function getInstagramUrl() {
   return `https://instagram.com/${getInstagramHandle()}`;
+}
+
+export function getFacebookHandle() {
+  return cleanHandle(process.env.NEXT_PUBLIC_FACEBOOK_HANDLE, DEFAULT_FB_HANDLE);
+}
+
+export function getFacebookUrl() {
+  return `https://facebook.com/${getFacebookHandle()}`;
 }
