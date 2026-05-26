@@ -76,7 +76,7 @@ npm run lint      # next lint (default rules — config yo'q)
 
 ```
 front-end/
-├── middleware.js                 # next-intl locale matcher
+├── src/middleware.js             # next-intl locale matcher + section redirects (community → community/all)
 ├── next.config.js                # image domains, headers, compiler, experimental.optimizePackageImports
 ├── postcss.config.mjs            # PurgeCSS prod-only, safelist Bootstrap/slick/AOS
 ├── jsconfig.json                 # @/ → src/
@@ -92,10 +92,13 @@ front-end/
 │   │   ├── (auth)/
 │   │   │   ├── layout.jsx        # passthrough (auth pages — no header)
 │   │   │   └── login/page.jsx
-│   │   ├── about-us/, contact/, become-seller/
+│   │   ├── about-us/, contact/, faq/, policies/
+│   │   ├── books/                    # redirect to community/all
+│   │   ├── community/[type]/page.jsx # tab: all, following, popular (middleware redirects /community → /community/all)
 │   │   ├── book-details/[id]/page.jsx
-│   │   ├── product-details/page.jsx     # LEGACY — book-details bilan overlap, tekshiring
-│   │   ├── vendor/, vendor-two/, vendor-two-details/  # legacy template; tirik bo'lsa kerak
+│   │   ├── shops/                    # shop listing
+│   │   ├── user/[id]/                # public user profile
+│   │   ├── vendor/, vendor-two/, vendor-two-details/  # legacy template
 │   │   ├── account/page.jsx
 │   │   └── wishlist/page.jsx
 │   ├── components/               # ~56 fayl flat + profile/ subdirectory (product-details/ deleted)
@@ -119,7 +122,7 @@ front-end/
 
 ## 5. Routing
 
-- **Locale prefix invariant**: `localePrefix: 'always'` (`src/i18n/routing.js:1-7`). `/about` mavjud emas — faqat `/uz/about`, `/ru/about`, `/en/about`. Middleware (`middleware.js`) bo'sh prefixni redirect qiladi (`matcher: /((?!api|_next|_vercel|.*\\..*|assets).*)`).
+- **Locale prefix invariant**: `localePrefix: 'always'` (`src/i18n/routing.js:1-7`). `/about` mavjud emas — faqat `/uz/about`, `/ru/about`, `/en/about`. Middleware (`src/middleware.js`) bo'sh prefixni redirect qiladi (`matcher: /((?!api|_next|_vercel|.*\\..*|assets).*)`). `SECTION_DEFAULTS` map'dagi yo'llar uchun index yo'q bo'lsa, middleware default tabga 307 redirect qiladi (masalan `/uz/community` → `/uz/community/all`).
 - **Root layout async** (`src/app/[locale]/layout.jsx:1-60`): locale validation, message import, `NextIntlClientProvider`, `ProtectedRoute`, `ConditionalHeader`, `suppressHydrationWarning` body'da.
 - **Server vs Client components:**
   - Layout — server.
@@ -323,7 +326,7 @@ Bularni o'chirmang — context manbasi sifatida saqlanadi. Lekin **fakt manbasi 
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `next.config.js`                           | Image: AVIF/WebP, `remotePatterns: ['api.kitobzor.uz']`, SVG sandbox; `removeConsole` prod'da (error/warn saqlanadi); `reactStrictMode: false`; `experimental.optimizePackageImports` (MUI, slick, axios, React tree-shaking); **security headers** (CSP, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy, HSTS prod-only) `/(.*)` source'da; static asset 1y cache |
 | `postcss.config.mjs`                       | PurgeCSS prod-only, safelist + custom hyphenated class extractor                                                                                                                                                                                                                                                                                                                                              |
-| `middleware.js`                            | next-intl middleware, matcher API/\_next/\_vercel/assets dan tashqari                                                                                                                                                                                                                                                                                                                                         |
+| `src/middleware.js`                        | next-intl middleware + community redirect; matcher API/\_next/\_vercel/assets dan tashqari                                                                                                                                                                                                                                                                                                                    |
 | `jsconfig.json`                            | `@/` alias                                                                                                                                                                                                                                                                                                                                                                                                    |
 | `tsconfig.json`                            | TS configured, kod JS                                                                                                                                                                                                                                                                                                                                                                                         |
 | `src/config/env.js`                        | Runtime env validator: `getApiBaseUrl()` prod'da `NEXT_PUBLIC_API_BASE_URL` yo'q bo'lsa **throw qiladi**; dev'da `http://localhost:8000/` fallback + warning. `getSentryDsn()`, `getSentryEnvironment()`, `getSentryRelease()`, `getSupportPhone()` ham shu yerda                                                                                                                                             |

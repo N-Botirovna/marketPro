@@ -24,8 +24,9 @@ test.describe("Home page", () => {
   test("uz home renders without crashing", async ({ page }) => {
     const response = await page.goto("/uz/");
     expect(response?.ok()).toBe(true);
-    // Header logo is always present.
-    await expect(page.locator('img[alt="Logo"], img[alt="Kitobzor"]').first()).toBeVisible();
+    // Header logo is wrapped in <Link aria-label="Kitobzor">; the inner <img>
+    // is intentionally decorative (alt=""), so detect it via the labeled link.
+    await expect(page.getByRole("link", { name: "Kitobzor" }).first()).toBeVisible();
   });
 
   test("locale switcher route returns 200 for ru and en", async ({ page }) => {
