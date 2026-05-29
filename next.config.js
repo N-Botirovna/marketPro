@@ -31,6 +31,9 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
+  // Self-contained server bundle for Docker: `.next/standalone/server.js`
+  // ships with a pruned node_modules, so the runtime image stays small.
+  output: "standalone",
   outputFileTracingRoot: __dirname,
 
   // H-20: build no longer tolerates new lint errors. The remaining
