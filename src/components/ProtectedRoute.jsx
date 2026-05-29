@@ -4,16 +4,19 @@ import { useTranslations } from "next-intl";
 import { isAuthenticated, isRefreshTokenExpired, refreshAccessToken } from "@/services/auth";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { PROTECTED_PAGES } from "@/config";
-import Spin from "./Spin";
+import LoadingScreen from "./LoadingScreen";
 
 // useLayoutEffect on client, useEffect on server (avoids SSR warning)
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
-// Return true iff `pathname` ends with one of the protected route prefixes.
-// We compare suffixes because next-intl prepends a locale (`/uz/account`).
+// Return true iff `pathname` matches one of the protected routes. We compare
+// suffixes because next-intl prepends a locale (`/uz/account`). Dynamic routes
+// (e.g. `/uz/user/2`) are matched on the `/user/` segment so every id is gated.
 const isPathProtected = (pathname) => {
   if (!pathname) return false;
-  return PROTECTED_PAGES.some((route) => pathname === route || pathname.endsWith(route));
+  return PROTECTED_PAGES.some(
+    (route) => pathname === route || pathname.endsWith(route) || pathname.includes(`${route}/`),
+  );
 };
 
 const ProtectedRoute = ({ children }) => {
@@ -40,7 +43,9 @@ const ProtectedRoute = ({ children }) => {
     }
 
     if (isRefreshTokenExpired()) {
-      setIsChecking(false);
+      // Stay on the spinner while we redirect — dropping `isChecking` here
+      // would render the protected children for one frame, firing their
+      // data fetches (e.g. /user/<id> → 401) before navigation completes.
       router.push("/login");
       return;
     }
@@ -59,22 +64,7 @@ const ProtectedRoute = ({ children }) => {
   }, [pathname, requiresAuth, router]);
 
   if (isChecking) {
-    return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{
-          height: "100vh",
-          width: "100vw",
-          position: "fixed",
-          top: 0,
-          left: 0,
-          backgroundColor: "var(--surface-page)",
-          zIndex: 9999,
-        }}
-      >
-        <Spin text={tLoad("loading")} />
-      </div>
-    );
+    return <LoadingScreen title={tLoad("loading")} />;
   }
 
   return <>{children}</>;

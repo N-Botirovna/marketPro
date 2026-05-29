@@ -229,7 +229,7 @@ const ShopDetailPage = ({ shopId }) => {
     return (
       <Box sx={{ py: { xs: 3, md: 5 }, bgcolor: "var(--surface-page)" }}>
         <Box sx={{ maxWidth: 880, mx: "auto", px: { xs: 2, md: 3 } }}>
-          <Stack direction="row" spacing={2.5} alignItems="center">
+          <Stack direction="row" spacing={2.5} sx={{ alignItems: "center" }}>
             <Skeleton variant="circular" width={96} height={96} />
             <Stack spacing={1} sx={{ flex: 1 }}>
               <Skeleton variant="text" width="55%" height={32} />
@@ -283,7 +283,7 @@ const ShopDetailPage = ({ shopId }) => {
           <Stack
             direction={{ xs: "column", sm: "row" }}
             spacing={{ xs: 2, sm: 2.5 }}
-            alignItems={{ xs: "stretch", sm: "flex-start" }}
+            sx={{ alignItems: { xs: "stretch", sm: "flex-start" } }}
           >
             <Avatar
               src={shop.picture || undefined}
@@ -305,10 +305,12 @@ const ShopDetailPage = ({ shopId }) => {
               <Stack
                 direction="row"
                 spacing={1.25}
-                alignItems="center"
-                justifyContent={{ xs: "center", sm: "flex-start" }}
-                flexWrap="wrap"
                 useFlexGap
+                sx={{
+                  alignItems: "center",
+                  justifyContent: { xs: "center", sm: "flex-start" },
+                  flexWrap: "wrap",
+                }}
               >
                 <Typography
                   component="h1"
@@ -327,8 +329,8 @@ const ShopDetailPage = ({ shopId }) => {
                   <Stack
                     direction="row"
                     spacing={0.5}
-                    alignItems="center"
                     sx={{
+                      alignItems: "center",
                       px: 0.75,
                       py: 0.25,
                       borderRadius: 999,
@@ -381,9 +383,8 @@ const ShopDetailPage = ({ shopId }) => {
               <Stack
                 direction="row"
                 spacing={0.75}
-                flexWrap="wrap"
                 useFlexGap
-                justifyContent={{ xs: "center", sm: "flex-start" }}
+                sx={{ flexWrap: "wrap", justifyContent: { xs: "center", sm: "flex-start" } }}
               >
                 {shop.type && (
                   <Chip
@@ -422,10 +423,13 @@ const ShopDetailPage = ({ shopId }) => {
                 <Stack
                   direction="row"
                   spacing={1}
-                  alignItems="center"
-                  flexWrap="wrap"
                   useFlexGap
-                  sx={{ mt: 0.5, justifyContent: { xs: "center", sm: "flex-start" } }}
+                  sx={{
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    mt: 0.5,
+                    justifyContent: { xs: "center", sm: "flex-start" },
+                  }}
                 >
                   {tgUrl && (
                     <Button
@@ -589,17 +593,19 @@ const ShopDetailPage = ({ shopId }) => {
             placeholder={t("searchPlaceholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <i
-                    className="ph ph-magnifying-glass"
-                    style={{ fontSize: 18, color: "var(--text-muted)" }}
-                    aria-hidden="true"
-                  />
-                </InputAdornment>
-              ),
-              sx: { bgcolor: "var(--surface-card)" },
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <i
+                      className="ph ph-magnifying-glass"
+                      style={{ fontSize: 18, color: "var(--text-muted)" }}
+                      aria-hidden="true"
+                    />
+                  </InputAdornment>
+                ),
+                sx: { bgcolor: "var(--surface-card)" },
+              },
             }}
           />
           <TextField
@@ -663,7 +669,7 @@ const ShopDetailPage = ({ shopId }) => {
               />
             ))
           ) : books.length === 0 ? (
-            <Stack alignItems="center" spacing={1} sx={{ py: 6, color: "var(--text-muted)" }}>
+            <Stack spacing={1} sx={{ alignItems: "center", py: 6, color: "var(--text-muted)" }}>
               <i className="ph ph-book-open" style={{ fontSize: 40 }} aria-hidden="true" />
               <Typography>{t("emptyBooks")}</Typography>
             </Stack>
@@ -715,7 +721,7 @@ const ShopDetailPage = ({ shopId }) => {
 };
 
 const InfoLine = ({ icon, label, value }) => (
-  <Stack direction="row" spacing={0.75} alignItems="center" sx={{ minWidth: 0 }}>
+  <Stack direction="row" spacing={0.75} sx={{ alignItems: "center", minWidth: 0 }}>
     <i className={icon} style={{ fontSize: 13 }} aria-hidden="true" />
     <Box component="span" sx={{ color: "var(--text-muted)" }}>
       {label}:

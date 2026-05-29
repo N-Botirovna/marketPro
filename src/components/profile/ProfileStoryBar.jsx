@@ -8,7 +8,7 @@ import { resolveMediaUrl } from "@/utils/mediaUrl";
 
 const StoryItem = ({ children, label, onClick, href, ariaLabel }) => {
   const content = (
-    <Stack alignItems="center" spacing={0.75} sx={{ width: 88, flexShrink: 0 }}>
+    <Stack spacing={0.75} sx={{ alignItems: "center", width: 88, flexShrink: 0 }}>
       {/* Outer gradient ring — Telegram/Instagram-style. The inner white
           gap (2px) and the actual thumbnail circle are layered via box-
           shadow + a positioned child so the image can fill the available

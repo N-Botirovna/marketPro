@@ -43,7 +43,7 @@ const HomeShopsRow = ({ initialShops }) => {
   return (
     <Box sx={{ bgcolor: "var(--surface-page)", py: { xs: 2, md: 3 } }}>
       <Box sx={{ maxWidth: 1240, mx: "auto", px: { xs: 2, md: 3 } }}>
-        <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1.5, minHeight: 32 }}>
+        <Stack direction="row" spacing={2} sx={{ alignItems: "center", mb: 1.5, minHeight: 32 }}>
           <Typography
             component="h2"
             sx={{

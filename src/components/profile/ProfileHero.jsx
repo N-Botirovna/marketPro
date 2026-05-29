@@ -58,7 +58,7 @@ const ProfileHero = ({
         boxShadow: "var(--shadow-card)",
       }}
     >
-      <Stack alignItems="center" spacing={2}>
+      <Stack spacing={2} sx={{ alignItems: "center" }}>
         <Box sx={{ position: "relative", display: "inline-block" }}>
           <Avatar
             src={user?.picture || undefined}
@@ -126,16 +126,18 @@ const ProfileHero = ({
             <Stack
               direction="row"
               spacing={1}
-              justifyContent="center"
-              flexWrap="wrap"
-              sx={{ mt: 1, rowGap: 1 }}
+              sx={{ justifyContent: "center", flexWrap: "wrap", mt: 1, rowGap: 1 }}
             >
               {locationLine && (
                 <Chip
                   size="small"
                   icon={<i className="ph ph-map-pin" style={{ fontSize: 14, color: "inherit" }} />}
                   label={locationLine}
-                  sx={{ bgcolor: "grey.100", height: 24 }}
+                  sx={{
+                    bgcolor: "var(--surface-muted)",
+                    color: "var(--text-secondary)",
+                    height: 24,
+                  }}
                 />
               )}
               {roleLabel && (
@@ -154,9 +156,7 @@ const ProfileHero = ({
         <Stack
           direction="row"
           spacing={1.5}
-          flexWrap="wrap"
-          justifyContent="center"
-          sx={{ rowGap: 1 }}
+          sx={{ flexWrap: "wrap", justifyContent: "center", rowGap: 1 }}
         >
           <Button
             variant="contained"
@@ -188,11 +188,13 @@ const ProfileHero = ({
 
         <Stack
           direction="row"
-          divider={<Box sx={{ width: "1px", bgcolor: "grey.200", alignSelf: "stretch" }} />}
+          divider={
+            <Box sx={{ width: "1px", bgcolor: "var(--border-strong)", alignSelf: "stretch" }} />
+          }
           sx={{
             width: "100%",
             mt: 2,
-            bgcolor: "grey.50",
+            bgcolor: "var(--surface-muted)",
             borderRadius: 2,
             overflow: "hidden",
           }}

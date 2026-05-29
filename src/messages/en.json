@@ -1,6 +1,27 @@
 {
-  "hello": "Hello world!",
-  "welcome": "Welcome to our platform",
+  "TestMode": {
+    "banner": "Note: the site is in test mode — some features may not work fully yet."
+  },
+  "LoadingFacts": {
+    "items": [
+      "📚 Sell, swap or gift your books",
+      "🏬 Find books in shops and from other readers",
+      "🔎 Filter by region, category and price",
+      "❤️ Save books you like to your wishlist",
+      "💬 Sign up with the Telegram bot",
+      "⏳ You can also rent your books out"
+    ]
+  },
+  "Validation": {
+    "required": "This field is required",
+    "maxLength": "Must be at most {max} characters",
+    "priceNonNegative": "Price cannot be negative",
+    "discountNonNegative": "Discount price cannot be negative",
+    "discountTooHigh": "Discount price must be lower than the original price",
+    "yearRange": "Publication year must be between {min} and {max}",
+    "pagesMin": "Pages must be at least 1",
+    "phoneInvalid": "Invalid phone number. Example: +998901234567"
+  },
   "Header": {
     "home": "Home",
     "shop": "Books",
@@ -573,6 +594,8 @@
       "slogan": "Books - Source of Knowledge"
     },
     "stats": {
+      "title": "Our numbers",
+      "subtitle": "The success of our platform",
       "books": "Books",
       "shops": "Shops",
       "users": "Users",

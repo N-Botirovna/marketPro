@@ -23,6 +23,7 @@ import {
 import { getRegions } from "@/services/regions";
 import { updateShop } from "@/services/shop";
 import { mapValidationError } from "@/lib/mapValidationError";
+import { isBlank, tooLong, isPhoneE164 } from "@/lib/validation";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import FieldError from "@/components/FieldError";
 import { useToast } from "@/components/Toast";
@@ -57,6 +58,7 @@ const parseDays = (raw) => {
  */
 const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
   const t = useTranslations("ShopEdit");
+  const tv = useTranslations("Validation");
   const tSeller = useTranslations("SellerRegistration");
   const tCommon = useTranslations("Common");
   const tLocation = useTranslations("Location");
@@ -131,9 +133,34 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
   );
   const districts = selectedRegion?.districts || [];
 
+  // Mirror of ShopUpdate serializer (all optional, but format-checked) +
+  // users/utils.py phone validator. Phone is optional on edit; only its
+  // format is checked when present.
+  const validateShopField = (name, value) => {
+    switch (name) {
+      case "name":
+        if (isBlank(value)) return tv("required");
+        if (tooLong(value, 255)) return tv("maxLength", { max: 255 });
+        return null;
+      case "bio":
+        return tooLong(value, 500) ? tv("maxLength", { max: 500 }) : null;
+      case "phone_number": {
+        if (isBlank(value)) return null; // optional on edit
+        const raw = String(value).replace(/[^\d]/g, "").replace(/^998/, "");
+        return isPhoneE164(`+998${raw}`) ? null : tv("phoneInvalid");
+      }
+      case "telegram":
+      case "instagram":
+      case "website":
+        return tooLong(value, 77) ? tv("maxLength", { max: 77 }) : null;
+      default:
+        return null;
+    }
+  };
+
   const setField = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
-    setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
+    setFieldErrors((prev) => ({ ...prev, [name]: validateShopField(name, value) || undefined }));
   };
 
   const handlePictureSelect = (event) => {
@@ -155,7 +182,13 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
     event?.preventDefault?.();
     setError(null);
     setFieldErrors({});
-    if (!form.name.trim()) {
+    const blocking = {};
+    ["name", "bio", "phone_number", "telegram", "instagram", "website"].forEach((f) => {
+      const msg = validateShopField(f, form[f]);
+      if (msg) blocking[f] = msg;
+    });
+    if (Object.keys(blocking).length > 0) {
+      setFieldErrors(blocking);
       setError(tSeller("fillRequiredFields"));
       return;
     }
@@ -255,7 +288,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
           )}
 
           {/* Avatar */}
-          <Stack alignItems="center" spacing={1.25} sx={{ mb: 3 }}>
+          <Stack spacing={1.25} sx={{ alignItems: "center", mb: 3 }}>
             <Box
               onClick={() => fileInputRef.current?.click()}
               role="button"
@@ -449,7 +482,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
           {/* Working hours */}
           <SectionTitle text={tSeller("sectionHours")} />
           <Stack spacing={2} sx={{ mb: 3 }}>
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+            <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
               {DAY_CODES.map((code) => {
                 const active = workingDays.includes(code);
                 return (

@@ -153,17 +153,19 @@ const CommunityBooksPage = ({ type = "all" }) => {
             placeholder={t("searchPlaceholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <i
-                    className="ph ph-magnifying-glass"
-                    style={{ fontSize: 18, color: "var(--text-muted)" }}
-                    aria-hidden="true"
-                  />
-                </InputAdornment>
-              ),
-              sx: { bgcolor: "var(--surface-card)" },
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <i
+                      className="ph ph-magnifying-glass"
+                      style={{ fontSize: 18, color: "var(--text-muted)" }}
+                      aria-hidden="true"
+                    />
+                  </InputAdornment>
+                ),
+                sx: { bgcolor: "var(--surface-card)" },
+              },
             }}
           />
           <TextField
@@ -252,7 +254,7 @@ const CommunityBooksPage = ({ type = "all" }) => {
                 placeholder={t("priceMin")}
                 value={priceMin}
                 onChange={(e) => setPriceMin(e.target.value)}
-                inputProps={{ min: 0 }}
+                slotProps={{ htmlInput: { min: 0 } }}
                 sx={{
                   "& .MuiOutlinedInput-root": { bgcolor: "var(--surface-card)" },
                 }}
@@ -264,7 +266,7 @@ const CommunityBooksPage = ({ type = "all" }) => {
                 placeholder={t("priceMax")}
                 value={priceMax}
                 onChange={(e) => setPriceMax(e.target.value)}
-                inputProps={{ min: 0 }}
+                slotProps={{ htmlInput: { min: 0 } }}
                 sx={{
                   "& .MuiOutlinedInput-root": { bgcolor: "var(--surface-card)" },
                 }}

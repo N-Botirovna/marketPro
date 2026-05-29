@@ -55,9 +55,9 @@ const BookChatRow = ({ book, showTypeBadge = true }) => {
     >
       <Stack
         direction="row"
-        alignItems="center"
         spacing={1.5}
         sx={{
+          alignItems: "center",
           px: { xs: 1.5, md: 2 },
           py: 1.25,
           "&:hover": { bgcolor: "var(--surface-muted)" },

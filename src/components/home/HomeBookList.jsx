@@ -56,7 +56,7 @@ const HomeBookList = ({ type, ownerType, titleKey, viewAllHref, limit = 5, initi
         {/* Telegram-style channel header: title left, pill "see all" right,
             generous gap so long titles never crash into the link. Title
             ellipses on overflow instead of wrapping under the link. */}
-        <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1.5, minHeight: 32 }}>
+        <Stack direction="row" spacing={2} sx={{ alignItems: "center", mb: 1.5, minHeight: 32 }}>
           <Typography
             component="h2"
             sx={{

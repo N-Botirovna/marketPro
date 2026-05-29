@@ -149,7 +149,10 @@ const BannerManager = ({ shopId, banners = [], onChange }) => {
 
   return (
     <Box>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1.5 }}>
+      <Stack
+        direction="row"
+        sx={{ alignItems: "center", justifyContent: "space-between", mb: 1.5 }}
+      >
         <Box>
           <Typography sx={{ fontSize: 15, fontWeight: 700 }}>{tShop("sectionBanners")}</Typography>
           <Typography sx={{ fontSize: 12, color: "var(--text-muted)" }}>
@@ -200,7 +203,7 @@ const BannerManager = ({ shopId, banners = [], onChange }) => {
               }}
             >
               {/* Row header — thumbnail + title + actions */}
-              <Stack direction="row" spacing={1.5} alignItems="center" sx={{ p: 1.25 }}>
+              <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", p: 1.25 }}>
                 <Box
                   sx={{
                     width: 96,
@@ -237,7 +240,7 @@ const BannerManager = ({ shopId, banners = [], onChange }) => {
                   >
                     {banner.title || "—"}
                   </Typography>
-                  <Stack direction="row" spacing={1} alignItems="center">
+                  <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
                     <Chip
                       label={banner.is_active ? t("bannerActive") : t("bannerHidden")}
                       size="small"

@@ -108,10 +108,10 @@ const AuthLogin = () => {
               <form
                 onSubmit={handleSubmit}
                 style={{
-                  background: "#fff",
+                  background: "var(--surface-card)",
                   borderRadius: 16,
                   boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
-                  border: "1px solid #eef0f3",
+                  border: "1px solid var(--border-subtle)",
                   padding: "28px 24px",
                 }}
               >

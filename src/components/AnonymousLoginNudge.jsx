@@ -80,7 +80,7 @@ const AnonymousLoginNudge = () => {
           "& .MuiAlert-action": { alignItems: "center" },
         }}
       >
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={1.25} alignItems="center">
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={1.25} sx={{ alignItems: "center" }}>
           <Box sx={{ minWidth: 0 }}>
             <Typography sx={{ fontWeight: 700, fontSize: 14 }}>{t("title")}</Typography>
             <Typography variant="caption" sx={{ color: "var(--text-secondary)" }}>
