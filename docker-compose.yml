@@ -30,3 +30,11 @@ services:
       timeout: 5s
       retries: 3
       start_period: 20s
+
+# Join the backend stack's Docker network so its containerized nginx can reach
+# this container by name (kitobzor-frontend:3000) for the dev.kitobzor.uz
+# vhost. The network is created by the backend compose (kitobzor-dev).
+networks:
+  default:
+    name: kitobzor-dev_internal
+    external: true
