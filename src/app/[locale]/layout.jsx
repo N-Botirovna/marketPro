@@ -15,6 +15,7 @@ import "@phosphor-icons/web/regular";
 import "@phosphor-icons/web/fill";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ConditionalHeader from "@/components/ConditionalHeader";
+import TestModeBanner from "@/components/TestModeBanner";
 import MaterialThemeProvider from "@/components/MaterialThemeProvider";
 import { themeBootstrapScript } from "@/lib/theme";
 import { initSentryClient } from "@/lib/sentry";
@@ -145,7 +146,7 @@ export default async function RootLayout({ children, params }) {
   const messages = (await import(`@/messages/${locale}.json`)).default;
 
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         {/* Site-wide JSON-LD: Organization + WebSite (search-box).
             Page-level Book/BreadcrumbList/FAQPage schemas are injected
@@ -180,6 +181,7 @@ export default async function RootLayout({ children, params }) {
           <MaterialThemeProvider>
             <BootstrapInit />
             <RouteScrollToTop />
+            <TestModeBanner />
             <ProtectedRoute locale={locale}>
               <ConditionalHeader />
               {children}

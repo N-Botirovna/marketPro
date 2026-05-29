@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Drawer,
@@ -14,6 +14,8 @@ import {
   MenuItem,
   Divider,
 } from "@mui/material";
+import FieldError from "@/components/FieldError";
+import { isBlank, tooLong, isPhoneE164 } from "@/lib/validation";
 
 const FieldGroup = ({ children }) => <Stack spacing={1.75}>{children}</Stack>;
 
@@ -32,13 +34,40 @@ const ProfileEditModal = ({
   const t = useTranslations("ProfileDashboard");
   const tLocation = useTranslations("Location");
   const tProfileForm = useTranslations("ProfileForm");
+  const tv = useTranslations("Validation");
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  // Mirror of UserUpdate serializer: app_phone_number E.164 (optional, full
+  // number with +), bio max 255. Returns a localized message or null.
+  const validateProfileField = (name, value) => {
+    switch (name) {
+      case "app_phone_number":
+        if (isBlank(value)) return null; // optional
+        return isPhoneE164(value) ? null : tv("phoneInvalid");
+      case "bio":
+        return tooLong(value, 255) ? tv("maxLength", { max: 255 }) : null;
+      default:
+        return null;
+    }
+  };
 
   const handleChange = (event) => {
     if (typeof onInputChange === "function") onInputChange(event);
+    const { name, value } = event.target;
+    setFieldErrors((prev) => ({ ...prev, [name]: validateProfileField(name, value) || undefined }));
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    const blocking = {};
+    ["app_phone_number", "bio"].forEach((f) => {
+      const msg = validateProfileField(f, profileFormData?.[f] || "");
+      if (msg) blocking[f] = msg;
+    });
+    if (Object.keys(blocking).length > 0) {
+      setFieldErrors(blocking);
+      return;
+    }
     if (!saving && hasChanges && typeof onSave === "function") {
       onSave();
     }
@@ -118,17 +147,21 @@ const ProfileEditModal = ({
             />
           </Stack>
 
-          <TextField
-            fullWidth
-            label={t("phone")}
-            name="app_phone_number"
-            type="tel"
-            value={profileFormData?.app_phone_number || ""}
-            onChange={handleChange}
-            placeholder={t("phonePlaceholder")}
-            size="small"
-            autoComplete="tel"
-          />
+          <Box>
+            <TextField
+              fullWidth
+              label={t("phone")}
+              name="app_phone_number"
+              type="tel"
+              value={profileFormData?.app_phone_number || ""}
+              onChange={handleChange}
+              placeholder={t("phonePlaceholder")}
+              size="small"
+              autoComplete="tel"
+              error={!!fieldErrors.app_phone_number}
+            />
+            <FieldError message={fieldErrors.app_phone_number} />
+          </Box>
 
           <Stack direction={{ xs: "column", sm: "row" }} spacing={1.75}>
             <TextField
@@ -186,18 +219,22 @@ const ProfileEditModal = ({
             size="small"
           />
 
-          <TextField
-            fullWidth
-            label={t("bioTitle")}
-            name="bio"
-            value={profileFormData?.bio || ""}
-            onChange={handleChange}
-            placeholder={t("bioEmpty")}
-            size="small"
-            multiline
-            minRows={3}
-            maxRows={6}
-          />
+          <Box>
+            <TextField
+              fullWidth
+              label={t("bioTitle")}
+              name="bio"
+              value={profileFormData?.bio || ""}
+              onChange={handleChange}
+              placeholder={t("bioEmpty")}
+              size="small"
+              multiline
+              minRows={3}
+              maxRows={6}
+              error={!!fieldErrors.bio}
+            />
+            <FieldError message={fieldErrors.bio} />
+          </Box>
         </FieldGroup>
       </Box>
 

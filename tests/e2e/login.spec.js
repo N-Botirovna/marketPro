@@ -7,16 +7,18 @@ test.describe("Login page", () => {
     );
   });
 
-  test("renders phone + password inputs", async ({ page }) => {
+  test("renders OTP code input", async ({ page }) => {
     await page.goto("/uz/login");
-    await expect(page.locator('input[name="phone"]')).toBeVisible();
-    await expect(page.locator('input[name="password"]')).toBeVisible();
+    // Login is OTP-based: user gets a code from Telegram bot and enters it here.
+    await expect(page.locator('input[name="otp"]')).toBeVisible();
+    await expect(page.locator('button[type="submit"]')).toBeVisible();
   });
 
   test("honors ?next= for post-login redirect", async ({ page }) => {
     await page.goto("/uz/login?next=/uz/wishlist");
-    // Submit button is disabled until both fields are non-empty — that's fine,
-    // we just confirm the page loads with the query intact.
-    await expect(page.url()).toContain("next=%2Fuz%2Fwishlist");
+    // Page loads with ?next= intact — consumed on successful login.
+    await expect(page.locator('input[name="otp"]')).toBeVisible();
+    expect(page.url()).toContain("next=");
+    expect(page.url()).toContain("wishlist");
   });
 });

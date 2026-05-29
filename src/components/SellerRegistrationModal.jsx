@@ -24,6 +24,7 @@ import { getRegions } from "@/services/regions";
 import { createShop } from "@/services/shopCreate";
 import { createShopBanner } from "@/services/shop";
 import { mapValidationError } from "@/lib/mapValidationError";
+import { isBlank, tooLong, isPhoneE164 } from "@/lib/validation";
 import FieldError from "./FieldError";
 import { useToast } from "./Toast";
 import BannerEditor from "./shop/BannerEditor";
@@ -51,6 +52,7 @@ const joinTimeRange = ({ start, end }) => (start && end ? `${start} - ${end}` : 
 const SellerRegistrationModal = ({ show, onHide }) => {
   const t = useTranslations("SellerRegistration");
   const tCommon = useTranslations("Common");
+  const tv = useTranslations("Validation");
   const tLocation = useTranslations("Location");
   const tDays = useTranslations("Days");
   const tBanner = useTranslations("Banner");
@@ -124,9 +126,41 @@ const SellerRegistrationModal = ({ show, onHide }) => {
   );
   const districts = selectedRegion?.districts || [];
 
+  // Mirror of ShopCreate serializer + users/utils.py phone validator. Returns
+  // a localized message or null. Phone is assembled as +998<digits> exactly
+  // like handleSubmit does, so the check matches what the API receives.
+  const validateSellerField = (name, value) => {
+    switch (name) {
+      case "name":
+        if (isBlank(value)) return tv("required");
+        if (tooLong(value, 255)) return tv("maxLength", { max: 255 });
+        return null;
+      case "bio":
+        if (isBlank(value)) return tv("required");
+        if (tooLong(value, 500)) return tv("maxLength", { max: 500 });
+        return null;
+      case "phone_number": {
+        if (isBlank(value)) return tv("required");
+        const raw = String(value).replace(/[^\d]/g, "").replace(/^998/, "");
+        if (!isPhoneE164(`+998${raw}`)) return tv("phoneInvalid");
+        return null;
+      }
+      case "region":
+      case "district":
+      case "location_text":
+        return isBlank(value) ? tv("required") : null;
+      case "telegram":
+      case "instagram":
+      case "website":
+        return tooLong(value, 77) ? tv("maxLength", { max: 77 }) : null;
+      default:
+        return null;
+    }
+  };
+
   const setField = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
-    setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
+    setFieldErrors((prev) => ({ ...prev, [name]: validateSellerField(name, value) || undefined }));
   };
 
   const handlePictureSelect = (event) => {
@@ -149,7 +183,26 @@ const SellerRegistrationModal = ({ show, onHide }) => {
     setError(null);
     setFieldErrors({});
 
-    if (!form.name.trim() || !form.phone_number.trim() || !form.region || !form.picture) {
+    // Block before any request when validation fails — mirror the backend so
+    // the user fixes the field inline instead of getting a 400.
+    const blocking = {};
+    [
+      "name",
+      "bio",
+      "phone_number",
+      "region",
+      "district",
+      "location_text",
+      "telegram",
+      "instagram",
+      "website",
+    ].forEach((f) => {
+      const msg = validateSellerField(f, form[f]);
+      if (msg) blocking[f] = msg;
+    });
+    if (!form.picture) blocking.picture = tv("required");
+    if (Object.keys(blocking).length > 0) {
+      setFieldErrors(blocking);
       setError(t("fillRequiredFields"));
       return;
     }
@@ -316,7 +369,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
           )}
 
           {/* ─── Avatar ────────────────────────────────────────────────── */}
-          <Stack alignItems="center" spacing={1.25} sx={{ mb: 3 }}>
+          <Stack spacing={1.25} sx={{ alignItems: "center", mb: 3 }}>
             <Box
               onClick={() => fileInputRef.current?.click()}
               role="button"
@@ -387,17 +440,21 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               />
               <FieldError message={fieldErrors.name} />
             </Box>
-            <TextField
-              fullWidth
-              size="small"
-              label={t("bio")}
-              value={form.bio}
-              onChange={(e) => setField("bio", e.target.value)}
-              multiline
-              minRows={2}
-              maxRows={4}
-              helperText={t("bioHint")}
-            />
+            <Box>
+              <TextField
+                fullWidth
+                size="small"
+                label={t("bio")}
+                value={form.bio}
+                onChange={(e) => setField("bio", e.target.value)}
+                multiline
+                minRows={2}
+                maxRows={4}
+                error={!!fieldErrors.bio}
+                helperText={fieldErrors.bio ? undefined : t("bioHint")}
+              />
+              <FieldError message={fieldErrors.bio} />
+            </Box>
           </Stack>
 
           {/* ─── Location ─────────────────────────────────────────────── */}
@@ -411,12 +468,14 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                 value={form.phone_number}
                 onChange={(e) => setField("phone_number", e.target.value)}
                 placeholder="9X XXX XX XX"
-                InputProps={{
-                  startAdornment: (
-                    <Typography sx={{ color: "var(--text-muted)", mr: 1, fontSize: 14 }}>
-                      +998
-                    </Typography>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <Typography sx={{ color: "var(--text-muted)", mr: 1, fontSize: 14 }}>
+                        +998
+                      </Typography>
+                    ),
+                  },
                 }}
                 error={!!fieldErrors.phone_number}
               />
@@ -450,6 +509,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                 value={form.district}
                 onChange={(e) => setField("district", e.target.value)}
                 disabled={!form.region || districts.length === 0}
+                error={!!fieldErrors.district}
               >
                 <MenuItem value="">{tLocation("selectDistrict")}</MenuItem>
                 {districts.map((d) => (
@@ -459,14 +519,18 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                 ))}
               </TextField>
             </Stack>
-            <TextField
-              fullWidth
-              size="small"
-              label={t("address")}
-              value={form.location_text}
-              onChange={(e) => setField("location_text", e.target.value)}
-              placeholder={t("addressPlaceholder")}
-            />
+            <Box>
+              <TextField
+                fullWidth
+                size="small"
+                label={t("address")}
+                value={form.location_text}
+                onChange={(e) => setField("location_text", e.target.value)}
+                placeholder={t("addressPlaceholder")}
+                error={!!fieldErrors.location_text}
+              />
+              <FieldError message={fieldErrors.location_text} />
+            </Box>
           </Stack>
 
           {/* ─── Working time ─────────────────────────────────────────── */}
@@ -479,7 +543,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               >
                 {t("workingDays")}
               </Typography>
-              <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
+              <Stack direction="row" spacing={0.75} useFlexGap sx={{ flexWrap: "wrap" }}>
                 {DAY_CODES.map((code) => {
                   const active = workingDays.includes(code);
                   return (
@@ -506,13 +570,13 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               >
                 {t("workingHours")}
               </Typography>
-              <Stack direction="row" spacing={1.5} alignItems="center">
+              <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
                 <TextField
                   size="small"
                   type="time"
                   value={workingHours.start}
                   onChange={(e) => setWorkingHours((prev) => ({ ...prev, start: e.target.value }))}
-                  inputProps={{ step: 300 }}
+                  slotProps={{ htmlInput: { step: 300 } }}
                   sx={{ flex: 1 }}
                 />
                 <Typography sx={{ color: "var(--text-muted)" }}>—</Typography>
@@ -521,7 +585,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                   type="time"
                   value={workingHours.end}
                   onChange={(e) => setWorkingHours((prev) => ({ ...prev, end: e.target.value }))}
-                  inputProps={{ step: 300 }}
+                  slotProps={{ htmlInput: { step: 300 } }}
                   sx={{ flex: 1 }}
                 />
               </Stack>
@@ -534,13 +598,13 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               >
                 {t("lunch")} <span style={{ opacity: 0.6 }}>({tCommon("info")})</span>
               </Typography>
-              <Stack direction="row" spacing={1.5} alignItems="center">
+              <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
                 <TextField
                   size="small"
                   type="time"
                   value={lunch.start}
                   onChange={(e) => setLunch((prev) => ({ ...prev, start: e.target.value }))}
-                  inputProps={{ step: 300 }}
+                  slotProps={{ htmlInput: { step: 300 } }}
                   sx={{ flex: 1 }}
                 />
                 <Typography sx={{ color: "var(--text-muted)" }}>—</Typography>
@@ -549,7 +613,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                   type="time"
                   value={lunch.end}
                   onChange={(e) => setLunch((prev) => ({ ...prev, end: e.target.value }))}
-                  inputProps={{ step: 300 }}
+                  slotProps={{ htmlInput: { step: 300 } }}
                   sx={{ flex: 1 }}
                 />
               </Stack>

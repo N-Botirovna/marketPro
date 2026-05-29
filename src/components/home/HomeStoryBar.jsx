@@ -42,7 +42,7 @@ const StoryCircle = ({ story, onClick }) => {
         textDecoration: "none",
       }}
     >
-      <Stack alignItems="center" spacing={0.75} sx={{ width: 80, flexShrink: 0 }}>
+      <Stack spacing={0.75} sx={{ alignItems: "center", width: 80, flexShrink: 0 }}>
         <Box
           sx={{
             width: { xs: 64, md: 80 },

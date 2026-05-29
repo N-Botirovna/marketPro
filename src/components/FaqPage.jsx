@@ -95,16 +95,18 @@ const FaqPage = () => {
               borderRadius: 2,
             },
           }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <i
-                  className="ph ph-magnifying-glass"
-                  style={{ fontSize: 18, color: "var(--text-muted)" }}
-                  aria-hidden="true"
-                />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <i
+                    className="ph ph-magnifying-glass"
+                    style={{ fontSize: 18, color: "var(--text-muted)" }}
+                    aria-hidden="true"
+                  />
+                </InputAdornment>
+              ),
+            },
           }}
         />
 

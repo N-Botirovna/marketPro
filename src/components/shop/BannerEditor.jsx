@@ -96,10 +96,15 @@ const BannerEditor = ({
           />
         ) : (
           <Stack
-            alignItems="center"
-            justifyContent="center"
             spacing={1}
-            sx={{ width: "100%", height: "100%", textAlign: "center", px: 2 }}
+            sx={{
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              height: "100%",
+              textAlign: "center",
+              px: 2,
+            }}
           >
             <Box
               sx={{

@@ -163,7 +163,7 @@ const PoliciesSection = () => {
                 key={p.value}
                 value={p.value}
                 label={
-                  <Stack direction="row" alignItems="center" spacing={1}>
+                  <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
                     <i className={p.icon} aria-hidden="true" />
                     <span>{t(`type.${p.value}`)}</span>
                     {counts[p.value] > 0 && (

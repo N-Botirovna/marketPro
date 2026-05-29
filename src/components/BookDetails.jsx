@@ -255,7 +255,7 @@ const BookDetails = ({ bookId }) => {
         <Stack
           direction={{ xs: "column", md: "row" }}
           spacing={{ xs: 2.5, md: 4 }}
-          alignItems="flex-start"
+          sx={{ alignItems: "flex-start" }}
         >
           {/* Cover. `objectFit: contain` keeps the whole cover visible —
               never crops the title or author off a tall scan. The soft
@@ -295,7 +295,7 @@ const BookDetails = ({ bookId }) => {
 
           {/* Right column — title, price, primary actions. */}
           <Stack spacing={2} sx={{ flex: 1, minWidth: 0, width: "100%" }}>
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+            <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
               {visual && (
                 <Chip
                   icon={<i className={visual.icon} style={{ fontSize: 14 }} />}
@@ -361,10 +361,9 @@ const BookDetails = ({ bookId }) => {
             {isMonetary && book.price ? (
               <Stack
                 direction="row"
-                alignItems="baseline"
                 spacing={1.25}
-                flexWrap="wrap"
                 useFlexGap
+                sx={{ alignItems: "baseline", flexWrap: "wrap" }}
               >
                 <Typography
                   sx={{
@@ -409,7 +408,7 @@ const BookDetails = ({ bookId }) => {
             ) : null}
 
             {/* Primary actions */}
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+            <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
               {tgUrl ? (
                 <Button
                   component="a"
@@ -503,8 +502,8 @@ const BookDetails = ({ bookId }) => {
             <Stack
               direction="row"
               spacing={1.5}
-              alignItems="center"
               sx={{
+                alignItems: "center",
                 p: 1.5,
                 borderRadius: 2.5,
                 bgcolor: "var(--surface-card)",
@@ -633,7 +632,7 @@ const BookDetails = ({ bookId }) => {
 // ── Local presentational helpers ───────────────────────────────────────
 
 const SectionHeading = ({ icon, text }) => (
-  <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+  <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1.5 }}>
     <Box
       sx={{
         width: 28,
@@ -692,7 +691,7 @@ const DetailRow = ({ label, value, last }) => {
 };
 
 const Stat = ({ icon, iconColor, text }) => (
-  <Stack direction="row" spacing={0.75} alignItems="center">
+  <Stack direction="row" spacing={0.75} sx={{ alignItems: "center" }}>
     <i className={icon} style={{ color: iconColor, fontSize: 14 }} aria-hidden="true" />
     <span>{text}</span>
   </Stack>

@@ -25,7 +25,7 @@ const Row = ({ icon, label, value, href }) => {
   );
 
   return (
-    <Stack direction="row" alignItems="center" spacing={2} sx={{ py: 1.5, minHeight: 48 }}>
+    <Stack direction="row" spacing={2} sx={{ alignItems: "center", py: 1.5, minHeight: 48 }}>
       <Box
         sx={{
           width: 36,

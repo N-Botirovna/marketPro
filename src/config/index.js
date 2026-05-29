@@ -6,9 +6,13 @@ export const SUPPORT_PHONE = getSupportPhone();
 
 // Pages where unauthenticated users should be redirected to /login.
 // Everything else is anonymous-readable (home, shops, /community/*, book
-// details, policies, faq, etc.). Match by *path suffix* so the locale
-// prefix (`/uz/account`) still matches.
-export const PROTECTED_PAGES = ["/account", "/wishlist"];
+// details, policies, faq, etc.). Match by *path suffix* (leaf pages) or
+// *path segment* (dynamic routes like `/user/<id>`) so the locale prefix
+// (`/uz/account`) still matches.
+// `/user` is gated because the backend `/auth/<id>/` endpoint requires auth
+// (user-enumeration / H-1 privacy protection) — anonymous visitors would
+// otherwise hit a 401→login loop.
+export const PROTECTED_PAGES = ["/account", "/wishlist", "/user"];
 
 // Legacy export — kept so callers that imported PUBLIC_PAGES still work.
 // Login / register surfaces are always reachable by definition; we list them

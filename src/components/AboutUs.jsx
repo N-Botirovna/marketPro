@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { openSellerModal } from "@/lib/sellerModal";
 import TopVendorsOne from "./TopVendorsOne";
@@ -92,21 +91,23 @@ const AboutUs = () => {
             <div className="col-lg-6">
               <div className="about-hero__image position-relative">
                 <div
-                  className="rounded-12 overflow-hidden"
+                  className="rounded-12 overflow-hidden d-flex align-items-center justify-content-center"
                   style={{
                     position: "relative",
                     aspectRatio: "4 / 3",
                     minHeight: 220,
                     maxHeight: 400,
+                    background:
+                      "linear-gradient(135deg, hsl(148, 59%, 42%) 0%, hsl(148, 59%, 26%) 100%)",
                   }}
                 >
-                  <Image
-                    src="/assets/images/thumbs/banner-img1.png"
-                    alt="Kitobzor"
-                    fill
-                    sizes="(max-width: 768px) 100vw, 600px"
-                    style={{ objectFit: "cover" }}
-                    priority
+                  <i
+                    className="ph-fill ph-books"
+                    aria-hidden="true"
+                    style={{
+                      fontSize: "clamp(96px, 22vw, 184px)",
+                      color: "rgba(255, 255, 255, 0.92)",
+                    }}
                   />
                 </div>
                 <div className="position-absolute bottom-0 start-0 bg-main-500 text-white px-20 py-12 rounded-12 m-12">
@@ -125,12 +126,8 @@ const AboutUs = () => {
       <section className="about-stats py-48 bg-gray-50">
         <div className="container container-lg">
           <div className="section-heading text-center mb-32">
-            <h5 className="text-2xl fw-bold mb-8 text-heading">
-              {tAbout("stats.title") || "Bizning raqamlarimiz"}
-            </h5>
-            <p className="text-gray-600">
-              {tAbout("stats.subtitle") || "Platformamizning muvaffaqiyati"}
-            </p>
+            <h5 className="text-2xl fw-bold mb-8 text-heading">{tAbout("stats.title")}</h5>
+            <p className="text-gray-600">{tAbout("stats.subtitle")}</p>
           </div>
           <div className="row gy-3">
             {stats.map((stat, index) => (

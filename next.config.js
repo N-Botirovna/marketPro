@@ -5,6 +5,24 @@ import bundleAnalyzer from "@next/bundle-analyzer";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Dev convenience: trust whatever NEXT_PUBLIC_API_BASE_URL points at (e.g. a
+// LAN IP like http://192.168.x.x:8000 used for phone testing) in CSP +
+// next/image, so the committed config stays generic — no hardcoded IPs.
+const localApiOrigin = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_API_BASE_URL).origin;
+  } catch {
+    return null;
+  }
+})();
+const localApiHost = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_API_BASE_URL).hostname;
+  } catch {
+    return null;
+  }
+})();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // M-22: strict mode catches effect-cleanup bugs by double-invoking
@@ -34,6 +52,12 @@ const nextConfig = {
       { protocol: "http", hostname: "api-dev.kitobzor.uz" },
       // Local Docker stack (Variant B in onboarding).
       { protocol: "http", hostname: "localhost" },
+      // Dev: LAN-IP backend for phone testing (derived from env, dev-only).
+      ...(localApiHost &&
+      process.env.NODE_ENV !== "production" &&
+      !["localhost", "api.kitobzor.uz", "api-dev.kitobzor.uz"].includes(localApiHost)
+        ? [{ protocol: "http", hostname: localApiHost }]
+        : []),
     ],
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 3600,
@@ -107,10 +131,12 @@ const nextConfig = {
     // Dev backend (api-dev.kitobzor.uz) still serves media over plain HTTP.
     // Allow it locally + localhost for the Docker stack; production only sees
     // HTTPS hosts (no mixed-content).
-    const devHosts = isProd ? "" : " http://api-dev.kitobzor.uz http://localhost:8000";
+    // Append the env-configured API origin (e.g. LAN IP for phone testing).
+    const devApi = !isProd && localApiOrigin ? ` ${localApiOrigin}` : "";
+    const devHosts = isProd ? "" : ` http://api-dev.kitobzor.uz http://localhost:8000${devApi}`;
     const devConnect = isProd
       ? ""
-      : " http://api-dev.kitobzor.uz http://localhost:8000 ws://localhost:* http://localhost:*";
+      : ` http://api-dev.kitobzor.uz http://localhost:8000 ws://localhost:* http://localhost:*${devApi}`;
 
     const csp = [
       "default-src 'self'",

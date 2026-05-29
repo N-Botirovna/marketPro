@@ -156,7 +156,7 @@ const ProfileStaffTab = ({ shops = [] }) => {
 
   return (
     <Box sx={{ p: { xs: 2, md: 3 } }}>
-      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+      <Stack direction="row" spacing={2} sx={{ alignItems: "center", mb: 2 }}>
         <Typography sx={{ fontSize: { xs: 18, md: 22 }, fontWeight: 700 }}>
           {tStaff("title")}
         </Typography>
@@ -288,9 +288,8 @@ const ProfileStaffTab = ({ shops = [] }) => {
             <Stack
               key={entry.id}
               direction="row"
-              alignItems="center"
               spacing={2}
-              sx={{ px: 2, py: 1.5 }}
+              sx={{ alignItems: "center", px: 2, py: 1.5 }}
             >
               <Avatar sx={{ bgcolor: "primary.light", width: 40, height: 40 }}>
                 {(entry.user_name || "?").trim().charAt(0).toUpperCase()}

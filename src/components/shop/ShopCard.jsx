@@ -34,8 +34,8 @@ const ShopCard = ({ shop }) => {
       <Stack
         direction="row"
         spacing={1.75}
-        alignItems="center"
         sx={{
+          alignItems: "center",
           p: { xs: 1.5, md: 1.75 },
           borderRadius: 3,
           bgcolor: "var(--surface-card)",
@@ -105,8 +105,7 @@ const ShopCard = ({ shop }) => {
             <Stack
               direction="row"
               spacing={0.5}
-              alignItems="center"
-              sx={{ mt: 0.35, color: "var(--text-secondary)", minWidth: 0 }}
+              sx={{ alignItems: "center", mt: 0.35, color: "var(--text-secondary)", minWidth: 0 }}
             >
               <i
                 className="ph ph-map-pin"
@@ -131,8 +130,7 @@ const ShopCard = ({ shop }) => {
             <Stack
               direction="row"
               spacing={0.5}
-              alignItems="center"
-              sx={{ mt: 0.25, color: "var(--text-secondary)" }}
+              sx={{ alignItems: "center", mt: 0.25, color: "var(--text-secondary)" }}
             >
               <i
                 className="ph ph-clock"
@@ -157,8 +155,7 @@ const ShopCard = ({ shop }) => {
             <Stack
               direction="row"
               spacing={0.5}
-              alignItems="center"
-              sx={{ mt: 0.25, color: "var(--text-muted)" }}
+              sx={{ alignItems: "center", mt: 0.25, color: "var(--text-muted)" }}
             >
               <i
                 className="ph ph-books"

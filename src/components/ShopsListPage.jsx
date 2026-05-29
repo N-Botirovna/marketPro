@@ -101,17 +101,19 @@ const ShopsListPage = () => {
             placeholder={t("searchPlaceholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <i
-                    className="ph ph-magnifying-glass"
-                    style={{ fontSize: 18, color: "var(--text-muted)" }}
-                    aria-hidden="true"
-                  />
-                </InputAdornment>
-              ),
-              sx: { bgcolor: "var(--surface-card)" },
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <i
+                      className="ph ph-magnifying-glass"
+                      style={{ fontSize: 18, color: "var(--text-muted)" }}
+                      aria-hidden="true"
+                    />
+                  </InputAdornment>
+                ),
+                sx: { bgcolor: "var(--surface-card)" },
+              },
             }}
           />
           <TextField

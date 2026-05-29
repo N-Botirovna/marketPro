@@ -7,9 +7,9 @@ const EntryCard = ({ href, icon, title, caption }) => (
   <Link href={href} style={{ textDecoration: "none", color: "inherit", flex: 1, minWidth: 0 }}>
     <Stack
       direction="row"
-      alignItems="center"
       spacing={1.5}
       sx={{
+        alignItems: "center",
         p: { xs: 1.5, md: 2 },
         borderRadius: 3,
         bgcolor: "var(--surface-card)",

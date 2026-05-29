@@ -1,6 +1,27 @@
 {
-  "hello": "Hello world!",
-  "welcome": "Welcome to our platform",
+  "TestMode": {
+    "banner": "Diqqat: sayt sinov rejimida ishlamoqda — ba'zi imkoniyatlar hali to'liq ishlamasligi mumkin."
+  },
+  "LoadingFacts": {
+    "items": [
+      "📚 Kitoblaringizni soting, almashtiring yoki sovg'a qiling",
+      "🏬 Do'konlar va kitobsevarlardan kitob qidiring",
+      "🔎 Viloyat, kategoriya va narx bo'yicha saralang",
+      "❤️ Yoqqan kitoblaringizni saralanganlarga qo'shing",
+      "💬 Telegram bot orqali ro'yxatdan o'ting",
+      "⏳ Kitoblaringizni ijaraga ham qo'yishingiz mumkin"
+    ]
+  },
+  "Validation": {
+    "required": "Bu maydon to'ldirilishi shart",
+    "maxLength": "{max} ta belgidan oshmasligi kerak",
+    "priceNonNegative": "Narx manfiy bo'lishi mumkin emas",
+    "discountNonNegative": "Chegirma narx manfiy bo'lishi mumkin emas",
+    "discountTooHigh": "Chegirma narx asl narxdan past bo'lishi kerak",
+    "yearRange": "Nashr yili {min} va {max} orasida bo'lishi kerak",
+    "pagesMin": "Sahifalar soni kamida 1 bo'lishi kerak",
+    "phoneInvalid": "Telefon raqami noto'g'ri. Masalan: +998901234567"
+  },
   "Header": {
     "home": "Bosh sahifa",
     "shop": "Kitoblar",
@@ -573,6 +594,8 @@
       "slogan": "Kitoblar - bilim manbai"
     },
     "stats": {
+      "title": "Bizning raqamlarimiz",
+      "subtitle": "Platformamizning muvaffaqiyati",
       "books": "Kitoblar",
       "shops": "Do'konlar",
       "users": "Foydalanuvchilar",
