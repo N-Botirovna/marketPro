@@ -7,8 +7,6 @@ const safelistPatterns = [
   /^modal/, /^dropdown/, /^collapse/, /^navbar/, /^fade/, /^show$/,
   // react-slick
   /^slick-/,
-  // Phosphor icons
-  /^ph/,
   // AOS
   /^aos-/, /^\[data-aos/,
   // Project dynamic utilities (built via template literals)

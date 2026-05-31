@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Snackbar, Alert, Button, Box, Stack, Typography } from "@mui/material";
 import { Link } from "@/i18n/navigation";
 import { isAuthenticated } from "@/services/auth";
+import Icon from "@/components/Icon";
 
 const NUDGE_DELAY_MS = 60 * 1000; // 60s — long enough to read a page, short
 // enough to keep new visitors on the conversion path
@@ -64,7 +65,7 @@ const AnonymousLoginNudge = () => {
       <Alert
         severity="info"
         icon={
-          <i
+          <Icon
             className="ph-fill ph-telegram-logo"
             style={{ fontSize: 22, color: "var(--main-600, hsl(148, 59%, 39%))" }}
             aria-hidden="true"

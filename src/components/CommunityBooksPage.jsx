@@ -8,6 +8,7 @@ import { getBooks } from "@/services/books";
 import { getBookCategories, getBookSubcategories } from "@/services/categories";
 import { getRegions } from "@/services/regions";
 import BookChatRow from "@/components/shared/BookChatRow";
+import Icon from "@/components/Icon";
 
 const CommunityBooksPage = ({ type = "all" }) => {
   const t = useTranslations("CommunityPage");
@@ -157,7 +158,7 @@ const CommunityBooksPage = ({ type = "all" }) => {
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
-                    <i
+                    <Icon
                       className="ph ph-magnifying-glass"
                       style={{ fontSize: 18, color: "var(--text-muted)" }}
                       aria-hidden="true"
@@ -300,7 +301,7 @@ const CommunityBooksPage = ({ type = "all" }) => {
             <Box sx={{ py: 4, textAlign: "center", color: "var(--text-secondary)" }}>{error}</Box>
           ) : books.length === 0 ? (
             <Box sx={{ py: 6, textAlign: "center", color: "var(--text-muted)" }}>
-              <i
+              <Icon
                 className="ph ph-book-open"
                 style={{ fontSize: 40, display: "inline-block", marginBottom: 8 }}
                 aria-hidden="true"

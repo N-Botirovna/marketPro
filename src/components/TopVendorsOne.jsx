@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { getShops } from "@/services/shops";
+import Icon from "@/components/Icon";
 
 const TopVendorsOne = () => {
   const [shops, setShops] = useState([]);
@@ -142,7 +143,7 @@ const TopVendorsOne = () => {
                       )}
                       {shop.has_post_service && (
                         <span className="bg-main-50 text-main-600 px-12 py-4 rounded-pill text-xs d-inline-block mt-8 mb-8">
-                          <i className="ph ph-truck d-inline mr-4" />
+                          <Icon className="ph ph-truck d-inline mr-4" />
                           Yetkazib berish
                         </span>
                       )}

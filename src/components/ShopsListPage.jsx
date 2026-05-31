@@ -14,6 +14,7 @@ import {
 import { getShops } from "@/services/shops";
 import { getRegions } from "@/services/regions";
 import ShopCard from "@/components/shop/ShopCard";
+import Icon from "@/components/Icon";
 
 const ShopsListPage = () => {
   const t = useTranslations("ShopsPage");
@@ -105,7 +106,7 @@ const ShopsListPage = () => {
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
-                    <i
+                    <Icon
                       className="ph ph-magnifying-glass"
                       style={{ fontSize: 18, color: "var(--text-muted)" }}
                       aria-hidden="true"
@@ -188,7 +189,7 @@ const ShopsListPage = () => {
 
         {!loading && !error && shops.length === 0 && (
           <Box sx={{ py: 6, textAlign: "center", color: "var(--text-muted)" }}>
-            <i
+            <Icon
               className="ph ph-storefront"
               style={{ fontSize: 48, display: "inline-block", marginBottom: 12 }}
               aria-hidden="true"

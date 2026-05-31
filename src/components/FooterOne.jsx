@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { openSellerModal } from "@/lib/sellerModal";
 import { getFacebookUrl, getInstagramUrl, getTelegramChannelUrl } from "@/config/env";
+import Icon from "@/components/Icon";
 
 /**
  * Footer — three balanced columns:
@@ -207,7 +208,7 @@ const FooterOne = () => {
                       fontSize: 20,
                     }}
                   >
-                    <i className="ph-fill ph-user" aria-hidden="true" />
+                    <Icon className="ph-fill ph-user" aria-hidden="true" />
                   </span>
                   <span className="d-flex flex-column" style={{ minWidth: 0 }}>
                     <span style={{ fontSize: 14, fontWeight: 700 }}>
@@ -222,7 +223,7 @@ const FooterOne = () => {
                       {tF("account.openProfileHint")}
                     </span>
                   </span>
-                  <i
+                  <Icon
                     className="ph ph-caret-right ms-auto"
                     style={{ fontSize: 18, color: "var(--text-muted)" }}
                     aria-hidden="true"
@@ -250,7 +251,7 @@ const FooterOne = () => {
                       fontSize: 20,
                     }}
                   >
-                    <i className="ph-fill ph-sign-in" aria-hidden="true" />
+                    <Icon className="ph-fill ph-sign-in" aria-hidden="true" />
                   </span>
                   <span className="d-flex flex-column" style={{ minWidth: 0 }}>
                     <span style={{ fontSize: 14, fontWeight: 700 }}>{tHeader("login")}</span>
@@ -263,7 +264,7 @@ const FooterOne = () => {
                       {tF("account.loginHint")}
                     </span>
                   </span>
-                  <i
+                  <Icon
                     className="ph ph-caret-right ms-auto"
                     style={{ fontSize: 18, color: "var(--text-muted)" }}
                     aria-hidden="true"
@@ -299,7 +300,7 @@ const FooterOne = () => {
                       fontSize: 18,
                     }}
                   >
-                    <i className="ph-fill ph-telegram-logo" aria-hidden="true" />
+                    <Icon className="ph-fill ph-telegram-logo" aria-hidden="true" />
                   </a>
                 </li>
                 <li>
@@ -318,7 +319,7 @@ const FooterOne = () => {
                       fontSize: 18,
                     }}
                   >
-                    <i className="ph-fill ph-instagram-logo" aria-hidden="true" />
+                    <Icon className="ph-fill ph-instagram-logo" aria-hidden="true" />
                   </a>
                 </li>
                 <li>
@@ -337,7 +338,7 @@ const FooterOne = () => {
                       fontSize: 18,
                     }}
                   >
-                    <i className="ph-fill ph-facebook-logo" aria-hidden="true" />
+                    <Icon className="ph-fill ph-facebook-logo" aria-hidden="true" />
                   </a>
                 </li>
               </ul>

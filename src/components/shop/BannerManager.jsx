@@ -16,6 +16,7 @@ import {
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { createShopBanner, updateShopBanner } from "@/services/shop";
 import { useToast } from "@/components/Toast";
+import Icon from "@/components/Icon";
 import BannerEditor from "./BannerEditor";
 
 /**
@@ -165,7 +166,7 @@ const BannerManager = ({ shopId, banners = [], onChange }) => {
             variant="contained"
             size="small"
             onClick={startAdd}
-            startIcon={<i className="ph-bold ph-plus" aria-hidden="true" />}
+            startIcon={<Icon className="ph-bold ph-plus" aria-hidden="true" />}
             sx={{ textTransform: "none", fontWeight: 700, flexShrink: 0 }}
           >
             {t("addBanner")}
@@ -256,7 +257,7 @@ const BannerManager = ({ shopId, banners = [], onChange }) => {
                     aria-label={banner.is_active ? t("hideBanner") : t("showBanner")}
                     title={banner.is_active ? t("hideBanner") : t("showBanner")}
                   >
-                    <i
+                    <Icon
                       className={banner.is_active ? "ph ph-eye-slash" : "ph ph-eye"}
                       style={{ fontSize: 18 }}
                       aria-hidden="true"
@@ -268,7 +269,7 @@ const BannerManager = ({ shopId, banners = [], onChange }) => {
                     aria-label={t("editBanner")}
                     title={t("editBanner")}
                   >
-                    <i
+                    <Icon
                       className={isEditing ? "ph ph-x" : "ph ph-pencil-simple"}
                       style={{ fontSize: 18 }}
                       aria-hidden="true"

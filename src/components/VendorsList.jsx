@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { getShops } from "@/services/shops";
 import { getRegions } from "@/services/regions";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import Icon from "@/components/Icon";
 import Spin from "./Spin";
 
 const VendorsList = () => {
@@ -190,7 +191,7 @@ const VendorsList = () => {
                 type="submit"
                 className="w-32 h-32 bg-main-600 rounded-circle flex-center text-xl text-white position-absolute top-50 translate-middle-y inset-inline-end-0 me-8"
               >
-                <i className="ph ph-magnifying-glass" />
+                <Icon className="ph ph-magnifying-glass" />
               </button>
             </form>
           </div>
@@ -298,7 +299,7 @@ const VendorsList = () => {
                     {/* Post Service Badge */}
                     {shop.has_post_service && (
                       <span className="bg-main-50 text-main-600 px-12 py-4 rounded-pill text-xs d-inline-block mt-8 mb-8">
-                        <i className="ph ph-truck d-inline mr-4" />
+                        <Icon className="ph ph-truck d-inline mr-4" />
                         Yetkazib berish
                       </span>
                     )}
@@ -316,7 +317,7 @@ const VendorsList = () => {
           ) : (
             <div className="col-12 text-center py-80">
               <div className="text-gray-500">
-                <i className="ph ph-store text-6xl mb-16"></i>
+                <Icon className="ph ph-store text-6xl mb-16"></Icon>
                 <h5 className="mb-8">{tBread("noShopsFound")}</h5>
                 <p>{tBread("adjustFilters")}</p>
               </div>
@@ -331,7 +332,7 @@ const VendorsList = () => {
                 onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
               >
-                <i className="ph ph-arrow-left" />
+                <Icon className="ph ph-arrow-left" />
               </button>
             </li>
             {Array.from({ length: Math.ceil(totalCount / 12) }, (_, i) => i + 1).map((page) => (
@@ -352,7 +353,7 @@ const VendorsList = () => {
                 }
                 disabled={currentPage >= Math.ceil(totalCount / 12)}
               >
-                <i className="ph ph-arrow-right" />
+                <Icon className="ph ph-arrow-right" />
               </button>
             </li>
           </ul>

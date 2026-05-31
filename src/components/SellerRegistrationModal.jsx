@@ -25,6 +25,7 @@ import { createShop } from "@/services/shopCreate";
 import { createShopBanner } from "@/services/shop";
 import { mapValidationError } from "@/lib/mapValidationError";
 import { isBlank, tooLong, isPhoneE164 } from "@/lib/validation";
+import Icon from "@/components/Icon";
 import FieldError from "./FieldError";
 import { useToast } from "./Toast";
 import BannerEditor from "./shop/BannerEditor";
@@ -300,7 +301,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
           {submittedOk ? t("successTitle") : t("modalTitle")}
         </Typography>
         <IconButton onClick={onHide} disabled={loading} size="small" aria-label={tCommon("close")}>
-          <i className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
+          <Icon className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
         </IconButton>
       </Box>
       <Divider />
@@ -331,7 +332,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               fontSize: 36,
             }}
           >
-            <i className="ph-fill ph-check-circle" aria-hidden="true" />
+            <Icon className="ph-fill ph-check-circle" aria-hidden="true" />
           </Box>
           <Typography sx={{ fontSize: 20, fontWeight: 700, mb: 1.25 }}>
             {t("successTitle")}
@@ -391,7 +392,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                   color: "var(--text-muted)",
                 }}
               >
-                <i className="ph-fill ph-storefront" aria-hidden="true" />
+                <Icon className="ph-fill ph-storefront" aria-hidden="true" />
               </Avatar>
               <Box
                 className="overlay"
@@ -409,7 +410,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                   transition: "opacity 0.15s ease",
                 }}
               >
-                <i className="ph-fill ph-camera" aria-hidden="true" />
+                <Icon className="ph-fill ph-camera" aria-hidden="true" />
               </Box>
             </Box>
             <input
@@ -707,7 +708,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                 loading ? (
                   <CircularProgress size={16} sx={{ color: "#fff" }} />
                 ) : (
-                  <i className="ph ph-check" aria-hidden="true" />
+                  <Icon className="ph ph-check" aria-hidden="true" />
                 )
               }
             >

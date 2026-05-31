@@ -24,6 +24,7 @@ import { getShopsByOwner } from "@/services/shops";
 import { mapValidationError } from "@/lib/mapValidationError";
 import { useDraftStorage } from "@/hooks/useDraftStorage";
 import { isBlank, tooLong, isIntStr, toNum } from "@/lib/validation";
+import Icon from "@/components/Icon";
 import { useToast } from "./Toast";
 import FieldError from "./FieldError";
 
@@ -109,7 +110,7 @@ const CardSelect = ({ options, value, onChange, getLabel, getCaption }) => (
               flexShrink: 0,
             }}
           >
-            <i className={opt.icon} aria-hidden="true" />
+            <Icon className={opt.icon} aria-hidden="true" />
           </Box>
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography sx={{ fontWeight: 600, fontSize: 15 }}>{getLabel(opt.value)}</Typography>
@@ -120,7 +121,7 @@ const CardSelect = ({ options, value, onChange, getLabel, getCaption }) => (
             )}
           </Box>
           {selected && (
-            <i
+            <Icon
               className="ph-fill ph-check-circle"
               style={{ fontSize: 20, color: "var(--main-600, hsl(148, 59%, 39%))" }}
               aria-hidden="true"
@@ -399,7 +400,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
               onClick={() => setField("shop", "")}
               sx={ownerCardSx(formData.shop === "")}
             >
-              <i className="ph-fill ph-user" style={{ fontSize: 22 }} aria-hidden="true" />
+              <Icon className="ph-fill ph-user" style={{ fontSize: 22 }} aria-hidden="true" />
               <Box sx={{ ml: 1.5, textAlign: "left" }}>
                 <Typography sx={{ fontWeight: 600 }}>{t("step.ownerPersonal")}</Typography>
                 <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>
@@ -415,7 +416,11 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                 onClick={() => setField("shop", String(shop.id))}
                 sx={ownerCardSx(String(formData.shop) === String(shop.id))}
               >
-                <i className="ph-fill ph-storefront" style={{ fontSize: 22 }} aria-hidden="true" />
+                <Icon
+                  className="ph-fill ph-storefront"
+                  style={{ fontSize: 22 }}
+                  aria-hidden="true"
+                />
                 <Box sx={{ ml: 1.5, textAlign: "left", flex: 1, minWidth: 0 }}>
                   <Typography sx={{ fontWeight: 600 }}>{shop.name}</Typography>
                   {shop.region?.name && (
@@ -740,7 +745,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                   />
                 ) : (
                   <>
-                    <i
+                    <Icon
                       className="ph ph-image-square"
                       style={{ fontSize: 48, color: "var(--text-muted)" }}
                       aria-hidden="true"
@@ -961,7 +966,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
             {step + 1} / {steps.length}
           </Typography>
           <IconButton onClick={onClose} aria-label={tCommon("cancel")} size="small">
-            <i className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
+            <Icon className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
           </IconButton>
         </Box>
         <LinearProgress
@@ -1018,9 +1023,9 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
               submitting ? (
                 <CircularProgress size={16} sx={{ color: "#fff" }} />
               ) : isLastStep ? (
-                <i className="ph ph-check" aria-hidden="true" />
+                <Icon className="ph ph-check" aria-hidden="true" />
               ) : (
-                <i className="ph ph-arrow-right" aria-hidden="true" />
+                <Icon className="ph ph-arrow-right" aria-hidden="true" />
               )
             }
           >

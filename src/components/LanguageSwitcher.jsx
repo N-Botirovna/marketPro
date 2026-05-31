@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import Icon from "@/components/Icon";
 
 // Native-name labels intentionally stay outside the i18n bundle: language
 // names should always render in their own script regardless of the active
@@ -85,7 +86,7 @@ const LanguageSwitcher = ({ className = "" }) => {
                 <span className="kz-lang__item-code">{lang.short}</span>
                 <span className="kz-lang__item-label">{lang.label}</span>
                 {active && (
-                  <i className="ph-fill ph-check kz-lang__item-check" aria-hidden="true" />
+                  <Icon className="ph-fill ph-check kz-lang__item-check" aria-hidden="true" />
                 )}
               </button>
             );

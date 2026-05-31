@@ -7,16 +7,15 @@ import RouteScrollToTop from "@/helper/RouteScrollToTop";
 import "./font.css";
 import "./globals.scss";
 import "./performance.css";
-// Phosphor icons — self-hosted from node_modules (H-12). The package's
-// `exports` field maps `/regular` and `/fill` directly to the CSS, so
-// webpack resolves them and inlines the woff font references at build
-// time. No runtime CDN dependency.
-import "@phosphor-icons/web/regular";
-import "@phosphor-icons/web/fill";
+// Phosphor icons are rendered as tree-shaken SVG components via
+// `@/components/Icon` (@phosphor-icons/react). The old webfont CSS
+// (`@phosphor-icons/web/regular` + `/fill`) shipped ~3000 unused icon
+// classes + two full woff2 fonts on every page and is no longer imported.
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ConditionalHeader from "@/components/ConditionalHeader";
 import TestModeBanner from "@/components/TestModeBanner";
 import MaterialThemeProvider from "@/components/MaterialThemeProvider";
+import StyledJsxRegistry from "@/components/StyledJsxRegistry";
 import { themeBootstrapScript } from "@/lib/theme";
 import { initSentryClient } from "@/lib/sentry";
 import { getApiBaseUrl, getSiteUrl } from "@/config/env";
@@ -171,29 +170,28 @@ export default async function RootLayout({ children, params }) {
           href="/assets/images/logo/kitobzor-logo.png"
           fetchPriority="high"
         />
-        {/* Phosphor icon sheets are now self-hosted via webpack CSS imports
-            in this file's top-level imports (H-12). No CDN trust required;
-            CSP no longer needs to whitelist unpkg.com. */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       </head>
       <body suppressHydrationWarning={true}>
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <MaterialThemeProvider>
-            <BootstrapInit />
-            <RouteScrollToTop />
-            <TestModeBanner />
-            <ProtectedRoute locale={locale}>
-              <ConditionalHeader />
-              {children}
-              <AnonymousLoginNudge />
-              <AuthRequiredModal />
-              <SellerModalMount />
-              <PostBookFab />
-              <PostBookMount />
-              <ShareSheetMount />
-            </ProtectedRoute>
-          </MaterialThemeProvider>
-        </NextIntlClientProvider>
+        <StyledJsxRegistry>
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            <MaterialThemeProvider>
+              <BootstrapInit />
+              <RouteScrollToTop />
+              <TestModeBanner />
+              <ProtectedRoute locale={locale}>
+                <ConditionalHeader />
+                {children}
+                <AnonymousLoginNudge />
+                <AuthRequiredModal />
+                <SellerModalMount />
+                <PostBookFab />
+                <PostBookMount />
+                <ShareSheetMount />
+              </ProtectedRoute>
+            </MaterialThemeProvider>
+          </NextIntlClientProvider>
+        </StyledJsxRegistry>
       </body>
     </html>
   );

@@ -27,6 +27,7 @@ import { isBlank, tooLong, isPhoneE164 } from "@/lib/validation";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import FieldError from "@/components/FieldError";
 import { useToast } from "@/components/Toast";
+import Icon from "@/components/Icon";
 import BannerManager from "./BannerManager";
 
 const DAY_CODES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -271,7 +272,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
             size="small"
             aria-label={tCommon("close")}
           >
-            <i className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
+            <Icon className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
           </IconButton>
         </Box>
         <Divider />
@@ -310,7 +311,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
                   color: "var(--text-muted)",
                 }}
               >
-                <i className="ph-fill ph-storefront" aria-hidden="true" />
+                <Icon className="ph-fill ph-storefront" aria-hidden="true" />
               </Avatar>
               <Box
                 className="overlay"
@@ -328,7 +329,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
                   transition: "opacity 0.15s ease",
                 }}
               >
-                <i className="ph-fill ph-camera" aria-hidden="true" />
+                <Icon className="ph-fill ph-camera" aria-hidden="true" />
               </Box>
             </Box>
             <input

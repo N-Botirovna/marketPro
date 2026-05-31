@@ -4,6 +4,7 @@ import React from "react";
 import { useTranslations } from "next-intl";
 import Spin from "@/components/Spin";
 import BookCard from "@/components/BookCard";
+import Icon from "@/components/Icon";
 import ProfileStaffTab from "./ProfileStaffTab";
 
 const ProfileTabs = ({
@@ -23,7 +24,7 @@ const ProfileTabs = ({
 
   const renderEmptyState = (iconClass, title, subtitle) => (
     <div className="text-center py-60">
-      <i className={`${iconClass} text-gray-300 text-5xl mb-16`}></i>
+      <Icon className={`${iconClass} text-gray-300 text-5xl mb-16`}></Icon>
       <h5 className="text-gray-500 mb-0">{title}</h5>
       <p className="text-gray-400 text-sm mt-8">{subtitle}</p>
     </div>
@@ -39,7 +40,7 @@ const ProfileTabs = ({
           </span>
         </div>
         <button className="btn btn-main profile-tabs__head-cta" onClick={onCreateBook}>
-          <i className="ph-bold ph-plus" aria-hidden="true" />
+          <Icon className="ph-bold ph-plus" aria-hidden="true" />
           <span className="profile-tabs__head-cta-label">{tProfile("addBook")}</span>
         </button>
       </div>
@@ -124,7 +125,7 @@ const ProfileTabs = ({
             className={`profile-tabs__btn ${activeTab === "books" ? "is-active" : ""}`}
             onClick={() => onTabChange("books")}
           >
-            <i className="ph ph-books" aria-hidden="true"></i>
+            <Icon className="ph ph-books" aria-hidden="true"></Icon>
             <span>{tProfile("booksTab")}</span>
           </button>
           <button
@@ -134,7 +135,7 @@ const ProfileTabs = ({
             className={`profile-tabs__btn ${activeTab === "archive" ? "is-active" : ""}`}
             onClick={() => onTabChange("archive")}
           >
-            <i className="ph ph-archive" aria-hidden="true"></i>
+            <Icon className="ph ph-archive" aria-hidden="true"></Icon>
             <span>{tProfile("archiveTab")}</span>
           </button>
           {hasShops && (
@@ -145,7 +146,7 @@ const ProfileTabs = ({
               className={`profile-tabs__btn ${activeTab === "staff" ? "is-active" : ""}`}
               onClick={() => onTabChange("staff")}
             >
-              <i className="ph ph-users-three" aria-hidden="true"></i>
+              <Icon className="ph ph-users-three" aria-hidden="true"></Icon>
               <span>{tProfile("staffTab")}</span>
             </button>
           )}

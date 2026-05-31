@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Box, Stack, Typography } from "@mui/material";
 import { Link } from "@/i18n/navigation";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import Icon from "@/components/Icon";
 
 /**
  * Shared shop list card — used by HomeShopsRow and ShopsListPage so both
@@ -76,7 +77,7 @@ const ShopCard = ({ shop }) => {
               }}
             />
           ) : (
-            <i
+            <Icon
               className="ph-fill ph-storefront"
               style={{ fontSize: 30, color: "var(--text-muted)" }}
               aria-hidden="true"
@@ -107,7 +108,7 @@ const ShopCard = ({ shop }) => {
               spacing={0.5}
               sx={{ alignItems: "center", mt: 0.35, color: "var(--text-secondary)", minWidth: 0 }}
             >
-              <i
+              <Icon
                 className="ph ph-map-pin"
                 style={{ fontSize: 12, flexShrink: 0 }}
                 aria-hidden="true"
@@ -132,7 +133,7 @@ const ShopCard = ({ shop }) => {
               spacing={0.5}
               sx={{ alignItems: "center", mt: 0.25, color: "var(--text-secondary)" }}
             >
-              <i
+              <Icon
                 className="ph ph-clock"
                 style={{ fontSize: 12, flexShrink: 0 }}
                 aria-hidden="true"
@@ -157,7 +158,7 @@ const ShopCard = ({ shop }) => {
               spacing={0.5}
               sx={{ alignItems: "center", mt: 0.25, color: "var(--text-muted)" }}
             >
-              <i
+              <Icon
                 className="ph ph-books"
                 style={{ fontSize: 12, flexShrink: 0 }}
                 aria-hidden="true"

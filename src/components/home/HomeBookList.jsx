@@ -6,6 +6,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import { Link } from "@/i18n/navigation";
 import { getBooks } from "@/services/books";
 import BookChatRow from "@/components/shared/BookChatRow";
+import Icon from "@/components/Icon";
 
 /**
  * Telegram chat-row inspired home section. Lists up to `limit` books filtered
@@ -99,7 +100,7 @@ const HomeBookList = ({ type, ownerType, titleKey, viewAllHref, limit = 5, initi
             }}
           >
             {t("seeAll")}
-            <i className="ph ph-caret-right" aria-hidden="true" style={{ fontSize: 14 }} />
+            <Icon className="ph ph-caret-right" aria-hidden="true" style={{ fontSize: 14 }} />
           </Link>
         </Stack>
 

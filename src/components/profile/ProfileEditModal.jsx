@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import FieldError from "@/components/FieldError";
 import { isBlank, tooLong, isPhoneE164 } from "@/lib/validation";
+import Icon from "@/components/Icon";
 
 const FieldGroup = ({ children }) => <Stack spacing={1.75}>{children}</Stack>;
 
@@ -107,7 +108,7 @@ const ProfileEditModal = ({
           size="small"
           sx={{ width: 40, height: 40 }}
         >
-          <i className="ph ph-x" style={{ fontSize: 20 }} />
+          <Icon className="ph ph-x" style={{ fontSize: 20 }} />
         </IconButton>
       </Box>
       <Divider />

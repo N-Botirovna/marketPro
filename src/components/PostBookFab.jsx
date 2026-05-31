@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { isAuthenticated } from "@/services/auth";
 import { openPostBookModal } from "@/lib/postBookModal";
+import Icon from "@/components/Icon";
 
 const HIDDEN_SUFFIXES = ["/login", "/auth/auto"];
 const shouldHide = (pathname) => {
@@ -57,10 +58,10 @@ const PostBookFab = () => {
           className="post-book-fab"
         >
           <span className="post-book-fab__glyph" aria-hidden="true">
-            <i className="ph-fill ph-book-open-text" />
+            <Icon className="ph-fill ph-book-open-text" />
           </span>
           <span className="post-book-fab__badge" aria-hidden="true">
-            <i className="ph-bold ph-pencil-simple-line" />
+            <Icon className="ph-bold ph-pencil-simple-line" />
           </span>
           <span className="post-book-fab__pulse" aria-hidden="true" />
         </button>

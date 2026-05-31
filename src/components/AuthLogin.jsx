@@ -6,6 +6,7 @@ import { loginWithCode } from "@/services/auth";
 import { getBotUsername, getBotUrl } from "@/config/env";
 import { useRouter } from "@/i18n/navigation";
 import { mapValidationError } from "@/lib/mapValidationError";
+import Icon from "@/components/Icon";
 import Spin from "./Spin";
 import FieldError from "./FieldError";
 import { useToast } from "./Toast";
@@ -168,7 +169,7 @@ const AuthLogin = () => {
                     className="alert alert-danger d-flex align-items-center gap-6 mt-16 mb-0"
                     style={{ padding: "10px 14px", fontSize: "0.88rem" }}
                   >
-                    <i className="ph ph-warning" aria-hidden="true" />
+                    <Icon className="ph ph-warning" aria-hidden="true" />
                     <span>{error}</span>
                   </div>
                 )}

@@ -6,6 +6,7 @@ import { Box, Stack, Typography, Chip } from "@mui/material";
 import { Link } from "@/i18n/navigation";
 import { formatPrice } from "@/utils/formatPrice";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import Icon from "@/components/Icon";
 
 // Keyed on the backend BookType enum value as returned by the API
 // (BookType.SELLER = "seller"). `sell` is the URL/i18n alias only; the
@@ -86,7 +87,7 @@ const BookChatRow = ({ book, showTypeBadge = true }) => {
               loading="lazy"
             />
           ) : (
-            <i
+            <Icon
               className="ph ph-book"
               style={{ fontSize: 22, color: "var(--text-muted)" }}
               aria-hidden="true"

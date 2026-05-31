@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { getLikedBooks } from "@/services/books";
 import { useAuth } from "@/hooks/useAuth";
+import Icon from "@/components/Icon";
 import { useToast } from "./Toast";
 import BookCard from "./BookCard";
 
@@ -166,7 +167,7 @@ const WishListSection = () => {
         <header className="kz-wish__head">
           <div className="kz-wish__head-text">
             <h1 className="kz-wish__title">
-              <i className="ph-fill ph-heart" aria-hidden="true" />
+              <Icon className="ph-fill ph-heart" aria-hidden="true" />
               {t("heroTitle")}
             </h1>
             <p className="kz-wish__subtitle">{t("heroSubtitle")}</p>
@@ -178,7 +179,7 @@ const WishListSection = () => {
               })}
             </span>
             <Link href="/community/all" className="kz-wish__browse">
-              <i className="ph ph-magnifying-glass" aria-hidden="true" />
+              <Icon className="ph ph-magnifying-glass" aria-hidden="true" />
               <span>{t("browseMore")}</span>
             </Link>
           </div>
@@ -203,13 +204,13 @@ const WishListSection = () => {
 const EmptyPanel = ({ icon, title, body, ctaLabel, ctaHref }) => (
   <div className="kz-wish__empty">
     <span className="kz-wish__empty-icon" aria-hidden="true">
-      <i className={icon} />
+      <Icon className={icon} />
     </span>
     <h2 className="kz-wish__empty-title">{title}</h2>
     <p className="kz-wish__empty-body">{body}</p>
     <Link href={ctaHref} className="kz-wish__empty-cta">
       {ctaLabel}
-      <i className="ph-bold ph-arrow-right" aria-hidden="true" />
+      <Icon className="ph-bold ph-arrow-right" aria-hidden="true" />
     </Link>
   </div>
 );

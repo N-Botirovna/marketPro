@@ -6,6 +6,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import { Link } from "@/i18n/navigation";
 import { getHomePageShops } from "@/services/shops";
 import ShopCard from "@/components/shop/ShopCard";
+import Icon from "@/components/Icon";
 
 /**
  * Home-page shops row.
@@ -86,7 +87,7 @@ const HomeShopsRow = ({ initialShops }) => {
             }}
           >
             {t("seeAll")}
-            <i className="ph ph-caret-right" aria-hidden="true" style={{ fontSize: 14 }} />
+            <Icon className="ph ph-caret-right" aria-hidden="true" style={{ fontSize: 14 }} />
           </Link>
         </Stack>
 

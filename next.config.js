@@ -86,6 +86,7 @@ const nextConfig = {
       "react",
       "react-dom",
       "@mui/material",
+      "@phosphor-icons/react",
       "react-slick",
       "slick-carousel",
       "axios",

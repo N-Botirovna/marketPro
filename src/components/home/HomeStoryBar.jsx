@@ -6,6 +6,7 @@ import { Box, ButtonBase, Stack, Typography } from "@mui/material";
 import { getStories } from "@/services/stories";
 import StoryViewer from "@/components/stories/StoryViewer";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import Icon from "@/components/Icon";
 
 /**
  * Telegram-style story bar.
@@ -73,7 +74,7 @@ const StoryCircle = ({ story, onClick }) => {
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             ) : (
-              <i
+              <Icon
                 className={kindIcon}
                 style={{ fontSize: 24, color: "var(--text-muted)" }}
                 aria-hidden="true"

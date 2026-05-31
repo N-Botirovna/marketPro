@@ -1,6 +1,7 @@
 import React from "react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import Icon from "@/components/Icon";
 
 /**
  * Server-rendered breadcrumb variant (green-50 background) used by the
@@ -18,12 +19,12 @@ const BreadcrumbThree = async ({ title }) => {
           <ul className="flex-align gap-8 flex-wrap">
             <li className="text-sm">
               <Link href="/" className="text-gray-900 flex-align gap-8 hover-text-main-600">
-                <i className="ph ph-house" />
+                <Icon className="ph ph-house" />
                 {tBreadcrumb("home")}
               </Link>
             </li>
             <li className="flex-align">
-              <i className="ph ph-caret-right" />
+              <Icon className="ph ph-caret-right" />
             </li>
             <li className="text-sm text-main-600"> {title} </li>
           </ul>

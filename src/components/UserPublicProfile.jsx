@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { getUserById } from "@/services/auth";
 import { getBooksByUser } from "@/services/books";
+import Icon from "@/components/Icon";
 import BookCard from "./BookCard";
 import Spin from "./Spin";
 
@@ -131,7 +132,7 @@ const UserPublicProfile = ({ userId }) => {
                 <div className="d-flex flex-column gap-12">
                   <div className="d-flex align-items-center gap-12">
                     <span className="w-40 h-40 rounded-circle bg-main-50 text-main-600 flex-center">
-                      <i className="ph ph-phone text-md" />
+                      <Icon className="ph ph-phone text-md" />
                     </span>
                     <div>
                       <p className="text-xs text-gray-500 mb-4">{tProfile("phone")}</p>
@@ -140,7 +141,7 @@ const UserPublicProfile = ({ userId }) => {
                   </div>
                   <div className="d-flex align-items-center gap-12">
                     <span className="w-40 h-40 rounded-circle bg-main-50 text-main-600 flex-center">
-                      <i className="ph ph-map-pin text-md" />
+                      <Icon className="ph ph-map-pin text-md" />
                     </span>
                     <div>
                       <p className="text-xs text-gray-500 mb-4">{tCommon("location")}</p>

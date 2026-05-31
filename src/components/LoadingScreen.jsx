@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import Icon from "@/components/Icon";
 
 /**
  * Full-screen branded loading surface with rotating Kitobzor facts so the
@@ -38,7 +39,7 @@ const LoadingScreen = ({ title }) => {
   return (
     <div className="kz-loader" role="status" aria-live="polite">
       <div className="kz-loader__book" aria-hidden="true">
-        <i className="ph-fill ph-book-open-text" />
+        <Icon className="ph-fill ph-book-open-text" />
       </div>
       {title ? <p className="kz-loader__title">{title}</p> : null}
       {/* keyed so each fact re-triggers the fade-in animation */}

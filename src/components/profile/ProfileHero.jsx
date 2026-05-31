@@ -12,6 +12,7 @@ import {
   IconButton,
   CircularProgress,
 } from "@mui/material";
+import Icon from "@/components/Icon";
 
 const StatCell = ({ value, label }) => (
   <Box sx={{ flex: 1, py: 1.5, textAlign: "center" }}>
@@ -93,7 +94,7 @@ const ProfileHero = ({
             {avatarUploading ? (
               <CircularProgress size={18} sx={{ color: "#fff" }} />
             ) : (
-              <i className="ph ph-camera" style={{ fontSize: 18 }} />
+              <Icon className="ph ph-camera" style={{ fontSize: 18 }} />
             )}
           </IconButton>
           <input
@@ -131,7 +132,9 @@ const ProfileHero = ({
               {locationLine && (
                 <Chip
                   size="small"
-                  icon={<i className="ph ph-map-pin" style={{ fontSize: 14, color: "inherit" }} />}
+                  icon={
+                    <Icon className="ph ph-map-pin" style={{ fontSize: 14, color: "inherit" }} />
+                  }
                   label={locationLine}
                   sx={{
                     bgcolor: "var(--surface-muted)",
@@ -161,7 +164,7 @@ const ProfileHero = ({
           <Button
             variant="contained"
             onClick={onEditClick}
-            startIcon={<i className="ph ph-pencil-simple" style={{ fontSize: 16 }} />}
+            startIcon={<Icon className="ph ph-pencil-simple" style={{ fontSize: 16 }} />}
             sx={{
               borderRadius: 2,
               textTransform: "none",
@@ -174,7 +177,7 @@ const ProfileHero = ({
           <Button
             variant="outlined"
             onClick={onShareClick}
-            startIcon={<i className="ph ph-share-network" style={{ fontSize: 16 }} />}
+            startIcon={<Icon className="ph ph-share-network" style={{ fontSize: 16 }} />}
             sx={{
               borderRadius: 2,
               textTransform: "none",

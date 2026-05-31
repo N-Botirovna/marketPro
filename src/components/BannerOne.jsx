@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { getBanners } from "@/services/banners";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { detectExternalLink } from "@/utils/externalLink";
+import Icon from "@/components/Icon";
 
 const FALLBACK_SRC = "/assets/images/logo/kitobzor-logo.png";
 const AUTOPLAY_MS = 6500;
@@ -171,7 +172,7 @@ const BannerOne = () => {
                 <div className="kz-banner__overlay" aria-hidden="true" />
                 <div className="kz-banner__content">
                   <span className="kz-banner__badge">
-                    <i className="ph-fill ph-megaphone" aria-hidden="true" />
+                    <Icon className="ph-fill ph-megaphone" aria-hidden="true" />
                     {t("promotedBadge")}
                   </span>
                   {banner.title && <h2 className="kz-banner__title">{banner.title}</h2>}
@@ -186,7 +187,7 @@ const BannerOne = () => {
                         className="kz-banner__cta"
                         aria-label={t(`cta.${linkInfo.labelKey}`)}
                       >
-                        <i className={linkInfo.icon} aria-hidden="true" />
+                        <Icon className={linkInfo.icon} aria-hidden="true" />
                         <span>{t(`cta.${linkInfo.labelKey}`)}</span>
                       </a>
                     );
@@ -206,7 +207,7 @@ const BannerOne = () => {
                 onClick={() => goTo(activeIdx - 1)}
                 aria-label="Previous"
               >
-                <i className="ph-bold ph-caret-left" aria-hidden="true" />
+                <Icon className="ph-bold ph-caret-left" aria-hidden="true" />
               </button>
               <button
                 type="button"
@@ -214,7 +215,7 @@ const BannerOne = () => {
                 onClick={() => goTo(activeIdx + 1)}
                 aria-label="Next"
               >
-                <i className="ph-bold ph-caret-right" aria-hidden="true" />
+                <Icon className="ph-bold ph-caret-right" aria-hidden="true" />
               </button>
             </>
           )}

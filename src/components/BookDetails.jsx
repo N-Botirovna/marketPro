@@ -19,6 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { openShareSheet } from "@/lib/shareSheet";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { localizedField } from "@/utils/localizedField";
+import Icon from "@/components/Icon";
 import BookCreateModal from "./BookCreateModal";
 import { useToast } from "./Toast";
 
@@ -298,7 +299,7 @@ const BookDetails = ({ bookId }) => {
             <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
               {visual && (
                 <Chip
-                  icon={<i className={visual.icon} style={{ fontSize: 14 }} />}
+                  icon={<Icon className={visual.icon} style={{ fontSize: 14 }} />}
                   label={typeText}
                   size="small"
                   sx={{
@@ -318,7 +319,7 @@ const BookDetails = ({ bookId }) => {
               />
               {canEdit && (
                 <Chip
-                  icon={<i className="ph ph-user-check" style={{ fontSize: 14 }} />}
+                  icon={<Icon className="ph ph-user-check" style={{ fontSize: 14 }} />}
                   label={tBook("ownBookHint")}
                   size="small"
                   sx={{
@@ -416,7 +417,7 @@ const BookDetails = ({ bookId }) => {
                   target="_blank"
                   rel="noopener noreferrer"
                   variant="contained"
-                  startIcon={<i className="ph-fill ph-telegram-logo" />}
+                  startIcon={<Icon className="ph-fill ph-telegram-logo" />}
                   sx={{
                     bgcolor: "#0088cc",
                     textTransform: "none",
@@ -432,7 +433,7 @@ const BookDetails = ({ bookId }) => {
                   component="a"
                   href={`tel:${phoneClean}`}
                   variant="contained"
-                  startIcon={<i className="ph-fill ph-phone" />}
+                  startIcon={<Icon className="ph-fill ph-phone" />}
                   sx={{
                     textTransform: "none",
                     fontWeight: 700,
@@ -459,7 +460,7 @@ const BookDetails = ({ bookId }) => {
                   },
                 }}
               >
-                <i className="ph ph-share-network" />
+                <Icon className="ph ph-share-network" />
               </IconButton>
 
               <IconButton
@@ -476,7 +477,7 @@ const BookDetails = ({ bookId }) => {
                   "&:hover": { bgcolor: "var(--surface-muted)" },
                 }}
               >
-                <i className={`${liked ? "ph-fill" : "ph"} ph-heart`} />
+                <Icon className={`${liked ? "ph-fill" : "ph"} ph-heart`} />
               </IconButton>
 
               {canEdit && (
@@ -493,7 +494,7 @@ const BookDetails = ({ bookId }) => {
                     "&:hover": { bgcolor: "var(--surface-muted)" },
                   }}
                 >
-                  <i className="ph ph-pencil-simple" />
+                  <Icon className="ph ph-pencil-simple" />
                 </IconButton>
               )}
             </Stack>
@@ -646,7 +647,7 @@ const SectionHeading = ({ icon, text }) => (
         fontSize: 14,
       }}
     >
-      <i className={icon} aria-hidden="true" />
+      <Icon className={icon} aria-hidden="true" />
     </Box>
     <Typography component="h2" sx={{ fontSize: 16, fontWeight: 700 }}>
       {text}
@@ -692,7 +693,7 @@ const DetailRow = ({ label, value, last }) => {
 
 const Stat = ({ icon, iconColor, text }) => (
   <Stack direction="row" spacing={0.75} sx={{ alignItems: "center" }}>
-    <i className={icon} style={{ color: iconColor, fontSize: 14 }} aria-hidden="true" />
+    <Icon className={icon} style={{ color: iconColor, fontSize: 14 }} aria-hidden="true" />
     <span>{text}</span>
   </Stack>
 );

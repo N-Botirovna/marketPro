@@ -9,6 +9,7 @@ import { getUserPostedBooks, getUserArchivedBooks, patchBook } from "@/services/
 import { getRegions } from "@/services/regions";
 import { getShopsByOwner } from "@/services/shops";
 import { mapValidationError } from "@/lib/mapValidationError";
+import Icon from "@/components/Icon";
 import Spin from "./Spin";
 import BookCreateModal from "./BookCreateModal";
 import ProfileHero from "./profile/ProfileHero";
@@ -554,7 +555,7 @@ const ProfileDashboard = () => {
                 variant="contained"
                 onClick={() => setShowStoryModal(true)}
                 startIcon={
-                  <i
+                  <Icon
                     className="ph ph-paper-plane-tilt"
                     style={{ fontSize: 18 }}
                     aria-hidden="true"
@@ -594,7 +595,7 @@ const ProfileDashboard = () => {
               color="error"
               onClick={logout}
               startIcon={
-                <i className="ph ph-sign-out" style={{ fontSize: 18 }} aria-hidden="true" />
+                <Icon className="ph ph-sign-out" style={{ fontSize: 18 }} aria-hidden="true" />
               }
               sx={{ textTransform: "none", fontWeight: 600 }}
             >

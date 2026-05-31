@@ -6,6 +6,7 @@ import { Box, Stack, Typography, Button } from "@mui/material";
 import { useRouter } from "@/i18n/navigation";
 import LoadingScreen from "@/components/LoadingScreen";
 import { loginWithTicket } from "@/services/auth";
+import Icon from "@/components/Icon";
 
 /**
  * Telegram-style auto-login surface.
@@ -101,7 +102,7 @@ const AutoLoginClient = ({ ticket, next = "/" }) => {
               fontSize: 28,
             }}
           >
-            <i className="ph-fill ph-x" aria-hidden="true" />
+            <Icon className="ph-fill ph-x" aria-hidden="true" />
           </Box>
           <Typography sx={{ fontWeight: 700, fontSize: 18 }}>{t("failed")}</Typography>
           <Typography variant="body2" sx={{ color: "var(--text-secondary)" }}>

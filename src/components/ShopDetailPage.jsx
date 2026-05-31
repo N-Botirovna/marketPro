@@ -22,6 +22,7 @@ import { getBookCategories, getBookSubcategories } from "@/services/categories";
 import BookChatRow from "@/components/shared/BookChatRow";
 import { openShareSheet } from "@/lib/shareSheet";
 import ShopBannerCarousel from "@/components/ShopBannerCarousel";
+import Icon from "@/components/Icon";
 
 // Lazy: the story-create modal carries the BookCreateModal-sized form
 // and chunks shouldn't ship until an owner actually taps "promote".
@@ -297,7 +298,7 @@ const ShopDetailPage = ({ shopId }) => {
                 alignSelf: { xs: "center", sm: "flex-start" },
               }}
             >
-              <i className="ph-fill ph-storefront" aria-hidden="true" />
+              <Icon className="ph-fill ph-storefront" aria-hidden="true" />
             </Avatar>
 
             <Stack spacing={1.5} sx={{ flex: 1, minWidth: 0 }}>
@@ -340,7 +341,7 @@ const ShopDetailPage = ({ shopId }) => {
                       fontSize: 13,
                     }}
                   >
-                    <i className="ph-fill ph-star" style={{ fontSize: 12 }} aria-hidden="true" />
+                    <Icon className="ph-fill ph-star" style={{ fontSize: 12 }} aria-hidden="true" />
                     <span>{star}</span>
                   </Stack>
                 )}
@@ -359,7 +360,7 @@ const ShopDetailPage = ({ shopId }) => {
                     flexWrap: "wrap",
                   }}
                 >
-                  <i className="ph ph-map-pin" style={{ fontSize: 14 }} aria-hidden="true" />
+                  <Icon className="ph ph-map-pin" style={{ fontSize: 14 }} aria-hidden="true" />
                   {locationLine}
                 </Typography>
               )}
@@ -396,7 +397,9 @@ const ShopDetailPage = ({ shopId }) => {
                 {typeof shop.book_count === "number" && (
                   <Chip
                     size="small"
-                    icon={<i className="ph ph-books" style={{ fontSize: 12 }} aria-hidden="true" />}
+                    icon={
+                      <Icon className="ph ph-books" style={{ fontSize: 12 }} aria-hidden="true" />
+                    }
                     label={`${shop.book_count} ${t("booksCountSuffix")}`}
                     sx={{ height: 24, bgcolor: "var(--surface-muted)", fontWeight: 600 }}
                   />
@@ -405,7 +408,7 @@ const ShopDetailPage = ({ shopId }) => {
                   <Chip
                     size="small"
                     icon={
-                      <i className="ph ph-package" style={{ fontSize: 12 }} aria-hidden="true" />
+                      <Icon className="ph ph-package" style={{ fontSize: 12 }} aria-hidden="true" />
                     }
                     label={t("postService")}
                     sx={{
@@ -439,7 +442,7 @@ const ShopDetailPage = ({ shopId }) => {
                       rel="noopener noreferrer"
                       variant="contained"
                       size="small"
-                      startIcon={<i className="ph-fill ph-telegram-logo" />}
+                      startIcon={<Icon className="ph-fill ph-telegram-logo" />}
                       sx={{
                         bgcolor: "#0088cc",
                         textTransform: "none",
@@ -457,7 +460,7 @@ const ShopDetailPage = ({ shopId }) => {
                       href={phoneHref}
                       variant={tgUrl ? "outlined" : "contained"}
                       size="small"
-                      startIcon={<i className="ph-fill ph-phone" />}
+                      startIcon={<Icon className="ph-fill ph-phone" />}
                       sx={{ textTransform: "none", fontWeight: 700 }}
                     >
                       {t("callShop")}
@@ -478,7 +481,7 @@ const ShopDetailPage = ({ shopId }) => {
                         color: "#bc1888",
                       }}
                     >
-                      <i className="ph ph-instagram-logo" />
+                      <Icon className="ph ph-instagram-logo" />
                     </IconButton>
                   )}
                   {websiteHref && (
@@ -496,7 +499,7 @@ const ShopDetailPage = ({ shopId }) => {
                         color: "var(--text-secondary)",
                       }}
                     >
-                      <i className="ph ph-globe" />
+                      <Icon className="ph ph-globe" />
                     </IconButton>
                   )}
                   {shop?.is_owner && (
@@ -504,7 +507,7 @@ const ShopDetailPage = ({ shopId }) => {
                       onClick={() => setEditOpen(true)}
                       variant="outlined"
                       size="small"
-                      startIcon={<i className="ph ph-pencil-simple" aria-hidden="true" />}
+                      startIcon={<Icon className="ph ph-pencil-simple" aria-hidden="true" />}
                       sx={{
                         textTransform: "none",
                         fontWeight: 700,
@@ -529,7 +532,7 @@ const ShopDetailPage = ({ shopId }) => {
                       },
                     }}
                   >
-                    <i className="ph ph-share-network" />
+                    <Icon className="ph ph-share-network" />
                   </IconButton>
                 </Stack>
               )}
@@ -597,7 +600,7 @@ const ShopDetailPage = ({ shopId }) => {
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
-                    <i
+                    <Icon
                       className="ph ph-magnifying-glass"
                       style={{ fontSize: 18, color: "var(--text-muted)" }}
                       aria-hidden="true"
@@ -670,7 +673,7 @@ const ShopDetailPage = ({ shopId }) => {
             ))
           ) : books.length === 0 ? (
             <Stack spacing={1} sx={{ alignItems: "center", py: 6, color: "var(--text-muted)" }}>
-              <i className="ph ph-book-open" style={{ fontSize: 40 }} aria-hidden="true" />
+              <Icon className="ph ph-book-open" style={{ fontSize: 40 }} aria-hidden="true" />
               <Typography>{t("emptyBooks")}</Typography>
             </Stack>
           ) : (
@@ -722,7 +725,7 @@ const ShopDetailPage = ({ shopId }) => {
 
 const InfoLine = ({ icon, label, value }) => (
   <Stack direction="row" spacing={0.75} sx={{ alignItems: "center", minWidth: 0 }}>
-    <i className={icon} style={{ fontSize: 13 }} aria-hidden="true" />
+    <Icon className={icon} style={{ fontSize: 13 }} aria-hidden="true" />
     <Box component="span" sx={{ color: "var(--text-muted)" }}>
       {label}:
     </Box>
