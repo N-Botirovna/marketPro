@@ -488,6 +488,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
               value={form.telegram}
               onChange={(e) => setField("telegram", e.target.value)}
               placeholder="t.me/dokoningiz yoki @username"
+              slotProps={{ inputLabel: { shrink: true } }}
               disabled={saving}
             />
             <TextField
@@ -497,6 +498,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
               value={form.instagram}
               onChange={(e) => setField("instagram", e.target.value)}
               placeholder="instagram.com/dokoningiz yoki @username"
+              slotProps={{ inputLabel: { shrink: true } }}
               disabled={saving}
             />
             <TextField
@@ -506,6 +508,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
               value={form.website}
               onChange={(e) => setField("website", e.target.value)}
               placeholder="https://dokoningiz.uz"
+              slotProps={{ inputLabel: { shrink: true } }}
               disabled={saving}
             />
             <FormControlLabel

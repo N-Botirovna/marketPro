@@ -666,6 +666,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               value={form.telegram}
               onChange={(e) => setField("telegram", e.target.value)}
               placeholder="t.me/dokoningiz yoki @username"
+              slotProps={{ inputLabel: { shrink: true } }}
             />
             <TextField
               fullWidth
@@ -674,6 +675,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               value={form.instagram}
               onChange={(e) => setField("instagram", e.target.value)}
               placeholder="instagram.com/dokoningiz yoki @username"
+              slotProps={{ inputLabel: { shrink: true } }}
             />
             <TextField
               fullWidth
@@ -682,6 +684,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               value={form.website}
               onChange={(e) => setField("website", e.target.value)}
               placeholder="https://dokoningiz.uz"
+              slotProps={{ inputLabel: { shrink: true } }}
             />
           </Stack>
 
