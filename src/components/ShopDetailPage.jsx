@@ -38,8 +38,8 @@ const ShopEditModal = dynamic(() => import("@/components/shop/ShopEditModal"), {
   loading: () => null,
 });
 
-// Read-only location map — Leaflet touches `window`, so client-only.
-const LocationMap = dynamic(() => import("@/components/shared/LocationMap"), {
+// Tap-to-expand location preview — Leaflet touches `window`, so client-only.
+const ShopLocationCard = dynamic(() => import("@/components/shared/ShopLocationCard"), {
   ssr: false,
   loading: () => null,
 });
@@ -597,7 +597,7 @@ const ShopDetailPage = ({ shopId }) => {
             >
               {tShopLoc("detailTitle")}
             </Typography>
-            <LocationMap point={shop.point} />
+            <ShopLocationCard point={shop.point} />
           </Box>
         )}
 

@@ -32,7 +32,9 @@
     "tapHint": "Tap the map or search to set the location",
     "picked": "Selected: {lat}, {lng}",
     "detailTitle": "Location",
-    "myShop": "My shop"
+    "myShop": "My shop",
+    "openMap": "Open map",
+    "close": "Close"
   },
   "Header": {
     "home": "Home",

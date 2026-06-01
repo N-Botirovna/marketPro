@@ -32,7 +32,9 @@
     "tapHint": "Joyni belgilash uchun xaritani bosing yoki qidiring",
     "picked": "Tanlandi: {lat}, {lng}",
     "detailTitle": "Joylashuv",
-    "myShop": "Mening do'konim"
+    "myShop": "Mening do'konim",
+    "openMap": "Xaritani ochish",
+    "close": "Yopish"
   },
   "Header": {
     "home": "Bosh sahifa",

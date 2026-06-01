@@ -32,7 +32,9 @@
     "tapHint": "Ornı belgilew ushın kartanı basıń yáki izleń",
     "picked": "Tańlandı: {lat}, {lng}",
     "detailTitle": "Ornalasıw",
-    "myShop": "Meniń dúkenim"
+    "myShop": "Meniń dúkenim",
+    "openMap": "Kartanı ashıw",
+    "close": "Jabıw"
   },
   "Header": {
     "home": "Bas bet",
