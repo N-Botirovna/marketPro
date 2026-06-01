@@ -263,7 +263,7 @@
     "telegram": "Telegram",
     "likeRequiresAuth": "Sign in to add to favorites.",
     "likeFailed": "Couldn't update favorites.",
-    "contactPrefill": "Hi! I'm reaching out about the book “{name}”.",
+    "contactPrefill": "Hello! You posted the book “{name}” on kitobzor.uz, and I'd like to get it.",
     "detailsTitle": "Details",
     "conditionBrandNew": "Brand new",
     "conditionLikeNew": "Like new",

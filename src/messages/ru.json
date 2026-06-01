@@ -263,7 +263,7 @@
     "telegram": "Telegram",
     "likeRequiresAuth": "Войдите, чтобы добавить в избранное.",
     "likeFailed": "Не удалось обновить избранное.",
-    "contactPrefill": "Здравствуйте! Пишу по поводу книги «{name}».",
+    "contactPrefill": "Здравствуйте! Вы разместили книгу «{name}» на сайте kitobzor.uz, я хотел(а) бы её приобрести.",
     "detailsTitle": "Подробности",
     "conditionBrandNew": "Новая",
     "conditionLikeNew": "Как новая",
