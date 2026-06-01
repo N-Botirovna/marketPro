@@ -6,6 +6,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import { Link } from "@/i18n/navigation";
 import { getHomePageShops } from "@/services/shops";
 import ShopCard from "@/components/shop/ShopCard";
+import ShopCardSkeleton from "@/components/shared/ShopCardSkeleton";
 import Icon from "@/components/Icon";
 
 /**
@@ -105,17 +106,7 @@ const HomeShopsRow = ({ initialShops }) => {
           }}
         >
           {loading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <Box
-                  key={`skel-${i}`}
-                  sx={{
-                    height: 96,
-                    bgcolor: "var(--surface-muted)",
-                    borderRadius: 3,
-                    animation: "pulse 1.6s ease-in-out infinite",
-                  }}
-                />
-              ))
+            ? Array.from({ length: 6 }).map((_, i) => <ShopCardSkeleton key={`skel-${i}`} />)
             : shops.map((shop) => <ShopCard key={shop.id} shop={shop} />)}
         </Box>
       </Box>

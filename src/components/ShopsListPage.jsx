@@ -2,18 +2,11 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  Box,
-  Stack,
-  Typography,
-  TextField,
-  MenuItem,
-  InputAdornment,
-  Skeleton,
-} from "@mui/material";
+import { Box, Stack, Typography, TextField, MenuItem, InputAdornment } from "@mui/material";
 import { getShops } from "@/services/shops";
 import { getRegions } from "@/services/regions";
 import ShopCard from "@/components/shop/ShopCard";
+import ShopCardSkeleton from "@/components/shared/ShopCardSkeleton";
 import Icon from "@/components/Icon";
 
 const ShopsListPage = () => {
@@ -162,12 +155,7 @@ const ShopsListPage = () => {
         {loading && (
           <Stack spacing={1.5}>
             {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton
-                key={i}
-                variant="rounded"
-                height={96}
-                sx={{ bgcolor: "var(--surface-muted)" }}
-              />
+              <ShopCardSkeleton key={i} />
             ))}
           </Stack>
         )}

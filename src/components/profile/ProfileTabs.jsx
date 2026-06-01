@@ -2,8 +2,8 @@
 
 import React from "react";
 import { useTranslations } from "next-intl";
-import Spin from "@/components/Spin";
 import BookCard from "@/components/BookCard";
+import BookGrid from "@/components/shared/BookGrid";
 import Icon from "@/components/Icon";
 import ProfileStaffTab from "./ProfileStaffTab";
 
@@ -44,28 +44,26 @@ const ProfileTabs = ({
           <span className="profile-tabs__head-cta-label">{tProfile("addBook")}</span>
         </button>
       </div>
-      {booksLoading ? (
-        <div className="text-center py-60">
-          <Spin text={tProfile("booksLoading")} />
-        </div>
-      ) : userBooks.length > 0 ? (
-        <div className="row g-4">
-          {userBooks.map((book) => (
-            <div key={book.id} className="col-12 col-sm-6 col-md-6 col-lg-4">
-              <BookCard
-                book={book}
-                onEdit={onEditBook}
-                currentUserId={userData?.id}
-                showEditForOwn={true}
-                onArchive={onArchiveBook}
-                isArchiving={archivingBookId === book.id}
-              />
-            </div>
-          ))}
-        </div>
-      ) : (
-        renderEmptyState("ph ph-books", tProfile("noBooksTitle"), tProfile("noBooksSubtitle"))
-      )}
+      <BookGrid
+        books={userBooks}
+        loading={booksLoading}
+        skeletonCount={6}
+        emptyState={renderEmptyState(
+          "ph ph-books",
+          tProfile("noBooksTitle"),
+          tProfile("noBooksSubtitle"),
+        )}
+        renderCard={(book) => (
+          <BookCard
+            book={book}
+            onEdit={onEditBook}
+            currentUserId={userData?.id}
+            showEditForOwn={true}
+            onArchive={onArchiveBook}
+            isArchiving={archivingBookId === book.id}
+          />
+        )}
+      />
     </div>
   );
 
@@ -81,26 +79,24 @@ const ProfileTabs = ({
           </span>
         </div>
       </div>
-      {booksLoading ? (
-        <div className="text-center py-60">
-          <Spin text={tProfile("booksLoading")} />
-        </div>
-      ) : archivedBooks.length > 0 ? (
-        <div className="row g-4">
-          {archivedBooks.map((book) => (
-            <div key={book.id} className="col-12 col-sm-6 col-md-6 col-lg-4">
-              <BookCard
-                book={book}
-                onEdit={onEditBook}
-                currentUserId={userData?.id}
-                showEditForOwn={true}
-              />
-            </div>
-          ))}
-        </div>
-      ) : (
-        renderEmptyState("ph ph-archive", tProfile("noArchiveTitle"), tProfile("noArchiveSubtitle"))
-      )}
+      <BookGrid
+        books={archivedBooks}
+        loading={booksLoading}
+        skeletonCount={4}
+        emptyState={renderEmptyState(
+          "ph ph-archive",
+          tProfile("noArchiveTitle"),
+          tProfile("noArchiveSubtitle"),
+        )}
+        renderCard={(book) => (
+          <BookCard
+            book={book}
+            onEdit={onEditBook}
+            currentUserId={userData?.id}
+            showEditForOwn={true}
+          />
+        )}
+      />
     </div>
   );
 

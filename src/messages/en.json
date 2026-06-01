@@ -20,7 +20,8 @@
     "discountTooHigh": "Discount price must be lower than the original price",
     "yearRange": "Publication year must be between {min} and {max}",
     "pagesMin": "Pages must be at least 1",
-    "phoneInvalid": "Invalid phone number. Example: +998901234567"
+    "phoneInvalid": "Invalid phone number. Example: +998901234567",
+    "phoneStartPlus": "The number must start with +. Example: +998901234567"
   },
   "Header": {
     "home": "Home",
@@ -453,6 +454,7 @@
     "bio": "Description",
     "bioHint": "A short intro — e.g. \"Used and new books in Uzbek and Russian\"",
     "phone": "Phone number",
+    "phoneHint": "International format, starting with +. Example: +998 99 888 77 66",
     "region": "Region",
     "district": "District",
     "address": "Full address",

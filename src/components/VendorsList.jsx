@@ -2,11 +2,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import { getShops } from "@/services/shops";
 import { getRegions } from "@/services/regions";
-import { resolveMediaUrl } from "@/utils/mediaUrl";
 import Icon from "@/components/Icon";
+import ShopCard from "@/components/shop/ShopCard";
+import ShopCardSkeleton from "@/components/shared/ShopCardSkeleton";
 import Spin from "./Spin";
 
 const VendorsList = () => {
@@ -148,14 +148,18 @@ const VendorsList = () => {
     setCurrentPage(1);
   };
 
-  // Show full page loading only on initial load
+  // Initial load: skeleton grid that mirrors the populated layout, so the
+  // page doesn't jump from a centered spinner to a full grid.
   if (initialLoading) {
     return (
       <section className="vendors-list py-80">
         <div className="container container-lg">
-          <div className="text-center py-80">
-            <Spin text={tBread("loading")} />
-            <p className="mt-16">{tBread("loading")}</p>
+          <div className="row g-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="col-12 col-md-6 col-xxl-4">
+                <ShopCardSkeleton />
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -235,7 +239,7 @@ const VendorsList = () => {
             </button>
           </div>
         </div>
-        <div className="row gy-4 vendor-card-wrapper position-relative">
+        <div className="row g-3 position-relative">
           {searchLoading && (
             <div
               className="position-absolute top-0 start-0 w-100 d-flex align-items-center justify-content-center"
@@ -254,64 +258,8 @@ const VendorsList = () => {
           )}
           {shops.length > 0 ? (
             shops.map((shop) => (
-              <div key={shop.id} className="col-xxl-3 col-lg-4 col-sm-6">
-                <div className="vendor-card text-center px-16 pb-24">
-                  <div className="">
-                    <img
-                      src={resolveMediaUrl(
-                        shop.picture || shop.logo,
-                        "/assets/images/thumbs/vendor-logo1.png",
-                      )}
-                      alt={shop.name}
-                      className="vendor-card__logo m-12"
-                      style={{
-                        height: "80px",
-                        width: "80px",
-                        objectFit: "cover",
-                        borderRadius: "50%",
-                      }}
-                    />
-                    <h6 className="title mt-32">
-                      <Link href={`/shops/${shop.id}`} className="">
-                        {shop.name}
-                      </Link>
-                    </h6>
-
-                    {/* Product Count */}
-                    <span className="text-heading text-sm d-block">{shop.book_count} mahsulot</span>
-
-                    {/* Location */}
-                    {(shop.region || shop.district) && (
-                      <span className="text-gray-600 text-xs d-block mt-4">
-                        {shop.region?.name && shop.district?.name
-                          ? `${shop.district.name}, ${shop.region.name}`
-                          : shop.region?.name || shop.district?.name}
-                      </span>
-                    )}
-
-                    {/* Working Hours */}
-                    {shop.working_days && shop.working_hours && (
-                      <span className="text-gray-600 text-xs d-block mt-4">
-                        {shop.working_days} {shop.working_hours}
-                      </span>
-                    )}
-
-                    {/* Post Service Badge */}
-                    {shop.has_post_service && (
-                      <span className="bg-main-50 text-main-600 px-12 py-4 rounded-pill text-xs d-inline-block mt-8 mb-8">
-                        <Icon className="ph ph-truck d-inline mr-4" />
-                        Yetkazib berish
-                      </span>
-                    )}
-
-                    <Link
-                      href={`/shops/${shop.id}`}
-                      className="bg-white text-neutral-600 hover-bg-main-600 hover-text-white rounded-pill py-6 px-16 text-12 mt-8 inline-block"
-                    >
-                      {tBread("exploreShop")}
-                    </Link>
-                  </div>
-                </div>
+              <div key={shop.id} className="col-12 col-md-6 col-xxl-4">
+                <ShopCard shop={shop} />
               </div>
             ))
           ) : (

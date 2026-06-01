@@ -20,6 +20,7 @@ import { getShopDetails } from "@/services/shop";
 import { getBooks } from "@/services/books";
 import { getBookCategories, getBookSubcategories } from "@/services/categories";
 import BookChatRow from "@/components/shared/BookChatRow";
+import BookRowSkeleton from "@/components/shared/BookRowSkeleton";
 import { openShareSheet } from "@/lib/shareSheet";
 import ShopBannerCarousel from "@/components/ShopBannerCarousel";
 import Icon from "@/components/Icon";
@@ -663,13 +664,10 @@ const ShopDetailPage = ({ shopId }) => {
             Array.from({ length: 5 }).map((_, i) => (
               <Box
                 key={`row-skel-${i}`}
-                sx={{
-                  height: 76,
-                  borderBottom: i === 4 ? "none" : "1px solid var(--border-subtle)",
-                  animation: "pulse 1.6s ease-in-out infinite",
-                  bgcolor: "var(--surface-card)",
-                }}
-              />
+                sx={{ borderBottom: i === 4 ? "none" : "1px solid var(--border-subtle)" }}
+              >
+                <BookRowSkeleton />
+              </Box>
             ))
           ) : books.length === 0 ? (
             <Stack spacing={1} sx={{ alignItems: "center", py: 6, color: "var(--text-muted)" }}>

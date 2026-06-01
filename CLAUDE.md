@@ -278,9 +278,17 @@ Bularni o'chirmang — context manbasi sifatida saqlanadi. Lekin **fakt manbasi 
 - **ConditionalHeader.jsx** — login sahifalarida header'ni yashiradi.
 - **ProtectedRoute.jsx** — auth gating.
 
-### Kitob kartochkasi
+### Kitob / do'kon kartochkalari — 2 ta primitiv (single source of truth)
 
-- **BookCard.jsx** — `col-12 col-sm-6 col-md-6 col-lg-4 col-xxl-3` grid; thumbnail `aspectRatio: '3 / 4'` (Phase 5 done). Link target: `/book-details/${id}` (Phase 7 migrated).
+Kitob 2 xil ko'rinishda render qilinadi — kontekstga qarab. **Inline card markup yozmang**, doim shulardan birini chaqiring:
+
+- **`BookCard.jsx`** — boy grid kartochka (3:4 muqova, narx, like/share/edit/archive). Bootstrap. **Shaxsiy/wishlist** kontekstida (profil, arxiv, public profil, wishlist).
+- **`shared/BookChatRow.jsx`** — Telegram uslubidagi zich qator (52–60px thumb + nom + narx + type badge). MUI. **Feed/browse** kontekstida (home `HomeBookList`, `CommunityBooksPage`, `ShopDetailPage`).
+- **`shared/BookGrid.jsx`** — `BookCard` grid uchun **yagona** wrapper. Yagona responsive ustun qoidasi `col-6 col-md-4 col-xl-3` (**2 / 3 / 4** — telefonda 2 ustun, "giant card on mobile" bug shu yerda yopilgan). `loading` → `BookCardSkeleton`, `books=[]` → `emptyState`. Per-book prop kerak bo'lsa `renderCard` bering. Iste'molchilar: ProfileTabs, WishListSection, UserPublicProfile. ⚠️ eski `.list-grid-wrapper` (`minmax(230px,1fr)`) **ishlatilmaydi** — u telefonda 1 ulkan ustun berardi.
+- **`shop/ShopCard.jsx`** — yagona do'kon kartochkasi (kvadrat avatar + 3 qator). Hamma joyda: `HomeShopsRow`, `ShopsListPage`, `TopVendorsOne` (about), `VendorsList` (/vendor). Eski inline "vendor-card" markup (dumaloq avatar) olib tashlangan.
+- **`utils/bookType.js`** — `BOOK_TYPE_VISUALS` (type → {color,bg,icon,i18nKey}). Type badge rangi/ikoni/labeli **shu yerdan**. API enum `"seller"`, user-facing slug `"sell"` — `bookTypeI18nKey()` remap qiladi.
+
+**Loading = skeleton, har doim.** `shared/BookCardSkeleton`, `shared/BookRowSkeleton`, `shared/ShopCardSkeleton` mos kontentni aks ettiradi; shimmer `.kz-skel` klassidan (`globals.scss`). Ad-hoc `pulse` div yoki to'liq-sahifa `Spin` qo'shmang.
 
 ### Slider/legacy
 
@@ -416,6 +424,8 @@ Bularni o'chirmang — context manbasi sifatida saqlanadi. Lekin **fakt manbasi 
 - ~~`style={{ height: '220px' }}` (BookCard)~~ → `aspectRatio: 3/4`.
 - Slick resize-awareness → `key={useViewportBucket()}` remount (`src/hooks/useViewportBucket.js`).
 - ~~`col-lg-*` only patterns~~ → `col-12 col-md-* col-lg-*`.
+- ~~Profil/wishlist'da telefonda 1 ulkan kitob kartochkasi (`col-12` / `list-grid-wrapper minmax(230px)`)~~ → `shared/BookGrid` (`col-6 col-md-4 col-xl-3`, telefonda 2 ustun).
+- ~~Tarqoq loading (Spin / pulse div / MUI Skeleton aralash)~~ → `shared/*Skeleton` + `.kz-skel` shimmer; do'kon kartochkalari `ShopCard`'ga birlashtirildi.
 
 HeaderOne mobile drawer (<992px) `body.body-no-scroll` scroll lock bilan. `aspect-3-4`, `aspect-16-7`, `aspect-4-3` utility classlari `globals.scss`'da.
 

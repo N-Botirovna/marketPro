@@ -336,6 +336,35 @@ body.body-no-scroll {
   }
 }
 
+// ─── Skeleton loading primitive ──────────────────────────────────────────────
+// Single shimmer surface reused by every skeleton (book card, book row, shop
+// card). Set the size/border-radius on the element; this class only paints the
+// animated gradient so all loading states feel identical across the app.
+.kz-skel {
+  background: linear-gradient(
+    90deg,
+    var(--surface-muted, #f1f5f9) 0%,
+    var(--surface-card, #fff) 50%,
+    var(--surface-muted, #f1f5f9) 100%
+  );
+  background-size: 200% 100%;
+  animation: kzSkelShimmer 1.4s ease-in-out infinite;
+  border-radius: 8px;
+}
+@keyframes kzSkelShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kz-skel {
+    animation: none;
+  }
+}
+
 // ─── BookCard action buttons (top-right corner) ──────────────────────────────
 // Always-visible action chips. Replaces the previous low-contrast
 // outline-button approach where icons looked invisible against the white

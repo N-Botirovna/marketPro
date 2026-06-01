@@ -6,6 +6,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import { Link } from "@/i18n/navigation";
 import { getBooks } from "@/services/books";
 import BookChatRow from "@/components/shared/BookChatRow";
+import BookRowSkeleton from "@/components/shared/BookRowSkeleton";
 import Icon from "@/components/Icon";
 
 /**
@@ -118,12 +119,11 @@ const HomeBookList = ({ type, ownerType, titleKey, viewAllHref, limit = 5, initi
                 <Box
                   key={`row-skel-${i}`}
                   sx={{
-                    height: 76,
-                    bgcolor: "var(--surface-card)",
                     borderBottom: i === limit - 1 ? "none" : "1px solid var(--border-subtle)",
-                    animation: "pulse 1.6s ease-in-out infinite",
                   }}
-                />
+                >
+                  <BookRowSkeleton />
+                </Box>
               ))
             : books.map((book, idx) => (
                 <Box

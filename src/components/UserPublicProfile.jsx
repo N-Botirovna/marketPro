@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { getUserById } from "@/services/auth";
 import { getBooksByUser } from "@/services/books";
 import Icon from "@/components/Icon";
-import BookCard from "./BookCard";
+import BookGrid from "./shared/BookGrid";
 import Spin from "./Spin";
 
 const UserPublicProfile = ({ userId }) => {
@@ -170,21 +170,17 @@ const UserPublicProfile = ({ userId }) => {
               </div>
             </div>
 
-            {loadingBooks ? (
-              <div className="text-center py-40">
-                <Spin text={tProfile("booksLoading")} />
-              </div>
-            ) : books.length === 0 ? (
-              <div className="text-center py-40 text-gray-600 bg-white border border-dashed border-gray-200 rounded-16">
-                {tUserProfile("emptyBooks")}
-              </div>
-            ) : (
-              <div className="list-grid-wrapper grid-cols-3">
-                {books.map((book) => (
-                  <BookCard key={book.id} book={book} showEditForOwn={false} />
-                ))}
-              </div>
-            )}
+            <BookGrid
+              books={books}
+              loading={loadingBooks}
+              skeletonCount={6}
+              emptyState={
+                <div className="text-center py-40 text-gray-600 bg-white border border-dashed border-gray-200 rounded-16">
+                  {tUserProfile("emptyBooks")}
+                </div>
+              }
+              cardProps={{ showEditForOwn: false }}
+            />
           </div>
         </div>
       </div>

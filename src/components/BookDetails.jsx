@@ -19,33 +19,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { openShareSheet } from "@/lib/shareSheet";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { localizedField } from "@/utils/localizedField";
+import { bookTypeVisual, bookTypeI18nKey } from "@/utils/bookType";
 import Icon from "@/components/Icon";
 import BookCreateModal from "./BookCreateModal";
 import { useToast } from "./Toast";
-
-// Book.type colours mirror BookChatRow / home feed so the same badge
-// palette appears across the app.
-const TYPE_VISUAL = {
-  seller: {
-    color: "#0d9488",
-    bg: "rgba(13, 148, 136, 0.12)",
-    icon: "ph-fill ph-shopping-cart-simple",
-  },
-  gift: { color: "#15803d", bg: "rgba(34, 197, 94, 0.14)", icon: "ph-fill ph-gift" },
-  exchange: {
-    color: "#b45309",
-    bg: "rgba(245, 158, 11, 0.14)",
-    icon: "ph-fill ph-arrows-clockwise",
-  },
-  rent: { color: "#4338ca", bg: "rgba(99, 102, 241, 0.14)", icon: "ph-fill ph-clock" },
-};
-
-const TYPE_I18N_KEY = {
-  seller: "sell",
-  gift: "gift",
-  exchange: "exchange",
-  rent: "rent",
-};
 
 const BookDetails = ({ bookId }) => {
   const locale = useLocale();
@@ -219,8 +196,8 @@ const BookDetails = ({ bookId }) => {
 
   // ── Derived ──────────────────────────────────────────────────────────
   const typeKey = (book.type || "").toLowerCase();
-  const visual = TYPE_VISUAL[typeKey];
-  const typeText = tBook(TYPE_I18N_KEY[typeKey] || "sell");
+  const visual = bookTypeVisual(typeKey);
+  const typeText = tBook(bookTypeI18nKey(typeKey) || "sell");
   const isMonetary = typeKey === "seller" || typeKey === "rent";
 
   const tg = book?.posted_by?.telegram_username;

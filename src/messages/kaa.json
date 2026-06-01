@@ -20,7 +20,8 @@
     "discountTooHigh": "Jeńillikli baha tiykarǵı bahadan tómen bolıwı kerek",
     "yearRange": "Baspa jılı {min} hám {max} aralıǵında bolıwı kerek",
     "pagesMin": "Bet sanı keminde 1 bolıwı kerek",
-    "phoneInvalid": "Telefon nomeri qáte. Mısalı: +998901234567"
+    "phoneInvalid": "Telefon nomeri qáte. Mısalı: +998901234567",
+    "phoneStartPlus": "Nomer + menen baslanıwı kerek. Mısalı: +998901234567"
   },
   "Header": {
     "home": "Bas bet",
@@ -464,6 +465,7 @@
     "bio": "Táriyp",
     "bioHint": "Dúkenińiz haqqında qısqasha — mısalı: \"Eski hám jańa kitaplar, tiykarınan ózbek hám rus tillerinde\"",
     "phone": "Telefon nomeri",
+    "phoneHint": "Xalıqaralıq formatta, + menen. Mısalı: +998 99 888 77 66",
     "region": "Wálayat",
     "district": "Rayon",
     "address": "Tolıq mánzil",

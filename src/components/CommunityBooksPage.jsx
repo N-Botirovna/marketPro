@@ -8,6 +8,7 @@ import { getBooks } from "@/services/books";
 import { getBookCategories, getBookSubcategories } from "@/services/categories";
 import { getRegions } from "@/services/regions";
 import BookChatRow from "@/components/shared/BookChatRow";
+import BookRowSkeleton from "@/components/shared/BookRowSkeleton";
 import Icon from "@/components/Icon";
 
 const CommunityBooksPage = ({ type = "all" }) => {
@@ -289,13 +290,10 @@ const CommunityBooksPage = ({ type = "all" }) => {
             Array.from({ length: 6 }).map((_, i) => (
               <Box
                 key={`row-skel-${i}`}
-                sx={{
-                  height: 76,
-                  borderBottom: i === 5 ? "none" : "1px solid var(--border-subtle)",
-                  animation: "pulse 1.6s ease-in-out infinite",
-                  bgcolor: "var(--surface-card)",
-                }}
-              />
+                sx={{ borderBottom: i === 5 ? "none" : "1px solid var(--border-subtle)" }}
+              >
+                <BookRowSkeleton />
+              </Box>
             ))
           ) : error ? (
             <Box sx={{ py: 4, textAlign: "center", color: "var(--text-secondary)" }}>{error}</Box>

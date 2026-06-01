@@ -6,24 +6,8 @@ import { Box, Stack, Typography, Chip } from "@mui/material";
 import { Link } from "@/i18n/navigation";
 import { formatPrice } from "@/utils/formatPrice";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import { bookTypeVisual, bookTypeI18nKey } from "@/utils/bookType";
 import Icon from "@/components/Icon";
-
-// Keyed on the backend BookType enum value as returned by the API
-// (BookType.SELLER = "seller"). `sell` is the URL/i18n alias only; the
-// raw response carries `"seller"`, so the badge map must match that.
-const TYPE_BADGE = {
-  seller: { color: "#0d9488", bg: "rgba(13, 148, 136, 0.12)" },
-  gift: { color: "#15803d", bg: "rgba(34, 197, 94, 0.14)" },
-  exchange: { color: "#b45309", bg: "rgba(245, 158, 11, 0.14)" },
-  rent: { color: "#4338ca", bg: "rgba(99, 102, 241, 0.14)" },
-};
-
-// BookTypeChips i18n keys still use "sell" (user-facing slug); translate
-// before lookup so the chip text stays in the chosen locale.
-const I18N_TYPE_KEY = { seller: "sell" };
-function typeI18nKey(t) {
-  return I18N_TYPE_KEY[t] || t;
-}
 
 /**
  * Telegram-inspired compact row used in book listings:
@@ -40,7 +24,7 @@ const BookChatRow = ({ book, showTypeBadge = true }) => {
   const locale = useLocale();
 
   const typeKey = (book.type || "").toLowerCase();
-  const badge = TYPE_BADGE[typeKey];
+  const badge = bookTypeVisual(typeKey);
 
   const priceNode = (() => {
     if (typeKey === "gift") return tType("gift");
@@ -123,7 +107,7 @@ const BookChatRow = ({ book, showTypeBadge = true }) => {
         {showTypeBadge && badge && (
           <Chip
             size="small"
-            label={tType(typeI18nKey(typeKey))}
+            label={tType(bookTypeI18nKey(typeKey))}
             sx={{
               height: 22,
               fontSize: 11,

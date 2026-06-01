@@ -110,8 +110,8 @@ const PostBookFab = () => {
 
         .post-book-fab {
           position: relative;
-          width: 60px;
-          height: 60px;
+          width: 52px;
+          height: 52px;
           border-radius: 50%;
           border: none;
           padding: 0;
@@ -153,7 +153,7 @@ const PostBookFab = () => {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          font-size: 28px;
+          font-size: 24px;
           line-height: 1;
           filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.18));
         }
@@ -162,14 +162,14 @@ const PostBookFab = () => {
            "compose new" rather than "add item". */
         .post-book-fab__badge {
           position: absolute;
-          top: -4px;
-          right: -4px;
-          width: 26px;
-          height: 26px;
+          top: -3px;
+          right: -3px;
+          width: 22px;
+          height: 22px;
           border-radius: 50%;
           background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
           color: #fff;
-          font-size: 13px;
+          font-size: 11px;
           line-height: 1;
           display: inline-flex;
           align-items: center;
@@ -195,11 +195,11 @@ const PostBookFab = () => {
             bottom: 28px;
           }
           .post-book-fab {
-            width: 64px;
-            height: 64px;
+            width: 56px;
+            height: 56px;
           }
           .post-book-fab__glyph {
-            font-size: 30px;
+            font-size: 26px;
           }
         }
 

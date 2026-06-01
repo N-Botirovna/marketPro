@@ -142,8 +142,11 @@ const SellerRegistrationModal = ({ show, onHide }) => {
         return null;
       case "phone_number": {
         if (isBlank(value)) return tv("required");
-        const raw = String(value).replace(/[^\d]/g, "").replace(/^998/, "");
-        if (!isPhoneE164(`+998${raw}`)) return tv("phoneInvalid");
+        // The user types the full international number; require the leading "+"
+        // explicitly, then validate the compacted form against the E.164 shape.
+        const compact = String(value).replace(/[\s()-]/g, "");
+        if (!compact.startsWith("+")) return tv("phoneStartPlus");
+        if (!isPhoneE164(compact)) return tv("phoneInvalid");
         return null;
       }
       case "region":
@@ -465,20 +468,35 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               <TextField
                 fullWidth
                 size="small"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
                 label={`${t("phone")} *`}
                 value={form.phone_number}
                 onChange={(e) => setField("phone_number", e.target.value)}
-                placeholder="9X XXX XX XX"
+                onFocus={() => {
+                  // Seed the "+998 " prefix so the field always starts with "+"
+                  // and the user only has to type the 9 subscriber digits. Set it
+                  // directly (not via setField) so we don't flash an "invalid"
+                  // error on an empty field the moment it gains focus.
+                  if (isBlank(form.phone_number)) {
+                    setForm((prev) => ({ ...prev, phone_number: "+998 " }));
+                  }
+                }}
+                placeholder="+998 99 888 77 66"
                 slotProps={{
                   input: {
                     startAdornment: (
-                      <Typography sx={{ color: "var(--text-muted)", mr: 1, fontSize: 14 }}>
-                        +998
-                      </Typography>
+                      <Icon
+                        className="ph ph-phone"
+                        style={{ color: "var(--text-muted)", marginRight: 8, fontSize: 18 }}
+                      />
                     ),
                   },
+                  htmlInput: { dir: "ltr" },
                 }}
                 error={!!fieldErrors.phone_number}
+                helperText={fieldErrors.phone_number ? undefined : t("phoneHint")}
               />
               <FieldError message={fieldErrors.phone_number} />
             </Box>

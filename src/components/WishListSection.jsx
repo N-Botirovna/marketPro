@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Icon from "@/components/Icon";
 import { useToast } from "./Toast";
 import BookCard from "./BookCard";
+import BookGrid from "./shared/BookGrid";
 
 const SKELETON_CARDS = 6;
 
@@ -112,37 +113,8 @@ const WishListSection = () => {
     );
   }
 
-  // ── Loading ───────────────────────────────────────────────────────
-  if (loading) {
-    return (
-      <section className="kz-wish">
-        <div className="kz-wish__inner">
-          <header className="kz-wish__head">
-            <div className="kz-wish__head-text">
-              <h1 className="kz-wish__title">{t("heroTitle")}</h1>
-              <p className="kz-wish__subtitle">{t("heroSubtitle")}</p>
-            </div>
-          </header>
-          <div className="row g-3 g-md-4">
-            {Array.from({ length: SKELETON_CARDS }).map((_, i) => (
-              <div key={i} className="col-12 col-sm-6 col-lg-4 col-xl-3">
-                <div className="kz-wish__skel">
-                  <div className="kz-wish__skel-thumb" />
-                  <div className="kz-wish__skel-line kz-wish__skel-line--80" />
-                  <div className="kz-wish__skel-line kz-wish__skel-line--60" />
-                  <div className="kz-wish__skel-line kz-wish__skel-line--40" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <WishStyles />
-      </section>
-    );
-  }
-
-  // ── Empty (signed-in but no liked books) ─────────────────────────
-  if (books.length === 0) {
+  // ── Empty (signed-in, fetch finished, no liked books) ─────────────
+  if (!loading && books.length === 0) {
     return (
       <section className="kz-wish">
         <div className="kz-wish__inner">
@@ -160,7 +132,9 @@ const WishListSection = () => {
     );
   }
 
-  // ── Populated grid ────────────────────────────────────────────────
+  // ── Loading + populated grid ──────────────────────────────────────
+  // `BookGrid` swaps skeletons for cards at the same breakpoints, so the
+  // header is rendered once and the grid never reflows on data arrival.
   return (
     <section className="kz-wish">
       <div className="kz-wish__inner">
@@ -172,26 +146,25 @@ const WishListSection = () => {
             </h1>
             <p className="kz-wish__subtitle">{t("heroSubtitle")}</p>
           </div>
-          <div className="kz-wish__head-meta">
-            <span className="kz-wish__count">
-              {t(books.length === 1 ? "countOne" : "countMany", {
-                count: books.length,
-              })}
-            </span>
-            <Link href="/community/all" className="kz-wish__browse">
-              <Icon className="ph ph-magnifying-glass" aria-hidden="true" />
-              <span>{t("browseMore")}</span>
-            </Link>
-          </div>
+          {!loading && (
+            <div className="kz-wish__head-meta">
+              <span className="kz-wish__count">
+                {t(books.length === 1 ? "countOne" : "countMany", { count: books.length })}
+              </span>
+              <Link href="/community/all" className="kz-wish__browse">
+                <Icon className="ph ph-magnifying-glass" aria-hidden="true" />
+                <span>{t("browseMore")}</span>
+              </Link>
+            </div>
+          )}
         </header>
 
-        <div className="row g-3 g-md-4">
-          {books.map((book) => (
-            <div key={book.id} className="col-12 col-sm-6 col-lg-4 col-xl-3">
-              <BookCard book={book} onLikeUpdate={handleLikeUpdate} />
-            </div>
-          ))}
-        </div>
+        <BookGrid
+          books={books}
+          loading={loading}
+          skeletonCount={SKELETON_CARDS}
+          renderCard={(book) => <BookCard book={book} onLikeUpdate={handleLikeUpdate} />}
+        />
       </div>
       <ToastContainer />
       <WishStyles />
@@ -391,53 +364,6 @@ const WishStyles = () => (
       box-shadow: 0 14px 26px rgba(34, 197, 94, 0.4);
     }
     .kz-wish__empty-cta i { font-size: 15px; }
-
-    /* ─── Skeleton card ─────────────────────────────────────────── */
-    .kz-wish__skel {
-      border: 1px solid var(--border-subtle, #e5e7eb);
-      border-radius: 16px;
-      padding: 10px;
-      background: var(--surface-card, #fff);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .kz-wish__skel-thumb {
-      width: 100%;
-      aspect-ratio: 3 / 4;
-      border-radius: 12px;
-      background: linear-gradient(90deg,
-        var(--surface-muted, #f1f5f9) 0%,
-        var(--surface-card, #fff) 50%,
-        var(--surface-muted, #f1f5f9) 100%);
-      background-size: 200% 100%;
-      animation: kzWishShimmer 1.4s ease-in-out infinite;
-    }
-    .kz-wish__skel-line {
-      height: 12px;
-      border-radius: 999px;
-      background: linear-gradient(90deg,
-        var(--surface-muted, #f1f5f9) 0%,
-        var(--surface-card, #fff) 50%,
-        var(--surface-muted, #f1f5f9) 100%);
-      background-size: 200% 100%;
-      animation: kzWishShimmer 1.4s ease-in-out infinite;
-    }
-    .kz-wish__skel-line--80 { width: 80%; }
-    .kz-wish__skel-line--60 { width: 60%; }
-    .kz-wish__skel-line--40 { width: 40%; }
-
-    @keyframes kzWishShimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .kz-wish__skel-thumb,
-      .kz-wish__skel-line {
-        animation: none;
-      }
-    }
   `,
     }}
   />

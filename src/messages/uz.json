@@ -20,7 +20,8 @@
     "discountTooHigh": "Chegirma narx asl narxdan past bo'lishi kerak",
     "yearRange": "Nashr yili {min} va {max} orasida bo'lishi kerak",
     "pagesMin": "Sahifalar soni kamida 1 bo'lishi kerak",
-    "phoneInvalid": "Telefon raqami noto'g'ri. Masalan: +998901234567"
+    "phoneInvalid": "Telefon raqami noto'g'ri. Masalan: +998901234567",
+    "phoneStartPlus": "Raqam + bilan boshlanishi kerak. Masalan: +998901234567"
   },
   "Header": {
     "home": "Bosh sahifa",
@@ -464,6 +465,7 @@
     "bio": "Tavsif",
     "bioHint": "Do'koningiz haqida qisqacha — masalan: \"Eski va yangi kitoblar, asosan o'zbek va rus tillarida\"",
     "phone": "Telefon raqam",
+    "phoneHint": "Xalqaro formatda, + bilan. Masalan: +998 99 888 77 66",
     "region": "Viloyat",
     "district": "Tuman",
     "address": "To'liq manzil",
