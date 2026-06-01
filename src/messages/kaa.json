@@ -1,7 +1,4 @@
 {
-  "TestMode": {
-    "banner": "Itibar: sayt sınaq rejiminde isleydi — ayırım múmkinshilikler tolıq islemewi múmkin."
-  },
   "LoadingFacts": {
     "items": [
       "📚 Kitaplarıńızdı satıń, almastırıń yáki sıylıq etiń",
@@ -118,7 +115,7 @@
   },
   "Footer": {
     "about": {
-      "blurb": "Kitobzor — kitap súyiwshiler hám dúkenler ushın Telegram stilindegi marketplace. Satıp alıń, satıń, sıylıq etiń yáki almastırıń."
+      "blurb": "Kitobzor — aqıl iyeleri ushın jámiyetlik tarmaq."
     },
     "site": {
       "title": "Saytta",

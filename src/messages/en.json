@@ -1,7 +1,4 @@
 {
-  "TestMode": {
-    "banner": "Note: the site is in test mode — some features may not work fully yet."
-  },
   "LoadingFacts": {
     "items": [
       "📚 Sell, swap or gift your books",
@@ -118,7 +115,7 @@
   },
   "Footer": {
     "about": {
-      "blurb": "Kitobzor — a Telegram-style marketplace for book lovers and shops. Buy, sell, gift, or trade."
+      "blurb": "Kitobzor — a social network for people of intellect."
     },
     "site": {
       "title": "Site",

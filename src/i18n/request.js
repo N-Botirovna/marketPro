@@ -6,7 +6,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
   // Without `await`, `locale` is a Promise, fails the `includes` check, and
   // every server component falls back to the default (uz) regardless of the
   // URL. This silently broke localization for all server-rendered strings
-  // (TestModeBanner, BottomFooter, FooterOne, breadcrumbs, metadata…).
+  // (BottomFooter, FooterOne, breadcrumbs, metadata…).
   let locale = await requestLocale;
   if (!locale || !routing.locales.includes(locale)) {
     locale = routing.defaultLocale;

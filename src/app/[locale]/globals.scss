@@ -865,66 +865,6 @@ body.body-no-scroll {
   }
 }
 
-// ─── Test-mode banner (scrolling marquee, top of page) ───────────────────────
-.test-mode-banner {
-  position: relative;
-  overflow: hidden;
-  white-space: nowrap;
-  background: linear-gradient(90deg, #f59e0b, #f97316);
-  color: #1f1300;
-  font-size: 12.5px;
-  font-weight: 600;
-  line-height: 1.2;
-  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.12);
-}
-[data-theme="dark"] .test-mode-banner {
-  background: linear-gradient(90deg, #b45309, #c2410c);
-  color: #fff7ed;
-}
-.test-mode-banner__track {
-  display: inline-flex;
-  width: max-content;
-  padding-block: 6px;
-  will-change: transform;
-  animation: testModeMarquee 28s linear infinite;
-}
-.test-mode-banner:hover .test-mode-banner__track {
-  animation-play-state: paused;
-}
-.test-mode-banner__group {
-  display: inline-flex;
-  flex-shrink: 0;
-}
-.test-mode-banner__item {
-  display: inline-flex;
-  align-items: center;
-  padding-inline: 1.5rem;
-
-  &::before {
-    content: "⚙️";
-    margin-right: 0.5rem;
-  }
-}
-@keyframes testModeMarquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .test-mode-banner__track {
-    animation: none;
-    width: 100%;
-    justify-content: center;
-  }
-  .test-mode-banner__group:nth-child(2),
-  .test-mode-banner__item:not(:first-child) {
-    display: none;
-  }
-}
-
 // ─── Creative full-screen loader (rotating Kitobzor facts) ───────────────────
 .kz-loader {
   position: fixed;

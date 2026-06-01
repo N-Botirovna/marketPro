@@ -13,7 +13,6 @@ import "./performance.css";
 // classes + two full woff2 fonts on every page and is no longer imported.
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ConditionalHeader from "@/components/ConditionalHeader";
-import TestModeBanner from "@/components/TestModeBanner";
 import MaterialThemeProvider from "@/components/MaterialThemeProvider";
 import StyledJsxRegistry from "@/components/StyledJsxRegistry";
 import { themeBootstrapScript } from "@/lib/theme";
@@ -178,7 +177,6 @@ export default async function RootLayout({ children, params }) {
             <MaterialThemeProvider>
               <BootstrapInit />
               <RouteScrollToTop />
-              <TestModeBanner />
               <ProtectedRoute locale={locale}>
                 <ConditionalHeader />
                 {children}

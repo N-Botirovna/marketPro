@@ -1,7 +1,4 @@
 {
-  "TestMode": {
-    "banner": "Diqqat: sayt sinov rejimida ishlamoqda — ba'zi imkoniyatlar hali to'liq ishlamasligi mumkin."
-  },
   "LoadingFacts": {
     "items": [
       "📚 Kitoblaringizni soting, almashtiring yoki sovg'a qiling",
@@ -118,7 +115,7 @@
   },
   "Footer": {
     "about": {
-      "blurb": "Kitobzor — kitob sevuvchilar va do'konlar uchun Telegram-stilidagi marketplace. Sotib oling, sotvering, sovg'a qiling yoki almashtiring."
+      "blurb": "Kitobzor — idrok egalari uchun ijtimoiy tarmoq."
     },
     "site": {
       "title": "Saytda",
