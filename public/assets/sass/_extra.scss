@@ -684,8 +684,28 @@
   z-index: 0;
 }
 
+// Floating "scroll to top" pill — stacked ABOVE the add-book FAB
+// (`.post-book-fab__wrap`, right:18/bottom:18 mobile · 28/28 ≥768, 60–64px round)
+// so the two no longer overlap. Smaller + lifted a notch above the FAB.
 .scroll-to-top {
   z-index: 9999;
+  width: 34px !important;
+  height: 34px !important;
+  right: 31px !important; // centred over the 60px FAB (18 + 30 − 17)
+  bottom: 90px !important; // FAB top (18 + 60) + 12px gap
+  border-radius: 8px !important;
+
+  @media (min-width: 768px) {
+    width: 36px !important;
+    height: 36px !important;
+    right: 42px !important; // centred over the 64px FAB (28 + 32 − 18)
+    bottom: 104px !important; // FAB top (28 + 64) + 12px gap
+  }
+
+  svg {
+    width: 60%;
+    height: 60%;
+  }
 }
 
 .common-dropdown__item .common-dropdown__link.activePage {
