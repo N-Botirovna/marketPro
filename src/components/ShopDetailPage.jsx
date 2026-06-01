@@ -272,7 +272,7 @@ const ShopDetailPage = ({ shopId }) => {
         {Array.isArray(shop?.banners) && shop.banners.length > 0 && (
           <ShopBannerCarousel
             banners={shop.banners}
-            isOwner={Boolean(shop?.is_owner)}
+            isOwner={Boolean(shop?.can_update)}
             onPromoteToStory={handlePromoteBannerToStory}
           />
         )}
@@ -509,7 +509,7 @@ const ShopDetailPage = ({ shopId }) => {
                       <Icon className="ph ph-globe" />
                     </IconButton>
                   )}
-                  {shop?.is_owner && (
+                  {shop?.can_update && (
                     <Button
                       onClick={() => setEditOpen(true)}
                       variant="outlined"
@@ -702,7 +702,7 @@ const ShopDetailPage = ({ shopId }) => {
       {/* Owner-only story creator — lazy-loaded so non-owners never
           download the modal chunk. Pre-populated with this shop so the
           owner can promote the banner via the SHOP target kind. */}
-      {shop?.is_owner && (
+      {shop?.can_update && (
         <StoryCreateModal
           open={storyModalOpen}
           onClose={() => setStoryModalOpen(false)}
@@ -714,7 +714,7 @@ const ShopDetailPage = ({ shopId }) => {
       {/* Owner-only edit dialog. `onSaved` merges the server response
           back into local state so the page reflects the new fields
           (name, hours, banners, etc.) without a hard refresh. */}
-      {shop?.is_owner && (
+      {shop?.can_update && (
         <ShopEditModal
           open={editOpen}
           shop={shop}
