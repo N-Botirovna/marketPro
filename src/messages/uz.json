@@ -34,7 +34,18 @@
     "detailTitle": "Joylashuv",
     "myShop": "Mening do'konim",
     "openMap": "Xaritani ochish",
-    "close": "Yopish"
+    "close": "Yopish",
+    "dragHint": "Belgini kerakli joyga olib boring — markazdagi nuqta tanlanadi",
+    "addressLabel": "Tanlangan manzil"
+  },
+  "BookLanguages": {
+    "uzbek": "O'zbek",
+    "russian": "Rus",
+    "english": "Ingliz",
+    "karakalpak": "Qoraqalpoq",
+    "turkish": "Turk",
+    "arabic": "Arab",
+    "other": "Boshqa"
   },
   "Header": {
     "home": "Bosh sahifa",

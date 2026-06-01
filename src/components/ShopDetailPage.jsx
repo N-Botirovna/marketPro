@@ -51,24 +51,47 @@ const formatStar = (value) => {
   return num.toFixed(1);
 };
 
-// Backend stores `working_days` as English short codes joined by ", "
-// (e.g. "Mon, Tue, Fri"). We render them through the Days i18n namespace
-// so uz/ru users see "Du, Se, Ju" / "Пн, Вт, Пт" — the on-disk format
-// stays canonical, the UI follows the active locale.
+// `working_days` arrives in several historical shapes: short codes
+// ("Mon, Tue, Fri"), full English names, and hyphen ranges ("Monday-Saturday"),
+// plus free-form localized text typed via the bot/admin ("Dushanba-Shanba").
+// Map the day tokens we recognise to the Days i18n namespace; pass ANYTHING
+// else through verbatim. Crucially we look the token up in our own dictionary
+// and never surface next-intl's missing-key fallback (which returns the
+// namespaced path "Days.<token>" — the source of the "Days.dushanba-shanba"
+// bug).
+const DAY_TOKEN_TO_KEY = {
+  mon: "mon",
+  monday: "mon",
+  tue: "tue",
+  tuesday: "tue",
+  wed: "wed",
+  wednesday: "wed",
+  thu: "thu",
+  thursday: "thu",
+  fri: "fri",
+  friday: "fri",
+  sat: "sat",
+  saturday: "sat",
+  sun: "sun",
+  sunday: "sun",
+};
 const localizeWorkingDays = (raw, tDays) => {
   if (!raw || typeof raw !== "string") return "";
+  const localizeSeg = (seg) => {
+    const trimmed = seg.trim();
+    const key = DAY_TOKEN_TO_KEY[trimmed.toLowerCase()];
+    return key ? tDays(key) : trimmed; // unknown → verbatim, never "Days.<x>"
+  };
   return raw
-    .split(/[,\s]+/)
-    .map((token) => token.trim().toLowerCase())
+    .split(/\s*,\s*/)
+    .map((part) =>
+      part
+        .split(/\s*[-–—]\s*/) // render ranges as "Du–Sh"
+        .map(localizeSeg)
+        .filter(Boolean)
+        .join("–"),
+    )
     .filter(Boolean)
-    .map((code) => {
-      try {
-        const v = tDays(code);
-        return v === code ? code : v;
-      } catch {
-        return code;
-      }
-    })
     .join(", ");
 };
 

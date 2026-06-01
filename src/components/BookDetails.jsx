@@ -20,6 +20,7 @@ import { openShareSheet } from "@/lib/shareSheet";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { localizedField } from "@/utils/localizedField";
 import { bookTypeVisual, bookTypeI18nKey } from "@/utils/bookType";
+import { bookLanguageKey } from "@/utils/bookLanguage";
 import Icon from "@/components/Icon";
 import BookCreateModal from "./BookCreateModal";
 import { useToast } from "./Toast";
@@ -27,6 +28,7 @@ import { useToast } from "./Toast";
 const BookDetails = ({ bookId }) => {
   const locale = useLocale();
   const tBook = useTranslations("BookDetails");
+  const tLang = useTranslations("BookLanguages");
   const tCommon = useTranslations("Common");
   const tButtons = useTranslations("Buttons");
   const tShare = useTranslations("Share");
@@ -551,7 +553,14 @@ const BookDetails = ({ bookId }) => {
               overflow: "hidden",
             }}
           >
-            <DetailRow label={tBook("language")} value={book.language} />
+            <DetailRow
+              label={tBook("language")}
+              value={
+                bookLanguageKey(book.language)
+                  ? tLang(bookLanguageKey(book.language))
+                  : book.language
+              }
+            />
             <DetailRow label={tBook("scriptType")} value={scriptLabel(book.script_type)} />
             <DetailRow label={tBook("cover")} value={coverLabel(book.cover_type)} />
             <DetailRow label={tBook("publicationYear")} value={book.publication_year} />

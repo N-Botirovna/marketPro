@@ -34,7 +34,18 @@
     "detailTitle": "Ornalasıw",
     "myShop": "Meniń dúkenim",
     "openMap": "Kartanı ashıw",
-    "close": "Jabıw"
+    "close": "Jabıw",
+    "dragHint": "Kartanı jıljıtıń — ortadaǵı belgi tańlanǵan jer",
+    "addressLabel": "Tańlanǵan mánzil"
+  },
+  "BookLanguages": {
+    "uzbek": "Ózbek",
+    "russian": "Rus",
+    "english": "Inglis",
+    "karakalpak": "Qaraqalpaq",
+    "turkish": "Túrk",
+    "arabic": "Arab",
+    "other": "Basqa"
   },
   "Header": {
     "home": "Bas bet",

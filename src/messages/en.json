@@ -34,7 +34,18 @@
     "detailTitle": "Location",
     "myShop": "My shop",
     "openMap": "Open map",
-    "close": "Close"
+    "close": "Close",
+    "dragHint": "Drag the map — the centre pin marks the spot",
+    "addressLabel": "Selected address"
+  },
+  "BookLanguages": {
+    "uzbek": "Uzbek",
+    "russian": "Russian",
+    "english": "English",
+    "karakalpak": "Karakalpak",
+    "turkish": "Turkish",
+    "arabic": "Arabic",
+    "other": "Other"
   },
   "Header": {
     "home": "Home",
