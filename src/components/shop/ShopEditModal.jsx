@@ -29,6 +29,7 @@ import { resolveMediaUrl } from "@/utils/mediaUrl";
 import FieldError from "@/components/FieldError";
 import { useToast } from "@/components/Toast";
 import Icon from "@/components/Icon";
+import ClockTimePicker from "@/components/shared/ClockTimePicker";
 import BannerManager from "./BannerManager";
 
 const DAY_CODES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -486,6 +487,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
               label="Telegram"
               value={form.telegram}
               onChange={(e) => setField("telegram", e.target.value)}
+              placeholder="t.me/dokoningiz yoki @username"
               disabled={saving}
             />
             <TextField
@@ -494,6 +496,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
               label="Instagram"
               value={form.instagram}
               onChange={(e) => setField("instagram", e.target.value)}
+              placeholder="instagram.com/dokoningiz yoki @username"
               disabled={saving}
             />
             <TextField
@@ -502,6 +505,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
               label={tSeller("website")}
               value={form.website}
               onChange={(e) => setField("website", e.target.value)}
+              placeholder="https://dokoningiz.uz"
               disabled={saving}
             />
             <FormControlLabel
@@ -536,25 +540,39 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
               })}
             </Stack>
             <Stack direction="row" spacing={2}>
-              <TextField
-                size="small"
-                type="time"
+              <ClockTimePicker
                 label={tSeller("hoursStart")}
                 value={workingHours.start}
-                onChange={(e) => setWorkingHours((prev) => ({ ...prev, start: e.target.value }))}
-                sx={{ flex: 1 }}
+                onChange={(v) => setWorkingHours((prev) => ({ ...prev, start: v }))}
                 disabled={saving}
               />
-              <TextField
-                size="small"
-                type="time"
+              <ClockTimePicker
                 label={tSeller("hoursEnd")}
                 value={workingHours.end}
-                onChange={(e) => setWorkingHours((prev) => ({ ...prev, end: e.target.value }))}
-                sx={{ flex: 1 }}
+                onChange={(v) => setWorkingHours((prev) => ({ ...prev, end: v }))}
                 disabled={saving}
               />
             </Stack>
+            <Box>
+              <Typography
+                variant="caption"
+                sx={{ color: "var(--text-muted)", display: "block", mb: 0.5 }}
+              >
+                {tSeller("lunch")}
+              </Typography>
+              <Stack direction="row" spacing={2}>
+                <ClockTimePicker
+                  value={lunch.start}
+                  onChange={(v) => setLunch((prev) => ({ ...prev, start: v }))}
+                  disabled={saving}
+                />
+                <ClockTimePicker
+                  value={lunch.end}
+                  onChange={(v) => setLunch((prev) => ({ ...prev, end: v }))}
+                  disabled={saving}
+                />
+              </Stack>
+            </Box>
           </Stack>
 
           {/* Banners */}

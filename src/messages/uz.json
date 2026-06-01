@@ -47,6 +47,11 @@
     "arabic": "Arab",
     "other": "Boshqa"
   },
+  "TimePicker": {
+    "done": "Tayyor",
+    "hour": "Soat",
+    "minute": "Daqiqa"
+  },
   "Header": {
     "home": "Bosh sahifa",
     "shop": "Kitoblar",

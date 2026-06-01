@@ -27,6 +27,7 @@ import { createShopBanner, updateShopLocation } from "@/services/shop";
 import { mapValidationError } from "@/lib/mapValidationError";
 import { isBlank, tooLong, isPhoneE164 } from "@/lib/validation";
 import Icon from "@/components/Icon";
+import ClockTimePicker from "@/components/shared/ClockTimePicker";
 import FieldError from "./FieldError";
 import { useToast } from "./Toast";
 import BannerEditor from "./shop/BannerEditor";
@@ -612,22 +613,14 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                 {t("workingHours")}
               </Typography>
               <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
-                <TextField
-                  size="small"
-                  type="time"
+                <ClockTimePicker
                   value={workingHours.start}
-                  onChange={(e) => setWorkingHours((prev) => ({ ...prev, start: e.target.value }))}
-                  slotProps={{ htmlInput: { step: 300 } }}
-                  sx={{ flex: 1 }}
+                  onChange={(v) => setWorkingHours((prev) => ({ ...prev, start: v }))}
                 />
                 <Typography sx={{ color: "var(--text-muted)" }}>—</Typography>
-                <TextField
-                  size="small"
-                  type="time"
+                <ClockTimePicker
                   value={workingHours.end}
-                  onChange={(e) => setWorkingHours((prev) => ({ ...prev, end: e.target.value }))}
-                  slotProps={{ htmlInput: { step: 300 } }}
-                  sx={{ flex: 1 }}
+                  onChange={(v) => setWorkingHours((prev) => ({ ...prev, end: v }))}
                 />
               </Stack>
             </Box>
@@ -640,22 +633,14 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                 {t("lunch")} <span style={{ opacity: 0.6 }}>({tCommon("info")})</span>
               </Typography>
               <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
-                <TextField
-                  size="small"
-                  type="time"
+                <ClockTimePicker
                   value={lunch.start}
-                  onChange={(e) => setLunch((prev) => ({ ...prev, start: e.target.value }))}
-                  slotProps={{ htmlInput: { step: 300 } }}
-                  sx={{ flex: 1 }}
+                  onChange={(v) => setLunch((prev) => ({ ...prev, start: v }))}
                 />
                 <Typography sx={{ color: "var(--text-muted)" }}>—</Typography>
-                <TextField
-                  size="small"
-                  type="time"
+                <ClockTimePicker
                   value={lunch.end}
-                  onChange={(e) => setLunch((prev) => ({ ...prev, end: e.target.value }))}
-                  slotProps={{ htmlInput: { step: 300 } }}
-                  sx={{ flex: 1 }}
+                  onChange={(v) => setLunch((prev) => ({ ...prev, end: v }))}
                 />
               </Stack>
             </Box>
@@ -680,7 +665,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               label="Telegram"
               value={form.telegram}
               onChange={(e) => setField("telegram", e.target.value)}
-              placeholder="@username"
+              placeholder="t.me/dokoningiz yoki @username"
             />
             <TextField
               fullWidth
@@ -688,7 +673,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               label="Instagram"
               value={form.instagram}
               onChange={(e) => setField("instagram", e.target.value)}
-              placeholder="@username"
+              placeholder="instagram.com/dokoningiz yoki @username"
             />
             <TextField
               fullWidth
@@ -696,7 +681,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               label={t("website")}
               value={form.website}
               onChange={(e) => setField("website", e.target.value)}
-              placeholder="https://..."
+              placeholder="https://dokoningiz.uz"
             />
           </Stack>
 

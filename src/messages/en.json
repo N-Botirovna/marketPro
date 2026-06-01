@@ -47,6 +47,11 @@
     "arabic": "Arabic",
     "other": "Other"
   },
+  "TimePicker": {
+    "done": "Done",
+    "hour": "Hour",
+    "minute": "Minute"
+  },
   "Header": {
     "home": "Home",
     "shop": "Books",

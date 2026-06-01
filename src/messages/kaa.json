@@ -47,6 +47,11 @@
     "arabic": "Arab",
     "other": "Basqa"
   },
+  "TimePicker": {
+    "done": "Tayın",
+    "hour": "Saat",
+    "minute": "Minut"
+  },
   "Header": {
     "home": "Bas bet",
     "shop": "Kitaplar",
