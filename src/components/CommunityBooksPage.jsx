@@ -7,8 +7,7 @@ import { Box, Stack, Typography, TextField, MenuItem, InputAdornment } from "@mu
 import { getBooks } from "@/services/books";
 import { getBookCategories, getBookSubcategories } from "@/services/categories";
 import { getRegions } from "@/services/regions";
-import BookChatRow from "@/components/shared/BookChatRow";
-import BookRowSkeleton from "@/components/shared/BookRowSkeleton";
+import BookRowGrid from "@/components/shared/BookRowGrid";
 import Icon from "@/components/Icon";
 
 const CommunityBooksPage = ({ type = "all" }) => {
@@ -277,49 +276,45 @@ const CommunityBooksPage = ({ type = "all" }) => {
           )}
         </Stack>
 
-        <Box
-          sx={{
-            bgcolor: "var(--surface-card)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: 3,
-            boxShadow: "var(--shadow-card)",
-            overflow: "hidden",
-          }}
-        >
-          {loading ? (
-            Array.from({ length: 6 }).map((_, i) => (
+        {error ? (
+          <Box
+            sx={{
+              py: 4,
+              textAlign: "center",
+              color: "var(--text-secondary)",
+              border: "1px solid var(--border-subtle)",
+              borderRadius: 3,
+              bgcolor: "var(--surface-card)",
+            }}
+          >
+            {error}
+          </Box>
+        ) : (
+          <BookRowGrid
+            books={books}
+            loading={loading}
+            skeletonCount={6}
+            showTypeBadge={showTypeBadge}
+            emptyState={
               <Box
-                key={`row-skel-${i}`}
-                sx={{ borderBottom: i === 5 ? "none" : "1px solid var(--border-subtle)" }}
-              >
-                <BookRowSkeleton />
-              </Box>
-            ))
-          ) : error ? (
-            <Box sx={{ py: 4, textAlign: "center", color: "var(--text-secondary)" }}>{error}</Box>
-          ) : books.length === 0 ? (
-            <Box sx={{ py: 6, textAlign: "center", color: "var(--text-muted)" }}>
-              <Icon
-                className="ph ph-book-open"
-                style={{ fontSize: 40, display: "inline-block", marginBottom: 8 }}
-                aria-hidden="true"
-              />
-              <Typography>{t("noResults")}</Typography>
-            </Box>
-          ) : (
-            books.map((book, idx) => (
-              <Box
-                key={book.id}
                 sx={{
-                  borderBottom:
-                    idx === books.length - 1 ? "none" : "1px solid var(--border-subtle)",
+                  py: 6,
+                  textAlign: "center",
+                  color: "var(--text-muted)",
+                  border: "1px dashed var(--border-subtle)",
+                  borderRadius: 3,
                 }}
               >
-                <BookChatRow book={book} showTypeBadge={showTypeBadge} />
+                <Icon
+                  className="ph ph-book-open"
+                  style={{ fontSize: 40, display: "inline-block", marginBottom: 8 }}
+                  aria-hidden="true"
+                />
+                <Typography>{t("noResults")}</Typography>
               </Box>
-            ))
-          )}
-        </Box>
+            }
+          />
+        )}
       </Box>
     </Box>
   );

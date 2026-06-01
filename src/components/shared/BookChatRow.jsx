@@ -10,14 +10,22 @@ import { bookTypeVisual, bookTypeI18nKey } from "@/utils/bookType";
 import Icon from "@/components/Icon";
 
 /**
- * Telegram-inspired compact row used in book listings:
+ * Compact horizontal book card used in the feed/browse listings:
  *
- *   [thumb 60]  Title (bold)              [type badge]
- *               Author · Price
+ *   ┌────────────────────────────────────┐
+ *   │ [thumb 60]  Title (bold)   [badge]  │
+ *   │             Author · Price          │
+ *   └────────────────────────────────────┘
+ *
+ * It is a *self-contained card* (border + shadow + hover lift, mirroring
+ * ShopCard) so it can sit in a responsive grid — `BookRowGrid` lays these out
+ * 1-up on mobile (reads like a Telegram row) and 2–3-up on wider screens so the
+ * desktop layout stops wasting horizontal space. `height: 100%` keeps every
+ * card in a grid row the same height.
  *
  * Reused by `HomeBookList`, `CommunityBooksPage`, and `ShopDetailPage`.
- * When `showTypeBadge` is true the trailing badge is rendered; pass false
- * in single-type listings where the badge would be redundant.
+ * When `showTypeBadge` is true the trailing badge is rendered; pass false in
+ * single-type listings where the badge would be redundant.
  */
 const BookChatRow = ({ book, showTypeBadge = true }) => {
   const tType = useTranslations("BookTypeChips");
@@ -36,17 +44,26 @@ const BookChatRow = ({ book, showTypeBadge = true }) => {
   return (
     <Link
       href={`/book-details/${book.id}`}
-      style={{ textDecoration: "none", color: "inherit", display: "block" }}
+      style={{ textDecoration: "none", color: "inherit", display: "block", height: "100%" }}
     >
       <Stack
         direction="row"
         spacing={1.5}
         sx={{
+          height: "100%",
           alignItems: "center",
-          px: { xs: 1.5, md: 2 },
+          px: { xs: 1.5, md: 1.75 },
           py: 1.25,
-          "&:hover": { bgcolor: "var(--surface-muted)" },
-          transition: "background-color 0.15s ease",
+          borderRadius: 2.5,
+          bgcolor: "var(--surface-card)",
+          border: "1px solid var(--border-subtle)",
+          boxShadow: "var(--shadow-card)",
+          transition: "transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease",
+          "&:hover": {
+            transform: "translateY(-2px)",
+            boxShadow: "var(--shadow-elevated)",
+            borderColor: "var(--main-600, hsl(148, 59%, 39%))",
+          },
         }}
       >
         <Box

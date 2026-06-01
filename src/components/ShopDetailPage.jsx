@@ -19,8 +19,7 @@ import dynamic from "next/dynamic";
 import { getShopDetails } from "@/services/shop";
 import { getBooks } from "@/services/books";
 import { getBookCategories, getBookSubcategories } from "@/services/categories";
-import BookChatRow from "@/components/shared/BookChatRow";
-import BookRowSkeleton from "@/components/shared/BookRowSkeleton";
+import BookRowGrid from "@/components/shared/BookRowGrid";
 import { openShareSheet } from "@/lib/shareSheet";
 import ShopBannerCarousel from "@/components/ShopBannerCarousel";
 import Icon from "@/components/Icon";
@@ -651,43 +650,27 @@ const ShopDetailPage = ({ shopId }) => {
           </TextField>
         </Stack>
 
-        <Box
-          sx={{
-            bgcolor: "var(--surface-card)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: 3,
-            boxShadow: "var(--shadow-card)",
-            overflow: "hidden",
-          }}
-        >
-          {booksLoading ? (
-            Array.from({ length: 5 }).map((_, i) => (
-              <Box
-                key={`row-skel-${i}`}
-                sx={{ borderBottom: i === 4 ? "none" : "1px solid var(--border-subtle)" }}
-              >
-                <BookRowSkeleton />
-              </Box>
-            ))
-          ) : books.length === 0 ? (
-            <Stack spacing={1} sx={{ alignItems: "center", py: 6, color: "var(--text-muted)" }}>
+        <BookRowGrid
+          books={books}
+          loading={booksLoading}
+          skeletonCount={5}
+          showTypeBadge={false}
+          emptyState={
+            <Stack
+              spacing={1}
+              sx={{
+                alignItems: "center",
+                py: 6,
+                color: "var(--text-muted)",
+                border: "1px dashed var(--border-subtle)",
+                borderRadius: 3,
+              }}
+            >
               <Icon className="ph ph-book-open" style={{ fontSize: 40 }} aria-hidden="true" />
               <Typography>{t("emptyBooks")}</Typography>
             </Stack>
-          ) : (
-            books.map((book, idx) => (
-              <Box
-                key={book.id}
-                sx={{
-                  borderBottom:
-                    idx === books.length - 1 ? "none" : "1px solid var(--border-subtle)",
-                }}
-              >
-                <BookChatRow book={book} />
-              </Box>
-            ))
-          )}
-        </Box>
+          }
+        />
       </Box>
 
       {/* Owner-only story creator — lazy-loaded so non-owners never

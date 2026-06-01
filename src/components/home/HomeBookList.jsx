@@ -5,8 +5,7 @@ import { useTranslations } from "next-intl";
 import { Box, Stack, Typography } from "@mui/material";
 import { Link } from "@/i18n/navigation";
 import { getBooks } from "@/services/books";
-import BookChatRow from "@/components/shared/BookChatRow";
-import BookRowSkeleton from "@/components/shared/BookRowSkeleton";
+import BookRowGrid from "@/components/shared/BookRowGrid";
 import Icon from "@/components/Icon";
 
 /**
@@ -105,38 +104,7 @@ const HomeBookList = ({ type, ownerType, titleKey, viewAllHref, limit = 5, initi
           </Link>
         </Stack>
 
-        <Box
-          sx={{
-            bgcolor: "var(--surface-card)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: 2.5,
-            boxShadow: "var(--shadow-card)",
-            overflow: "hidden",
-          }}
-        >
-          {loading
-            ? Array.from({ length: limit }).map((_, i) => (
-                <Box
-                  key={`row-skel-${i}`}
-                  sx={{
-                    borderBottom: i === limit - 1 ? "none" : "1px solid var(--border-subtle)",
-                  }}
-                >
-                  <BookRowSkeleton />
-                </Box>
-              ))
-            : books.map((book, idx) => (
-                <Box
-                  key={book.id}
-                  sx={{
-                    borderBottom:
-                      idx === books.length - 1 ? "none" : "1px solid var(--border-subtle)",
-                  }}
-                >
-                  <BookChatRow book={book} showTypeBadge={!type} />
-                </Box>
-              ))}
-        </Box>
+        <BookRowGrid books={books} loading={loading} skeletonCount={limit} showTypeBadge={!type} />
       </Box>
     </Box>
   );
