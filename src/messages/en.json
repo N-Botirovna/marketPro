@@ -20,6 +20,20 @@
     "phoneInvalid": "Invalid phone number. Example: +998901234567",
     "phoneStartPlus": "The number must start with +. Example: +998901234567"
   },
+  "ShopLocation": {
+    "mapLabel": "Mark the location on the map",
+    "mapHint": "Optional — show where your shop is on the map",
+    "searchPlaceholder": "Search an address (e.g. Chilonzor, Tashkent)",
+    "searchBtn": "Search",
+    "searchEmpty": "No address found",
+    "useMyLocation": "My current location",
+    "geoUnsupported": "Your browser doesn't support location",
+    "geoDenied": "Couldn't determine your location",
+    "tapHint": "Tap the map or search to set the location",
+    "picked": "Selected: {lat}, {lng}",
+    "detailTitle": "Location",
+    "myShop": "My shop"
+  },
   "Header": {
     "home": "Home",
     "shop": "Books",

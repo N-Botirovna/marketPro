@@ -20,6 +20,20 @@
     "phoneInvalid": "Telefon raqami noto'g'ri. Masalan: +998901234567",
     "phoneStartPlus": "Raqam + bilan boshlanishi kerak. Masalan: +998901234567"
   },
+  "ShopLocation": {
+    "mapLabel": "Xaritada joyni belgilang",
+    "mapHint": "Ixtiyoriy — do'koningiz xaritada qayerda ekanini ko'rsating",
+    "searchPlaceholder": "Manzilni qidirish (masalan: Chilonzor, Toshkent)",
+    "searchBtn": "Qidirish",
+    "searchEmpty": "Manzil topilmadi",
+    "useMyLocation": "Joriy joylashuvim",
+    "geoUnsupported": "Brauzer joylashuvni qo'llab-quvvatlamaydi",
+    "geoDenied": "Joylashuvni aniqlab bo'lmadi",
+    "tapHint": "Joyni belgilash uchun xaritani bosing yoki qidiring",
+    "picked": "Tanlandi: {lat}, {lng}",
+    "detailTitle": "Joylashuv",
+    "myShop": "Mening do'konim"
+  },
   "Header": {
     "home": "Bosh sahifa",
     "shop": "Kitoblar",

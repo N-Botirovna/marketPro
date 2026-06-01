@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { getUserPostedBooks, getUserArchivedBooks, patchBook } from "@/services/books";
 import { getRegions } from "@/services/regions";
 import { getShopsByOwner } from "@/services/shops";
+import { Link } from "@/i18n/navigation";
 import { mapValidationError } from "@/lib/mapValidationError";
 import { openShareSheet } from "@/lib/shareSheet";
 import Icon from "@/components/Icon";
@@ -28,6 +29,7 @@ const ProfileDashboard = () => {
   const tProduct = useTranslations("ProductDetailsOne");
   const tProfileMessages = useTranslations("Profile");
   const tCommon = useTranslations("Common");
+  const tShopLoc = useTranslations("ShopLocation");
   const { showToast, ToastContainer } = useToast();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -537,7 +539,7 @@ const ProfileDashboard = () => {
           <ProfileStoryBar books={userBooks} shops={userShops} onAddBookClick={handleCreateBook} />
 
           {userShops.length > 0 && (
-            <Box sx={{ textAlign: "center" }}>
+            <Stack direction="row" sx={{ justifyContent: "center", flexWrap: "wrap", gap: 1 }}>
               <Button
                 variant="contained"
                 onClick={() => setShowStoryModal(true)}
@@ -548,16 +550,32 @@ const ProfileDashboard = () => {
                     aria-hidden="true"
                   />
                 }
-                sx={{
-                  textTransform: "none",
-                  fontWeight: 600,
-                  borderRadius: 5,
-                  px: 3,
-                }}
+                sx={{ textTransform: "none", fontWeight: 600, borderRadius: 5, px: 3 }}
               >
                 {tProfile("addStory")}
               </Button>
-            </Box>
+              {/* Quick link to the owner's shop page, where the edit (pencil)
+                  button lives — the editor was previously only reachable from
+                  the public shop page, which owners couldn't find. */}
+              {userShops.map((shop) => (
+                <Button
+                  key={shop.id}
+                  component={Link}
+                  href={`/shops/${shop.id}`}
+                  variant="outlined"
+                  startIcon={
+                    <Icon
+                      className="ph ph-storefront"
+                      style={{ fontSize: 18 }}
+                      aria-hidden="true"
+                    />
+                  }
+                  sx={{ textTransform: "none", fontWeight: 600, borderRadius: 5, px: 3 }}
+                >
+                  {userShops.length > 1 ? shop.name : tShopLoc("myShop")}
+                </Button>
+              ))}
+            </Stack>
           )}
 
           <ProfileInfoList user={userData} locationLine={locationFull} />

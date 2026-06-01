@@ -38,6 +38,12 @@ const ShopEditModal = dynamic(() => import("@/components/shop/ShopEditModal"), {
   loading: () => null,
 });
 
+// Read-only location map — Leaflet touches `window`, so client-only.
+const LocationMap = dynamic(() => import("@/components/shared/LocationMap"), {
+  ssr: false,
+  loading: () => null,
+});
+
 const formatStar = (value) => {
   if (value === null || value === undefined) return null;
   const num = Number(value);
@@ -71,6 +77,7 @@ const ShopDetailPage = ({ shopId }) => {
   const tDays = useTranslations("Days");
   const tShare = useTranslations("Share");
   const tShopEdit = useTranslations("ShopEdit");
+  const tShopLoc = useTranslations("ShopLocation");
 
   const handleShareShop = () => {
     const name = shop?.name || "Kitobzor";
@@ -574,6 +581,25 @@ const ShopDetailPage = ({ shopId }) => {
             </Box>
           )}
         </Box>
+
+        {/* ─── Location map (when the shop has a pinned point) ─────── */}
+        {shop?.point && (
+          <Box sx={{ mb: 3 }}>
+            <Typography
+              component="h2"
+              sx={{
+                fontSize: { xs: 17, md: 19 },
+                fontWeight: 700,
+                mb: 1.5,
+                px: 0.5,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              {tShopLoc("detailTitle")}
+            </Typography>
+            <LocationMap point={shop.point} />
+          </Box>
+        )}
 
         {/* ─── Books section ──────────────────────────────────────── */}
         <Typography

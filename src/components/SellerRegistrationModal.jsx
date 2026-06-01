@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
 import {
   Dialog,
   Box,
@@ -22,13 +23,16 @@ import {
 
 import { getRegions } from "@/services/regions";
 import { createShop } from "@/services/shopCreate";
-import { createShopBanner } from "@/services/shop";
+import { createShopBanner, updateShopLocation } from "@/services/shop";
 import { mapValidationError } from "@/lib/mapValidationError";
 import { isBlank, tooLong, isPhoneE164 } from "@/lib/validation";
 import Icon from "@/components/Icon";
 import FieldError from "./FieldError";
 import { useToast } from "./Toast";
 import BannerEditor from "./shop/BannerEditor";
+
+// Map picker touches `window` (Leaflet) — load it client-only.
+const LocationPicker = dynamic(() => import("@/components/shared/LocationPicker"), { ssr: false });
 
 // ─── Working-day model ──────────────────────────────────────────────────────
 // Backend stores `working_days` as a free-form string (e.g. "Mon, Wed, Fri").
@@ -57,6 +61,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
   const tLocation = useTranslations("Location");
   const tDays = useTranslations("Days");
   const tBanner = useTranslations("Banner");
+  const tShopLoc = useTranslations("ShopLocation");
   const { showToast, ToastContainer } = useToast();
   const fileInputRef = useRef(null);
 
@@ -78,6 +83,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
   const [workingDays, setWorkingDays] = useState(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]);
   const [workingHours, setWorkingHours] = useState({ start: "09:00", end: "18:00" });
   const [lunch, setLunch] = useState({ start: "13:00", end: "14:00" });
+  const [coords, setCoords] = useState(null);
 
   // Optional initial banner — collected here so a fresh shop can launch
   // with its first announcement already pinned. Empty draft = skip.
@@ -256,6 +262,13 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               duration: 3000,
             });
           });
+        }
+        // Geo location is set via a separate JSON PATCH (the multipart create
+        // can't carry the `point` dict). Best-effort — a failure here must not
+        // undo an otherwise-successful registration; the owner can set it later
+        // from the edit modal.
+        if (shopId && coords) {
+          updateShopLocation(shopId, coords).catch(() => {});
         }
         // Don't auto-close — the user needs to see the "admin will reach
         // out" copy. A toast disappears too fast for that message to land.
@@ -549,6 +562,15 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                 error={!!fieldErrors.location_text}
               />
               <FieldError message={fieldErrors.location_text} />
+            </Box>
+            <Box>
+              <Typography sx={{ fontSize: 13, fontWeight: 600, mb: 0.25 }}>
+                {tShopLoc("mapLabel")}
+              </Typography>
+              <Typography sx={{ fontSize: 12, color: "var(--text-muted)", mb: 1 }}>
+                {tShopLoc("mapHint")}
+              </Typography>
+              <LocationPicker value={coords} onChange={setCoords} />
             </Box>
           </Stack>
 

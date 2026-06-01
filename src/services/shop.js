@@ -53,6 +53,33 @@ export async function updateShop(id, payload) {
 }
 
 /**
+ * Set a shop's geo location (`point`). Sent as a **JSON** PATCH — the backend
+ * `PointField` expects a `{ latitude, longitude }` dict, which multipart can't
+ * carry for a plain DRF field, so this is deliberately separate from the
+ * multipart `updateShop` (text + picture) call.
+ *
+ * `coords` is `{ latitude, longitude }` (numbers). Returns the updated shop.
+ */
+export async function updateShopLocation(id, coords) {
+  if (!id) throw new Error("shop id is required");
+  const { latitude, longitude } = coords || {};
+  if (typeof latitude !== "number" || typeof longitude !== "number") {
+    throw new Error("latitude and longitude (numbers) are required");
+  }
+  const { data } = await http.patch(
+    `${API_ENDPOINTS.SHOPS.UPDATE}/${id}/`,
+    { point: { latitude, longitude } },
+    withIdempotency(),
+  );
+  try {
+    clearHttpCache("/api/v1/shop/");
+  } catch {
+    /* best effort */
+  }
+  return data?.result ?? data;
+}
+
+/**
  * Create a new banner under a shop. `payload` must include shop (id),
  * picture (File), and at least one of title/description. Backend
  * validates ownership via the auth token, so callers don't pre-check.

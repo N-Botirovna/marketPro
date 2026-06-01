@@ -865,6 +865,14 @@ body.body-no-scroll {
   }
 }
 
+// ─── Leaflet map pin (SVG divIcon) ───────────────────────────────────────────
+// Leaflet draws a white box + border around `.leaflet-div-icon` by default;
+// our pin is a standalone SVG, so strip the chrome.
+.kz-map-pin {
+  background: transparent;
+  border: 0;
+}
+
 // ─── Creative full-screen loader (rotating Kitobzor facts) ───────────────────
 .kz-loader {
   position: fixed;

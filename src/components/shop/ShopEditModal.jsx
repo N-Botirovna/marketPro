@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
 import {
   Dialog,
   Box,
@@ -21,7 +22,7 @@ import {
 } from "@mui/material";
 
 import { getRegions } from "@/services/regions";
-import { updateShop } from "@/services/shop";
+import { updateShop, updateShopLocation } from "@/services/shop";
 import { mapValidationError } from "@/lib/mapValidationError";
 import { isBlank, tooLong, isPhoneE164 } from "@/lib/validation";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
@@ -57,6 +58,9 @@ const parseDays = (raw) => {
  *
  * Mounted lazily by the shop detail page; only shop owners ever load it.
  */
+// Map picker touches `window` (Leaflet) — load it client-only.
+const LocationPicker = dynamic(() => import("@/components/shared/LocationPicker"), { ssr: false });
+
 const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
   const t = useTranslations("ShopEdit");
   const tv = useTranslations("Validation");
@@ -64,6 +68,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
   const tCommon = useTranslations("Common");
   const tLocation = useTranslations("Location");
   const tDays = useTranslations("Days");
+  const tShopLoc = useTranslations("ShopLocation");
   const { showToast, ToastContainer } = useToast();
   const fileInputRef = useRef(null);
 
@@ -84,6 +89,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
   const [workingDays, setWorkingDays] = useState([]);
   const [workingHours, setWorkingHours] = useState({ start: "09:00", end: "18:00" });
   const [lunch, setLunch] = useState({ start: "13:00", end: "14:00" });
+  const [coords, setCoords] = useState(null);
 
   const [regions, setRegions] = useState([]);
   const [banners, setBanners] = useState([]);
@@ -113,6 +119,11 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
     setWorkingHours(parseTimeRange(shop.working_hours) || { start: "09:00", end: "18:00" });
     setLunch(parseTimeRange(shop.lunch) || { start: "13:00", end: "14:00" });
     setBanners(Array.isArray(shop.banners) ? shop.banners : []);
+    setCoords(
+      shop.point && typeof shop.point.latitude === "number"
+        ? { latitude: shop.point.latitude, longitude: shop.point.longitude }
+        : null,
+    );
   }, [open, shop]);
 
   useEffect(() => {
@@ -217,7 +228,23 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
       };
       if (form.picture) payload.picture = form.picture;
 
-      const saved = await updateShop(shop.id, payload);
+      let saved = await updateShop(shop.id, payload);
+
+      // Geo location goes via a separate JSON PATCH (multipart can't carry the
+      // `point` dict). Only when it actually changed; the returned shop carries
+      // the new point so the detail view reflects it without a refetch.
+      const orig = shop.point;
+      const moved =
+        coords &&
+        (!orig || orig.latitude !== coords.latitude || orig.longitude !== coords.longitude);
+      if (moved) {
+        try {
+          saved = await updateShopLocation(shop.id, coords);
+        } catch {
+          /* keep the successful text/picture save; location can be retried */
+        }
+      }
+
       showToast({
         type: "success",
         title: t("saved"),
@@ -438,6 +465,15 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
                 onChange={(e) => setField("location_text", e.target.value)}
                 disabled={saving}
               />
+            </Box>
+            <Box>
+              <Typography sx={{ fontSize: 13, fontWeight: 600, mb: 0.25 }}>
+                {tShopLoc("mapLabel")}
+              </Typography>
+              <Typography sx={{ fontSize: 12, color: "var(--text-muted)", mb: 1 }}>
+                {tShopLoc("mapHint")}
+              </Typography>
+              <LocationPicker value={coords} onChange={setCoords} />
             </Box>
           </Stack>
 

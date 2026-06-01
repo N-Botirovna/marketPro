@@ -20,6 +20,20 @@
     "phoneInvalid": "Telefon nomeri qáte. Mısalı: +998901234567",
     "phoneStartPlus": "Nomer + menen baslanıwı kerek. Mısalı: +998901234567"
   },
+  "ShopLocation": {
+    "mapLabel": "Kartada ornı belgileń",
+    "mapHint": "Erkin — dúkenińizdiń kartadaǵı ornın körsetiń",
+    "searchPlaceholder": "Mánzil izlew (mısalı: Chilonzor, Tashkent)",
+    "searchBtn": "Izlew",
+    "searchEmpty": "Mánzil tabılmadı",
+    "useMyLocation": "Házirgi ornım",
+    "geoUnsupported": "Brauzer ornalasıwın qollap-quwatlamaydı",
+    "geoDenied": "Ornalasıwdı anıqlap bolmadı",
+    "tapHint": "Ornı belgilew ushın kartanı basıń yáki izleń",
+    "picked": "Tańlandı: {lat}, {lng}",
+    "detailTitle": "Ornalasıw",
+    "myShop": "Meniń dúkenim"
+  },
   "Header": {
     "home": "Bas bet",
     "shop": "Kitaplar",
