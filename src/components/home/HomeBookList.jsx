@@ -17,7 +17,7 @@ import Icon from "@/components/Icon";
  * Row visuals live in `BookChatRow` (shared with CommunityBooksPage and
  * ShopDetailPage) so a tweak to row design touches one file.
  */
-const HomeBookList = ({ type, ownerType, titleKey, viewAllHref, limit = 5, initialBooks }) => {
+const HomeBookList = ({ type, ownerType, titleKey, viewAllHref, limit = 6, initialBooks }) => {
   const t = useTranslations("HomeBookList");
   // When the server passed pre-fetched books we trust them and skip the
   // client round-trip entirely. The fallback fetch only fires when this

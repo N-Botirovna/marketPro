@@ -75,7 +75,9 @@ const bookParams = (type) => ({
   is_active: true,
   type,
   owner_type: "user",
-  limit: 5,
+  // 6 so the home feed fills exactly two full rows of the 3-column BookRowGrid
+  // on desktop (no dangling single card).
+  limit: 6,
 });
 
 const page = async ({ params }) => {

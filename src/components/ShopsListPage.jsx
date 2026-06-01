@@ -9,6 +9,14 @@ import ShopCard from "@/components/shop/ShopCard";
 import ShopCardSkeleton from "@/components/shared/ShopCardSkeleton";
 import Icon from "@/components/Icon";
 
+// Same responsive grid as HomeShopsRow / BookRowGrid so shops break at the
+// same points everywhere: 1 col on mobile, 2 on tablet, 3 on desktop.
+const SHOP_GRID_SX = {
+  display: "grid",
+  gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" },
+  gap: { xs: 1.25, md: 1.5 },
+};
+
 const ShopsListPage = () => {
   const t = useTranslations("ShopsPage");
   const tLocation = useTranslations("Location");
@@ -74,7 +82,7 @@ const ShopsListPage = () => {
         py: { xs: 2.5, md: 4 },
       }}
     >
-      <Box sx={{ maxWidth: 880, mx: "auto", px: { xs: 2, md: 3 } }}>
+      <Box sx={{ maxWidth: 1240, mx: "auto", px: { xs: 2, md: 3 } }}>
         <Typography
           component="h1"
           sx={{
@@ -153,11 +161,11 @@ const ShopsListPage = () => {
         </Stack>
 
         {loading && (
-          <Stack spacing={1.5}>
-            {Array.from({ length: 5 }).map((_, i) => (
+          <Box sx={SHOP_GRID_SX}>
+            {Array.from({ length: 6 }).map((_, i) => (
               <ShopCardSkeleton key={i} />
             ))}
-          </Stack>
+          </Box>
         )}
 
         {!loading && error && (
@@ -187,11 +195,11 @@ const ShopsListPage = () => {
         )}
 
         {!loading && !error && shops.length > 0 && (
-          <Stack spacing={1.5}>
+          <Box sx={SHOP_GRID_SX}>
             {shops.map((shop) => (
               <ShopCard key={shop.id} shop={shop} />
             ))}
-          </Stack>
+          </Box>
         )}
       </Box>
     </Box>
