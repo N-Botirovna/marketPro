@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Box, Stack, Button } from "@mui/material";
 import { getUserProfile, updateUserProfile } from "@/services/auth";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,6 +9,7 @@ import { getUserPostedBooks, getUserArchivedBooks, patchBook } from "@/services/
 import { getRegions } from "@/services/regions";
 import { getShopsByOwner } from "@/services/shops";
 import { mapValidationError } from "@/lib/mapValidationError";
+import { openShareSheet } from "@/lib/shareSheet";
 import Icon from "@/components/Icon";
 import Spin from "./Spin";
 import BookCreateModal from "./BookCreateModal";
@@ -22,6 +23,7 @@ import { useToast } from "./Toast";
 
 const ProfileDashboard = () => {
   const { isAuthenticated, isLoading: authLoading, logout } = useAuth();
+  const locale = useLocale();
   const tProfile = useTranslations("ProfileDashboard");
   const tProduct = useTranslations("ProductDetailsOne");
   const tProfileMessages = useTranslations("Profile");
@@ -222,29 +224,14 @@ const ProfileDashboard = () => {
     }
   };
 
-  const handleShareProfile = async () => {
-    if (typeof window === "undefined") return;
-    const url = `${window.location.origin}/uz/user/${userData?.id || ""}`;
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: [userData?.first_name, userData?.last_name].filter(Boolean).join(" ") || "Profile",
-          url,
-        });
-      } else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(url);
-        showToast({
-          type: "success",
-          title: tCommon("success"),
-          message: tProfile("shareCopied"),
-          duration: 2500,
-        });
-      }
-    } catch (error) {
-      if (error?.name !== "AbortError") {
-        console.error("Share failed:", error);
-      }
-    }
+  const handleShareProfile = () => {
+    const fullName =
+      [userData?.first_name, userData?.last_name].filter(Boolean).join(" ") || "Profile";
+    openShareSheet({
+      title: fullName,
+      text: `${fullName} — Kitobzor`,
+      url: `/${locale}/user/${userData?.id || ""}`,
+    });
   };
 
   const handleCreateBook = () => {
