@@ -34,12 +34,14 @@ const BookChatRow = ({ book, showTypeBadge = true }) => {
   const typeKey = (book.type || "").toLowerCase();
   const badge = bookTypeVisual(typeKey);
 
-  const priceNode = (() => {
-    if (typeKey === "gift") return tType("gift");
-    if (typeKey === "exchange") return tType("exchange");
-    const price = book.discount_price || book.price;
-    return price ? formatPrice(price, locale) : null;
-  })();
+  // Monetary types (sell/rent) show the price on its OWN line under the author,
+  // so a long author name can never push it out of view. Non-monetary types
+  // (gift/exchange) carry no price — the trailing badge conveys the type; we
+  // only fall back to a text label for them when the badge is hidden.
+  const isMonetary = typeKey === "seller" || typeKey === "rent";
+  const price = book.discount_price || book.price;
+  const priceLabel = isMonetary && price ? formatPrice(price, locale) : null;
+  const typeLabel = !isMonetary && badge ? tType(bookTypeI18nKey(typeKey)) : null;
 
   return (
     <Link
@@ -109,17 +111,41 @@ const BookChatRow = ({ book, showTypeBadge = true }) => {
           >
             {book.name || "—"}
           </Typography>
-          <Typography
-            sx={{
-              fontSize: 12,
-              color: "var(--text-muted)",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {[book.author, priceNode].filter(Boolean).join(" · ") || "—"}
-          </Typography>
+          {book.author && (
+            <Typography
+              sx={{
+                fontSize: 12,
+                color: "var(--text-muted)",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {book.author}
+            </Typography>
+          )}
+          {priceLabel ? (
+            <Typography
+              sx={{
+                mt: 0.25,
+                fontSize: 13,
+                fontWeight: 700,
+                color: "var(--main-600, hsl(148, 59%, 39%))",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {priceLabel}
+            </Typography>
+          ) : (
+            !showTypeBadge &&
+            typeLabel && (
+              <Typography sx={{ mt: 0.25, fontSize: 12, color: "var(--text-muted)" }}>
+                {typeLabel}
+              </Typography>
+            )
+          )}
         </Box>
         {showTypeBadge && badge && (
           <Chip
