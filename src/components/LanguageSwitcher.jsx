@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { useAuth } from "@/hooks/useAuth";
 import Icon from "@/components/Icon";
 
 // Native-name labels intentionally stay outside the i18n bundle: language
@@ -27,6 +28,7 @@ const LanguageSwitcher = ({ className = "" }) => {
   const router = useRouter();
   const pathname = usePathname();
   const activeLocale = useLocale();
+  const { isAuthenticated } = useAuth();
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
 
@@ -50,6 +52,10 @@ const LanguageSwitcher = ({ className = "" }) => {
       if (typeof window !== "undefined") {
         localStorage.setItem("NEXT_LOCALE", code);
         localStorage.setItem("locale", code);
+        // For a logged-in user this IS their language preference — persist it
+        // so <LocaleSync> keeps routing them here on later visits. Anonymous
+        // choices stay session/URL-level only (entry default is Uzbek).
+        if (isAuthenticated) localStorage.setItem("preferred_locale", code);
       }
     } catch {
       /* localStorage blocked — server middleware will fall back */

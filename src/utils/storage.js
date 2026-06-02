@@ -54,7 +54,8 @@ export function clearAuthStorage() {
       "refresh_token",
       "token_expires_at",
       "user_data",
-      "login_time"
+      "login_time",
+      "preferred_locale",
     ].forEach((key) => localStorage.removeItem(key));
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
@@ -80,8 +81,7 @@ export function getCurrentLocale() {
     if (match && match[1]) return match[1];
 
     // 2. From storage
-    const stored =
-      localStorage.getItem("NEXT_LOCALE") || localStorage.getItem("locale");
+    const stored = localStorage.getItem("NEXT_LOCALE") || localStorage.getItem("locale");
     if (stored && ["uz", "en", "ru"].includes(stored)) return stored;
 
     // 3. From browser language
