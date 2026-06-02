@@ -3,6 +3,7 @@ import { API_BASE_URL, API_ENDPOINTS, AUTH_TOKEN_STORAGE_KEY } from "@/config";
 import { getItem, setItem, getCurrentLocale } from "@/utils/storage";
 import { clearAuthStorage } from "@/utils/authStorage";
 import { serializeParams } from "@/utils/serializeParams";
+import { stripLocalePrefix } from "@/utils/nextPath";
 import {
   circuit,
   withRetry,
@@ -237,11 +238,15 @@ function refreshWithTimeout(refreshToken) {
 
 function buildLoginRedirectUrl(locale) {
   if (typeof window === "undefined") return `/${locale}/login`;
-  const nextPath = window.location.pathname + window.location.search;
+  const raw = window.location.pathname + window.location.search;
   // Only same-origin paths are valid
-  if (!nextPath.startsWith("/")) return `/${locale}/login`;
+  if (!raw.startsWith("/")) return `/${locale}/login`;
   // Don't loop on the login page itself
-  if (nextPath.startsWith(`/${locale}/login`)) return `/${locale}/login`;
+  if (raw.startsWith(`/${locale}/login`)) return `/${locale}/login`;
+  // `next` must be locale-LESS — the login page feeds it to the locale-aware
+  // router, which re-adds the locale. Passing "/uz" here would land the user
+  // on "/uz/uz" (404) after sign-in.
+  const nextPath = stripLocalePrefix(raw);
   return `/${locale}/login?next=${encodeURIComponent(nextPath)}`;
 }
 

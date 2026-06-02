@@ -6,19 +6,13 @@ import { loginWithCode } from "@/services/auth";
 import { getBotUsername, getBotUrl } from "@/config/env";
 import { useRouter } from "@/i18n/navigation";
 import { mapValidationError } from "@/lib/mapValidationError";
+import { sanitizeNextPath } from "@/utils/nextPath";
 import Icon from "@/components/Icon";
 import Spin from "./Spin";
 import FieldError from "./FieldError";
 import { useToast } from "./Toast";
 
 const CODE_LENGTH = 6;
-
-function sanitizeNextPath(raw) {
-  if (typeof raw !== "string") return null;
-  if (!raw.startsWith("/") || raw.startsWith("//")) return null;
-  if (/^\/[^/]+\/login(\?|$|\/)/.test(raw)) return null;
-  return raw;
-}
 
 /**
  * Passwordless sign-in. The flow mirrors the Telegram bot exactly:

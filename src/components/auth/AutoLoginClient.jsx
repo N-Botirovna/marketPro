@@ -6,6 +6,7 @@ import { Box, Stack, Typography, Button } from "@mui/material";
 import { useRouter } from "@/i18n/navigation";
 import LoadingScreen from "@/components/LoadingScreen";
 import { loginWithTicket } from "@/services/auth";
+import { stripLocalePrefix } from "@/utils/nextPath";
 import Icon from "@/components/Icon";
 
 /**
@@ -47,7 +48,7 @@ const AutoLoginClient = ({ ticket, next = "/" }) => {
         const safeNext = next && next.startsWith("/") ? next : "/";
         // Strip any leading locale prefix in `next` so the locale option
         // takes effect; next-intl's router prepends the locale.
-        const stripped = safeNext.replace(/^\/(uz|ru|en|kaa)(?=\/|$)/, "") || "/";
+        const stripped = stripLocalePrefix(safeNext);
         router.replace(stripped, { locale: currentLocale });
       } catch (err) {
         if (!alive) return;
