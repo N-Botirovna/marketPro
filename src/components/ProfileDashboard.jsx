@@ -244,18 +244,6 @@ const ProfileDashboard = () => {
     });
   };
 
-  const promptCompleteProfile = useCallback(() => {
-    setIsEditingProfile(true);
-    initializeProfileForm(userData);
-    showToast({
-      type: "info",
-      title: tProfile("infoTitle"),
-      message: tProfile("completeProfilePrompt"),
-      duration: 5000,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userData, initializeProfileForm, showToast, tProfile]);
-
   const handleCreateBook = () => {
     // Region + district are required before posting — send the user to the
     // profile editor (already open) instead of the book form.
@@ -379,6 +367,21 @@ const ProfileDashboard = () => {
     setOriginalProfileData(normalized);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Open the profile editor and explain that region + district are required
+  // before posting a book. Defined after initializeProfileForm so the dep
+  // array doesn't touch it inside the temporal dead zone.
+  const promptCompleteProfile = useCallback(() => {
+    setIsEditingProfile(true);
+    initializeProfileForm(userData);
+    showToast({
+      type: "info",
+      title: tProfile("infoTitle"),
+      message: tProfile("completeProfilePrompt"),
+      duration: 5000,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userData, initializeProfileForm, showToast, tProfile]);
 
   const handleProfileInputChange = (e) => {
     const { name, value } = e.target;
