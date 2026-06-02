@@ -13,7 +13,11 @@ import Icon from "@/components/Icon";
 // same points everywhere: 1 col on mobile, 2 on tablet, 3 on desktop.
 const SHOP_GRID_SX = {
   display: "grid",
-  gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" },
+  gridTemplateColumns: {
+    xs: "minmax(0, 1fr)",
+    sm: "repeat(2, minmax(0, 1fr))",
+    lg: "repeat(3, minmax(0, 1fr))",
+  },
   gap: { xs: 1.25, md: 1.5 },
 };
 

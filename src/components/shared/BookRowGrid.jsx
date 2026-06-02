@@ -18,9 +18,16 @@ import BookRowSkeleton from "@/components/shared/BookRowSkeleton";
  * `loading` swaps in `BookRowSkeleton`s at the same breakpoints; `emptyState`
  * renders when there are no books and not loading.
  */
+// `minmax(0, 1fr)` (not bare `1fr`) so a long, non-wrapping title can't blow
+// its column out and squash the siblings — every column stays equal width and
+// the card content truncates instead.
 const GRID_SX = {
   display: "grid",
-  gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" },
+  gridTemplateColumns: {
+    xs: "minmax(0, 1fr)",
+    sm: "repeat(2, minmax(0, 1fr))",
+    lg: "repeat(3, minmax(0, 1fr))",
+  },
   gap: { xs: 1.25, md: 1.5 },
 };
 
