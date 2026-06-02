@@ -4,7 +4,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { updateUserProfile } from "@/services/auth";
 import Icon from "@/components/Icon";
+
+// Locale code → backend Languages enum value (the API stores the full word).
+const LOCALE_TO_LANG = { uz: "uzbek", ru: "russian", en: "english", kaa: "karakalpak" };
 
 // Native-name labels intentionally stay outside the i18n bundle: language
 // names should always render in their own script regardless of the active
@@ -59,6 +63,11 @@ const LanguageSwitcher = ({ className = "" }) => {
       }
     } catch {
       /* localStorage blocked — server middleware will fall back */
+    }
+    // Persist to the account so the choice follows the user across devices.
+    // Best-effort: a failure must not block the language switch itself.
+    if (isAuthenticated && LOCALE_TO_LANG[code]) {
+      updateUserProfile({ language: LOCALE_TO_LANG[code] }).catch(() => {});
     }
     router.replace(pathname, { locale: code });
   };
