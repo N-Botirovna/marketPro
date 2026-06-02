@@ -571,6 +571,7 @@
     "backToHome": "Bosh sahifaga qaytish"
   },
   "ProfileDashboard": {
+    "completeProfilePrompt": "Kitob joylash uchun avval profilingizni to'ldiring — viloyat va tuman majburiy.",
     "loadingData": "Ma'lumotlar yuklanmoqda...",
     "myBooks": "Mening kitoblarim",
     "activeBadge": "Faol kitoblar",
@@ -871,6 +872,17 @@
     "shopsCaption": "Do'konlar ro'yxati",
     "community": "Eldagi",
     "communityCaption": "Jismoniy shaxslardan kitoblar"
+  },
+  "ProfileForm": {
+    "firstName": "Ism",
+    "lastName": "Familiya",
+    "enterFullAddress": "To'liq manzilni kiriting",
+    "gender": "Jins",
+    "genderMale": "Erkak",
+    "genderFemale": "Ayol",
+    "selectGender": "Tanlang",
+    "birthDate": "Tug'ilgan sana",
+    "optionalLabel": "ixtiyoriy"
   },
   "ProfileStaff": {
     "title": "Xodimlar",

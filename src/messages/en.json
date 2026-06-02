@@ -571,6 +571,7 @@
     "backToHome": "Back to Home"
   },
   "ProfileDashboard": {
+    "completeProfilePrompt": "Complete your profile before posting a book — region and district are required.",
     "loadingData": "Loading data...",
     "myBooks": "My Books",
     "activeBadge": "Active Books",
@@ -871,6 +872,17 @@
     "shopsCaption": "Browse all shops",
     "community": "From people",
     "communityCaption": "Books posted by individuals"
+  },
+  "ProfileForm": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "enterFullAddress": "Enter full address",
+    "gender": "Gender",
+    "genderMale": "Male",
+    "genderFemale": "Female",
+    "selectGender": "Select",
+    "birthDate": "Date of birth",
+    "optionalLabel": "optional"
   },
   "ProfileStaff": {
     "title": "Staff",

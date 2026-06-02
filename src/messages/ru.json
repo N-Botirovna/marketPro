@@ -571,6 +571,7 @@
     "backToHome": "Вернуться на главную"
   },
   "ProfileDashboard": {
+    "completeProfilePrompt": "Заполните профиль перед публикацией книги — область и район обязательны.",
     "loadingData": "Данные загружаются...",
     "myBooks": "Мои книги",
     "activeBadge": "Активные книги",
@@ -871,6 +872,17 @@
     "shopsCaption": "Каталог магазинов",
     "community": "От пользователей",
     "communityCaption": "Книги от частных лиц"
+  },
+  "ProfileForm": {
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "enterFullAddress": "Введите полный адрес",
+    "gender": "Пол",
+    "genderMale": "Мужской",
+    "genderFemale": "Женский",
+    "selectGender": "Выберите",
+    "birthDate": "Дата рождения",
+    "optionalLabel": "необязательно"
   },
   "ProfileStaff": {
     "title": "Сотрудники",

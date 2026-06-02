@@ -47,6 +47,10 @@ const ProfileEditModal = ({
         return isPhoneE164(value) ? null : tv("phoneInvalid");
       case "bio":
         return tooLong(value, 255) ? tv("maxLength", { max: 255 }) : null;
+      // Region + district are required — a book listing must be locatable.
+      case "region":
+      case "district":
+        return isBlank(value) ? tv("required") : null;
       default:
         return null;
     }
@@ -61,7 +65,7 @@ const ProfileEditModal = ({
   const handleSubmit = (event) => {
     event.preventDefault();
     const blocking = {};
-    ["app_phone_number", "bio"].forEach((f) => {
+    ["app_phone_number", "bio", "region", "district"].forEach((f) => {
       const msg = validateProfileField(f, profileFormData?.[f] || "");
       if (msg) blocking[f] = msg;
     });
@@ -164,50 +168,89 @@ const ProfileEditModal = ({
             <FieldError message={fieldErrors.app_phone_number} />
           </Box>
 
+          {/* Region + district are required so a posted book is locatable. */}
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={1.75} alignItems="flex-start">
+            <Box sx={{ flex: 1, width: "100%" }}>
+              <TextField
+                fullWidth
+                select
+                required
+                label={t("region")}
+                name="region"
+                value={profileFormData?.region || ""}
+                onChange={handleChange}
+                disabled={regionsLoading}
+                size="small"
+                error={!!fieldErrors.region}
+              >
+                <MenuItem value="">
+                  {regionsLoading ? t("loadingData") : tLocation("selectRegion")}
+                </MenuItem>
+                {regions.map((region) => (
+                  <MenuItem key={region.id} value={String(region.id)}>
+                    {region.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <FieldError message={fieldErrors.region} />
+            </Box>
+
+            <Box sx={{ flex: 1, width: "100%" }}>
+              <TextField
+                fullWidth
+                select
+                required
+                label={t("district")}
+                name="district"
+                value={profileFormData?.district || ""}
+                onChange={handleChange}
+                disabled={!profileFormData?.region || districtOptions.length === 0}
+                size="small"
+                error={!!fieldErrors.district}
+              >
+                <MenuItem value="">
+                  {!profileFormData?.region
+                    ? tLocation("selectRegion")
+                    : districtOptions.length === 0
+                      ? tLocation("noDistricts")
+                      : tLocation("selectDistrict")}
+                </MenuItem>
+                {districtOptions.map((district) => (
+                  <MenuItem key={district.id} value={String(district.id)}>
+                    {district.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <FieldError message={fieldErrors.district} />
+            </Box>
+          </Stack>
+
+          {/* Gender + birth date — both optional. */}
           <Stack direction={{ xs: "column", sm: "row" }} spacing={1.75}>
             <TextField
               fullWidth
               select
-              label={t("region")}
-              name="region"
-              value={profileFormData?.region || ""}
+              label={`${tProfileForm("gender")} (${tProfileForm("optionalLabel")})`}
+              name="gender"
+              value={profileFormData?.gender || ""}
               onChange={handleChange}
-              disabled={regionsLoading}
               size="small"
             >
-              <MenuItem value="">
-                {regionsLoading ? t("loadingData") : tLocation("selectRegion")}
-              </MenuItem>
-              {regions.map((region) => (
-                <MenuItem key={region.id} value={String(region.id)}>
-                  {region.name}
-                </MenuItem>
-              ))}
+              <MenuItem value="">{tProfileForm("selectGender")}</MenuItem>
+              <MenuItem value="male">{tProfileForm("genderMale")}</MenuItem>
+              <MenuItem value="female">{tProfileForm("genderFemale")}</MenuItem>
             </TextField>
 
             <TextField
               fullWidth
-              select
-              label={t("district")}
-              name="district"
-              value={profileFormData?.district || ""}
+              type="date"
+              label={`${tProfileForm("birthDate")} (${tProfileForm("optionalLabel")})`}
+              name="birth_date"
+              value={profileFormData?.birth_date || ""}
               onChange={handleChange}
-              disabled={!profileFormData?.region || districtOptions.length === 0}
               size="small"
-            >
-              <MenuItem value="">
-                {!profileFormData?.region
-                  ? tLocation("selectRegion")
-                  : districtOptions.length === 0
-                    ? tLocation("noDistricts")
-                    : tLocation("selectDistrict")}
-              </MenuItem>
-              {districtOptions.map((district) => (
-                <MenuItem key={district.id} value={String(district.id)}>
-                  {district.name}
-                </MenuItem>
-              ))}
-            </TextField>
+              InputLabelProps={{ shrink: true }}
+            />
           </Stack>
 
           <TextField

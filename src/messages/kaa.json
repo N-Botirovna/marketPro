@@ -571,6 +571,7 @@
     "backToHome": "Bas betke qaytıw"
   },
   "ProfileDashboard": {
+    "completeProfilePrompt": "Kitap jaylawdan aldın profilińizdi tolıqtırıń — wálayat hám rayon májbúriy.",
     "loadingData": "Maǵlıwmatlar júklenbekte...",
     "myBooks": "Mening kitaplarım",
     "activeBadge": "Aktiv kitaplar",
@@ -871,6 +872,17 @@
     "shopsCaption": "Dúkenler dizimi",
     "community": "Eldegi",
     "communityCaption": "Jeke shaxslardan kitaplar"
+  },
+  "ProfileForm": {
+    "firstName": "Atı",
+    "lastName": "Familiyası",
+    "enterFullAddress": "Tolıq mánzildi kiritiń",
+    "gender": "Jınısı",
+    "genderMale": "Er",
+    "genderFemale": "Hayal",
+    "selectGender": "Saylań",
+    "birthDate": "Tuwılǵan kúni",
+    "optionalLabel": "májbúriy emes"
   },
   "ProfileStaff": {
     "title": "Xızmetkerler",

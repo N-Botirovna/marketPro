@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { Box, Stack, Button } from "@mui/material";
 import { getUserProfile, updateUserProfile } from "@/services/auth";
+import { isProfileComplete } from "@/utils/profile";
 import { useAuth } from "@/hooks/useAuth";
 import { getUserPostedBooks, getUserArchivedBooks, patchBook } from "@/services/books";
 import { getRegions } from "@/services/regions";
@@ -31,6 +33,8 @@ const ProfileDashboard = () => {
   const tCommon = useTranslations("Common");
   const tShopLoc = useTranslations("ShopLocation");
   const { showToast, ToastContainer } = useToast();
+  const searchParams = useSearchParams();
+  const completePromptShownRef = useRef(false);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("books");
@@ -52,6 +56,8 @@ const ProfileDashboard = () => {
     region: "",
     district: "",
     location_text: "",
+    gender: "",
+    birth_date: "",
   };
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -93,6 +99,8 @@ const ProfileDashboard = () => {
     region: getIdAsString(user?.region),
     district: getIdAsString(user?.district),
     location_text: user?.location_text || "",
+    gender: user?.gender || "",
+    birth_date: user?.birth_date || "",
   });
 
   const normalizeProfileStateMerge = (data = {}) => {
@@ -236,7 +244,25 @@ const ProfileDashboard = () => {
     });
   };
 
+  const promptCompleteProfile = useCallback(() => {
+    setIsEditingProfile(true);
+    initializeProfileForm(userData);
+    showToast({
+      type: "info",
+      title: tProfile("infoTitle"),
+      message: tProfile("completeProfilePrompt"),
+      duration: 5000,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userData, initializeProfileForm, showToast, tProfile]);
+
   const handleCreateBook = () => {
+    // Region + district are required before posting — send the user to the
+    // profile editor (already open) instead of the book form.
+    if (!isProfileComplete(userData)) {
+      promptCompleteProfile();
+      return;
+    }
     setEditingBook(null);
     setShowBookModal(true);
   };
@@ -392,6 +418,8 @@ const ProfileDashboard = () => {
         region: toNumberOrNull(profileFormData.region),
         district: toNumberOrNull(profileFormData.district),
         location_text: profileFormData.location_text,
+        gender: profileFormData.gender,
+        birth_date: profileFormData.birth_date,
       };
 
       // Remove empty/null values
@@ -464,6 +492,17 @@ const ProfileDashboard = () => {
 
     fetchUserData();
   }, [isAuthenticated, authLoading, initializeProfileForm]);
+
+  // Arrived from the "post a book" gate (`?complete=book`) with an incomplete
+  // profile → open the editor and explain why. Runs once, after userData loads.
+  useEffect(() => {
+    if (completePromptShownRef.current) return;
+    if (!userData) return;
+    if (searchParams?.get("complete") !== "book") return;
+    if (isProfileComplete(userData)) return;
+    completePromptShownRef.current = true;
+    promptCompleteProfile();
+  }, [userData, searchParams, promptCompleteProfile]);
 
   useEffect(() => {
     const fetchRegionsData = async () => {

@@ -3,8 +3,9 @@
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { isAuthenticated } from "@/services/auth";
+import { isAuthenticated, getUserProfile } from "@/services/auth";
 import { openPostBookModal } from "@/lib/postBookModal";
+import { isProfileComplete } from "@/utils/profile";
 import Icon from "@/components/Icon";
 
 const HIDDEN_SUFFIXES = ["/login", "/auth/auto"];
@@ -29,14 +30,33 @@ const PostBookFab = () => {
   const router = useRouter();
   const pathname = usePathname();
   const [hovered, setHovered] = useState(false);
+  const [checking, setChecking] = useState(false);
 
   if (shouldHide(pathname)) return null;
 
-  const handleClick = () => {
-    if (isAuthenticated()) {
+  const handleClick = async () => {
+    // Step 1 — must be logged in. Carry the current page so login returns here.
+    if (!isAuthenticated()) {
+      const next = encodeURIComponent(pathname || "/");
+      router.push(`/login?next=${next}`);
+      return;
+    }
+    // Step 2 — must have a complete profile (region + district). Check the
+    // live profile, then either route to the profile editor or open the
+    // create modal. If the check itself fails (network), fall through and
+    // let the backend's `profile_incomplete` guard have the final say.
+    setChecking(true);
+    try {
+      const { user } = await getUserProfile();
+      if (!isProfileComplete(user)) {
+        router.push("/account?complete=book");
+        return;
+      }
       openPostBookModal();
-    } else {
-      router.push("/login");
+    } catch {
+      openPostBookModal();
+    } finally {
+      setChecking(false);
     }
   };
 
@@ -53,6 +73,8 @@ const PostBookFab = () => {
         <button
           type="button"
           onClick={handleClick}
+          disabled={checking}
+          aria-busy={checking}
           aria-label={t("postBookAria")}
           title={t("postBookTooltip")}
           className="post-book-fab"
