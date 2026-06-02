@@ -6,7 +6,21 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { getUserProfile } from "@/services/auth";
 
-const VALID = ["uz", "ru", "en", "kaa"];
+// The account `language` (from /me) is the backend Languages enum — stored as
+// full words ("russian", "english", "karakalpak", "uzbek"), NOT locale codes.
+// `preferred_locale` (set by the switcher) is already a code. Normalize both.
+const LANG_TO_LOCALE = {
+  uz: "uz",
+  uzbek: "uz",
+  ru: "ru",
+  russian: "ru",
+  en: "en",
+  english: "en",
+  kaa: "kaa",
+  karakalpak: "kaa",
+  qaraqalpaq: "kaa",
+};
+const toLocale = (v) => LANG_TO_LOCALE[String(v ?? "").toLowerCase()] || null;
 
 /**
  * Routes a signed-in user to *their* language.
@@ -31,9 +45,9 @@ export default function LocaleSync() {
     if (isLoading || !isAuthenticated) return undefined;
     let alive = true;
 
-    const applyLocale = (lang) => {
-      if (alive && VALID.includes(lang) && lang !== locale) {
-        router.replace(pathname, { locale: lang });
+    const applyLocale = (loc) => {
+      if (alive && loc && loc !== locale) {
+        router.replace(pathname, { locale: loc });
       }
     };
 
@@ -43,8 +57,9 @@ export default function LocaleSync() {
     } catch {
       /* storage blocked */
     }
-    if (VALID.includes(pref)) {
-      applyLocale(pref);
+    const prefLoc = toLocale(pref);
+    if (prefLoc) {
+      applyLocale(prefLoc);
       return undefined;
     }
 
@@ -53,14 +68,14 @@ export default function LocaleSync() {
     fetchedRef.current = true;
     getUserProfile()
       .then(({ user }) => {
-        const lang = user?.language;
-        if (VALID.includes(lang)) {
+        const loc = toLocale(user?.language);
+        if (loc) {
           try {
-            localStorage.setItem("preferred_locale", lang);
+            localStorage.setItem("preferred_locale", loc);
           } catch {
             /* ignore */
           }
-          applyLocale(lang);
+          applyLocale(loc);
         }
       })
       .catch(() => {});
