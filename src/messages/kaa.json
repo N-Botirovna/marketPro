@@ -291,6 +291,8 @@
     "phone": "Telefon",
     "message": "Xabar",
     "telegram": "Telegram",
+    "call": "Qońıraw",
+    "sms": "SMS",
     "likeRequiresAuth": "Saylanǵanlarǵa qosıw ushın sistemaǵa kiriń.",
     "likeFailed": "Saylanǵanlar menen islewde qátelik júz berdi.",
     "contactPrefill": "Assalawma áleykum! kitobzor.uz saytına «{name}» kitabın jaylastırǵan ekensiz, men onı almaqshı edim.",

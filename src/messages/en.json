@@ -291,6 +291,8 @@
     "phone": "Phone",
     "message": "Message",
     "telegram": "Telegram",
+    "call": "Call",
+    "sms": "SMS",
     "likeRequiresAuth": "Sign in to add to favorites.",
     "likeFailed": "Couldn't update favorites.",
     "contactPrefill": "Hello! You posted the book “{name}” on kitobzor.uz, and I'd like to get it.",

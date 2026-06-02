@@ -389,7 +389,11 @@ const BookDetails = ({ bookId }) => {
 
             {/* Primary actions */}
             <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
-              {tgUrl ? (
+              {/* Contact options — show every method the seller actually has,
+                  not just one. Telegram only when a USERNAME exists (t.me/<u>
+                  is the one link that survives the "forwarded-message" privacy
+                  block); otherwise the phone (call + SMS) is the reliable path. */}
+              {tgUrl && (
                 <Button
                   component="a"
                   href={tgUrl}
@@ -407,7 +411,8 @@ const BookDetails = ({ bookId }) => {
                 >
                   {tBook("telegram")}
                 </Button>
-              ) : phoneClean ? (
+              )}
+              {phoneClean && (
                 <Button
                   component="a"
                   href={`tel:${phoneClean}`}
@@ -419,9 +424,24 @@ const BookDetails = ({ bookId }) => {
                     flex: { xs: 1, sm: "0 1 auto" },
                   }}
                 >
-                  {tBook("phone")}
+                  {tBook("call")}
                 </Button>
-              ) : null}
+              )}
+              {phoneClean && (
+                <Button
+                  component="a"
+                  href={`sms:${phoneClean}`}
+                  variant="outlined"
+                  startIcon={<Icon className="ph ph-chat-circle" />}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 700,
+                    flex: { xs: 1, sm: "0 1 auto" },
+                  }}
+                >
+                  {tBook("sms")}
+                </Button>
+              )}
 
               <IconButton
                 onClick={handleShare}
