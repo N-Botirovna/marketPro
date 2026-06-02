@@ -20,7 +20,7 @@
  *     FAQ rich result, not the Article one).
  */
 
-import { getSiteUrl } from "@/config/env";
+import { getFacebookUrl, getInstagramUrl, getSiteUrl, getTelegramChannelUrl } from "@/config/env";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { stripHtml, seoTruncate, slugify } from "./text";
 
@@ -30,6 +30,7 @@ const TG_LANG_MAP = {
   uz: "uz-UZ",
   ru: "ru-RU",
   en: "en-US",
+  kaa: "kaa-UZ",
 };
 
 function asAbsoluteUrl(path) {
@@ -57,18 +58,14 @@ export function organizationLd({ locale = "uz" } = {}) {
         : locale === "en"
           ? "Kitobzor — Uzbekistan's book marketplace: buy, sell, exchange or gift books in one place."
           : "Kitobzor — O'zbekistondagi kitoblar marketplace'i: sotib oling, soting, almashtiring yoki sovg'a qiling.",
-    inLanguage: [TG_LANG_MAP.uz, TG_LANG_MAP.ru, TG_LANG_MAP.en],
-    sameAs: [
-      "https://t.me/kitobzoruz",
-      "https://instagram.com/kitobzoruz",
-      "https://facebook.com/kitobzoruz",
-    ],
+    inLanguage: [TG_LANG_MAP.uz, TG_LANG_MAP.ru, TG_LANG_MAP.en, TG_LANG_MAP.kaa],
+    sameAs: [getTelegramChannelUrl(), getInstagramUrl(), getFacebookUrl()],
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "customer support",
       telephone: process.env.NEXT_PUBLIC_SUPPORT_PHONE || "+998 93 834 01 03",
       areaServed: "UZ",
-      availableLanguage: ["Uzbek", "Russian", "English"],
+      availableLanguage: ["Uzbek", "Russian", "English", "Karakalpak"],
     },
   };
 }

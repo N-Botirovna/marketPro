@@ -18,6 +18,7 @@ import Spin from "@/components/Spin";
 import { useToast } from "@/components/Toast";
 import { listStaff, addStaff, removeStaff } from "@/services/shopStaff";
 import { mapValidationError } from "@/lib/mapValidationError";
+import Icon from "@/components/Icon";
 
 const ProfileStaffTab = ({ shops = [] }) => {
   const t = useTranslations("ProfileDashboard");
@@ -138,7 +139,7 @@ const ProfileStaffTab = ({ shops = [] }) => {
             color: "var(--text-muted)",
           }}
         >
-          <i
+          <Icon
             className="ph ph-storefront"
             style={{ fontSize: 48, display: "inline-block", marginBottom: 12 }}
             aria-hidden="true"
@@ -156,7 +157,7 @@ const ProfileStaffTab = ({ shops = [] }) => {
 
   return (
     <Box sx={{ p: { xs: 2, md: 3 } }}>
-      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+      <Stack direction="row" spacing={2} sx={{ alignItems: "center", mb: 2 }}>
         <Typography sx={{ fontSize: { xs: 18, md: 22 }, fontWeight: 700 }}>
           {tStaff("title")}
         </Typography>
@@ -230,7 +231,7 @@ const ProfileStaffTab = ({ shops = [] }) => {
             adding ? (
               <CircularProgress size={16} sx={{ color: "#fff" }} />
             ) : (
-              <i className="ph ph-plus" aria-hidden="true" />
+              <Icon className="ph ph-plus" aria-hidden="true" />
             )
           }
           sx={{ textTransform: "none", fontWeight: 600, px: 3 }}
@@ -262,7 +263,7 @@ const ProfileStaffTab = ({ shops = [] }) => {
 
       {!loading && !error && staff.length === 0 && (
         <Box sx={{ py: 4, textAlign: "center", color: "var(--text-muted)" }}>
-          <i
+          <Icon
             className="ph ph-users-three"
             style={{ fontSize: 40, display: "inline-block", marginBottom: 8 }}
             aria-hidden="true"
@@ -288,9 +289,8 @@ const ProfileStaffTab = ({ shops = [] }) => {
             <Stack
               key={entry.id}
               direction="row"
-              alignItems="center"
               spacing={2}
-              sx={{ px: 2, py: 1.5 }}
+              sx={{ alignItems: "center", px: 2, py: 1.5 }}
             >
               <Avatar sx={{ bgcolor: "primary.light", width: 40, height: 40 }}>
                 {(entry.user_name || "?").trim().charAt(0).toUpperCase()}
@@ -323,7 +323,7 @@ const ProfileStaffTab = ({ shops = [] }) => {
                 {removingId === entry.id ? (
                   <CircularProgress size={18} />
                 ) : (
-                  <i className="ph ph-trash" style={{ fontSize: 18 }} aria-hidden="true" />
+                  <Icon className="ph ph-trash" style={{ fontSize: 18 }} aria-hidden="true" />
                 )}
               </IconButton>
             </Stack>

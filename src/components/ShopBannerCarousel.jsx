@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import Icon from "@/components/Icon";
 
 const AUTOPLAY_MS = 5500;
 
@@ -86,7 +87,7 @@ const ShopBannerCarousel = ({ banners = [], isOwner = false, onPromoteToStory })
     >
       <div className="kz-shop-banner__head">
         <h2 className="kz-shop-banner__heading">
-          <i className="ph-fill ph-megaphone" aria-hidden="true" />
+          <Icon className="ph-fill ph-megaphone" aria-hidden="true" />
           {t("shopBannersTitle")}
         </h2>
       </div>
@@ -131,7 +132,7 @@ const ShopBannerCarousel = ({ banners = [], isOwner = false, onPromoteToStory })
                   title={t("promoteStory")}
                 >
                   <span className="kz-shop-banner__story-ring">
-                    <i className="ph-fill ph-plus" aria-hidden="true" />
+                    <Icon className="ph-fill ph-plus" aria-hidden="true" />
                   </span>
                   <span className="kz-shop-banner__story-label">{t("promoteStory")}</span>
                 </button>

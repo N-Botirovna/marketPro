@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { buildAbsoluteUrl } from "@/lib/share";
+import Icon from "@/components/Icon";
 import { useToast } from "./Toast";
 
 /**
@@ -220,7 +221,7 @@ const ShareSheet = ({ open, payload, onClose }) => {
             onClick={onClose}
             aria-label="Close"
           >
-            <i className="ph ph-x" />
+            <Icon className="ph ph-x" />
           </button>
         </div>
 
@@ -243,7 +244,7 @@ const ShareSheet = ({ open, payload, onClose }) => {
                 className="kz-share-sheet__target-icon"
                 style={{ backgroundColor: target.bg, color: target.color }}
               >
-                <i className={target.icon} aria-hidden="true" />
+                <Icon className={target.icon} aria-hidden="true" />
               </span>
               <span className="kz-share-sheet__target-label">{target.label}</span>
             </button>
@@ -252,7 +253,7 @@ const ShareSheet = ({ open, payload, onClose }) => {
 
         {hasNativeShare && (
           <button type="button" className="kz-share-sheet__native" onClick={handleNativeShare}>
-            <i className="ph ph-share-network" aria-hidden="true" />
+            <Icon className="ph ph-share-network" aria-hidden="true" />
             <span>{t("targetNative")}</span>
           </button>
         )}

@@ -16,6 +16,7 @@ import {
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { createShopBanner, updateShopBanner } from "@/services/shop";
 import { useToast } from "@/components/Toast";
+import Icon from "@/components/Icon";
 import BannerEditor from "./BannerEditor";
 
 /**
@@ -149,7 +150,10 @@ const BannerManager = ({ shopId, banners = [], onChange }) => {
 
   return (
     <Box>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1.5 }}>
+      <Stack
+        direction="row"
+        sx={{ alignItems: "center", justifyContent: "space-between", mb: 1.5 }}
+      >
         <Box>
           <Typography sx={{ fontSize: 15, fontWeight: 700 }}>{tShop("sectionBanners")}</Typography>
           <Typography sx={{ fontSize: 12, color: "var(--text-muted)" }}>
@@ -162,7 +166,7 @@ const BannerManager = ({ shopId, banners = [], onChange }) => {
             variant="contained"
             size="small"
             onClick={startAdd}
-            startIcon={<i className="ph-bold ph-plus" aria-hidden="true" />}
+            startIcon={<Icon className="ph-bold ph-plus" aria-hidden="true" />}
             sx={{ textTransform: "none", fontWeight: 700, flexShrink: 0 }}
           >
             {t("addBanner")}
@@ -200,7 +204,7 @@ const BannerManager = ({ shopId, banners = [], onChange }) => {
               }}
             >
               {/* Row header — thumbnail + title + actions */}
-              <Stack direction="row" spacing={1.5} alignItems="center" sx={{ p: 1.25 }}>
+              <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", p: 1.25 }}>
                 <Box
                   sx={{
                     width: 96,
@@ -237,7 +241,7 @@ const BannerManager = ({ shopId, banners = [], onChange }) => {
                   >
                     {banner.title || "—"}
                   </Typography>
-                  <Stack direction="row" spacing={1} alignItems="center">
+                  <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
                     <Chip
                       label={banner.is_active ? t("bannerActive") : t("bannerHidden")}
                       size="small"
@@ -253,7 +257,7 @@ const BannerManager = ({ shopId, banners = [], onChange }) => {
                     aria-label={banner.is_active ? t("hideBanner") : t("showBanner")}
                     title={banner.is_active ? t("hideBanner") : t("showBanner")}
                   >
-                    <i
+                    <Icon
                       className={banner.is_active ? "ph ph-eye-slash" : "ph ph-eye"}
                       style={{ fontSize: 18 }}
                       aria-hidden="true"
@@ -265,7 +269,7 @@ const BannerManager = ({ shopId, banners = [], onChange }) => {
                     aria-label={t("editBanner")}
                     title={t("editBanner")}
                   >
-                    <i
+                    <Icon
                       className={isEditing ? "ph ph-x" : "ph ph-pencil-simple"}
                       style={{ fontSize: 18 }}
                       aria-hidden="true"

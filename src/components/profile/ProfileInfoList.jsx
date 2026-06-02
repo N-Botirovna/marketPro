@@ -3,6 +3,7 @@
 import React from "react";
 import { useTranslations } from "next-intl";
 import { Box, Stack, Typography, Divider } from "@mui/material";
+import Icon from "@/components/Icon";
 
 const Row = ({ icon, label, value, href }) => {
   const valueNode = href ? (
@@ -25,7 +26,7 @@ const Row = ({ icon, label, value, href }) => {
   );
 
   return (
-    <Stack direction="row" alignItems="center" spacing={2} sx={{ py: 1.5, minHeight: 48 }}>
+    <Stack direction="row" spacing={2} sx={{ alignItems: "center", py: 1.5, minHeight: 48 }}>
       <Box
         sx={{
           width: 36,
@@ -40,7 +41,7 @@ const Row = ({ icon, label, value, href }) => {
           fontSize: 18,
         }}
       >
-        <i className={icon} aria-hidden="true" />
+        <Icon className={icon} aria-hidden="true" />
       </Box>
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography

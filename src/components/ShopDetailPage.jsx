@@ -19,9 +19,10 @@ import dynamic from "next/dynamic";
 import { getShopDetails } from "@/services/shop";
 import { getBooks } from "@/services/books";
 import { getBookCategories, getBookSubcategories } from "@/services/categories";
-import BookChatRow from "@/components/shared/BookChatRow";
+import BookRowGrid from "@/components/shared/BookRowGrid";
 import { openShareSheet } from "@/lib/shareSheet";
 import ShopBannerCarousel from "@/components/ShopBannerCarousel";
+import Icon from "@/components/Icon";
 
 // Lazy: the story-create modal carries the BookCreateModal-sized form
 // and chunks shouldn't ship until an owner actually taps "promote".
@@ -37,6 +38,12 @@ const ShopEditModal = dynamic(() => import("@/components/shop/ShopEditModal"), {
   loading: () => null,
 });
 
+// Tap-to-expand location preview — Leaflet touches `window`, so client-only.
+const ShopLocationCard = dynamic(() => import("@/components/shared/ShopLocationCard"), {
+  ssr: false,
+  loading: () => null,
+});
+
 const formatStar = (value) => {
   if (value === null || value === undefined) return null;
   const num = Number(value);
@@ -44,24 +51,47 @@ const formatStar = (value) => {
   return num.toFixed(1);
 };
 
-// Backend stores `working_days` as English short codes joined by ", "
-// (e.g. "Mon, Tue, Fri"). We render them through the Days i18n namespace
-// so uz/ru users see "Du, Se, Ju" / "Пн, Вт, Пт" — the on-disk format
-// stays canonical, the UI follows the active locale.
+// `working_days` arrives in several historical shapes: short codes
+// ("Mon, Tue, Fri"), full English names, and hyphen ranges ("Monday-Saturday"),
+// plus free-form localized text typed via the bot/admin ("Dushanba-Shanba").
+// Map the day tokens we recognise to the Days i18n namespace; pass ANYTHING
+// else through verbatim. Crucially we look the token up in our own dictionary
+// and never surface next-intl's missing-key fallback (which returns the
+// namespaced path "Days.<token>" — the source of the "Days.dushanba-shanba"
+// bug).
+const DAY_TOKEN_TO_KEY = {
+  mon: "mon",
+  monday: "mon",
+  tue: "tue",
+  tuesday: "tue",
+  wed: "wed",
+  wednesday: "wed",
+  thu: "thu",
+  thursday: "thu",
+  fri: "fri",
+  friday: "fri",
+  sat: "sat",
+  saturday: "sat",
+  sun: "sun",
+  sunday: "sun",
+};
 const localizeWorkingDays = (raw, tDays) => {
   if (!raw || typeof raw !== "string") return "";
+  const localizeSeg = (seg) => {
+    const trimmed = seg.trim();
+    const key = DAY_TOKEN_TO_KEY[trimmed.toLowerCase()];
+    return key ? tDays(key) : trimmed; // unknown → verbatim, never "Days.<x>"
+  };
   return raw
-    .split(/[,\s]+/)
-    .map((token) => token.trim().toLowerCase())
+    .split(/\s*,\s*/)
+    .map((part) =>
+      part
+        .split(/\s*[-–—]\s*/) // render ranges as "Du–Sh"
+        .map(localizeSeg)
+        .filter(Boolean)
+        .join("–"),
+    )
     .filter(Boolean)
-    .map((code) => {
-      try {
-        const v = tDays(code);
-        return v === code ? code : v;
-      } catch {
-        return code;
-      }
-    })
     .join(", ");
 };
 
@@ -70,6 +100,7 @@ const ShopDetailPage = ({ shopId }) => {
   const tDays = useTranslations("Days");
   const tShare = useTranslations("Share");
   const tShopEdit = useTranslations("ShopEdit");
+  const tShopLoc = useTranslations("ShopLocation");
 
   const handleShareShop = () => {
     const name = shop?.name || "Kitobzor";
@@ -229,7 +260,7 @@ const ShopDetailPage = ({ shopId }) => {
     return (
       <Box sx={{ py: { xs: 3, md: 5 }, bgcolor: "var(--surface-page)" }}>
         <Box sx={{ maxWidth: 880, mx: "auto", px: { xs: 2, md: 3 } }}>
-          <Stack direction="row" spacing={2.5} alignItems="center">
+          <Stack direction="row" spacing={2.5} sx={{ alignItems: "center" }}>
             <Skeleton variant="circular" width={96} height={96} />
             <Stack spacing={1} sx={{ flex: 1 }}>
               <Skeleton variant="text" width="55%" height={32} />
@@ -264,7 +295,7 @@ const ShopDetailPage = ({ shopId }) => {
         {Array.isArray(shop?.banners) && shop.banners.length > 0 && (
           <ShopBannerCarousel
             banners={shop.banners}
-            isOwner={Boolean(shop?.is_owner)}
+            isOwner={Boolean(shop?.can_update)}
             onPromoteToStory={handlePromoteBannerToStory}
           />
         )}
@@ -283,7 +314,7 @@ const ShopDetailPage = ({ shopId }) => {
           <Stack
             direction={{ xs: "column", sm: "row" }}
             spacing={{ xs: 2, sm: 2.5 }}
-            alignItems={{ xs: "stretch", sm: "flex-start" }}
+            sx={{ alignItems: { xs: "stretch", sm: "flex-start" } }}
           >
             <Avatar
               src={shop.picture || undefined}
@@ -297,7 +328,7 @@ const ShopDetailPage = ({ shopId }) => {
                 alignSelf: { xs: "center", sm: "flex-start" },
               }}
             >
-              <i className="ph-fill ph-storefront" aria-hidden="true" />
+              <Icon className="ph-fill ph-storefront" aria-hidden="true" />
             </Avatar>
 
             <Stack spacing={1.5} sx={{ flex: 1, minWidth: 0 }}>
@@ -305,10 +336,12 @@ const ShopDetailPage = ({ shopId }) => {
               <Stack
                 direction="row"
                 spacing={1.25}
-                alignItems="center"
-                justifyContent={{ xs: "center", sm: "flex-start" }}
-                flexWrap="wrap"
                 useFlexGap
+                sx={{
+                  alignItems: "center",
+                  justifyContent: { xs: "center", sm: "flex-start" },
+                  flexWrap: "wrap",
+                }}
               >
                 <Typography
                   component="h1"
@@ -327,8 +360,8 @@ const ShopDetailPage = ({ shopId }) => {
                   <Stack
                     direction="row"
                     spacing={0.5}
-                    alignItems="center"
                     sx={{
+                      alignItems: "center",
                       px: 0.75,
                       py: 0.25,
                       borderRadius: 999,
@@ -338,7 +371,7 @@ const ShopDetailPage = ({ shopId }) => {
                       fontSize: 13,
                     }}
                   >
-                    <i className="ph-fill ph-star" style={{ fontSize: 12 }} aria-hidden="true" />
+                    <Icon className="ph-fill ph-star" style={{ fontSize: 12 }} aria-hidden="true" />
                     <span>{star}</span>
                   </Stack>
                 )}
@@ -357,7 +390,7 @@ const ShopDetailPage = ({ shopId }) => {
                     flexWrap: "wrap",
                   }}
                 >
-                  <i className="ph ph-map-pin" style={{ fontSize: 14 }} aria-hidden="true" />
+                  <Icon className="ph ph-map-pin" style={{ fontSize: 14 }} aria-hidden="true" />
                   {locationLine}
                 </Typography>
               )}
@@ -381,9 +414,8 @@ const ShopDetailPage = ({ shopId }) => {
               <Stack
                 direction="row"
                 spacing={0.75}
-                flexWrap="wrap"
                 useFlexGap
-                justifyContent={{ xs: "center", sm: "flex-start" }}
+                sx={{ flexWrap: "wrap", justifyContent: { xs: "center", sm: "flex-start" } }}
               >
                 {shop.type && (
                   <Chip
@@ -395,7 +427,9 @@ const ShopDetailPage = ({ shopId }) => {
                 {typeof shop.book_count === "number" && (
                   <Chip
                     size="small"
-                    icon={<i className="ph ph-books" style={{ fontSize: 12 }} aria-hidden="true" />}
+                    icon={
+                      <Icon className="ph ph-books" style={{ fontSize: 12 }} aria-hidden="true" />
+                    }
                     label={`${shop.book_count} ${t("booksCountSuffix")}`}
                     sx={{ height: 24, bgcolor: "var(--surface-muted)", fontWeight: 600 }}
                   />
@@ -404,7 +438,7 @@ const ShopDetailPage = ({ shopId }) => {
                   <Chip
                     size="small"
                     icon={
-                      <i className="ph ph-package" style={{ fontSize: 12 }} aria-hidden="true" />
+                      <Icon className="ph ph-package" style={{ fontSize: 12 }} aria-hidden="true" />
                     }
                     label={t("postService")}
                     sx={{
@@ -422,10 +456,13 @@ const ShopDetailPage = ({ shopId }) => {
                 <Stack
                   direction="row"
                   spacing={1}
-                  alignItems="center"
-                  flexWrap="wrap"
                   useFlexGap
-                  sx={{ mt: 0.5, justifyContent: { xs: "center", sm: "flex-start" } }}
+                  sx={{
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    mt: 0.5,
+                    justifyContent: { xs: "center", sm: "flex-start" },
+                  }}
                 >
                   {tgUrl && (
                     <Button
@@ -435,7 +472,7 @@ const ShopDetailPage = ({ shopId }) => {
                       rel="noopener noreferrer"
                       variant="contained"
                       size="small"
-                      startIcon={<i className="ph-fill ph-telegram-logo" />}
+                      startIcon={<Icon className="ph-fill ph-telegram-logo" />}
                       sx={{
                         bgcolor: "#0088cc",
                         textTransform: "none",
@@ -453,7 +490,7 @@ const ShopDetailPage = ({ shopId }) => {
                       href={phoneHref}
                       variant={tgUrl ? "outlined" : "contained"}
                       size="small"
-                      startIcon={<i className="ph-fill ph-phone" />}
+                      startIcon={<Icon className="ph-fill ph-phone" />}
                       sx={{ textTransform: "none", fontWeight: 700 }}
                     >
                       {t("callShop")}
@@ -474,7 +511,7 @@ const ShopDetailPage = ({ shopId }) => {
                         color: "#bc1888",
                       }}
                     >
-                      <i className="ph ph-instagram-logo" />
+                      <Icon className="ph ph-instagram-logo" />
                     </IconButton>
                   )}
                   {websiteHref && (
@@ -492,15 +529,15 @@ const ShopDetailPage = ({ shopId }) => {
                         color: "var(--text-secondary)",
                       }}
                     >
-                      <i className="ph ph-globe" />
+                      <Icon className="ph ph-globe" />
                     </IconButton>
                   )}
-                  {shop?.is_owner && (
+                  {shop?.can_update && (
                     <Button
                       onClick={() => setEditOpen(true)}
                       variant="outlined"
                       size="small"
-                      startIcon={<i className="ph ph-pencil-simple" aria-hidden="true" />}
+                      startIcon={<Icon className="ph ph-pencil-simple" aria-hidden="true" />}
                       sx={{
                         textTransform: "none",
                         fontWeight: 700,
@@ -525,7 +562,7 @@ const ShopDetailPage = ({ shopId }) => {
                       },
                     }}
                   >
-                    <i className="ph ph-share-network" />
+                    <Icon className="ph ph-share-network" />
                   </IconButton>
                 </Stack>
               )}
@@ -568,6 +605,25 @@ const ShopDetailPage = ({ shopId }) => {
           )}
         </Box>
 
+        {/* ─── Location map (when the shop has a pinned point) ─────── */}
+        {shop?.point && (
+          <Box sx={{ mb: 3 }}>
+            <Typography
+              component="h2"
+              sx={{
+                fontSize: { xs: 17, md: 19 },
+                fontWeight: 700,
+                mb: 1.5,
+                px: 0.5,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              {tShopLoc("detailTitle")}
+            </Typography>
+            <ShopLocationCard point={shop.point} />
+          </Box>
+        )}
+
         {/* ─── Books section ──────────────────────────────────────── */}
         <Typography
           component="h2"
@@ -589,17 +645,19 @@ const ShopDetailPage = ({ shopId }) => {
             placeholder={t("searchPlaceholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <i
-                    className="ph ph-magnifying-glass"
-                    style={{ fontSize: 18, color: "var(--text-muted)" }}
-                    aria-hidden="true"
-                  />
-                </InputAdornment>
-              ),
-              sx: { bgcolor: "var(--surface-card)" },
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Icon
+                      className="ph ph-magnifying-glass"
+                      style={{ fontSize: 18, color: "var(--text-muted)" }}
+                      aria-hidden="true"
+                    />
+                  </InputAdornment>
+                ),
+                sx: { bgcolor: "var(--surface-card)" },
+              },
             }}
           />
           <TextField
@@ -641,52 +699,33 @@ const ShopDetailPage = ({ shopId }) => {
           </TextField>
         </Stack>
 
-        <Box
-          sx={{
-            bgcolor: "var(--surface-card)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: 3,
-            boxShadow: "var(--shadow-card)",
-            overflow: "hidden",
-          }}
-        >
-          {booksLoading ? (
-            Array.from({ length: 5 }).map((_, i) => (
-              <Box
-                key={`row-skel-${i}`}
-                sx={{
-                  height: 76,
-                  borderBottom: i === 4 ? "none" : "1px solid var(--border-subtle)",
-                  animation: "pulse 1.6s ease-in-out infinite",
-                  bgcolor: "var(--surface-card)",
-                }}
-              />
-            ))
-          ) : books.length === 0 ? (
-            <Stack alignItems="center" spacing={1} sx={{ py: 6, color: "var(--text-muted)" }}>
-              <i className="ph ph-book-open" style={{ fontSize: 40 }} aria-hidden="true" />
+        <BookRowGrid
+          books={books}
+          loading={booksLoading}
+          skeletonCount={5}
+          showTypeBadge={false}
+          emptyState={
+            <Stack
+              spacing={1}
+              sx={{
+                alignItems: "center",
+                py: 6,
+                color: "var(--text-muted)",
+                border: "1px dashed var(--border-subtle)",
+                borderRadius: 3,
+              }}
+            >
+              <Icon className="ph ph-book-open" style={{ fontSize: 40 }} aria-hidden="true" />
               <Typography>{t("emptyBooks")}</Typography>
             </Stack>
-          ) : (
-            books.map((book, idx) => (
-              <Box
-                key={book.id}
-                sx={{
-                  borderBottom:
-                    idx === books.length - 1 ? "none" : "1px solid var(--border-subtle)",
-                }}
-              >
-                <BookChatRow book={book} />
-              </Box>
-            ))
-          )}
-        </Box>
+          }
+        />
       </Box>
 
       {/* Owner-only story creator — lazy-loaded so non-owners never
           download the modal chunk. Pre-populated with this shop so the
           owner can promote the banner via the SHOP target kind. */}
-      {shop?.is_owner && (
+      {shop?.can_update && (
         <StoryCreateModal
           open={storyModalOpen}
           onClose={() => setStoryModalOpen(false)}
@@ -698,7 +737,7 @@ const ShopDetailPage = ({ shopId }) => {
       {/* Owner-only edit dialog. `onSaved` merges the server response
           back into local state so the page reflects the new fields
           (name, hours, banners, etc.) without a hard refresh. */}
-      {shop?.is_owner && (
+      {shop?.can_update && (
         <ShopEditModal
           open={editOpen}
           shop={shop}
@@ -715,8 +754,8 @@ const ShopDetailPage = ({ shopId }) => {
 };
 
 const InfoLine = ({ icon, label, value }) => (
-  <Stack direction="row" spacing={0.75} alignItems="center" sx={{ minWidth: 0 }}>
-    <i className={icon} style={{ fontSize: 13 }} aria-hidden="true" />
+  <Stack direction="row" spacing={0.75} sx={{ alignItems: "center", minWidth: 0 }}>
+    <Icon className={icon} style={{ fontSize: 13 }} aria-hidden="true" />
     <Box component="span" sx={{ color: "var(--text-muted)" }}>
       {label}:
     </Box>

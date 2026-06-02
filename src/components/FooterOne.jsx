@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { openSellerModal } from "@/lib/sellerModal";
+import { getFacebookUrl, getInstagramUrl, getTelegramChannelUrl } from "@/config/env";
+import Icon from "@/components/Icon";
 
 /**
  * Footer — three balanced columns:
@@ -206,7 +208,7 @@ const FooterOne = () => {
                       fontSize: 20,
                     }}
                   >
-                    <i className="ph-fill ph-user" aria-hidden="true" />
+                    <Icon className="ph-fill ph-user" aria-hidden="true" />
                   </span>
                   <span className="d-flex flex-column" style={{ minWidth: 0 }}>
                     <span style={{ fontSize: 14, fontWeight: 700 }}>
@@ -221,7 +223,7 @@ const FooterOne = () => {
                       {tF("account.openProfileHint")}
                     </span>
                   </span>
-                  <i
+                  <Icon
                     className="ph ph-caret-right ms-auto"
                     style={{ fontSize: 18, color: "var(--text-muted)" }}
                     aria-hidden="true"
@@ -249,7 +251,7 @@ const FooterOne = () => {
                       fontSize: 20,
                     }}
                   >
-                    <i className="ph-fill ph-sign-in" aria-hidden="true" />
+                    <Icon className="ph-fill ph-sign-in" aria-hidden="true" />
                   </span>
                   <span className="d-flex flex-column" style={{ minWidth: 0 }}>
                     <span style={{ fontSize: 14, fontWeight: 700 }}>{tHeader("login")}</span>
@@ -262,7 +264,7 @@ const FooterOne = () => {
                       {tF("account.loginHint")}
                     </span>
                   </span>
-                  <i
+                  <Icon
                     className="ph ph-caret-right ms-auto"
                     style={{ fontSize: 18, color: "var(--text-muted)" }}
                     aria-hidden="true"
@@ -284,7 +286,7 @@ const FooterOne = () => {
               <ul className="d-flex gap-12 list-unstyled m-0">
                 <li>
                   <a
-                    href="https://t.me/kitobzoruz"
+                    href={getTelegramChannelUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Telegram"
@@ -298,12 +300,12 @@ const FooterOne = () => {
                       fontSize: 18,
                     }}
                   >
-                    <i className="ph-fill ph-telegram-logo" aria-hidden="true" />
+                    <Icon className="ph-fill ph-telegram-logo" aria-hidden="true" />
                   </a>
                 </li>
                 <li>
                   <a
-                    href="https://instagram.com/kitobzoruz"
+                    href={getInstagramUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Instagram"
@@ -317,12 +319,12 @@ const FooterOne = () => {
                       fontSize: 18,
                     }}
                   >
-                    <i className="ph-fill ph-instagram-logo" aria-hidden="true" />
+                    <Icon className="ph-fill ph-instagram-logo" aria-hidden="true" />
                   </a>
                 </li>
                 <li>
                   <a
-                    href="https://facebook.com/kitobzoruz"
+                    href={getFacebookUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Facebook"
@@ -336,7 +338,7 @@ const FooterOne = () => {
                       fontSize: 18,
                     }}
                   >
-                    <i className="ph-fill ph-facebook-logo" aria-hidden="true" />
+                    <Icon className="ph-fill ph-facebook-logo" aria-hidden="true" />
                   </a>
                 </li>
               </ul>

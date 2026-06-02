@@ -7,7 +7,8 @@ import { Box, Stack, Typography, TextField, MenuItem, InputAdornment } from "@mu
 import { getBooks } from "@/services/books";
 import { getBookCategories, getBookSubcategories } from "@/services/categories";
 import { getRegions } from "@/services/regions";
-import BookChatRow from "@/components/shared/BookChatRow";
+import BookRowGrid from "@/components/shared/BookRowGrid";
+import Icon from "@/components/Icon";
 
 const CommunityBooksPage = ({ type = "all" }) => {
   const t = useTranslations("CommunityPage");
@@ -130,7 +131,7 @@ const CommunityBooksPage = ({ type = "all" }) => {
         py: { xs: 2.5, md: 4 },
       }}
     >
-      <Box sx={{ maxWidth: 880, mx: "auto", px: { xs: 2, md: 3 } }}>
+      <Box sx={{ maxWidth: 1240, mx: "auto", px: { xs: 2, md: 3 } }}>
         <Typography
           component="h1"
           sx={{
@@ -153,17 +154,19 @@ const CommunityBooksPage = ({ type = "all" }) => {
             placeholder={t("searchPlaceholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <i
-                    className="ph ph-magnifying-glass"
-                    style={{ fontSize: 18, color: "var(--text-muted)" }}
-                    aria-hidden="true"
-                  />
-                </InputAdornment>
-              ),
-              sx: { bgcolor: "var(--surface-card)" },
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Icon
+                      className="ph ph-magnifying-glass"
+                      style={{ fontSize: 18, color: "var(--text-muted)" }}
+                      aria-hidden="true"
+                    />
+                  </InputAdornment>
+                ),
+                sx: { bgcolor: "var(--surface-card)" },
+              },
             }}
           />
           <TextField
@@ -252,7 +255,7 @@ const CommunityBooksPage = ({ type = "all" }) => {
                 placeholder={t("priceMin")}
                 value={priceMin}
                 onChange={(e) => setPriceMin(e.target.value)}
-                inputProps={{ min: 0 }}
+                slotProps={{ htmlInput: { min: 0 } }}
                 sx={{
                   "& .MuiOutlinedInput-root": { bgcolor: "var(--surface-card)" },
                 }}
@@ -264,7 +267,7 @@ const CommunityBooksPage = ({ type = "all" }) => {
                 placeholder={t("priceMax")}
                 value={priceMax}
                 onChange={(e) => setPriceMax(e.target.value)}
-                inputProps={{ min: 0 }}
+                slotProps={{ htmlInput: { min: 0 } }}
                 sx={{
                   "& .MuiOutlinedInput-root": { bgcolor: "var(--surface-card)" },
                 }}
@@ -273,52 +276,45 @@ const CommunityBooksPage = ({ type = "all" }) => {
           )}
         </Stack>
 
-        <Box
-          sx={{
-            bgcolor: "var(--surface-card)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: 3,
-            boxShadow: "var(--shadow-card)",
-            overflow: "hidden",
-          }}
-        >
-          {loading ? (
-            Array.from({ length: 6 }).map((_, i) => (
+        {error ? (
+          <Box
+            sx={{
+              py: 4,
+              textAlign: "center",
+              color: "var(--text-secondary)",
+              border: "1px solid var(--border-subtle)",
+              borderRadius: 3,
+              bgcolor: "var(--surface-card)",
+            }}
+          >
+            {error}
+          </Box>
+        ) : (
+          <BookRowGrid
+            books={books}
+            loading={loading}
+            skeletonCount={6}
+            showTypeBadge={showTypeBadge}
+            emptyState={
               <Box
-                key={`row-skel-${i}`}
                 sx={{
-                  height: 76,
-                  borderBottom: i === 5 ? "none" : "1px solid var(--border-subtle)",
-                  animation: "pulse 1.6s ease-in-out infinite",
-                  bgcolor: "var(--surface-card)",
-                }}
-              />
-            ))
-          ) : error ? (
-            <Box sx={{ py: 4, textAlign: "center", color: "var(--text-secondary)" }}>{error}</Box>
-          ) : books.length === 0 ? (
-            <Box sx={{ py: 6, textAlign: "center", color: "var(--text-muted)" }}>
-              <i
-                className="ph ph-book-open"
-                style={{ fontSize: 40, display: "inline-block", marginBottom: 8 }}
-                aria-hidden="true"
-              />
-              <Typography>{t("noResults")}</Typography>
-            </Box>
-          ) : (
-            books.map((book, idx) => (
-              <Box
-                key={book.id}
-                sx={{
-                  borderBottom:
-                    idx === books.length - 1 ? "none" : "1px solid var(--border-subtle)",
+                  py: 6,
+                  textAlign: "center",
+                  color: "var(--text-muted)",
+                  border: "1px dashed var(--border-subtle)",
+                  borderRadius: 3,
                 }}
               >
-                <BookChatRow book={book} showTypeBadge={showTypeBadge} />
+                <Icon
+                  className="ph ph-book-open"
+                  style={{ fontSize: 40, display: "inline-block", marginBottom: 8 }}
+                  aria-hidden="true"
+                />
+                <Typography>{t("noResults")}</Typography>
               </Box>
-            ))
-          )}
-        </Box>
+            }
+          />
+        )}
       </Box>
     </Box>
   );

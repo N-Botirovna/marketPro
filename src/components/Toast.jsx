@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Icon from "@/components/Icon";
 
 const Toast = ({
   show,
@@ -126,13 +127,13 @@ const Toast = ({
               marginTop: "2px",
             }}
           >
-            <i
+            <Icon
               className={`ph ${getIcon()}`}
               style={{
                 fontSize: "16px",
                 color: getIconColor(),
               }}
-            ></i>
+            ></Icon>
           </div>
 
           {/* Content */}
@@ -180,7 +181,7 @@ const Toast = ({
               marginTop: "2px",
             }}
           >
-            <i className="ph ph-x"></i>
+            <Icon className="ph ph-x"></Icon>
           </button>
         </div>
 

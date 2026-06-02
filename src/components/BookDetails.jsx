@@ -18,36 +18,18 @@ import { useLike } from "@/hooks/useLike";
 import { useAuth } from "@/hooks/useAuth";
 import { openShareSheet } from "@/lib/shareSheet";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import { localizedField } from "@/utils/localizedField";
+import { bookTypeVisual, bookTypeI18nKey } from "@/utils/bookType";
+import { bookLanguageKey } from "@/utils/bookLanguage";
+import { Link } from "@/i18n/navigation";
+import Icon from "@/components/Icon";
 import BookCreateModal from "./BookCreateModal";
 import { useToast } from "./Toast";
-
-// Book.type colours mirror BookChatRow / home feed so the same badge
-// palette appears across the app.
-const TYPE_VISUAL = {
-  seller: {
-    color: "#0d9488",
-    bg: "rgba(13, 148, 136, 0.12)",
-    icon: "ph-fill ph-shopping-cart-simple",
-  },
-  gift: { color: "#15803d", bg: "rgba(34, 197, 94, 0.14)", icon: "ph-fill ph-gift" },
-  exchange: {
-    color: "#b45309",
-    bg: "rgba(245, 158, 11, 0.14)",
-    icon: "ph-fill ph-arrows-clockwise",
-  },
-  rent: { color: "#4338ca", bg: "rgba(99, 102, 241, 0.14)", icon: "ph-fill ph-clock" },
-};
-
-const TYPE_I18N_KEY = {
-  seller: "sell",
-  gift: "gift",
-  exchange: "exchange",
-  rent: "rent",
-};
 
 const BookDetails = ({ bookId }) => {
   const locale = useLocale();
   const tBook = useTranslations("BookDetails");
+  const tLang = useTranslations("BookLanguages");
   const tCommon = useTranslations("Common");
   const tButtons = useTranslations("Buttons");
   const tShare = useTranslations("Share");
@@ -166,7 +148,7 @@ const BookDetails = ({ bookId }) => {
   // ── Share ────────────────────────────────────────────────────────────
   const handleShare = () => {
     if (!book) return;
-    const bookTitle = book[`name_${locale}`] || book.name_uz || book.name || "Kitob";
+    const bookTitle = localizedField(book, "name", locale) || tBook("untitled");
     openShareSheet({
       title: bookTitle,
       text: `${bookTitle} — Kitobzor`,
@@ -217,8 +199,8 @@ const BookDetails = ({ bookId }) => {
 
   // ── Derived ──────────────────────────────────────────────────────────
   const typeKey = (book.type || "").toLowerCase();
-  const visual = TYPE_VISUAL[typeKey];
-  const typeText = tBook(TYPE_I18N_KEY[typeKey] || "sell");
+  const visual = bookTypeVisual(typeKey);
+  const typeText = tBook(bookTypeI18nKey(typeKey) || "sell");
   const isMonetary = typeKey === "seller" || typeKey === "rent";
 
   const tg = book?.posted_by?.telegram_username;
@@ -254,7 +236,7 @@ const BookDetails = ({ bookId }) => {
         <Stack
           direction={{ xs: "column", md: "row" }}
           spacing={{ xs: 2.5, md: 4 }}
-          alignItems="flex-start"
+          sx={{ alignItems: "flex-start" }}
         >
           {/* Cover. `objectFit: contain` keeps the whole cover visible —
               never crops the title or author off a tall scan. The soft
@@ -294,10 +276,10 @@ const BookDetails = ({ bookId }) => {
 
           {/* Right column — title, price, primary actions. */}
           <Stack spacing={2} sx={{ flex: 1, minWidth: 0, width: "100%" }}>
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+            <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
               {visual && (
                 <Chip
-                  icon={<i className={visual.icon} style={{ fontSize: 14 }} />}
+                  icon={<Icon className={visual.icon} style={{ fontSize: 14 }} />}
                   label={typeText}
                   size="small"
                   sx={{
@@ -317,7 +299,7 @@ const BookDetails = ({ bookId }) => {
               />
               {canEdit && (
                 <Chip
-                  icon={<i className="ph ph-user-check" style={{ fontSize: 14 }} />}
+                  icon={<Icon className="ph ph-user-check" style={{ fontSize: 14 }} />}
                   label={tBook("ownBookHint")}
                   size="small"
                   sx={{
@@ -360,10 +342,9 @@ const BookDetails = ({ bookId }) => {
             {isMonetary && book.price ? (
               <Stack
                 direction="row"
-                alignItems="baseline"
                 spacing={1.25}
-                flexWrap="wrap"
                 useFlexGap
+                sx={{ alignItems: "baseline", flexWrap: "wrap" }}
               >
                 <Typography
                   sx={{
@@ -408,15 +389,19 @@ const BookDetails = ({ bookId }) => {
             ) : null}
 
             {/* Primary actions */}
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-              {tgUrl ? (
+            <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
+              {/* Contact options — show every method the seller actually has,
+                  not just one. Telegram only when a USERNAME exists (t.me/<u>
+                  is the one link that survives the "forwarded-message" privacy
+                  block); otherwise the phone (call + SMS) is the reliable path. */}
+              {tgUrl && (
                 <Button
                   component="a"
                   href={tgUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   variant="contained"
-                  startIcon={<i className="ph-fill ph-telegram-logo" />}
+                  startIcon={<Icon className="ph-fill ph-telegram-logo" />}
                   sx={{
                     bgcolor: "#0088cc",
                     textTransform: "none",
@@ -427,21 +412,55 @@ const BookDetails = ({ bookId }) => {
                 >
                   {tBook("telegram")}
                 </Button>
-              ) : phoneClean ? (
+              )}
+              {isAuthenticated && phoneClean && (
                 <Button
                   component="a"
                   href={`tel:${phoneClean}`}
                   variant="contained"
-                  startIcon={<i className="ph-fill ph-phone" />}
+                  startIcon={<Icon className="ph-fill ph-phone" />}
                   sx={{
                     textTransform: "none",
                     fontWeight: 700,
                     flex: { xs: 1, sm: "0 1 auto" },
                   }}
                 >
-                  {tBook("phone")}
+                  {tBook("call")}
                 </Button>
-              ) : null}
+              )}
+              {isAuthenticated && phoneClean && (
+                <Button
+                  component="a"
+                  href={`sms:${phoneClean}`}
+                  variant="outlined"
+                  startIcon={<Icon className="ph ph-chat-circle" />}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 700,
+                    flex: { xs: 1, sm: "0 1 auto" },
+                  }}
+                >
+                  {tBook("sms")}
+                </Button>
+              )}
+              {/* Phone (call/SMS) is gated to signed-in users — the API only
+                  returns the seller's number when authenticated. Anonymous
+                  visitors without a Telegram option get a sign-in prompt. */}
+              {!isAuthenticated && !tgUrl && (
+                <Button
+                  component={Link}
+                  href="/login"
+                  variant="contained"
+                  startIcon={<Icon className="ph ph-lock-key" />}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 700,
+                    flex: { xs: 1, sm: "0 1 auto" },
+                  }}
+                >
+                  {tBook("loginToContact")}
+                </Button>
+              )}
 
               <IconButton
                 onClick={handleShare}
@@ -459,7 +478,7 @@ const BookDetails = ({ bookId }) => {
                   },
                 }}
               >
-                <i className="ph ph-share-network" />
+                <Icon className="ph ph-share-network" />
               </IconButton>
 
               <IconButton
@@ -476,7 +495,7 @@ const BookDetails = ({ bookId }) => {
                   "&:hover": { bgcolor: "var(--surface-muted)" },
                 }}
               >
-                <i className={`${liked ? "ph-fill" : "ph"} ph-heart`} />
+                <Icon className={`${liked ? "ph-fill" : "ph"} ph-heart`} />
               </IconButton>
 
               {canEdit && (
@@ -493,7 +512,7 @@ const BookDetails = ({ bookId }) => {
                     "&:hover": { bgcolor: "var(--surface-muted)" },
                   }}
                 >
-                  <i className="ph ph-pencil-simple" />
+                  <Icon className="ph ph-pencil-simple" />
                 </IconButton>
               )}
             </Stack>
@@ -502,8 +521,8 @@ const BookDetails = ({ bookId }) => {
             <Stack
               direction="row"
               spacing={1.5}
-              alignItems="center"
               sx={{
+                alignItems: "center",
                 p: 1.5,
                 borderRadius: 2.5,
                 bgcolor: "var(--surface-card)",
@@ -573,7 +592,14 @@ const BookDetails = ({ bookId }) => {
               overflow: "hidden",
             }}
           >
-            <DetailRow label={tBook("language")} value={book.language} />
+            <DetailRow
+              label={tBook("language")}
+              value={
+                bookLanguageKey(book.language)
+                  ? tLang(bookLanguageKey(book.language))
+                  : book.language
+              }
+            />
             <DetailRow label={tBook("scriptType")} value={scriptLabel(book.script_type)} />
             <DetailRow label={tBook("cover")} value={coverLabel(book.cover_type)} />
             <DetailRow label={tBook("publicationYear")} value={book.publication_year} />
@@ -632,7 +658,7 @@ const BookDetails = ({ bookId }) => {
 // ── Local presentational helpers ───────────────────────────────────────
 
 const SectionHeading = ({ icon, text }) => (
-  <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+  <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1.5 }}>
     <Box
       sx={{
         width: 28,
@@ -646,7 +672,7 @@ const SectionHeading = ({ icon, text }) => (
         fontSize: 14,
       }}
     >
-      <i className={icon} aria-hidden="true" />
+      <Icon className={icon} aria-hidden="true" />
     </Box>
     <Typography component="h2" sx={{ fontSize: 16, fontWeight: 700 }}>
       {text}
@@ -691,8 +717,8 @@ const DetailRow = ({ label, value, last }) => {
 };
 
 const Stat = ({ icon, iconColor, text }) => (
-  <Stack direction="row" spacing={0.75} alignItems="center">
-    <i className={icon} style={{ color: iconColor, fontSize: 14 }} aria-hidden="true" />
+  <Stack direction="row" spacing={0.75} sx={{ alignItems: "center" }}>
+    <Icon className={icon} style={{ color: iconColor, fontSize: 14 }} aria-hidden="true" />
     <span>{text}</span>
   </Stack>
 );

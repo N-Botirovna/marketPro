@@ -1,6 +1,57 @@
 {
-  "hello": "Hello world!",
-  "welcome": "Welcome to our platform",
+  "LoadingFacts": {
+    "items": [
+      "📚 Kitoblaringizni soting, almashtiring yoki sovg'a qiling",
+      "🏬 Do'konlar va kitobsevarlardan kitob qidiring",
+      "🔎 Viloyat, kategoriya va narx bo'yicha saralang",
+      "❤️ Yoqqan kitoblaringizni saralanganlarga qo'shing",
+      "💬 Telegram bot orqali ro'yxatdan o'ting",
+      "⏳ Kitoblaringizni ijaraga ham qo'yishingiz mumkin"
+    ]
+  },
+  "Validation": {
+    "required": "Bu maydon to'ldirilishi shart",
+    "maxLength": "{max} ta belgidan oshmasligi kerak",
+    "priceNonNegative": "Narx manfiy bo'lishi mumkin emas",
+    "discountNonNegative": "Chegirma narx manfiy bo'lishi mumkin emas",
+    "discountTooHigh": "Chegirma narx asl narxdan past bo'lishi kerak",
+    "yearRange": "Nashr yili {min} va {max} orasida bo'lishi kerak",
+    "pagesMin": "Sahifalar soni kamida 1 bo'lishi kerak",
+    "phoneInvalid": "Telefon raqami noto'g'ri. Masalan: +998901234567",
+    "phoneStartPlus": "Raqam + bilan boshlanishi kerak. Masalan: +998901234567"
+  },
+  "ShopLocation": {
+    "mapLabel": "Xaritada joyni belgilang",
+    "mapHint": "Ixtiyoriy — do'koningiz xaritada qayerda ekanini ko'rsating",
+    "searchPlaceholder": "Manzilni qidirish (masalan: Chilonzor, Toshkent)",
+    "searchBtn": "Qidirish",
+    "searchEmpty": "Manzil topilmadi",
+    "useMyLocation": "Joriy joylashuvim",
+    "geoUnsupported": "Brauzer joylashuvni qo'llab-quvvatlamaydi",
+    "geoDenied": "Joylashuvni aniqlab bo'lmadi",
+    "tapHint": "Joyni belgilash uchun xaritani bosing yoki qidiring",
+    "picked": "Tanlandi: {lat}, {lng}",
+    "detailTitle": "Joylashuv",
+    "myShop": "Mening do'konim",
+    "openMap": "Xaritani ochish",
+    "close": "Yopish",
+    "dragHint": "Belgini kerakli joyga olib boring — markazdagi nuqta tanlanadi",
+    "addressLabel": "Tanlangan manzil"
+  },
+  "BookLanguages": {
+    "uzbek": "O'zbek",
+    "russian": "Rus",
+    "english": "Ingliz",
+    "karakalpak": "Qoraqalpoq",
+    "turkish": "Turk",
+    "arabic": "Arab",
+    "other": "Boshqa"
+  },
+  "TimePicker": {
+    "done": "Tayyor",
+    "hour": "Soat",
+    "minute": "Daqiqa"
+  },
   "Header": {
     "home": "Bosh sahifa",
     "shop": "Kitoblar",
@@ -83,7 +134,8 @@
     "contactSeller": "Sotuvchi bilan bog'lanish",
     "save": "Saqlash",
     "edit": "Tahrirlash",
-    "cancel": "Bekor qilish"
+    "cancel": "Bekor qilish",
+    "clear": "Tozalash"
   },
   "Sections": {
     "topVendors": {
@@ -95,7 +147,7 @@
   },
   "Footer": {
     "about": {
-      "blurb": "Kitobzor — kitob sevuvchilar va do'konlar uchun Telegram-stilidagi marketplace. Sotib oling, sotvering, sovg'a qiling yoki almashtiring."
+      "blurb": "Kitobzor — idrok egalari uchun ijtimoiy tarmoq."
     },
     "site": {
       "title": "Saytda",
@@ -134,7 +186,9 @@
   },
   "Loading": {
     "loading": "Yuklanmoqda...",
-    "redirecting": "Yo'naltirilmoqda..."
+    "redirecting": "Yo'naltirilmoqda...",
+    "searching": "Qidirilmoqda...",
+    "searchResults": "Qidiruv natijalari yuklanmoqda..."
   },
   "Seller": {
     "createSuccess": "Sotuvchi hisobi muvaffaqiyatli yaratildi!",
@@ -191,7 +245,9 @@
     "loginSuccess": "Tizimga muvaffaqiyatli kirdingiz",
     "phoneHint": "Masalan: +998901234567 yoki boshqa davlat kodi",
     "codeOnlyTitle": "Saytga kirish",
-    "codeOnlyDescription": "{bot} dan olingan 6 raqamli kodni kiriting.",
+    "codeOnlyDescription": "{bot} botida «Kirish kodi» tugmasini bosing — bot 6 xonali kod yuboradi.",
+    "getCodeFromBot": "Botdan kod olish",
+    "thenEnterCode": "So'ng kodni kiriting",
     "codeLabel": "Kirish kodi",
     "codePlaceholder": "Kod",
     "codeHint": "Kod 2 daqiqada amal qiladi.",
@@ -237,9 +293,12 @@
     "phone": "Telefon",
     "message": "Xabar",
     "telegram": "Telegram",
+    "call": "Qo'ng'iroq",
+    "sms": "SMS",
+    "loginToContact": "Bog'lanish uchun kiring",
     "likeRequiresAuth": "Sevimlilarga qo'shish uchun tizimga kiring.",
     "likeFailed": "Sevimlilar bilan ishlashda xatolik yuz berdi.",
-    "contactPrefill": "Salom! «{name}» kitobi bo'yicha murojaat qilaman.",
+    "contactPrefill": "Assalomu alaykum! kitobzor.uz saytiga «{name}» kitobini joylagan ekansiz, men uni olmoqchi edim.",
     "detailsTitle": "Tafsilotlar",
     "conditionBrandNew": "Yap-yangi",
     "conditionLikeNew": "Yangidek",
@@ -249,7 +308,8 @@
     "ownBookHint": "Bu sizning e'loningiz",
     "stats_likes": "{count, plural, one {# yoqtirish} other {# yoqtirish}}",
     "stats_views": "{count, plural, one {# ko'rilgan} other {# ko'rilgan}}",
-    "stats_comments": "{count, plural, one {# izoh} other {# izoh}}"
+    "stats_comments": "{count, plural, one {# izoh} other {# izoh}}",
+    "untitled": "Kitob"
   },
   "BookCard": {
     "noName": "Kitob Nomi Mavjud Emas",
@@ -439,6 +499,7 @@
     "bio": "Tavsif",
     "bioHint": "Do'koningiz haqida qisqacha — masalan: \"Eski va yangi kitoblar, asosan o'zbek va rus tillarida\"",
     "phone": "Telefon raqam",
+    "phoneHint": "Xalqaro formatda, + bilan. Masalan: +998 99 888 77 66",
     "region": "Viloyat",
     "district": "Tuman",
     "address": "To'liq manzil",
@@ -510,6 +571,7 @@
     "backToHome": "Bosh sahifaga qaytish"
   },
   "ProfileDashboard": {
+    "completeProfilePrompt": "Kitob joylash uchun avval profilingizni to'ldiring — viloyat va tuman majburiy.",
     "loadingData": "Ma'lumotlar yuklanmoqda...",
     "myBooks": "Mening kitoblarim",
     "activeBadge": "Faol kitoblar",
@@ -569,6 +631,8 @@
       "slogan": "Kitoblar - bilim manbai"
     },
     "stats": {
+      "title": "Bizning raqamlarimiz",
+      "subtitle": "Platformamizning muvaffaqiyati",
       "books": "Kitoblar",
       "shops": "Do'konlar",
       "users": "Foydalanuvchilar",
@@ -789,6 +853,9 @@
     "title": "Kitob do'konlari",
     "seeAll": "Hammasi"
   },
+  "ShopCard": {
+    "bookSuffix": "kitob"
+  },
   "HomeBookList": {
     "seeAll": "Hammasi",
     "sellTitle": "Sotiladigan kitoblar",
@@ -805,6 +872,17 @@
     "shopsCaption": "Do'konlar ro'yxati",
     "community": "Eldagi",
     "communityCaption": "Jismoniy shaxslardan kitoblar"
+  },
+  "ProfileForm": {
+    "firstName": "Ism",
+    "lastName": "Familiya",
+    "enterFullAddress": "To'liq manzilni kiriting",
+    "gender": "Jins",
+    "genderMale": "Erkak",
+    "genderFemale": "Ayol",
+    "selectGender": "Tanlang",
+    "birthDate": "Tug'ilgan sana",
+    "optionalLabel": "ixtiyoriy"
   },
   "ProfileStaff": {
     "title": "Xodimlar",
@@ -839,6 +917,15 @@
     "viewMore": "Batafsil",
     "promoteStory": "Story qilish",
     "promotedBadge": "Yangi e'lon",
+    "cta": {
+      "openInTelegram": "Telegram'da ochish",
+      "openInInstagram": "Instagram'da ochish",
+      "openInYoutube": "YouTube'da ochish",
+      "openInTiktok": "TikTok'da ochish",
+      "openInFacebook": "Facebook'da ochish",
+      "openInTwitter": "X'da ochish",
+      "openLink": "Manbaga o'tish"
+    },
     "shopBannersTitle": "Do'kon e'lonlari",
     "ariaSlide": "{n}-slayd, {total} dan",
     "ariaPause": "Avtomatik o'tishni to'xtatish",
@@ -893,5 +980,9 @@
     "targetCopy": "Havolani nusxalash",
     "targetInstagram": "Instagram",
     "instagramHint": "Havola nusxalandi — Instagram'da story yoki DM'ga qo'ying"
+  },
+  "Vendor": {
+    "searchPlaceholder": "Do'kon nomi bo'yicha qidiring...",
+    "showingResults": "Ko'rsatilmoqda: {start}-{end} / {total}"
   }
 }

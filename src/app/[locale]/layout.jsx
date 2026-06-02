@@ -7,20 +7,31 @@ import RouteScrollToTop from "@/helper/RouteScrollToTop";
 import "./font.css";
 import "./globals.scss";
 import "./performance.css";
-// Phosphor icons — self-hosted from node_modules (H-12). The package's
-// `exports` field maps `/regular` and `/fill` directly to the CSS, so
-// webpack resolves them and inlines the woff font references at build
-// time. No runtime CDN dependency.
-import "@phosphor-icons/web/regular";
-import "@phosphor-icons/web/fill";
+// Phosphor icons are rendered as tree-shaken SVG components via
+// `@/components/Icon` (@phosphor-icons/react). The old webfont CSS
+// (`@phosphor-icons/web/regular` + `/fill`) shipped ~3000 unused icon
+// classes + two full woff2 fonts on every page and is no longer imported.
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ConditionalHeader from "@/components/ConditionalHeader";
+import LocaleSync from "@/components/LocaleSync";
 import MaterialThemeProvider from "@/components/MaterialThemeProvider";
+import StyledJsxRegistry from "@/components/StyledJsxRegistry";
 import { themeBootstrapScript } from "@/lib/theme";
 import { initSentryClient } from "@/lib/sentry";
-import { getSiteUrl } from "@/config/env";
+import { getApiBaseUrl, getSiteUrl } from "@/config/env";
 import JsonLd from "@/components/seo/JsonLd";
 import { organizationLd, webSiteLd } from "@/lib/seo/jsonLd";
+
+// Resolve the API host once at module init so the <link rel="preconnect">
+// always matches the env-configured backend. Falls back to the production
+// host if the URL is malformed (very defensive — the env helper validates).
+const API_PRECONNECT_ORIGIN = (() => {
+  try {
+    return new URL(getApiBaseUrl()).origin;
+  } catch {
+    return "https://api.kitobzor.uz";
+  }
+})();
 
 // Defer below-the-fold layout widgets so their JS isn't in the layout
 // chunk that ships on every navigation:
@@ -76,7 +87,17 @@ const HREFLANG_MAP = {
   uz: `${SITE_URL}/uz`,
   ru: `${SITE_URL}/ru`,
   en: `${SITE_URL}/en`,
+  kaa: `${SITE_URL}/kaa`,
   "x-default": `${SITE_URL}/uz`,
+};
+
+// Map a `locale` path-segment to the BCP47 tag we emit in OG metadata.
+// Karakalpak maps to kaa-UZ since the speaker base is in Uzbekistan.
+const OG_LOCALE_TAG = {
+  uz: "uz_UZ",
+  ru: "ru_RU",
+  en: "en_US",
+  kaa: "kaa_UZ",
 };
 
 export async function generateMetadata({ params }) {
@@ -92,13 +113,15 @@ export async function generateMetadata({ params }) {
         ? "Kitobzor — маркетплейс книг в Узбекистане. Покупайте, продавайте, обменивайте и дарите книги."
         : locale === "en"
           ? "Kitobzor — Uzbekistan's book marketplace. Buy, sell, exchange or gift new and used books."
-          : "Kitobzor — O'zbekistondagi kitoblar marketplace'i. Yangi va o'qilgan kitoblarni sotib oling, sotvering, sovg'a qiling yoki almashtiring.",
+          : // kaa intentionally falls through to uz copy until a translator
+            // delivers Karakalpak prose (placeholder strategy, see kaa.json).
+            "Kitobzor — O'zbekistondagi kitoblar marketplace'i. Yangi va o'qilgan kitoblarni sotib oling, sotvering, sovg'a qiling yoki almashtiring.",
     openGraph: {
       siteName: "Kitobzor",
       type: "website",
-      locale: locale === "ru" ? "ru_RU" : locale === "en" ? "en_US" : "uz_UZ",
-      alternateLocale: ["uz_UZ", "ru_RU", "en_US"].filter(
-        (l) => l !== (locale === "ru" ? "ru_RU" : locale === "en" ? "en_US" : "uz_UZ"),
+      locale: OG_LOCALE_TAG[locale] || OG_LOCALE_TAG.uz,
+      alternateLocale: Object.values(OG_LOCALE_TAG).filter(
+        (tag) => tag !== (OG_LOCALE_TAG[locale] || OG_LOCALE_TAG.uz),
       ),
       images: [{ url: "/assets/images/logo/kitobzor-logo.png", alt: "Kitobzor" }],
     },
@@ -122,7 +145,7 @@ export default async function RootLayout({ children, params }) {
   const messages = (await import(`@/messages/${locale}.json`)).default;
 
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         {/* Site-wide JSON-LD: Organization + WebSite (search-box).
             Page-level Book/BreadcrumbList/FAQPage schemas are injected
@@ -132,29 +155,43 @@ export default async function RootLayout({ children, params }) {
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://api.kitobzor.uz" />
-        {/* Phosphor icon sheets are now self-hosted via webpack CSS imports
-            in this file's top-level imports (H-12). No CDN trust required;
-            CSP no longer needs to whitelist unpkg.com. */}
+        {/* Preconnect (not just dns-prefetch) to the API host: opens the
+            TCP+TLS handshake during HTML parse so the first user-triggered
+            fetch hits an already-warm connection. Resolves to whatever
+            NEXT_PUBLIC_API_BASE_URL is set to per environment. */}
+        <link rel="preconnect" href={API_PRECONNECT_ORIGIN} crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href={API_PRECONNECT_ORIGIN} />
+        {/* Logo appears in HeaderOne above the fold on every authenticated
+            page. Preload so it paints alongside the header instead of
+            after the header chunk hydrates. */}
+        <link
+          rel="preload"
+          as="image"
+          href="/assets/images/logo/kitobzor-logo.png"
+          fetchPriority="high"
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       </head>
       <body suppressHydrationWarning={true}>
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <MaterialThemeProvider>
-            <BootstrapInit />
-            <RouteScrollToTop />
-            <ProtectedRoute locale={locale}>
-              <ConditionalHeader />
-              {children}
-              <AnonymousLoginNudge />
-              <AuthRequiredModal />
-              <SellerModalMount />
-              <PostBookFab />
-              <PostBookMount />
-              <ShareSheetMount />
-            </ProtectedRoute>
-          </MaterialThemeProvider>
-        </NextIntlClientProvider>
+        <StyledJsxRegistry>
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            <MaterialThemeProvider>
+              <BootstrapInit />
+              <RouteScrollToTop />
+              <LocaleSync />
+              <ProtectedRoute locale={locale}>
+                <ConditionalHeader />
+                {children}
+                <AnonymousLoginNudge />
+                <AuthRequiredModal />
+                <SellerModalMount />
+                <PostBookFab />
+                <PostBookMount />
+                <ShareSheetMount />
+              </ProtectedRoute>
+            </MaterialThemeProvider>
+          </NextIntlClientProvider>
+        </StyledJsxRegistry>
       </body>
     </html>
   );

@@ -4,7 +4,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { getUserById } from "@/services/auth";
 import { getBooksByUser } from "@/services/books";
-import BookCard from "./BookCard";
+import Icon from "@/components/Icon";
+import BookGrid from "./shared/BookGrid";
 import Spin from "./Spin";
 
 const UserPublicProfile = ({ userId }) => {
@@ -131,7 +132,7 @@ const UserPublicProfile = ({ userId }) => {
                 <div className="d-flex flex-column gap-12">
                   <div className="d-flex align-items-center gap-12">
                     <span className="w-40 h-40 rounded-circle bg-main-50 text-main-600 flex-center">
-                      <i className="ph ph-phone text-md" />
+                      <Icon className="ph ph-phone text-md" />
                     </span>
                     <div>
                       <p className="text-xs text-gray-500 mb-4">{tProfile("phone")}</p>
@@ -140,7 +141,7 @@ const UserPublicProfile = ({ userId }) => {
                   </div>
                   <div className="d-flex align-items-center gap-12">
                     <span className="w-40 h-40 rounded-circle bg-main-50 text-main-600 flex-center">
-                      <i className="ph ph-map-pin text-md" />
+                      <Icon className="ph ph-map-pin text-md" />
                     </span>
                     <div>
                       <p className="text-xs text-gray-500 mb-4">{tCommon("location")}</p>
@@ -169,21 +170,17 @@ const UserPublicProfile = ({ userId }) => {
               </div>
             </div>
 
-            {loadingBooks ? (
-              <div className="text-center py-40">
-                <Spin text={tProfile("booksLoading")} />
-              </div>
-            ) : books.length === 0 ? (
-              <div className="text-center py-40 text-gray-600 bg-white border border-dashed border-gray-200 rounded-16">
-                {tUserProfile("emptyBooks")}
-              </div>
-            ) : (
-              <div className="list-grid-wrapper grid-cols-3">
-                {books.map((book) => (
-                  <BookCard key={book.id} book={book} showEditForOwn={false} />
-                ))}
-              </div>
-            )}
+            <BookGrid
+              books={books}
+              loading={loadingBooks}
+              skeletonCount={6}
+              emptyState={
+                <div className="text-center py-40 text-gray-600 bg-white border border-dashed border-gray-200 rounded-16">
+                  {tUserProfile("emptyBooks")}
+                </div>
+              }
+              cardProps={{ showEditForOwn: false }}
+            />
           </div>
         </div>
       </div>

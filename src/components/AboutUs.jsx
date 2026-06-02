@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { openSellerModal } from "@/lib/sellerModal";
+import Icon from "@/components/Icon";
 import TopVendorsOne from "./TopVendorsOne";
 import Contact from "./Contact";
 
@@ -79,11 +79,11 @@ const AboutUs = () => {
                     onClick={openSellerModal}
                     className="btn btn-main px-24 py-12 rounded-pill border-0"
                   >
-                    <i className="ph ph-storefront me-8" />
+                    <Icon className="ph ph-storefront me-8" />
                     {tButtons("becomeSeller")}
                   </button>
                   <Link href="/contact" className="btn btn-outline-main px-24 py-12 rounded-pill">
-                    <i className="ph ph-envelope me-8" />
+                    <Icon className="ph ph-envelope me-8" />
                     {tAbout("hero.contactUs")}
                   </Link>
                 </div>
@@ -92,26 +92,28 @@ const AboutUs = () => {
             <div className="col-lg-6">
               <div className="about-hero__image position-relative">
                 <div
-                  className="rounded-12 overflow-hidden"
+                  className="rounded-12 overflow-hidden d-flex align-items-center justify-content-center"
                   style={{
                     position: "relative",
                     aspectRatio: "4 / 3",
                     minHeight: 220,
                     maxHeight: 400,
+                    background:
+                      "linear-gradient(135deg, hsl(148, 59%, 42%) 0%, hsl(148, 59%, 26%) 100%)",
                   }}
                 >
-                  <Image
-                    src="/assets/images/thumbs/banner-img1.png"
-                    alt="Kitobzor"
-                    fill
-                    sizes="(max-width: 768px) 100vw, 600px"
-                    style={{ objectFit: "cover" }}
-                    priority
+                  <Icon
+                    className="ph-fill ph-books"
+                    aria-hidden="true"
+                    style={{
+                      fontSize: "clamp(96px, 22vw, 184px)",
+                      color: "rgba(255, 255, 255, 0.92)",
+                    }}
                   />
                 </div>
                 <div className="position-absolute bottom-0 start-0 bg-main-500 text-white px-20 py-12 rounded-12 m-12">
                   <div className="d-flex align-items-center gap-8">
-                    <i className="ph-fill ph-book text-lg" />
+                    <Icon className="ph-fill ph-book text-lg" />
                     <div className="text-sm fw-medium">{tAbout("hero.slogan")}</div>
                   </div>
                 </div>
@@ -125,19 +127,15 @@ const AboutUs = () => {
       <section className="about-stats py-48 bg-gray-50">
         <div className="container container-lg">
           <div className="section-heading text-center mb-32">
-            <h5 className="text-2xl fw-bold mb-8 text-heading">
-              {tAbout("stats.title") || "Bizning raqamlarimiz"}
-            </h5>
-            <p className="text-gray-600">
-              {tAbout("stats.subtitle") || "Platformamizning muvaffaqiyati"}
-            </p>
+            <h5 className="text-2xl fw-bold mb-8 text-heading">{tAbout("stats.title")}</h5>
+            <p className="text-gray-600">{tAbout("stats.subtitle")}</p>
           </div>
           <div className="row gy-3">
             {stats.map((stat, index) => (
               <div key={index} className="col-lg-3 col-md-6">
                 <div className="stat-card text-center p-24 bg-white rounded-12 border border-gray-100 hover-border-main-500 transition-2 h-100">
                   <div className={`${stat.color} text-3xl mb-12`}>
-                    <i className={stat.icon} />
+                    <Icon className={stat.icon} />
                   </div>
                   <h3 className="text-2xl fw-bold text-heading mb-8">{stat.number}</h3>
                   <p className="text-gray-600 text-sm">{stat.label}</p>
@@ -155,7 +153,7 @@ const AboutUs = () => {
             <div className="col-lg-6">
               <div className="mission-card p-32 bg-main-50 rounded-12 h-100 border border-main-100">
                 <div className="w-64 h-64 flex-center bg-main-500 text-white rounded-circle mb-20">
-                  <i className="ph-fill ph-target text-2xl" />
+                  <Icon className="ph-fill ph-target text-2xl" />
                 </div>
                 <h3 className="text-xl fw-bold mb-12 text-heading">{tAbout("mission.title")}</h3>
                 <p className="text-gray-700 line-height-1-7">{tAbout("mission.description")}</p>
@@ -164,7 +162,7 @@ const AboutUs = () => {
             <div className="col-lg-6">
               <div className="vision-card p-32 bg-warning-50 rounded-12 h-100 border border-warning-100">
                 <div className="w-64 h-64 flex-center bg-warning-500 text-white rounded-circle mb-20">
-                  <i className="ph-fill ph-eye text-2xl" />
+                  <Icon className="ph-fill ph-eye text-2xl" />
                 </div>
                 <h3 className="text-xl fw-bold mb-12 text-heading">{tAbout("vision.title")}</h3>
                 <p className="text-gray-700 line-height-1-7">{tAbout("vision.description")}</p>
@@ -186,7 +184,7 @@ const AboutUs = () => {
               <div key={index} className="col-lg-3 col-md-6">
                 <div className="feature-card p-24 bg-gray-50 rounded-12 border border-gray-100 hover-border-main-500 transition-2 h-100">
                   <div className="w-56 h-56 flex-center bg-main-50 text-main-500 rounded-circle mb-16">
-                    <i className={`${feature.icon} text-2xl`} />
+                    <Icon className={`${feature.icon} text-2xl`} />
                   </div>
                   <h6 className="text-md fw-semibold mb-8 text-heading">{feature.title}</h6>
                   <p className="text-gray-600 text-sm line-height-1-6">{feature.description}</p>
@@ -233,14 +231,14 @@ const AboutUs = () => {
                 onClick={openSellerModal}
                 className="btn bg-white text-main-500 px-24 py-12 rounded-pill hover-bg-gray-100 fw-medium border-0"
               >
-                <i className="ph ph-storefront me-8" />
+                <Icon className="ph ph-storefront me-8" />
                 {tButtons("becomeSeller")}
               </button>
               <Link
                 href="/vendor-two"
                 className="btn btn-outline-white px-24 py-12 rounded-pill hover-bg-white hover-text-main-500 fw-medium"
               >
-                <i className="ph ph-magnifying-glass me-8" />
+                <Icon className="ph ph-magnifying-glass me-8" />
                 {tAbout("cta.exploreShops")}
               </Link>
             </div>

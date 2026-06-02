@@ -1,6 +1,57 @@
 {
-  "hello": "Hello world!",
-  "welcome": "Welcome to our platform",
+  "LoadingFacts": {
+    "items": [
+      "📚 Sell, swap or gift your books",
+      "🏬 Find books in shops and from other readers",
+      "🔎 Filter by region, category and price",
+      "❤️ Save books you like to your wishlist",
+      "💬 Sign up with the Telegram bot",
+      "⏳ You can also rent your books out"
+    ]
+  },
+  "Validation": {
+    "required": "This field is required",
+    "maxLength": "Must be at most {max} characters",
+    "priceNonNegative": "Price cannot be negative",
+    "discountNonNegative": "Discount price cannot be negative",
+    "discountTooHigh": "Discount price must be lower than the original price",
+    "yearRange": "Publication year must be between {min} and {max}",
+    "pagesMin": "Pages must be at least 1",
+    "phoneInvalid": "Invalid phone number. Example: +998901234567",
+    "phoneStartPlus": "The number must start with +. Example: +998901234567"
+  },
+  "ShopLocation": {
+    "mapLabel": "Mark the location on the map",
+    "mapHint": "Optional — show where your shop is on the map",
+    "searchPlaceholder": "Search an address (e.g. Chilonzor, Tashkent)",
+    "searchBtn": "Search",
+    "searchEmpty": "No address found",
+    "useMyLocation": "My current location",
+    "geoUnsupported": "Your browser doesn't support location",
+    "geoDenied": "Couldn't determine your location",
+    "tapHint": "Tap the map or search to set the location",
+    "picked": "Selected: {lat}, {lng}",
+    "detailTitle": "Location",
+    "myShop": "My shop",
+    "openMap": "Open map",
+    "close": "Close",
+    "dragHint": "Drag the map — the centre pin marks the spot",
+    "addressLabel": "Selected address"
+  },
+  "BookLanguages": {
+    "uzbek": "Uzbek",
+    "russian": "Russian",
+    "english": "English",
+    "karakalpak": "Karakalpak",
+    "turkish": "Turkish",
+    "arabic": "Arabic",
+    "other": "Other"
+  },
+  "TimePicker": {
+    "done": "Done",
+    "hour": "Hour",
+    "minute": "Minute"
+  },
   "Header": {
     "home": "Home",
     "shop": "Books",
@@ -83,7 +134,8 @@
     "contactSeller": "Contact seller",
     "save": "Save",
     "edit": "Edit",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "clear": "Clear"
   },
   "Sections": {
     "topVendors": {
@@ -95,7 +147,7 @@
   },
   "Footer": {
     "about": {
-      "blurb": "Kitobzor — a Telegram-style marketplace for book lovers and shops. Buy, sell, gift, or trade."
+      "blurb": "Kitobzor — a social network for people of intellect."
     },
     "site": {
       "title": "Site",
@@ -134,7 +186,9 @@
   },
   "Loading": {
     "loading": "Loading...",
-    "redirecting": "Redirecting..."
+    "redirecting": "Redirecting...",
+    "searching": "Searching...",
+    "searchResults": "Loading search results..."
   },
   "Seller": {
     "createSuccess": "Seller account created successfully!",
@@ -191,7 +245,9 @@
     "loginSuccess": "You have successfully logged in",
     "phoneHint": "For example: +998901234567 or another country code",
     "codeOnlyTitle": "Sign in",
-    "codeOnlyDescription": "Enter the 6-digit code from {bot}.",
+    "codeOnlyDescription": "In {bot}, tap “Get code” — the bot sends a 6-digit code.",
+    "getCodeFromBot": "Get code from the bot",
+    "thenEnterCode": "Then enter the code",
     "codeLabel": "Login code",
     "codePlaceholder": "Code",
     "codeHint": "The code is valid for 2 minutes.",
@@ -237,9 +293,12 @@
     "phone": "Phone",
     "message": "Message",
     "telegram": "Telegram",
+    "call": "Call",
+    "sms": "SMS",
+    "loginToContact": "Sign in to contact",
     "likeRequiresAuth": "Sign in to add to favorites.",
     "likeFailed": "Couldn't update favorites.",
-    "contactPrefill": "Hi! I'm reaching out about the book “{name}”.",
+    "contactPrefill": "Hello! You posted the book “{name}” on kitobzor.uz, and I'd like to get it.",
     "detailsTitle": "Details",
     "conditionBrandNew": "Brand new",
     "conditionLikeNew": "Like new",
@@ -249,7 +308,8 @@
     "ownBookHint": "This is your listing",
     "stats_likes": "{count, plural, one {# like} other {# likes}}",
     "stats_views": "{count, plural, one {# view} other {# views}}",
-    "stats_comments": "{count, plural, one {# comment} other {# comments}}"
+    "stats_comments": "{count, plural, one {# comment} other {# comments}}",
+    "untitled": "Book"
   },
   "BookCard": {
     "noName": "Book Name Not Available",
@@ -428,6 +488,7 @@
     "bio": "Description",
     "bioHint": "A short intro — e.g. \"Used and new books in Uzbek and Russian\"",
     "phone": "Phone number",
+    "phoneHint": "International format, starting with +. Example: +998 99 888 77 66",
     "region": "Region",
     "district": "District",
     "address": "Full address",
@@ -510,6 +571,7 @@
     "backToHome": "Back to Home"
   },
   "ProfileDashboard": {
+    "completeProfilePrompt": "Complete your profile before posting a book — region and district are required.",
     "loadingData": "Loading data...",
     "myBooks": "My Books",
     "activeBadge": "Active Books",
@@ -569,6 +631,8 @@
       "slogan": "Books - Source of Knowledge"
     },
     "stats": {
+      "title": "Our numbers",
+      "subtitle": "The success of our platform",
       "books": "Books",
       "shops": "Shops",
       "users": "Users",
@@ -789,6 +853,9 @@
     "title": "Book shops",
     "seeAll": "See all"
   },
+  "ShopCard": {
+    "bookSuffix": "books"
+  },
   "HomeBookList": {
     "seeAll": "See all",
     "sellTitle": "Books for sale",
@@ -805,6 +872,17 @@
     "shopsCaption": "Browse all shops",
     "community": "From people",
     "communityCaption": "Books posted by individuals"
+  },
+  "ProfileForm": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "enterFullAddress": "Enter full address",
+    "gender": "Gender",
+    "genderMale": "Male",
+    "genderFemale": "Female",
+    "selectGender": "Select",
+    "birthDate": "Date of birth",
+    "optionalLabel": "optional"
   },
   "ProfileStaff": {
     "title": "Staff",
@@ -839,6 +917,15 @@
     "viewMore": "Read more",
     "promoteStory": "Post as story",
     "promotedBadge": "New announcement",
+    "cta": {
+      "openInTelegram": "Open in Telegram",
+      "openInInstagram": "Open in Instagram",
+      "openInYoutube": "Open in YouTube",
+      "openInTiktok": "Open in TikTok",
+      "openInFacebook": "Open in Facebook",
+      "openInTwitter": "Open in X",
+      "openLink": "Open source"
+    },
     "shopBannersTitle": "Shop announcements",
     "ariaSlide": "Slide {n} of {total}",
     "ariaPause": "Pause autoplay",
@@ -893,5 +980,9 @@
     "targetCopy": "Copy link",
     "targetInstagram": "Instagram",
     "instagramHint": "Link copied — paste it in your Instagram story or DM"
+  },
+  "Vendor": {
+    "searchPlaceholder": "Search shops by name...",
+    "showingResults": "Showing {start}-{end} of {total} results"
   }
 }

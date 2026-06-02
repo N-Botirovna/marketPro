@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Box, Tabs, Tab, Stack, Typography } from "@mui/material";
 import { getPolicies } from "@/services/policies";
 import { sanitizeHtml } from "@/lib/sanitize";
+import Icon from "@/components/Icon";
 import Spin from "./Spin";
 
 const POLICY_TYPES = [
@@ -163,8 +164,8 @@ const PoliciesSection = () => {
                 key={p.value}
                 value={p.value}
                 label={
-                  <Stack direction="row" alignItems="center" spacing={1}>
-                    <i className={p.icon} aria-hidden="true" />
+                  <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                    <Icon className={p.icon} aria-hidden="true" />
                     <span>{t(`type.${p.value}`)}</span>
                     {counts[p.value] > 0 && (
                       <Box
@@ -215,7 +216,7 @@ const PoliciesSection = () => {
               color: "var(--text-muted)",
             }}
           >
-            <i
+            <Icon
               className="ph ph-file-text"
               style={{ fontSize: 48, display: "inline-block", marginBottom: 12 }}
               aria-hidden="true"

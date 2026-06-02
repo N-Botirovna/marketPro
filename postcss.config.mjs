@@ -7,8 +7,8 @@ const safelistPatterns = [
   /^modal/, /^dropdown/, /^collapse/, /^navbar/, /^fade/, /^show$/,
   // react-slick
   /^slick-/,
-  // Phosphor icons
-  /^ph/,
+  // react-scroll-to-top (class injected at runtime → not in source scan)
+  /^scroll-to-top$/,
   // AOS
   /^aos-/, /^\[data-aos/,
   // Project dynamic utilities (built via template literals)

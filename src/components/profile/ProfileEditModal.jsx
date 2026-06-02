@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Drawer,
@@ -14,6 +14,9 @@ import {
   MenuItem,
   Divider,
 } from "@mui/material";
+import FieldError from "@/components/FieldError";
+import { isBlank, tooLong, isPhoneE164 } from "@/lib/validation";
+import Icon from "@/components/Icon";
 
 const FieldGroup = ({ children }) => <Stack spacing={1.75}>{children}</Stack>;
 
@@ -32,13 +35,44 @@ const ProfileEditModal = ({
   const t = useTranslations("ProfileDashboard");
   const tLocation = useTranslations("Location");
   const tProfileForm = useTranslations("ProfileForm");
+  const tv = useTranslations("Validation");
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  // Mirror of UserUpdate serializer: app_phone_number E.164 (optional, full
+  // number with +), bio max 255. Returns a localized message or null.
+  const validateProfileField = (name, value) => {
+    switch (name) {
+      case "app_phone_number":
+        if (isBlank(value)) return null; // optional
+        return isPhoneE164(value) ? null : tv("phoneInvalid");
+      case "bio":
+        return tooLong(value, 255) ? tv("maxLength", { max: 255 }) : null;
+      // Region + district are required — a book listing must be locatable.
+      case "region":
+      case "district":
+        return isBlank(value) ? tv("required") : null;
+      default:
+        return null;
+    }
+  };
 
   const handleChange = (event) => {
     if (typeof onInputChange === "function") onInputChange(event);
+    const { name, value } = event.target;
+    setFieldErrors((prev) => ({ ...prev, [name]: validateProfileField(name, value) || undefined }));
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    const blocking = {};
+    ["app_phone_number", "bio", "region", "district"].forEach((f) => {
+      const msg = validateProfileField(f, profileFormData?.[f] || "");
+      if (msg) blocking[f] = msg;
+    });
+    if (Object.keys(blocking).length > 0) {
+      setFieldErrors(blocking);
+      return;
+    }
     if (!saving && hasChanges && typeof onSave === "function") {
       onSave();
     }
@@ -78,7 +112,7 @@ const ProfileEditModal = ({
           size="small"
           sx={{ width: 40, height: 40 }}
         >
-          <i className="ph ph-x" style={{ fontSize: 20 }} />
+          <Icon className="ph ph-x" style={{ fontSize: 20 }} />
         </IconButton>
       </Box>
       <Divider />
@@ -118,62 +152,105 @@ const ProfileEditModal = ({
             />
           </Stack>
 
-          <TextField
-            fullWidth
-            label={t("phone")}
-            name="app_phone_number"
-            type="tel"
-            value={profileFormData?.app_phone_number || ""}
-            onChange={handleChange}
-            placeholder={t("phonePlaceholder")}
-            size="small"
-            autoComplete="tel"
-          />
+          <Box>
+            <TextField
+              fullWidth
+              label={t("phone")}
+              name="app_phone_number"
+              type="tel"
+              value={profileFormData?.app_phone_number || ""}
+              onChange={handleChange}
+              placeholder={t("phonePlaceholder")}
+              size="small"
+              autoComplete="tel"
+              error={!!fieldErrors.app_phone_number}
+            />
+            <FieldError message={fieldErrors.app_phone_number} />
+          </Box>
 
+          {/* Region + district are required so a posted book is locatable. */}
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={1.75} alignItems="flex-start">
+            <Box sx={{ flex: 1, width: "100%" }}>
+              <TextField
+                fullWidth
+                select
+                required
+                label={t("region")}
+                name="region"
+                value={profileFormData?.region || ""}
+                onChange={handleChange}
+                disabled={regionsLoading}
+                size="small"
+                error={!!fieldErrors.region}
+              >
+                <MenuItem value="">
+                  {regionsLoading ? t("loadingData") : tLocation("selectRegion")}
+                </MenuItem>
+                {regions.map((region) => (
+                  <MenuItem key={region.id} value={String(region.id)}>
+                    {region.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <FieldError message={fieldErrors.region} />
+            </Box>
+
+            <Box sx={{ flex: 1, width: "100%" }}>
+              <TextField
+                fullWidth
+                select
+                required
+                label={t("district")}
+                name="district"
+                value={profileFormData?.district || ""}
+                onChange={handleChange}
+                disabled={!profileFormData?.region || districtOptions.length === 0}
+                size="small"
+                error={!!fieldErrors.district}
+              >
+                <MenuItem value="">
+                  {!profileFormData?.region
+                    ? tLocation("selectRegion")
+                    : districtOptions.length === 0
+                      ? tLocation("noDistricts")
+                      : tLocation("selectDistrict")}
+                </MenuItem>
+                {districtOptions.map((district) => (
+                  <MenuItem key={district.id} value={String(district.id)}>
+                    {district.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <FieldError message={fieldErrors.district} />
+            </Box>
+          </Stack>
+
+          {/* Gender + birth date — both optional. */}
           <Stack direction={{ xs: "column", sm: "row" }} spacing={1.75}>
             <TextField
               fullWidth
               select
-              label={t("region")}
-              name="region"
-              value={profileFormData?.region || ""}
+              label={`${tProfileForm("gender")} (${tProfileForm("optionalLabel")})`}
+              name="gender"
+              value={profileFormData?.gender || ""}
               onChange={handleChange}
-              disabled={regionsLoading}
               size="small"
             >
-              <MenuItem value="">
-                {regionsLoading ? t("loadingData") : tLocation("selectRegion")}
-              </MenuItem>
-              {regions.map((region) => (
-                <MenuItem key={region.id} value={String(region.id)}>
-                  {region.name}
-                </MenuItem>
-              ))}
+              <MenuItem value="">{tProfileForm("selectGender")}</MenuItem>
+              <MenuItem value="male">{tProfileForm("genderMale")}</MenuItem>
+              <MenuItem value="female">{tProfileForm("genderFemale")}</MenuItem>
             </TextField>
 
             <TextField
               fullWidth
-              select
-              label={t("district")}
-              name="district"
-              value={profileFormData?.district || ""}
+              type="date"
+              label={`${tProfileForm("birthDate")} (${tProfileForm("optionalLabel")})`}
+              name="birth_date"
+              value={profileFormData?.birth_date || ""}
               onChange={handleChange}
-              disabled={!profileFormData?.region || districtOptions.length === 0}
               size="small"
-            >
-              <MenuItem value="">
-                {!profileFormData?.region
-                  ? tLocation("selectRegion")
-                  : districtOptions.length === 0
-                    ? tLocation("noDistricts")
-                    : tLocation("selectDistrict")}
-              </MenuItem>
-              {districtOptions.map((district) => (
-                <MenuItem key={district.id} value={String(district.id)}>
-                  {district.name}
-                </MenuItem>
-              ))}
-            </TextField>
+              InputLabelProps={{ shrink: true }}
+            />
           </Stack>
 
           <TextField
@@ -186,18 +263,22 @@ const ProfileEditModal = ({
             size="small"
           />
 
-          <TextField
-            fullWidth
-            label={t("bioTitle")}
-            name="bio"
-            value={profileFormData?.bio || ""}
-            onChange={handleChange}
-            placeholder={t("bioEmpty")}
-            size="small"
-            multiline
-            minRows={3}
-            maxRows={6}
-          />
+          <Box>
+            <TextField
+              fullWidth
+              label={t("bioTitle")}
+              name="bio"
+              value={profileFormData?.bio || ""}
+              onChange={handleChange}
+              placeholder={t("bioEmpty")}
+              size="small"
+              multiline
+              minRows={3}
+              maxRows={6}
+              error={!!fieldErrors.bio}
+            />
+            <FieldError message={fieldErrors.bio} />
+          </Box>
         </FieldGroup>
       </Box>
 

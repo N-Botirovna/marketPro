@@ -13,6 +13,7 @@ import {
   AccordionDetails,
 } from "@mui/material";
 import { getFaqs } from "@/services/faqs";
+import Icon from "@/components/Icon";
 import Spin from "./Spin";
 
 const normalize = (s) =>
@@ -95,16 +96,18 @@ const FaqPage = () => {
               borderRadius: 2,
             },
           }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <i
-                  className="ph ph-magnifying-glass"
-                  style={{ fontSize: 18, color: "var(--text-muted)" }}
-                  aria-hidden="true"
-                />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Icon
+                    className="ph ph-magnifying-glass"
+                    style={{ fontSize: 18, color: "var(--text-muted)" }}
+                    aria-hidden="true"
+                  />
+                </InputAdornment>
+              ),
+            },
           }}
         />
 
@@ -131,7 +134,7 @@ const FaqPage = () => {
 
         {!loading && !error && filtered.length === 0 && (
           <Box sx={{ py: 6, textAlign: "center", color: "var(--text-muted)" }}>
-            <i
+            <Icon
               className="ph ph-question"
               style={{ fontSize: 48, display: "inline-block", marginBottom: 12 }}
               aria-hidden="true"
@@ -161,7 +164,7 @@ const FaqPage = () => {
               >
                 <AccordionSummary
                   expandIcon={
-                    <i
+                    <Icon
                       className="ph ph-caret-down"
                       style={{ fontSize: 18, color: "var(--text-secondary)" }}
                       aria-hidden="true"

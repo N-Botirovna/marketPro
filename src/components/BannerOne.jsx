@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { getBanners } from "@/services/banners";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import { detectExternalLink } from "@/utils/externalLink";
+import Icon from "@/components/Icon";
 
 const FALLBACK_SRC = "/assets/images/logo/kitobzor-logo.png";
 const AUTOPLAY_MS = 6500;
@@ -170,10 +172,26 @@ const BannerOne = () => {
                 <div className="kz-banner__overlay" aria-hidden="true" />
                 <div className="kz-banner__content">
                   <span className="kz-banner__badge">
-                    <i className="ph-fill ph-megaphone" aria-hidden="true" />
+                    <Icon className="ph-fill ph-megaphone" aria-hidden="true" />
                     {t("promotedBadge")}
                   </span>
                   {banner.title && <h2 className="kz-banner__title">{banner.title}</h2>}
+                  {(() => {
+                    const linkInfo = detectExternalLink(banner.link);
+                    if (!linkInfo) return null;
+                    return (
+                      <a
+                        href={banner.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="kz-banner__cta"
+                        aria-label={t(`cta.${linkInfo.labelKey}`)}
+                      >
+                        <Icon className={linkInfo.icon} aria-hidden="true" />
+                        <span>{t(`cta.${linkInfo.labelKey}`)}</span>
+                      </a>
+                    );
+                  })()}
                 </div>
               </article>
             );
@@ -189,7 +207,7 @@ const BannerOne = () => {
                 onClick={() => goTo(activeIdx - 1)}
                 aria-label="Previous"
               >
-                <i className="ph-bold ph-caret-left" aria-hidden="true" />
+                <Icon className="ph-bold ph-caret-left" aria-hidden="true" />
               </button>
               <button
                 type="button"
@@ -197,7 +215,7 @@ const BannerOne = () => {
                 onClick={() => goTo(activeIdx + 1)}
                 aria-label="Next"
               >
-                <i className="ph-bold ph-caret-right" aria-hidden="true" />
+                <Icon className="ph-bold ph-caret-right" aria-hidden="true" />
               </button>
             </>
           )}
@@ -365,6 +383,40 @@ const BannerOne = () => {
           letter-spacing: -0.01em;
           text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
           color: #fff;
+        }
+
+        .kz-banner__cta {
+          margin-top: 12px;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 9px 16px;
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.95);
+          color: #0f172a;
+          font-size: 14px;
+          font-weight: 700;
+          text-decoration: none;
+          line-height: 1;
+          align-self: flex-start;
+          transition:
+            transform 0.18s ease,
+            background 0.18s ease,
+            box-shadow 0.18s ease;
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+        }
+
+        .kz-banner__cta:hover,
+        .kz-banner__cta:focus-visible {
+          background: #fff;
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.24);
+          outline: none;
+        }
+
+        .kz-banner__cta :global(i) {
+          font-size: 18px;
+          line-height: 1;
         }
 
         .kz-banner__arrow {

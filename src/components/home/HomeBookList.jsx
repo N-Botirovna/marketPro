@@ -5,7 +5,8 @@ import { useTranslations } from "next-intl";
 import { Box, Stack, Typography } from "@mui/material";
 import { Link } from "@/i18n/navigation";
 import { getBooks } from "@/services/books";
-import BookChatRow from "@/components/shared/BookChatRow";
+import BookRowGrid from "@/components/shared/BookRowGrid";
+import Icon from "@/components/Icon";
 
 /**
  * Telegram chat-row inspired home section. Lists up to `limit` books filtered
@@ -16,7 +17,7 @@ import BookChatRow from "@/components/shared/BookChatRow";
  * Row visuals live in `BookChatRow` (shared with CommunityBooksPage and
  * ShopDetailPage) so a tweak to row design touches one file.
  */
-const HomeBookList = ({ type, ownerType, titleKey, viewAllHref, limit = 5, initialBooks }) => {
+const HomeBookList = ({ type, ownerType, titleKey, viewAllHref, limit = 6, initialBooks }) => {
   const t = useTranslations("HomeBookList");
   // When the server passed pre-fetched books we trust them and skip the
   // client round-trip entirely. The fallback fetch only fires when this
@@ -56,7 +57,7 @@ const HomeBookList = ({ type, ownerType, titleKey, viewAllHref, limit = 5, initi
         {/* Telegram-style channel header: title left, pill "see all" right,
             generous gap so long titles never crash into the link. Title
             ellipses on overflow instead of wrapping under the link. */}
-        <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1.5, minHeight: 32 }}>
+        <Stack direction="row" spacing={2} sx={{ alignItems: "center", mb: 1.5, minHeight: 32 }}>
           <Typography
             component="h2"
             sx={{
@@ -99,43 +100,11 @@ const HomeBookList = ({ type, ownerType, titleKey, viewAllHref, limit = 5, initi
             }}
           >
             {t("seeAll")}
-            <i className="ph ph-caret-right" aria-hidden="true" style={{ fontSize: 14 }} />
+            <Icon className="ph ph-caret-right" aria-hidden="true" style={{ fontSize: 14 }} />
           </Link>
         </Stack>
 
-        <Box
-          sx={{
-            bgcolor: "var(--surface-card)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: 2.5,
-            boxShadow: "var(--shadow-card)",
-            overflow: "hidden",
-          }}
-        >
-          {loading
-            ? Array.from({ length: limit }).map((_, i) => (
-                <Box
-                  key={`row-skel-${i}`}
-                  sx={{
-                    height: 76,
-                    bgcolor: "var(--surface-card)",
-                    borderBottom: i === limit - 1 ? "none" : "1px solid var(--border-subtle)",
-                    animation: "pulse 1.6s ease-in-out infinite",
-                  }}
-                />
-              ))
-            : books.map((book, idx) => (
-                <Box
-                  key={book.id}
-                  sx={{
-                    borderBottom:
-                      idx === books.length - 1 ? "none" : "1px solid var(--border-subtle)",
-                  }}
-                >
-                  <BookChatRow book={book} showTypeBadge={!type} />
-                </Box>
-              ))}
-        </Box>
+        <BookRowGrid books={books} loading={loading} skeletonCount={limit} showTypeBadge={!type} />
       </Box>
     </Box>
   );

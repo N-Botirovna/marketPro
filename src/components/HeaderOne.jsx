@@ -9,6 +9,7 @@ import { addLike, clearLikes, getAllLikes } from "@/utils/likeStorage";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, usePathname } from "@/i18n/navigation";
 import { openSellerModal } from "@/lib/sellerModal";
+import Icon from "@/components/Icon";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -141,7 +142,7 @@ const HeaderOne = () => {
             aria-label={tHeader("menu")}
             aria-expanded={menuActive}
           >
-            <i className="ph ph-list" />
+            <Icon className="ph ph-list" />
           </button>
 
           <Link href="/" className="kz-header__logo" aria-label="Kitobzor" onClick={closeAll}>
@@ -173,7 +174,10 @@ const HeaderOne = () => {
                 aria-expanded={profileOpen}
                 aria-label={tHeader("account")}
               >
-                <i className={isLoggedIn ? "ph-fill ph-user" : "ph ph-user"} aria-hidden="true" />
+                <Icon
+                  className={isLoggedIn ? "ph-fill ph-user" : "ph ph-user"}
+                  aria-hidden="true"
+                />
                 {isLoggedIn && likedBooksCount > 0 && (
                   <span className="kz-header__profile-dot" aria-hidden="true" />
                 )}
@@ -184,11 +188,11 @@ const HeaderOne = () => {
                   {isLoggedIn ? (
                     <>
                       <Link href="/account" className="kz-header__menu-item" role="menuitem">
-                        <i className="ph ph-user" />
+                        <Icon className="ph ph-user" />
                         <span>{tHeader("profile")}</span>
                       </Link>
                       <Link href="/wishlist" className="kz-header__menu-item" role="menuitem">
-                        <i className="ph ph-heart" />
+                        <Icon className="ph ph-heart" />
                         <span>{tHeader("wishlist")}</span>
                         {likedBooksCount > 0 && (
                           <span className="kz-header__menu-count">
@@ -202,7 +206,7 @@ const HeaderOne = () => {
                         className="kz-header__menu-item"
                         role="menuitem"
                       >
-                        <i className="ph ph-storefront" />
+                        <Icon className="ph ph-storefront" />
                         <span>{tHeader("becomeSeller")}</span>
                       </button>
                       <div className="kz-header__menu-divider" />
@@ -212,14 +216,14 @@ const HeaderOne = () => {
                         className="kz-header__menu-item kz-header__menu-item--danger"
                         role="menuitem"
                       >
-                        <i className="ph ph-sign-out" />
+                        <Icon className="ph ph-sign-out" />
                         <span>{tHeader("logout")}</span>
                       </button>
                     </>
                   ) : (
                     <>
                       <Link href="/login" className="kz-header__menu-item" role="menuitem">
-                        <i className="ph ph-sign-in" />
+                        <Icon className="ph ph-sign-in" />
                         <span>{tHeader("login")}</span>
                       </Link>
                       <button
@@ -228,7 +232,7 @@ const HeaderOne = () => {
                         className="kz-header__menu-item"
                         role="menuitem"
                       >
-                        <i className="ph ph-storefront" />
+                        <Icon className="ph ph-storefront" />
                         <span>{tHeader("becomeSeller")}</span>
                       </button>
                     </>
@@ -264,7 +268,7 @@ const HeaderOne = () => {
             className="kz-header__icon-btn"
             aria-label="Close"
           >
-            <i className="ph ph-x" />
+            <Icon className="ph ph-x" />
           </button>
         </div>
 
@@ -276,7 +280,7 @@ const HeaderOne = () => {
                 onClick={() => setMenuActive(false)}
                 className="kz-drawer__link"
               >
-                <i className="ph ph-user-circle" />
+                <Icon className="ph ph-user-circle" />
                 <span>{tHeader("profile")}</span>
               </Link>
               <Link
@@ -284,7 +288,7 @@ const HeaderOne = () => {
                 onClick={() => setMenuActive(false)}
                 className="kz-drawer__link"
               >
-                <i className="ph ph-heart" />
+                <Icon className="ph ph-heart" />
                 <span>{tHeader("wishlist")}</span>
                 {likedBooksCount > 0 && (
                   <span className="kz-header__menu-count">
@@ -295,31 +299,31 @@ const HeaderOne = () => {
             </>
           ) : (
             <Link href="/login" onClick={() => setMenuActive(false)} className="kz-drawer__link">
-              <i className="ph ph-sign-in" />
+              <Icon className="ph ph-sign-in" />
               <span>{tHeader("login")}</span>
             </Link>
           )}
           <button type="button" onClick={handleSellerClick} className="kz-drawer__link">
-            <i className="ph ph-storefront" />
+            <Icon className="ph ph-storefront" />
             <span>{tHeader("becomeSeller")}</span>
           </button>
 
           <div className="kz-drawer__divider" />
 
           <Link href="/about-us" onClick={() => setMenuActive(false)} className="kz-drawer__link">
-            <i className="ph ph-info" />
+            <Icon className="ph ph-info" />
             <span>{tHeader("aboutUs")}</span>
           </Link>
           <Link href="/contact" onClick={() => setMenuActive(false)} className="kz-drawer__link">
-            <i className="ph ph-chat-circle-text" />
+            <Icon className="ph ph-chat-circle-text" />
             <span>{tHeader("contact")}</span>
           </Link>
           <Link href="/faq" onClick={() => setMenuActive(false)} className="kz-drawer__link">
-            <i className="ph ph-question" />
+            <Icon className="ph ph-question" />
             <span>{tHeader("faq")}</span>
           </Link>
           <Link href="/policies" onClick={() => setMenuActive(false)} className="kz-drawer__link">
-            <i className="ph ph-shield-check" />
+            <Icon className="ph ph-shield-check" />
             <span>{tHeader("privacy")}</span>
           </Link>
 
@@ -331,14 +335,14 @@ const HeaderOne = () => {
           <div className="kz-drawer__section-label">{tHeader("settings")}</div>
           <div className="kz-drawer__row">
             <div className="kz-drawer__row-label">
-              <i className="ph ph-paint-brush" />
+              <Icon className="ph ph-paint-brush" />
               <span>{tHeader("appearance")}</span>
             </div>
             <ThemeToggle />
           </div>
           <div className="kz-drawer__row">
             <div className="kz-drawer__row-label">
-              <i className="ph ph-globe" />
+              <Icon className="ph ph-globe" />
               <span>{tHeader("language")}</span>
             </div>
             <LanguageSwitcher />
@@ -352,7 +356,7 @@ const HeaderOne = () => {
                 onClick={handleLogout}
                 className="kz-drawer__link kz-drawer__link--danger"
               >
-                <i className="ph ph-sign-out" />
+                <Icon className="ph ph-sign-out" />
                 <span>{tHeader("logout")}</span>
               </button>
             </>

@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
-import { Box, Stack, Typography, CircularProgress, Button } from "@mui/material";
+import { useLocale, useTranslations } from "next-intl";
+import { Box, Stack, Typography, Button } from "@mui/material";
 import { useRouter } from "@/i18n/navigation";
-import Spin from "@/components/Spin";
+import LoadingScreen from "@/components/LoadingScreen";
 import { loginWithTicket } from "@/services/auth";
+import { stripLocalePrefix } from "@/utils/nextPath";
+import Icon from "@/components/Icon";
 
 /**
  * Telegram-style auto-login surface.
@@ -21,6 +23,7 @@ import { loginWithTicket } from "@/services/auth";
 const AutoLoginClient = ({ ticket, next = "/" }) => {
   const t = useTranslations("AutoLogin");
   const router = useRouter();
+  const currentLocale = useLocale();
   const [state, setState] = useState("loading"); // loading | success | error
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -32,123 +35,94 @@ const AutoLoginClient = ({ ticket, next = "/" }) => {
     }
 
     let alive = true;
-    loginWithTicket(ticket)
-      .then(() => {
+    (async () => {
+      try {
+        await loginWithTicket(ticket);
         if (!alive) return;
+
+        // Redirect immediately — no artificial delay, no extra /me round-trip.
+        // The bot deep-link already targets the user's locale (the Ticket view
+        // builds `/{locale}/auth/auto?...` from their saved language), so we
+        // keep the current URL locale and go straight to `next`.
         setState("success");
-        // Hand off to the requested destination. Slight delay so the user
-        // sees the success flash; feels less jarring than insta-redirect.
         const safeNext = next && next.startsWith("/") ? next : "/";
-        window.setTimeout(() => {
-          router.replace(safeNext);
-        }, 500);
-      })
-      .catch((err) => {
+        // Strip any leading locale prefix in `next` so the locale option
+        // takes effect; next-intl's router prepends the locale.
+        const stripped = stripLocalePrefix(safeNext);
+        router.replace(stripped, { locale: currentLocale });
+      } catch (err) {
         if (!alive) return;
         setState("error");
         const code = err?.response?.data?.code;
         if (code === "ticket_invalid") setErrorMsg(t("ticketInvalid"));
         else setErrorMsg(err?.normalized?.message || t("genericError"));
-      });
+      }
+    })();
 
     return () => {
       alive = false;
     };
-  }, [ticket, next, router, t]);
+  }, [ticket, next, router, t, currentLocale]);
 
-  return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: "var(--surface-page)",
-        color: "var(--text-primary)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        p: 3,
-      }}
-    >
-      <Stack
-        spacing={2}
-        alignItems="center"
+  if (state === "error") {
+    return (
+      <Box
         sx={{
-          maxWidth: 420,
-          textAlign: "center",
-          p: { xs: 3, md: 4 },
-          bgcolor: "var(--surface-card)",
-          border: "1px solid var(--border-subtle)",
-          borderRadius: 3,
-          boxShadow: "var(--shadow-card)",
+          minHeight: "100vh",
+          bgcolor: "var(--surface-page)",
+          color: "var(--text-primary)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          p: 3,
         }}
       >
-        {state === "loading" && (
-          <>
-            <CircularProgress size={32} />
-            <Typography sx={{ fontWeight: 700, fontSize: 18 }}>{t("loading")}</Typography>
-            <Typography variant="body2" sx={{ color: "var(--text-secondary)" }}>
-              {t("loadingHint")}
-            </Typography>
-          </>
-        )}
+        <Stack
+          spacing={2}
+          sx={{
+            alignItems: "center",
+            maxWidth: 420,
+            textAlign: "center",
+            p: { xs: 3, md: 4 },
+            bgcolor: "var(--surface-card)",
+            border: "1px solid var(--border-subtle)",
+            borderRadius: 3,
+            boxShadow: "var(--shadow-card)",
+          }}
+        >
+          <Box
+            sx={{
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              bgcolor: "error.light",
+              color: "error.main",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 28,
+            }}
+          >
+            <Icon className="ph-fill ph-x" aria-hidden="true" />
+          </Box>
+          <Typography sx={{ fontWeight: 700, fontSize: 18 }}>{t("failed")}</Typography>
+          <Typography variant="body2" sx={{ color: "var(--text-secondary)" }}>
+            {errorMsg}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => router.replace("/login")}
+            sx={{ textTransform: "none", fontWeight: 600, mt: 1 }}
+          >
+            {t("manualLogin")}
+          </Button>
+        </Stack>
+      </Box>
+    );
+  }
 
-        {state === "success" && (
-          <>
-            <Box
-              sx={{
-                width: 56,
-                height: 56,
-                borderRadius: "50%",
-                bgcolor: "primary.main",
-                color: "#fff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 28,
-              }}
-            >
-              <i className="ph-fill ph-check" aria-hidden="true" />
-            </Box>
-            <Typography sx={{ fontWeight: 700, fontSize: 18 }}>{t("success")}</Typography>
-            <Typography variant="body2" sx={{ color: "var(--text-secondary)" }}>
-              {t("redirecting")}
-            </Typography>
-            <Spin text="" />
-          </>
-        )}
-
-        {state === "error" && (
-          <>
-            <Box
-              sx={{
-                width: 56,
-                height: 56,
-                borderRadius: "50%",
-                bgcolor: "error.light",
-                color: "error.main",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 28,
-              }}
-            >
-              <i className="ph-fill ph-x" aria-hidden="true" />
-            </Box>
-            <Typography sx={{ fontWeight: 700, fontSize: 18 }}>{t("failed")}</Typography>
-            <Typography variant="body2" sx={{ color: "var(--text-secondary)" }}>
-              {errorMsg}
-            </Typography>
-            <Button
-              variant="contained"
-              onClick={() => router.replace("/login")}
-              sx={{ textTransform: "none", fontWeight: 600, mt: 1 }}
-            >
-              {t("manualLogin")}
-            </Button>
-          </>
-        )}
-      </Stack>
-    </Box>
-  );
+  // loading / success — show the branded rotating-fact loader until redirect.
+  return <LoadingScreen title={state === "success" ? t("success") : t("loading")} />;
 };
 
 export default AutoLoginClient;

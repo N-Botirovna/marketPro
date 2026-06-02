@@ -1,0 +1,40 @@
+# Frontend (Next.js) — dev server deployment.
+#
+# Build-time public env comes from `.env` in this directory (see
+# .env.production.example). Because NEXT_PUBLIC_* is inlined at build time,
+# `docker compose up -d --build` must be re-run whenever those values change.
+#
+# The container listens on 3000 but is published only on 127.0.0.1 — the host
+# nginx terminates TLS for dev.kitobzor.uz and reverse-proxies to it.
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
+        NEXT_PUBLIC_SUPPORT_PHONE: ${NEXT_PUBLIC_SUPPORT_PHONE:-}
+        NEXT_PUBLIC_BOT_USERNAME: ${NEXT_PUBLIC_BOT_USERNAME:-}
+        NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+    image: kitobzor-frontend
+    container_name: kitobzor-frontend
+    restart: always
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/uz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+# Join the backend stack's Docker network so its containerized nginx can reach
+# this container by name (kitobzor-frontend:3000) for the dev.kitobzor.uz
+# vhost. The network is created by the backend compose (kitobzor-dev).
+networks:
+  default:
+    name: kitobzor-dev_internal
+    external: true

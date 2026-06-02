@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
 import {
   Dialog,
   Box,
@@ -21,11 +22,14 @@ import {
 } from "@mui/material";
 
 import { getRegions } from "@/services/regions";
-import { updateShop } from "@/services/shop";
+import { updateShop, updateShopLocation } from "@/services/shop";
 import { mapValidationError } from "@/lib/mapValidationError";
+import { isBlank, tooLong, isPhoneE164 } from "@/lib/validation";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import FieldError from "@/components/FieldError";
 import { useToast } from "@/components/Toast";
+import Icon from "@/components/Icon";
+import ClockTimePicker from "@/components/shared/ClockTimePicker";
 import BannerManager from "./BannerManager";
 
 const DAY_CODES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -55,12 +59,17 @@ const parseDays = (raw) => {
  *
  * Mounted lazily by the shop detail page; only shop owners ever load it.
  */
+// Map picker touches `window` (Leaflet) — load it client-only.
+const LocationPicker = dynamic(() => import("@/components/shared/LocationPicker"), { ssr: false });
+
 const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
   const t = useTranslations("ShopEdit");
+  const tv = useTranslations("Validation");
   const tSeller = useTranslations("SellerRegistration");
   const tCommon = useTranslations("Common");
   const tLocation = useTranslations("Location");
   const tDays = useTranslations("Days");
+  const tShopLoc = useTranslations("ShopLocation");
   const { showToast, ToastContainer } = useToast();
   const fileInputRef = useRef(null);
 
@@ -81,6 +90,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
   const [workingDays, setWorkingDays] = useState([]);
   const [workingHours, setWorkingHours] = useState({ start: "09:00", end: "18:00" });
   const [lunch, setLunch] = useState({ start: "13:00", end: "14:00" });
+  const [coords, setCoords] = useState(null);
 
   const [regions, setRegions] = useState([]);
   const [banners, setBanners] = useState([]);
@@ -110,6 +120,11 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
     setWorkingHours(parseTimeRange(shop.working_hours) || { start: "09:00", end: "18:00" });
     setLunch(parseTimeRange(shop.lunch) || { start: "13:00", end: "14:00" });
     setBanners(Array.isArray(shop.banners) ? shop.banners : []);
+    setCoords(
+      shop.point && typeof shop.point.latitude === "number"
+        ? { latitude: shop.point.latitude, longitude: shop.point.longitude }
+        : null,
+    );
   }, [open, shop]);
 
   useEffect(() => {
@@ -131,9 +146,34 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
   );
   const districts = selectedRegion?.districts || [];
 
+  // Mirror of ShopUpdate serializer (all optional, but format-checked) +
+  // users/utils.py phone validator. Phone is optional on edit; only its
+  // format is checked when present.
+  const validateShopField = (name, value) => {
+    switch (name) {
+      case "name":
+        if (isBlank(value)) return tv("required");
+        if (tooLong(value, 255)) return tv("maxLength", { max: 255 });
+        return null;
+      case "bio":
+        return tooLong(value, 500) ? tv("maxLength", { max: 500 }) : null;
+      case "phone_number": {
+        if (isBlank(value)) return null; // optional on edit
+        const raw = String(value).replace(/[^\d]/g, "").replace(/^998/, "");
+        return isPhoneE164(`+998${raw}`) ? null : tv("phoneInvalid");
+      }
+      case "telegram":
+      case "instagram":
+      case "website":
+        return tooLong(value, 77) ? tv("maxLength", { max: 77 }) : null;
+      default:
+        return null;
+    }
+  };
+
   const setField = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
-    setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
+    setFieldErrors((prev) => ({ ...prev, [name]: validateShopField(name, value) || undefined }));
   };
 
   const handlePictureSelect = (event) => {
@@ -155,7 +195,13 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
     event?.preventDefault?.();
     setError(null);
     setFieldErrors({});
-    if (!form.name.trim()) {
+    const blocking = {};
+    ["name", "bio", "phone_number", "telegram", "instagram", "website"].forEach((f) => {
+      const msg = validateShopField(f, form[f]);
+      if (msg) blocking[f] = msg;
+    });
+    if (Object.keys(blocking).length > 0) {
+      setFieldErrors(blocking);
       setError(tSeller("fillRequiredFields"));
       return;
     }
@@ -183,7 +229,23 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
       };
       if (form.picture) payload.picture = form.picture;
 
-      const saved = await updateShop(shop.id, payload);
+      let saved = await updateShop(shop.id, payload);
+
+      // Geo location goes via a separate JSON PATCH (multipart can't carry the
+      // `point` dict). Only when it actually changed; the returned shop carries
+      // the new point so the detail view reflects it without a refetch.
+      const orig = shop.point;
+      const moved =
+        coords &&
+        (!orig || orig.latitude !== coords.latitude || orig.longitude !== coords.longitude);
+      if (moved) {
+        try {
+          saved = await updateShopLocation(shop.id, coords);
+        } catch {
+          /* keep the successful text/picture save; location can be retried */
+        }
+      }
+
       showToast({
         type: "success",
         title: t("saved"),
@@ -238,7 +300,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
             size="small"
             aria-label={tCommon("close")}
           >
-            <i className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
+            <Icon className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
           </IconButton>
         </Box>
         <Divider />
@@ -255,7 +317,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
           )}
 
           {/* Avatar */}
-          <Stack alignItems="center" spacing={1.25} sx={{ mb: 3 }}>
+          <Stack spacing={1.25} sx={{ alignItems: "center", mb: 3 }}>
             <Box
               onClick={() => fileInputRef.current?.click()}
               role="button"
@@ -277,7 +339,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
                   color: "var(--text-muted)",
                 }}
               >
-                <i className="ph-fill ph-storefront" aria-hidden="true" />
+                <Icon className="ph-fill ph-storefront" aria-hidden="true" />
               </Avatar>
               <Box
                 className="overlay"
@@ -295,7 +357,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
                   transition: "opacity 0.15s ease",
                 }}
               >
-                <i className="ph-fill ph-camera" aria-hidden="true" />
+                <Icon className="ph-fill ph-camera" aria-hidden="true" />
               </Box>
             </Box>
             <input
@@ -405,6 +467,15 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
                 disabled={saving}
               />
             </Box>
+            <Box>
+              <Typography sx={{ fontSize: 13, fontWeight: 600, mb: 0.25 }}>
+                {tShopLoc("mapLabel")}
+              </Typography>
+              <Typography sx={{ fontSize: 12, color: "var(--text-muted)", mb: 1 }}>
+                {tShopLoc("mapHint")}
+              </Typography>
+              <LocationPicker value={coords} onChange={setCoords} />
+            </Box>
           </Stack>
 
           {/* Socials */}
@@ -416,6 +487,8 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
               label="Telegram"
               value={form.telegram}
               onChange={(e) => setField("telegram", e.target.value)}
+              placeholder="t.me/dokoningiz yoki @username"
+              slotProps={{ inputLabel: { shrink: true } }}
               disabled={saving}
             />
             <TextField
@@ -424,6 +497,8 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
               label="Instagram"
               value={form.instagram}
               onChange={(e) => setField("instagram", e.target.value)}
+              placeholder="instagram.com/dokoningiz yoki @username"
+              slotProps={{ inputLabel: { shrink: true } }}
               disabled={saving}
             />
             <TextField
@@ -432,6 +507,8 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
               label={tSeller("website")}
               value={form.website}
               onChange={(e) => setField("website", e.target.value)}
+              placeholder="https://dokoningiz.uz"
+              slotProps={{ inputLabel: { shrink: true } }}
               disabled={saving}
             />
             <FormControlLabel
@@ -449,7 +526,7 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
           {/* Working hours */}
           <SectionTitle text={tSeller("sectionHours")} />
           <Stack spacing={2} sx={{ mb: 3 }}>
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+            <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
               {DAY_CODES.map((code) => {
                 const active = workingDays.includes(code);
                 return (
@@ -466,25 +543,39 @@ const ShopEditModal = ({ open, shop, onClose, onSaved }) => {
               })}
             </Stack>
             <Stack direction="row" spacing={2}>
-              <TextField
-                size="small"
-                type="time"
+              <ClockTimePicker
                 label={tSeller("hoursStart")}
                 value={workingHours.start}
-                onChange={(e) => setWorkingHours((prev) => ({ ...prev, start: e.target.value }))}
-                sx={{ flex: 1 }}
+                onChange={(v) => setWorkingHours((prev) => ({ ...prev, start: v }))}
                 disabled={saving}
               />
-              <TextField
-                size="small"
-                type="time"
+              <ClockTimePicker
                 label={tSeller("hoursEnd")}
                 value={workingHours.end}
-                onChange={(e) => setWorkingHours((prev) => ({ ...prev, end: e.target.value }))}
-                sx={{ flex: 1 }}
+                onChange={(v) => setWorkingHours((prev) => ({ ...prev, end: v }))}
                 disabled={saving}
               />
             </Stack>
+            <Box>
+              <Typography
+                variant="caption"
+                sx={{ color: "var(--text-muted)", display: "block", mb: 0.5 }}
+              >
+                {tSeller("lunch")}
+              </Typography>
+              <Stack direction="row" spacing={2}>
+                <ClockTimePicker
+                  value={lunch.start}
+                  onChange={(v) => setLunch((prev) => ({ ...prev, start: v }))}
+                  disabled={saving}
+                />
+                <ClockTimePicker
+                  value={lunch.end}
+                  onChange={(v) => setLunch((prev) => ({ ...prev, end: v }))}
+                  disabled={saving}
+                />
+              </Stack>
+            </Box>
           </Stack>
 
           {/* Banners */}

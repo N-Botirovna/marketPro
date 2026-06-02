@@ -6,62 +6,66 @@ import { Box, Stack, Typography, Chip } from "@mui/material";
 import { Link } from "@/i18n/navigation";
 import { formatPrice } from "@/utils/formatPrice";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
-
-// Keyed on the backend BookType enum value as returned by the API
-// (BookType.SELLER = "seller"). `sell` is the URL/i18n alias only; the
-// raw response carries `"seller"`, so the badge map must match that.
-const TYPE_BADGE = {
-  seller: { color: "#0d9488", bg: "rgba(13, 148, 136, 0.12)" },
-  gift: { color: "#15803d", bg: "rgba(34, 197, 94, 0.14)" },
-  exchange: { color: "#b45309", bg: "rgba(245, 158, 11, 0.14)" },
-  rent: { color: "#4338ca", bg: "rgba(99, 102, 241, 0.14)" },
-};
-
-// BookTypeChips i18n keys still use "sell" (user-facing slug); translate
-// before lookup so the chip text stays in the chosen locale.
-const I18N_TYPE_KEY = { seller: "sell" };
-function typeI18nKey(t) {
-  return I18N_TYPE_KEY[t] || t;
-}
+import { bookTypeVisual, bookTypeI18nKey } from "@/utils/bookType";
+import Icon from "@/components/Icon";
 
 /**
- * Telegram-inspired compact row used in book listings:
+ * Compact horizontal book card used in the feed/browse listings:
  *
- *   [thumb 60]  Title (bold)              [type badge]
- *               Author · Price
+ *   ┌────────────────────────────────────┐
+ *   │ [thumb 60]  Title (bold)   [badge]  │
+ *   │             Author · Price          │
+ *   └────────────────────────────────────┘
+ *
+ * It is a *self-contained card* (border + shadow + hover lift, mirroring
+ * ShopCard) so it can sit in a responsive grid — `BookRowGrid` lays these out
+ * 1-up on mobile (reads like a Telegram row) and 2–3-up on wider screens so the
+ * desktop layout stops wasting horizontal space. `height: 100%` keeps every
+ * card in a grid row the same height.
  *
  * Reused by `HomeBookList`, `CommunityBooksPage`, and `ShopDetailPage`.
- * When `showTypeBadge` is true the trailing badge is rendered; pass false
- * in single-type listings where the badge would be redundant.
+ * When `showTypeBadge` is true the trailing badge is rendered; pass false in
+ * single-type listings where the badge would be redundant.
  */
 const BookChatRow = ({ book, showTypeBadge = true }) => {
   const tType = useTranslations("BookTypeChips");
   const locale = useLocale();
 
   const typeKey = (book.type || "").toLowerCase();
-  const badge = TYPE_BADGE[typeKey];
+  const badge = bookTypeVisual(typeKey);
 
-  const priceNode = (() => {
-    if (typeKey === "gift") return tType("gift");
-    if (typeKey === "exchange") return tType("exchange");
-    const price = book.discount_price || book.price;
-    return price ? formatPrice(price, locale) : null;
-  })();
+  // Monetary types (sell/rent) show the price on its OWN line under the author,
+  // so a long author name can never push it out of view. Non-monetary types
+  // (gift/exchange) carry no price — the trailing badge conveys the type; we
+  // only fall back to a text label for them when the badge is hidden.
+  const isMonetary = typeKey === "seller" || typeKey === "rent";
+  const price = book.discount_price || book.price;
+  const priceLabel = isMonetary && price ? formatPrice(price, locale) : null;
+  const typeLabel = !isMonetary && badge ? tType(bookTypeI18nKey(typeKey)) : null;
 
   return (
     <Link
       href={`/book-details/${book.id}`}
-      style={{ textDecoration: "none", color: "inherit", display: "block" }}
+      style={{ textDecoration: "none", color: "inherit", display: "block", height: "100%" }}
     >
       <Stack
         direction="row"
-        alignItems="center"
         spacing={1.5}
         sx={{
-          px: { xs: 1.5, md: 2 },
+          height: "100%",
+          alignItems: "center",
+          px: { xs: 1.5, md: 1.75 },
           py: 1.25,
-          "&:hover": { bgcolor: "var(--surface-muted)" },
-          transition: "background-color 0.15s ease",
+          borderRadius: 2.5,
+          bgcolor: "var(--surface-card)",
+          border: "1px solid var(--border-subtle)",
+          boxShadow: "var(--shadow-card)",
+          transition: "transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease",
+          "&:hover": {
+            transform: "translateY(-2px)",
+            boxShadow: "var(--shadow-elevated)",
+            borderColor: "var(--main-600, hsl(148, 59%, 39%))",
+          },
         }}
       >
         <Box
@@ -86,7 +90,7 @@ const BookChatRow = ({ book, showTypeBadge = true }) => {
               loading="lazy"
             />
           ) : (
-            <i
+            <Icon
               className="ph ph-book"
               style={{ fontSize: 22, color: "var(--text-muted)" }}
               aria-hidden="true"
@@ -107,22 +111,46 @@ const BookChatRow = ({ book, showTypeBadge = true }) => {
           >
             {book.name || "—"}
           </Typography>
-          <Typography
-            sx={{
-              fontSize: 12,
-              color: "var(--text-muted)",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {[book.author, priceNode].filter(Boolean).join(" · ") || "—"}
-          </Typography>
+          {book.author && (
+            <Typography
+              sx={{
+                fontSize: 12,
+                color: "var(--text-muted)",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {book.author}
+            </Typography>
+          )}
+          {priceLabel ? (
+            <Typography
+              sx={{
+                mt: 0.25,
+                fontSize: 13,
+                fontWeight: 700,
+                color: "var(--main-600, hsl(148, 59%, 39%))",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {priceLabel}
+            </Typography>
+          ) : (
+            !showTypeBadge &&
+            typeLabel && (
+              <Typography sx={{ mt: 0.25, fontSize: 12, color: "var(--text-muted)" }}>
+                {typeLabel}
+              </Typography>
+            )
+          )}
         </Box>
         {showTypeBadge && badge && (
           <Chip
             size="small"
-            label={tType(typeI18nKey(typeKey))}
+            label={tType(bookTypeI18nKey(typeKey))}
             sx={{
               height: 22,
               fontSize: 11,

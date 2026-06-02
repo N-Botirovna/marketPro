@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { getResolvedTheme, getThemeMode, setThemeMode, subscribeTheme } from "@/lib/theme";
+import Icon from "@/components/Icon";
 
 const NEXT_MODE = { light: "dark", dark: "system", system: "light" };
 const MODE_ICON = {
@@ -66,7 +67,7 @@ const ThemeToggle = ({ className = "" }) => {
       className={`kz-theme-toggle ${className}`}
       data-mode={mode}
     >
-      <i className={iconClass} aria-hidden="true" />
+      <Icon className={iconClass} aria-hidden="true" />
       <style jsx>{`
         .kz-theme-toggle {
           position: relative;

@@ -20,6 +20,7 @@ import { createStory, getStories, STORY_TARGET_KIND } from "@/services/stories";
 import { getBooksByShop } from "@/services/books";
 import { mapValidationError } from "@/lib/mapValidationError";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import Icon from "@/components/Icon";
 
 const DAILY_LIMIT = 5;
 
@@ -189,7 +190,7 @@ const StoryCreateModal = ({ open, onClose, shops = [], onCreated }) => {
         <Box sx={{ width: 40 }} />
         <Typography sx={{ fontSize: 18, fontWeight: 700 }}>{t("title")}</Typography>
         <IconButton onClick={onClose} aria-label={tCommon("cancel") || "Close"}>
-          <i className="ph ph-x" style={{ fontSize: 20 }} aria-hidden="true" />
+          <Icon className="ph ph-x" style={{ fontSize: 20 }} aria-hidden="true" />
         </IconButton>
       </Box>
       <Divider />
@@ -217,7 +218,7 @@ const StoryCreateModal = ({ open, onClose, shops = [], onCreated }) => {
                 value={opt.value}
                 sx={{ textTransform: "none", fontWeight: 600 }}
               >
-                <i
+                <Icon
                   className={opt.icon}
                   style={{ fontSize: 16, marginRight: 6 }}
                   aria-hidden="true"
@@ -269,7 +270,7 @@ const StoryCreateModal = ({ open, onClose, shops = [], onCreated }) => {
               }}
             >
               <Avatar src={selectedShop.picture} sx={{ width: 56, height: 56 }}>
-                <i className="ph-fill ph-storefront" aria-hidden="true" />
+                <Icon className="ph-fill ph-storefront" aria-hidden="true" />
               </Avatar>
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Typography sx={{ fontWeight: 700 }}>{selectedShop.name}</Typography>
@@ -361,7 +362,7 @@ const StoryCreateModal = ({ open, onClose, shops = [], onCreated }) => {
                               loading="lazy"
                             />
                           ) : (
-                            <i
+                            <Icon
                               className="ph ph-book"
                               style={{ fontSize: 28, color: "var(--text-muted)" }}
                               aria-hidden="true"
@@ -409,7 +410,7 @@ const StoryCreateModal = ({ open, onClose, shops = [], onCreated }) => {
               submitting ? (
                 <CircularProgress size={16} sx={{ color: "#fff" }} />
               ) : (
-                <i className="ph ph-paper-plane-tilt" aria-hidden="true" />
+                <Icon className="ph ph-paper-plane-tilt" aria-hidden="true" />
               )
             }
             sx={{ borderRadius: 2, textTransform: "none", fontWeight: 600 }}

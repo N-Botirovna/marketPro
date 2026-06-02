@@ -2,14 +2,15 @@ import React from "react";
 import { getTranslations } from "next-intl/server";
 import { Box, Stack, Typography } from "@mui/material";
 import { Link } from "@/i18n/navigation";
+import Icon from "@/components/Icon";
 
 const EntryCard = ({ href, icon, title, caption }) => (
   <Link href={href} style={{ textDecoration: "none", color: "inherit", flex: 1, minWidth: 0 }}>
     <Stack
       direction="row"
-      alignItems="center"
       spacing={1.5}
       sx={{
+        alignItems: "center",
         p: { xs: 1.5, md: 2 },
         borderRadius: 3,
         bgcolor: "var(--surface-card)",
@@ -36,7 +37,7 @@ const EntryCard = ({ href, icon, title, caption }) => (
           fontSize: 22,
         }}
       >
-        <i className={icon} aria-hidden="true" />
+        <Icon className={icon} aria-hidden="true" />
       </Box>
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography
@@ -63,7 +64,7 @@ const EntryCard = ({ href, icon, title, caption }) => (
           {caption}
         </Typography>
       </Box>
-      <i
+      <Icon
         className="ph ph-caret-right"
         style={{ fontSize: 16, color: "var(--text-muted)", flexShrink: 0 }}
         aria-hidden="true"

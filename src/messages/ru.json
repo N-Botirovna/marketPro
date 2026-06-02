@@ -1,6 +1,57 @@
 {
-  "hello": "Hello world!",
-  "welcome": "Welcome to our platform",
+  "LoadingFacts": {
+    "items": [
+      "📚 Продавайте, обменивайте или дарите свои книги",
+      "🏬 Ищите книги в магазинах и у других читателей",
+      "🔎 Фильтруйте по региону, категории и цене",
+      "❤️ Добавляйте понравившиеся книги в избранное",
+      "💬 Регистрируйтесь через Telegram-бот",
+      "⏳ Книги можно сдавать и в аренду"
+    ]
+  },
+  "Validation": {
+    "required": "Обязательное поле",
+    "maxLength": "Не более {max} символов",
+    "priceNonNegative": "Цена не может быть отрицательной",
+    "discountNonNegative": "Цена со скидкой не может быть отрицательной",
+    "discountTooHigh": "Цена со скидкой должна быть ниже обычной цены",
+    "yearRange": "Год издания должен быть от {min} до {max}",
+    "pagesMin": "Количество страниц — не менее 1",
+    "phoneInvalid": "Неверный номер телефона. Пример: +998901234567",
+    "phoneStartPlus": "Номер должен начинаться с +. Пример: +998901234567"
+  },
+  "ShopLocation": {
+    "mapLabel": "Отметьте место на карте",
+    "mapHint": "Необязательно — покажите, где находится ваш магазин",
+    "searchPlaceholder": "Поиск адреса (например: Чиланзар, Ташкент)",
+    "searchBtn": "Поиск",
+    "searchEmpty": "Адрес не найден",
+    "useMyLocation": "Моё местоположение",
+    "geoUnsupported": "Браузер не поддерживает геолокацию",
+    "geoDenied": "Не удалось определить местоположение",
+    "tapHint": "Нажмите на карту или выполните поиск, чтобы указать место",
+    "picked": "Выбрано: {lat}, {lng}",
+    "detailTitle": "Местоположение",
+    "myShop": "Мой магазин",
+    "openMap": "Открыть карту",
+    "close": "Закрыть",
+    "dragHint": "Двигайте карту — точка по центру и есть выбранное место",
+    "addressLabel": "Выбранный адрес"
+  },
+  "BookLanguages": {
+    "uzbek": "Узбекский",
+    "russian": "Русский",
+    "english": "Английский",
+    "karakalpak": "Каракалпакский",
+    "turkish": "Турецкий",
+    "arabic": "Арабский",
+    "other": "Другой"
+  },
+  "TimePicker": {
+    "done": "Готово",
+    "hour": "Часы",
+    "minute": "Минуты"
+  },
   "Header": {
     "home": "Главная",
     "shop": "Книги",
@@ -83,7 +134,8 @@
     "contactSeller": "Связаться с продавцом",
     "save": "Сохранить",
     "edit": "Редактировать",
-    "cancel": "Отмена"
+    "cancel": "Отмена",
+    "clear": "Очистить"
   },
   "Sections": {
     "topVendors": {
@@ -95,7 +147,7 @@
   },
   "Footer": {
     "about": {
-      "blurb": "Kitobzor — маркетплейс в стиле Telegram для книголюбов и магазинов. Покупайте, продавайте, дарите или обменивайтесь."
+      "blurb": "Kitobzor — социальная сеть для интеллектуалов."
     },
     "site": {
       "title": "Сайт",
@@ -134,7 +186,9 @@
   },
   "Loading": {
     "loading": "Загрузка...",
-    "redirecting": "Перенаправление..."
+    "redirecting": "Перенаправление...",
+    "searching": "Идёт поиск...",
+    "searchResults": "Загружаются результаты поиска..."
   },
   "Seller": {
     "createSuccess": "Аккаунт продавца успешно создан!",
@@ -191,7 +245,9 @@
     "loginSuccess": "Вы успешно вошли в систему",
     "phoneHint": "Например: +998901234567 или с кодом другой страны",
     "codeOnlyTitle": "Вход на сайт",
-    "codeOnlyDescription": "Введите 6-значный код, полученный в {bot}.",
+    "codeOnlyDescription": "В боте {bot} нажмите «Код входа» — бот пришлёт 6-значный код.",
+    "getCodeFromBot": "Получить код в боте",
+    "thenEnterCode": "Затем введите код",
     "codeLabel": "Код входа",
     "codePlaceholder": "Код",
     "codeHint": "Код действителен 2 минуты.",
@@ -237,9 +293,12 @@
     "phone": "Телефон",
     "message": "Сообщение",
     "telegram": "Telegram",
+    "call": "Звонок",
+    "sms": "SMS",
+    "loginToContact": "Войдите, чтобы связаться",
     "likeRequiresAuth": "Войдите, чтобы добавить в избранное.",
     "likeFailed": "Не удалось обновить избранное.",
-    "contactPrefill": "Здравствуйте! Пишу по поводу книги «{name}».",
+    "contactPrefill": "Здравствуйте! Вы разместили книгу «{name}» на сайте kitobzor.uz, я хотел(а) бы её приобрести.",
     "detailsTitle": "Подробности",
     "conditionBrandNew": "Новая",
     "conditionLikeNew": "Как новая",
@@ -249,7 +308,8 @@
     "ownBookHint": "Это ваше объявление",
     "stats_likes": "{count, plural, one {# лайк} few {# лайка} many {# лайков} other {# лайков}}",
     "stats_views": "{count, plural, one {# просмотр} few {# просмотра} many {# просмотров} other {# просмотров}}",
-    "stats_comments": "{count, plural, one {# комментарий} few {# комментария} many {# комментариев} other {# комментариев}}"
+    "stats_comments": "{count, plural, one {# комментарий} few {# комментария} many {# комментариев} other {# комментариев}}",
+    "untitled": "Книга"
   },
   "BookCard": {
     "noName": "Название книги отсутствует",
@@ -439,6 +499,7 @@
     "bio": "Описание",
     "bioHint": "Краткое описание — например: \"Букинистические и новые книги, узбекский и русский\"",
     "phone": "Номер телефона",
+    "phoneHint": "Международный формат, начиная с +. Пример: +998 99 888 77 66",
     "region": "Регион",
     "district": "Район",
     "address": "Полный адрес",
@@ -510,6 +571,7 @@
     "backToHome": "Вернуться на главную"
   },
   "ProfileDashboard": {
+    "completeProfilePrompt": "Заполните профиль перед публикацией книги — область и район обязательны.",
     "loadingData": "Данные загружаются...",
     "myBooks": "Мои книги",
     "activeBadge": "Активные книги",
@@ -569,6 +631,8 @@
       "slogan": "Книги - источник знаний"
     },
     "stats": {
+      "title": "Наши цифры",
+      "subtitle": "Успех нашей платформы",
       "books": "Книги",
       "shops": "Магазины",
       "users": "Пользователи",
@@ -789,6 +853,9 @@
     "title": "Книжные магазины",
     "seeAll": "Все"
   },
+  "ShopCard": {
+    "bookSuffix": "книг"
+  },
   "HomeBookList": {
     "seeAll": "Все",
     "sellTitle": "Книги на продажу",
@@ -805,6 +872,17 @@
     "shopsCaption": "Каталог магазинов",
     "community": "От пользователей",
     "communityCaption": "Книги от частных лиц"
+  },
+  "ProfileForm": {
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "enterFullAddress": "Введите полный адрес",
+    "gender": "Пол",
+    "genderMale": "Мужской",
+    "genderFemale": "Женский",
+    "selectGender": "Выберите",
+    "birthDate": "Дата рождения",
+    "optionalLabel": "необязательно"
   },
   "ProfileStaff": {
     "title": "Сотрудники",
@@ -839,6 +917,15 @@
     "viewMore": "Подробнее",
     "promoteStory": "В сторис",
     "promotedBadge": "Новое объявление",
+    "cta": {
+      "openInTelegram": "Открыть в Telegram",
+      "openInInstagram": "Открыть в Instagram",
+      "openInYoutube": "Открыть в YouTube",
+      "openInTiktok": "Открыть в TikTok",
+      "openInFacebook": "Открыть в Facebook",
+      "openInTwitter": "Открыть в X",
+      "openLink": "Перейти к источнику"
+    },
     "shopBannersTitle": "Объявления магазина",
     "ariaSlide": "Слайд {n} из {total}",
     "ariaPause": "Остановить автопрокрутку",
@@ -893,5 +980,9 @@
     "targetCopy": "Скопировать ссылку",
     "targetInstagram": "Instagram",
     "instagramHint": "Ссылка скопирована — вставьте её в Instagram сторис или ЛС"
+  },
+  "Vendor": {
+    "searchPlaceholder": "Поиск магазинов по названию...",
+    "showingResults": "Показано: {start}-{end} из {total}"
   }
 }

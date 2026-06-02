@@ -1,6 +1,7 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import Icon from "@/components/Icon";
 
 const QuantityControl = ({ initialQuantity = 1, onChange }) => {
   const [quantity, setQuantity] = useState(initialQuantity);
@@ -17,7 +18,7 @@ const QuantityControl = ({ initialQuantity = 1, onChange }) => {
         onClick={() => update(quantity > 1 ? quantity - 1 : quantity)}
         className="quantity__minus border border-end border-gray-100 flex-shrink-0 h-48 w-48 text-neutral-600 flex-center hover-bg-main-600 hover-text-white"
       >
-        <i className="ph ph-minus" />
+        <Icon className="ph ph-minus" />
       </button>
       <input
         type="number"
@@ -31,7 +32,7 @@ const QuantityControl = ({ initialQuantity = 1, onChange }) => {
         onClick={() => update(quantity + 1)}
         className="quantity__plus border border-end border-gray-100 flex-shrink-0 h-48 w-48 text-neutral-600 flex-center hover-bg-main-600 hover-text-white"
       >
-        <i className="ph ph-plus" />
+        <Icon className="ph ph-plus" />
       </button>
     </div>
   );

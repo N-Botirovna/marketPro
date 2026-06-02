@@ -1,14 +1,19 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { Box, Stack, Button } from "@mui/material";
 import { getUserProfile, updateUserProfile } from "@/services/auth";
+import { isProfileComplete } from "@/utils/profile";
 import { useAuth } from "@/hooks/useAuth";
 import { getUserPostedBooks, getUserArchivedBooks, patchBook } from "@/services/books";
 import { getRegions } from "@/services/regions";
 import { getShopsByOwner } from "@/services/shops";
+import { Link } from "@/i18n/navigation";
 import { mapValidationError } from "@/lib/mapValidationError";
+import { openShareSheet } from "@/lib/shareSheet";
+import Icon from "@/components/Icon";
 import Spin from "./Spin";
 import BookCreateModal from "./BookCreateModal";
 import ProfileHero from "./profile/ProfileHero";
@@ -21,11 +26,15 @@ import { useToast } from "./Toast";
 
 const ProfileDashboard = () => {
   const { isAuthenticated, isLoading: authLoading, logout } = useAuth();
+  const locale = useLocale();
   const tProfile = useTranslations("ProfileDashboard");
   const tProduct = useTranslations("ProductDetailsOne");
   const tProfileMessages = useTranslations("Profile");
   const tCommon = useTranslations("Common");
+  const tShopLoc = useTranslations("ShopLocation");
   const { showToast, ToastContainer } = useToast();
+  const searchParams = useSearchParams();
+  const completePromptShownRef = useRef(false);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("books");
@@ -47,6 +56,8 @@ const ProfileDashboard = () => {
     region: "",
     district: "",
     location_text: "",
+    gender: "",
+    birth_date: "",
   };
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -88,6 +99,8 @@ const ProfileDashboard = () => {
     region: getIdAsString(user?.region),
     district: getIdAsString(user?.district),
     location_text: user?.location_text || "",
+    gender: user?.gender || "",
+    birth_date: user?.birth_date || "",
   });
 
   const normalizeProfileStateMerge = (data = {}) => {
@@ -221,32 +234,23 @@ const ProfileDashboard = () => {
     }
   };
 
-  const handleShareProfile = async () => {
-    if (typeof window === "undefined") return;
-    const url = `${window.location.origin}/uz/user/${userData?.id || ""}`;
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: [userData?.first_name, userData?.last_name].filter(Boolean).join(" ") || "Profile",
-          url,
-        });
-      } else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(url);
-        showToast({
-          type: "success",
-          title: tCommon("success"),
-          message: tProfile("shareCopied"),
-          duration: 2500,
-        });
-      }
-    } catch (error) {
-      if (error?.name !== "AbortError") {
-        console.error("Share failed:", error);
-      }
-    }
+  const handleShareProfile = () => {
+    const fullName =
+      [userData?.first_name, userData?.last_name].filter(Boolean).join(" ") || "Profile";
+    openShareSheet({
+      title: fullName,
+      text: `${fullName} — Kitobzor`,
+      url: `/${locale}/user/${userData?.id || ""}`,
+    });
   };
 
   const handleCreateBook = () => {
+    // Region + district are required before posting — send the user to the
+    // profile editor (already open) instead of the book form.
+    if (!isProfileComplete(userData)) {
+      promptCompleteProfile();
+      return;
+    }
     setEditingBook(null);
     setShowBookModal(true);
   };
@@ -364,6 +368,21 @@ const ProfileDashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Open the profile editor and explain that region + district are required
+  // before posting a book. Defined after initializeProfileForm so the dep
+  // array doesn't touch it inside the temporal dead zone.
+  const promptCompleteProfile = useCallback(() => {
+    setIsEditingProfile(true);
+    initializeProfileForm(userData);
+    showToast({
+      type: "info",
+      title: tProfile("infoTitle"),
+      message: tProfile("completeProfilePrompt"),
+      duration: 5000,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userData, initializeProfileForm, showToast, tProfile]);
+
   const handleProfileInputChange = (e) => {
     const { name, value } = e.target;
     setProfileFormData((prev) => {
@@ -402,6 +421,8 @@ const ProfileDashboard = () => {
         region: toNumberOrNull(profileFormData.region),
         district: toNumberOrNull(profileFormData.district),
         location_text: profileFormData.location_text,
+        gender: profileFormData.gender,
+        birth_date: profileFormData.birth_date,
       };
 
       // Remove empty/null values
@@ -474,6 +495,17 @@ const ProfileDashboard = () => {
 
     fetchUserData();
   }, [isAuthenticated, authLoading, initializeProfileForm]);
+
+  // Arrived from the "post a book" gate (`?complete=book`) with an incomplete
+  // profile → open the editor and explain why. Runs once, after userData loads.
+  useEffect(() => {
+    if (completePromptShownRef.current) return;
+    if (!userData) return;
+    if (searchParams?.get("complete") !== "book") return;
+    if (isProfileComplete(userData)) return;
+    completePromptShownRef.current = true;
+    promptCompleteProfile();
+  }, [userData, searchParams, promptCompleteProfile]);
 
   useEffect(() => {
     const fetchRegionsData = async () => {
@@ -549,27 +581,43 @@ const ProfileDashboard = () => {
           <ProfileStoryBar books={userBooks} shops={userShops} onAddBookClick={handleCreateBook} />
 
           {userShops.length > 0 && (
-            <Box sx={{ textAlign: "center" }}>
+            <Stack direction="row" sx={{ justifyContent: "center", flexWrap: "wrap", gap: 1 }}>
               <Button
                 variant="contained"
                 onClick={() => setShowStoryModal(true)}
                 startIcon={
-                  <i
+                  <Icon
                     className="ph ph-paper-plane-tilt"
                     style={{ fontSize: 18 }}
                     aria-hidden="true"
                   />
                 }
-                sx={{
-                  textTransform: "none",
-                  fontWeight: 600,
-                  borderRadius: 5,
-                  px: 3,
-                }}
+                sx={{ textTransform: "none", fontWeight: 600, borderRadius: 5, px: 3 }}
               >
                 {tProfile("addStory")}
               </Button>
-            </Box>
+              {/* Quick link to the owner's shop page, where the edit (pencil)
+                  button lives — the editor was previously only reachable from
+                  the public shop page, which owners couldn't find. */}
+              {userShops.map((shop) => (
+                <Button
+                  key={shop.id}
+                  component={Link}
+                  href={`/shops/${shop.id}`}
+                  variant="outlined"
+                  startIcon={
+                    <Icon
+                      className="ph ph-storefront"
+                      style={{ fontSize: 18 }}
+                      aria-hidden="true"
+                    />
+                  }
+                  sx={{ textTransform: "none", fontWeight: 600, borderRadius: 5, px: 3 }}
+                >
+                  {userShops.length > 1 ? shop.name : tShopLoc("myShop")}
+                </Button>
+              ))}
+            </Stack>
           )}
 
           <ProfileInfoList user={userData} locationLine={locationFull} />
@@ -594,7 +642,7 @@ const ProfileDashboard = () => {
               color="error"
               onClick={logout}
               startIcon={
-                <i className="ph ph-sign-out" style={{ fontSize: 18 }} aria-hidden="true" />
+                <Icon className="ph ph-sign-out" style={{ fontSize: 18 }} aria-hidden="true" />
               }
               sx={{ textTransform: "none", fontWeight: 600 }}
             >

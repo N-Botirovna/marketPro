@@ -17,6 +17,7 @@ import {
 import { loginWithPhoneOtp } from "@/services/auth";
 import { mapValidationError } from "@/lib/mapValidationError";
 import { getBotUrl } from "@/config/env";
+import Icon from "@/components/Icon";
 
 // Telegram bot deep-link. The handle comes from NEXT_PUBLIC_BOT_USERNAME
 // (see src/config/env.js) — per-env so dev points at a test bot.
@@ -134,7 +135,7 @@ const AuthRequiredModal = () => {
           aria-label={tCommon("close") || "Close"}
           size="small"
         >
-          <i className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
+          <Icon className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
         </IconButton>
       </Box>
       <Divider />
@@ -152,10 +153,14 @@ const AuthRequiredModal = () => {
           rel="noopener noreferrer"
           variant="contained"
           startIcon={
-            <i className="ph-fill ph-telegram-logo" style={{ fontSize: 20 }} aria-hidden="true" />
+            <Icon
+              className="ph-fill ph-telegram-logo"
+              style={{ fontSize: 20 }}
+              aria-hidden="true"
+            />
           }
           endIcon={
-            <i className="ph ph-arrow-up-right" style={{ fontSize: 16 }} aria-hidden="true" />
+            <Icon className="ph ph-arrow-up-right" style={{ fontSize: 16 }} aria-hidden="true" />
           }
           sx={{
             textTransform: "none",
@@ -231,7 +236,7 @@ const AuthRequiredModal = () => {
                   submitting ? (
                     <CircularProgress size={16} sx={{ color: "#fff" }} />
                   ) : (
-                    <i className="ph ph-sign-in" aria-hidden="true" />
+                    <Icon className="ph ph-sign-in" aria-hidden="true" />
                   )
                 }
                 sx={{

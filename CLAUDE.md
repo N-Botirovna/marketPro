@@ -42,21 +42,21 @@ Next.js 15 App Router (JavaScript). `../back-end/` REST API'si bilan ishlaydi. H
 
 ## 2. Stack (tasdiqlangan versiyalar)
 
-| Paket                               | Versiya                                                                                                                                        | Eslatma                                                     |
-| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `next`                              | 15.0.2                                                                                                                                         | App Router                                                  |
-| `react`                             | 18                                                                                                                                             | (peer dep)                                                  |
-| `next-intl`                         | 4.4.0                                                                                                                                          | Locale-prefixed routing (uz/ru/en)                          |
-| `@mui/material`                     | **9.0.1**                                                                                                                                      | (eski CLAUDE.md "v7" deb yozgan — noto'g'ri edi)            |
-| `@mui/icons-material`               | 9.0.1                                                                                                                                          |                                                             |
-| `@emotion/react`, `@emotion/styled` | MUI peer                                                                                                                                       | CSS-in-JS                                                   |
-| `bootstrap`                         | 5.3.3                                                                                                                                          | SCSS orqali to'liq import                                   |
-| `axios`                             | 1.11.0                                                                                                                                         | Custom wrapper: `src/lib/http.js`                           |
-| `sass`                              | 1.71.1                                                                                                                                         | dev dep                                                     |
-| `@fullhuman/postcss-purgecss`       | 8.0.0                                                                                                                                          | Prod CSS optimization                                       |
-| `typescript`                        | 5.9.3                                                                                                                                          | **Konfiguratsiya bor, lekin kod JS** — yangi fayllar ham JS |
-| Legacy plugins                      | `jquery@4.0.0`, `slick-carousel@1.8.1`, `react-slick@0.30.2`, `isotope-layout@3.0.6`, `wowjs@1.1.3`, `select2@4.1.0-rc.0`, `animate.css@4.1.1` | Yangi kodga kirmaydi                                        |
-| `@phosphor-icons/react`             | 2.1.10                                                                                                                                         | Icon library                                                |
+| Paket                               | Versiya                                                                                                                                        | Eslatma                                                                                                                                                    |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `next`                              | 15.0.2                                                                                                                                         | App Router                                                                                                                                                 |
+| `react`                             | 18                                                                                                                                             | (peer dep)                                                                                                                                                 |
+| `next-intl`                         | 4.4.0                                                                                                                                          | Locale-prefixed routing (uz/ru/en)                                                                                                                         |
+| `@mui/material`                     | **9.0.1**                                                                                                                                      | (eski CLAUDE.md "v7" deb yozgan — noto'g'ri edi)                                                                                                           |
+| `@mui/icons-material`               | 9.0.1                                                                                                                                          |                                                                                                                                                            |
+| `@emotion/react`, `@emotion/styled` | MUI peer                                                                                                                                       | CSS-in-JS                                                                                                                                                  |
+| `bootstrap`                         | 5.3.3                                                                                                                                          | SCSS orqali to'liq import                                                                                                                                  |
+| `axios`                             | 1.11.0                                                                                                                                         | Custom wrapper: `src/lib/http.js`                                                                                                                          |
+| `sass`                              | 1.71.1                                                                                                                                         | dev dep                                                                                                                                                    |
+| `@fullhuman/postcss-purgecss`       | 8.0.0                                                                                                                                          | Prod CSS optimization                                                                                                                                      |
+| `typescript`                        | 5.9.3                                                                                                                                          | **Konfiguratsiya bor, lekin kod JS** — yangi fayllar ham JS                                                                                                |
+| Legacy plugins                      | `jquery@4.0.0`, `slick-carousel@1.8.1`, `react-slick@0.30.2`, `isotope-layout@3.0.6`, `wowjs@1.1.3`, `select2@4.1.0-rc.0`, `animate.css@4.1.1` | Yangi kodga kirmaydi                                                                                                                                       |
+| `@phosphor-icons/react`             | 2.1.10                                                                                                                                         | Icon library — tree-shaken SVG via `@/components/Icon`. **Webfont `@phosphor-icons/web` olib tashlandi** (~25KB o'lik CSS + ~280KB woff2 har sahifada edi) |
 
 Node engine `package.json`'da specified emas — Node 18+ tavsiya etiladi.
 
@@ -76,7 +76,7 @@ npm run lint      # next lint (default rules — config yo'q)
 
 ```
 front-end/
-├── middleware.js                 # next-intl locale matcher
+├── src/middleware.js             # next-intl locale matcher + section redirects (community → community/all)
 ├── next.config.js                # image domains, headers, compiler, experimental.optimizePackageImports
 ├── postcss.config.mjs            # PurgeCSS prod-only, safelist Bootstrap/slick/AOS
 ├── jsconfig.json                 # @/ → src/
@@ -92,10 +92,13 @@ front-end/
 │   │   ├── (auth)/
 │   │   │   ├── layout.jsx        # passthrough (auth pages — no header)
 │   │   │   └── login/page.jsx
-│   │   ├── about-us/, contact/, become-seller/
+│   │   ├── about-us/, contact/, faq/, policies/
+│   │   ├── books/                    # redirect to community/all
+│   │   ├── community/[type]/page.jsx # tab: all, following, popular (middleware redirects /community → /community/all)
 │   │   ├── book-details/[id]/page.jsx
-│   │   ├── product-details/page.jsx     # LEGACY — book-details bilan overlap, tekshiring
-│   │   ├── vendor/, vendor-two/, vendor-two-details/  # legacy template; tirik bo'lsa kerak
+│   │   ├── shops/                    # shop listing
+│   │   ├── user/[id]/                # public user profile
+│   │   ├── vendor/, vendor-two/, vendor-two-details/  # legacy template
 │   │   ├── account/page.jsx
 │   │   └── wishlist/page.jsx
 │   ├── components/               # ~56 fayl flat + profile/ subdirectory (product-details/ deleted)
@@ -119,7 +122,7 @@ front-end/
 
 ## 5. Routing
 
-- **Locale prefix invariant**: `localePrefix: 'always'` (`src/i18n/routing.js:1-7`). `/about` mavjud emas — faqat `/uz/about`, `/ru/about`, `/en/about`. Middleware (`middleware.js`) bo'sh prefixni redirect qiladi (`matcher: /((?!api|_next|_vercel|.*\\..*|assets).*)`).
+- **Locale prefix invariant**: `localePrefix: 'always'` (`src/i18n/routing.js:1-7`). `/about` mavjud emas — faqat `/uz/about`, `/ru/about`, `/en/about`. Middleware (`src/middleware.js`) bo'sh prefixni redirect qiladi (`matcher: /((?!api|_next|_vercel|.*\\..*|assets).*)`). `SECTION_DEFAULTS` map'dagi yo'llar uchun index yo'q bo'lsa, middleware default tabga 307 redirect qiladi (masalan `/uz/community` → `/uz/community/all`).
 - **Root layout async** (`src/app/[locale]/layout.jsx:1-60`): locale validation, message import, `NextIntlClientProvider`, `ProtectedRoute`, `ConditionalHeader`, `suppressHydrationWarning` body'da.
 - **Server vs Client components:**
   - Layout — server.
@@ -275,9 +278,18 @@ Bularni o'chirmang — context manbasi sifatida saqlanadi. Lekin **fakt manbasi 
 - **ConditionalHeader.jsx** — login sahifalarida header'ni yashiradi.
 - **ProtectedRoute.jsx** — auth gating.
 
-### Kitob kartochkasi
+### Kitob / do'kon kartochkalari — 2 ta primitiv (single source of truth)
 
-- **BookCard.jsx** — `col-12 col-sm-6 col-md-6 col-lg-4 col-xxl-3` grid; thumbnail `aspectRatio: '3 / 4'` (Phase 5 done). Link target: `/book-details/${id}` (Phase 7 migrated).
+Kitob 2 xil ko'rinishda render qilinadi — kontekstga qarab. **Inline card markup yozmang**, doim shulardan birini chaqiring:
+
+- **`BookCard.jsx`** — boy grid kartochka (3:4 muqova, narx, like/share/edit/archive). Bootstrap. **Shaxsiy/wishlist** kontekstida (profil, arxiv, public profil, wishlist).
+- **`shared/BookChatRow.jsx`** — ixcham **gorizontal card** (52–60px thumb + nom + narx + type badge, ShopCard'dek border+hover). MUI. **Feed/browse** kontekstida (home `HomeBookList`, `CommunityBooksPage`, `ShopDetailPage`).
+- **`shared/BookRowGrid.jsx`** — `BookChatRow` uchun **yagona** responsive grid wrapper: `xs 1 / sm 2 / lg 3` ustun (telefonda 1 ustun = Telegram qatori; desktopda 3 ustun — ilgari 1 ustunli to'liq-kenglik qatorlar desktopda joyni isrof qilardi). `loading` → `BookRowSkeleton`, `books=[]` → `emptyState`. `HomeShopsRow` grid breakpointlari bilan bir xil.
+- **`shared/BookGrid.jsx`** — `BookCard` grid uchun **yagona** wrapper. Yagona responsive ustun qoidasi `col-6 col-md-4 col-xl-3` (**2 / 3 / 4** — telefonda 2 ustun, "giant card on mobile" bug shu yerda yopilgan). `loading` → `BookCardSkeleton`, `books=[]` → `emptyState`. Per-book prop kerak bo'lsa `renderCard` bering. Iste'molchilar: ProfileTabs, WishListSection, UserPublicProfile. ⚠️ eski `.list-grid-wrapper` (`minmax(230px,1fr)`) **ishlatilmaydi** — u telefonda 1 ulkan ustun berardi.
+- **`shop/ShopCard.jsx`** — yagona do'kon kartochkasi (kvadrat avatar + 3 qator). Hamma joyda: `HomeShopsRow`, `ShopsListPage`, `TopVendorsOne` (about), `VendorsList` (/vendor). Eski inline "vendor-card" markup (dumaloq avatar) olib tashlangan.
+- **`utils/bookType.js`** — `BOOK_TYPE_VISUALS` (type → {color,bg,icon,i18nKey}). Type badge rangi/ikoni/labeli **shu yerdan**. API enum `"seller"`, user-facing slug `"sell"` — `bookTypeI18nKey()` remap qiladi.
+
+**Loading = skeleton, har doim.** `shared/BookCardSkeleton`, `shared/BookRowSkeleton`, `shared/ShopCardSkeleton` mos kontentni aks ettiradi; shimmer `.kz-skel` klassidan (`globals.scss`). Ad-hoc `pulse` div yoki to'liq-sahifa `Spin` qo'shmang.
 
 ### Slider/legacy
 
@@ -304,6 +316,8 @@ Bularni o'chirmang — context manbasi sifatida saqlanadi. Lekin **fakt manbasi 
 ### Profil
 
 - **ProfileDashboard.jsx**, **ProfileForm.jsx**, **UserProfile.jsx**, **UserPublicProfile.jsx**, **Account.jsx**.
+- **profile/ProfileEditModal.jsx** — region/district (**majburiy**, asterisk + inline xato), gender + birth_date (ixtiyoriy, native `type="date"`). i18n namespace `ProfileForm` (ilgari yo'q edi → label'lar raw key bo'lib chiqardi).
+- **Kitob joylash profil gate** (`utils/profile.js` `isProfileComplete` = region && district): `PostBookFab` bosilganda — login yo'q bo'lsa `/login?next=`, profil to'liq emas bo'lsa `/account?complete=book` (ProfileDashboard editor'ni avtomatik ochadi + sabab toast'i), aks holda BookCreateModal. Backend ham `code="profile_incomplete"` bilan enforce qiladi. ProfileDashboard'dagi "add book" tugmasi ham shu gate'dan o'tadi. Unit test: `tests/unit/profile.test.js`.
 
 ### Breadcrumb va h.k.
 
@@ -323,7 +337,7 @@ Bularni o'chirmang — context manbasi sifatida saqlanadi. Lekin **fakt manbasi 
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `next.config.js`                           | Image: AVIF/WebP, `remotePatterns: ['api.kitobzor.uz']`, SVG sandbox; `removeConsole` prod'da (error/warn saqlanadi); `reactStrictMode: false`; `experimental.optimizePackageImports` (MUI, slick, axios, React tree-shaking); **security headers** (CSP, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy, HSTS prod-only) `/(.*)` source'da; static asset 1y cache |
 | `postcss.config.mjs`                       | PurgeCSS prod-only, safelist + custom hyphenated class extractor                                                                                                                                                                                                                                                                                                                                              |
-| `middleware.js`                            | next-intl middleware, matcher API/\_next/\_vercel/assets dan tashqari                                                                                                                                                                                                                                                                                                                                         |
+| `src/middleware.js`                        | next-intl middleware + community redirect; matcher API/\_next/\_vercel/assets dan tashqari                                                                                                                                                                                                                                                                                                                    |
 | `jsconfig.json`                            | `@/` alias                                                                                                                                                                                                                                                                                                                                                                                                    |
 | `tsconfig.json`                            | TS configured, kod JS                                                                                                                                                                                                                                                                                                                                                                                         |
 | `src/config/env.js`                        | Runtime env validator: `getApiBaseUrl()` prod'da `NEXT_PUBLIC_API_BASE_URL` yo'q bo'lsa **throw qiladi**; dev'da `http://localhost:8000/` fallback + warning. `getSentryDsn()`, `getSentryEnvironment()`, `getSentryRelease()`, `getSupportPhone()` ham shu yerda                                                                                                                                             |
@@ -413,6 +427,8 @@ Bularni o'chirmang — context manbasi sifatida saqlanadi. Lekin **fakt manbasi 
 - ~~`style={{ height: '220px' }}` (BookCard)~~ → `aspectRatio: 3/4`.
 - Slick resize-awareness → `key={useViewportBucket()}` remount (`src/hooks/useViewportBucket.js`).
 - ~~`col-lg-*` only patterns~~ → `col-12 col-md-* col-lg-*`.
+- ~~Profil/wishlist'da telefonda 1 ulkan kitob kartochkasi (`col-12` / `list-grid-wrapper minmax(230px)`)~~ → `shared/BookGrid` (`col-6 col-md-4 col-xl-3`, telefonda 2 ustun).
+- ~~Tarqoq loading (Spin / pulse div / MUI Skeleton aralash)~~ → `shared/*Skeleton` + `.kz-skel` shimmer; do'kon kartochkalari `ShopCard`'ga birlashtirildi.
 
 HeaderOne mobile drawer (<992px) `body.body-no-scroll` scroll lock bilan. `aspect-3-4`, `aspect-16-7`, `aspect-4-3` utility classlari `globals.scss`'da.
 
@@ -434,7 +450,7 @@ HeaderOne mobile drawer (<992px) `body.body-no-scroll` scroll lock bilan. `aspec
 7. ~~**`PERFORMANCE_OPTIMIZATIONS.md` mavjud lekin sinxronlanmagan**~~ → Phase 5 (L-3)'da arxiv `*_FIX.md` fayllari `docs/archive/`'ga ko'chirildi. Fakt manbasi hali ham shu CLAUDE.md.
 8. ~~`.env*` `.gitignore`'da faqat `.env*.local`~~ → tuzatildi: `.env`, `.env.local`, `.env.production` ignored, `.env.example` allowlisted.
 9. ~~`NEXT_PUBLIC_API_BASE_URL` default `api-dev.kitobzor.uz`~~ → `getApiBaseUrl()` (`src/config/env.js`) endi prod'da throw qiladi; default yo'q.
-10. ~~**Phosphor icon CDN** (unpkg) — preconnect bor, lekin CDN tushib qolsa fallback yo'q.~~ → Phase 0 (H-12)'da `@phosphor-icons/web` paketi self-host qilindi (`layout.jsx` `import "@phosphor-icons/web/regular"`). CSP'da unpkg endi yo'q.
+10. ~~**Phosphor icon CDN** (unpkg)~~ → H-12'da `@phosphor-icons/web` self-host qilingan edi. ~~→ Phosphor Perf (2026-05): webfont butunlay olib tashlandi (har sahifada ~25KB o'lik icon CSS + ~280KB woff2 yuklanardi, PurgeCSS `node_modules` CSS'ni tozalay olmaydi).~~ Endi ikonkalar `@phosphor-icons/react`'dan tree-shaken SVG sifatida **`<Icon>` komponenti** orqali (`src/components/Icon.jsx`) render qilinadi. Eski `<i className="ph[-fill] ph-<name>">` sintaksisi `<Icon className="...">` bo'lib o'zgardi — komponent o'sha class-stringni parse qiladi, shuning uchun data-driven `icon: "ph-fill ph-..."` konfiglar ham o'zgarmadi. **Yangi ikonka kerak bo'lsa** `Icon.jsx`'dagi `ICON_MAP`'ga qo'shing (phosphor glyph nomi → komponent). CSS jami ~67KB → ~42KB gzip tushdi; bunga evaziga ~56KB SVG JS shared chunk'ga qo'shildi (async, cache'lanadi).
 11. **Console.log ko'p** — `removeConsole` prod'da o'chiradi (error/warn saqlanadi). Yangi kodga `if (process.env.NODE_ENV === 'development')` wrapper qo'ying.
 12. **OpenTelemetry/Prisma webpack warning** — `@sentry/nextjs` Node integration'i tirsiqlanadi. Faqat warning, build'ga ta'sir qilmaydi.
 13. ~~**`Idempotency-Key` header FE'da yuboriladi, BE'da hozircha ignore qilinadi**~~ → Phase 2 (H-7)'da `utils.middleware.IdempotencyMiddleware` qo'shildi: 24h Redis dedup, faqat 2xx javoblar cache'lanadi, replay'da `X-Idempotency-Replay: true` header keladi.

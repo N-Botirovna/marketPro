@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { formatPrice } from "@/utils/formatPrice";
 import { openShareSheet } from "@/lib/shareSheet";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import Icon from "@/components/Icon";
 import { useToast } from "./Toast";
 
 const BookCard = ({
@@ -117,7 +118,7 @@ const BookCard = ({
           aria-label={tShare("shareBook")}
           title={tShare("shareBook")}
         >
-          <i className="ph ph-share-network" aria-hidden="true" />
+          <Icon className="ph ph-share-network" aria-hidden="true" />
         </button>
         {isAuthenticated && (
           <button
@@ -128,7 +129,7 @@ const BookCard = ({
             aria-label={isLiked ? tProduct("removeLike") : tProduct("addLike")}
             title={isLiked ? tProduct("removeLike") : tProduct("addLike")}
           >
-            <i className={`${isLiked ? "ph-fill" : "ph"} ph-heart`} aria-hidden="true" />
+            <Icon className={`${isLiked ? "ph-fill" : "ph"} ph-heart`} aria-hidden="true" />
           </button>
         )}
         {showEditButton && (
@@ -139,7 +140,7 @@ const BookCard = ({
             aria-label={tButtons("edit")}
             title={tButtons("edit")}
           >
-            <i className="ph-fill ph-pencil-simple" aria-hidden="true" />
+            <Icon className="ph-fill ph-pencil-simple" aria-hidden="true" />
           </button>
         )}
         {showEditForOwn && onArchive && book?.is_active !== false && (
@@ -154,7 +155,7 @@ const BookCard = ({
             {isArchiving ? (
               <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
             ) : (
-              <i className="ph-fill ph-archive" aria-hidden="true" />
+              <Icon className="ph-fill ph-archive" aria-hidden="true" />
             )}
           </button>
         )}
@@ -166,7 +167,7 @@ const BookCard = ({
             aria-label={tWishList("delete")}
             title={tWishList("delete")}
           >
-            <i className="ph-fill ph-trash" aria-hidden="true" />
+            <Icon className="ph-fill ph-trash" aria-hidden="true" />
           </button>
         )}
       </div>
@@ -192,7 +193,7 @@ const BookCard = ({
         </h6>
 
         <div className="book-card__meta-row mb-8">
-          <i className="ph-fill ph-user book-card__meta-icon" aria-hidden="true" />
+          <Icon className="ph-fill ph-user book-card__meta-icon" aria-hidden="true" />
           <span className="book-card__meta-text">
             {getLocalizedField("author") || tCommon("unknownAuthor")}
           </span>
@@ -200,7 +201,7 @@ const BookCard = ({
 
         {book.publication_year && (
           <div className="book-card__meta-row mb-8">
-            <i className="ph-fill ph-calendar-blank book-card__meta-icon" aria-hidden="true" />
+            <Icon className="ph-fill ph-calendar-blank book-card__meta-icon" aria-hidden="true" />
             <span className="book-card__meta-text">{book.publication_year}</span>
           </div>
         )}
@@ -224,19 +225,19 @@ const BookCard = ({
 
         <div className="book-card__counters">
           <span className="book-card__counter">
-            <i className="ph ph-eye" aria-hidden="true" />
+            <Icon className="ph ph-eye" aria-hidden="true" />
             {book.view_count || 0}
           </span>
           {likeCount > 0 && (
             <span className="book-card__counter">
-              <i className="ph ph-heart" aria-hidden="true" />
+              <Icon className="ph ph-heart" aria-hidden="true" />
               {likeCount}
             </span>
           )}
         </div>
 
         <div className="book-card__meta-row mt-8">
-          <i className="ph-fill ph-storefront book-card__meta-icon" aria-hidden="true" />
+          <Icon className="ph-fill ph-storefront book-card__meta-icon" aria-hidden="true" />
           <span className="book-card__meta-text book-card__seller">
             {`${tCommon("seller")}: ${sellerName}`}
           </span>
@@ -246,7 +247,7 @@ const BookCard = ({
           href={`/book-details/${book.id}`}
           className="book-card__cta btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white rounded-pill flex-align gap-8 mt-16 w-100 justify-content-center"
         >
-          {tBookCard("viewDetails")} <i className="ph ph-arrow-right" aria-hidden="true" />
+          {tBookCard("viewDetails")} <Icon className="ph ph-arrow-right" aria-hidden="true" />
         </Link>
       </div>
       <ToastContainer />

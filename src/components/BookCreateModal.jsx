@@ -23,6 +23,8 @@ import { getBookCategories } from "@/services/categories";
 import { getShopsByOwner } from "@/services/shops";
 import { mapValidationError } from "@/lib/mapValidationError";
 import { useDraftStorage } from "@/hooks/useDraftStorage";
+import { isBlank, tooLong, isIntStr, toNum } from "@/lib/validation";
+import Icon from "@/components/Icon";
 import { useToast } from "./Toast";
 import FieldError from "./FieldError";
 
@@ -108,7 +110,7 @@ const CardSelect = ({ options, value, onChange, getLabel, getCaption }) => (
               flexShrink: 0,
             }}
           >
-            <i className={opt.icon} aria-hidden="true" />
+            <Icon className={opt.icon} aria-hidden="true" />
           </Box>
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography sx={{ fontWeight: 600, fontSize: 15 }}>{getLabel(opt.value)}</Typography>
@@ -119,7 +121,7 @@ const CardSelect = ({ options, value, onChange, getLabel, getCaption }) => (
             )}
           </Box>
           {selected && (
-            <i
+            <Icon
               className="ph-fill ph-check-circle"
               style={{ fontSize: 20, color: "var(--main-600, hsl(148, 59%, 39%))" }}
               aria-hidden="true"
@@ -146,6 +148,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
   const t = useTranslations("BookCreateModal");
   const tCommon = useTranslations("Common");
   const tType = useTranslations("BookTypeChips");
+  const tv = useTranslations("Validation");
   const { showToast, ToastContainer } = useToast();
 
   const [formData, setFormData] = useState(DEFAULTS);
@@ -280,13 +283,73 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
     [selectedCategory],
   );
 
-  const setField = useCallback((name, value) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({
-      ...prev,
-      fields: { ...prev.fields, [name]: undefined },
-    }));
-  }, []);
+  // Mirror of the backend BookCreate/Update serializer validation
+  // (sharing/api_endpoints/Book/serializers.py:142-224). Returns a localized
+  // message for the field, or null when valid. Run live on every keystroke so
+  // the user is told *why* before any request reaches the API.
+  const currentYear = new Date().getFullYear();
+  const validateBookField = useCallback(
+    (name, value, data) => {
+      switch (name) {
+        case "name":
+        case "author":
+          if (isBlank(value)) return tv("required");
+          if (tooLong(value, 255)) return tv("maxLength", { max: 255 });
+          return null;
+        case "price": {
+          if (!needsPrice(data.type)) return null;
+          if (isBlank(value)) return tv("required");
+          if (toNum(value) < 0 || Number.isNaN(toNum(value))) return tv("priceNonNegative");
+          return null;
+        }
+        case "discount_price": {
+          if (isBlank(value)) return null; // optional
+          const n = toNum(value);
+          if (Number.isNaN(n) || n < 0) return tv("discountNonNegative");
+          const price = toNum(data.price);
+          if (!Number.isNaN(price) && n >= price) return tv("discountTooHigh");
+          return null;
+        }
+        case "publication_year": {
+          if (isBlank(value)) return null; // optional
+          if (!isIntStr(value) || toNum(value) < 1000 || toNum(value) > currentYear + 1)
+            return tv("yearRange", { min: 1000, max: currentYear + 1 });
+          return null;
+        }
+        case "pages": {
+          if (isBlank(value)) return null; // optional
+          if (!isIntStr(value) || toNum(value) < 1) return tv("pagesMin");
+          return null;
+        }
+        case "isbn":
+          if (tooLong(value, 20)) return tv("maxLength", { max: 20 });
+          return null;
+        default:
+          return null;
+      }
+    },
+    [tv, currentYear],
+  );
+
+  const setField = useCallback(
+    (name, value) => {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+      setErrors((prev) => {
+        const data = { ...formData, [name]: value };
+        const fields = {
+          ...prev.fields,
+          [name]: validateBookField(name, value, data) || undefined,
+        };
+        // discount_price depends on price — re-check it when price changes.
+        if (name === "price") {
+          fields.discount_price =
+            validateBookField("discount_price", data.discount_price, data) || undefined;
+        }
+        return { ...prev, fields };
+      });
+    },
+    [formData, validateBookField],
+  );
 
   // Steps definition. Each entry has:
   //   key, title, subtitle, validate(), render()
@@ -337,7 +400,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
               onClick={() => setField("shop", "")}
               sx={ownerCardSx(formData.shop === "")}
             >
-              <i className="ph-fill ph-user" style={{ fontSize: 22 }} aria-hidden="true" />
+              <Icon className="ph-fill ph-user" style={{ fontSize: 22 }} aria-hidden="true" />
               <Box sx={{ ml: 1.5, textAlign: "left" }}>
                 <Typography sx={{ fontWeight: 600 }}>{t("step.ownerPersonal")}</Typography>
                 <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>
@@ -353,7 +416,11 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                 onClick={() => setField("shop", String(shop.id))}
                 sx={ownerCardSx(String(formData.shop) === String(shop.id))}
               >
-                <i className="ph-fill ph-storefront" style={{ fontSize: 22 }} aria-hidden="true" />
+                <Icon
+                  className="ph-fill ph-storefront"
+                  style={{ fontSize: 22 }}
+                  aria-hidden="true"
+                />
                 <Box sx={{ ml: 1.5, textAlign: "left", flex: 1, minWidth: 0 }}>
                   <Typography sx={{ fontWeight: 600 }}>{shop.name}</Typography>
                   {shop.region?.name && (
@@ -371,7 +438,9 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
         key: "basics",
         title: t("step.basicsTitle"),
         subtitle: t("step.basicsSubtitle"),
-        validate: () => formData.name.trim().length > 0 && formData.author.trim().length > 0,
+        validate: () =>
+          !validateBookField("name", formData.name, formData) &&
+          !validateBookField("author", formData.author, formData),
         render: () => (
           <Stack spacing={2}>
             <Box>
@@ -510,16 +579,10 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
         title: t("step.pricingTitle"),
         subtitle:
           formData.type === "rent" ? t("step.pricingSubtitleRent") : t("step.pricingSubtitleSell"),
-        validate: () => {
-          if (!needsPrice(formData.type)) return true;
-          const price = Number(formData.price);
-          if (Number.isNaN(price) || price < 0) return false;
-          if (formData.discount_price) {
-            const dp = Number(formData.discount_price);
-            if (Number.isNaN(dp) || dp < 0 || dp >= price) return false;
-          }
-          return formData.price !== "";
-        },
+        validate: () =>
+          !needsPrice(formData.type) ||
+          (!validateBookField("price", formData.price, formData) &&
+            !validateBookField("discount_price", formData.discount_price, formData)),
         render: () => (
           <Stack spacing={2}>
             <Box>
@@ -530,13 +593,15 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                 value={formData.price}
                 onChange={(e) => setField("price", e.target.value)}
                 required
-                inputProps={{ min: 0, step: "0.01" }}
-                InputProps={{
-                  endAdornment: (
-                    <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>
-                      {tCommon("currency")}
-                    </Typography>
-                  ),
+                slotProps={{
+                  htmlInput: { min: 0, step: "0.01" },
+                  input: {
+                    endAdornment: (
+                      <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>
+                        {tCommon("currency")}
+                      </Typography>
+                    ),
+                  },
                 }}
               />
               <FieldError message={errors.fields.price} />
@@ -548,14 +613,16 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                 label={t("discountPrice")}
                 value={formData.discount_price}
                 onChange={(e) => setField("discount_price", e.target.value)}
-                inputProps={{ min: 0, step: "0.01" }}
                 helperText={t("discountHelp")}
-                InputProps={{
-                  endAdornment: (
-                    <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>
-                      {tCommon("currency")}
-                    </Typography>
-                  ),
+                slotProps={{
+                  htmlInput: { min: 0, step: "0.01" },
+                  input: {
+                    endAdornment: (
+                      <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>
+                        {tCommon("currency")}
+                      </Typography>
+                    ),
+                  },
                 }}
               />
               <FieldError message={errors.fields.discount_price} />
@@ -567,39 +634,56 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
         key: "optional",
         title: t("step.optionalTitle"),
         subtitle: t("step.optionalSubtitle"),
-        validate: () => true,
+        validate: () =>
+          !validateBookField("publication_year", formData.publication_year, formData) &&
+          !validateBookField("pages", formData.pages, formData) &&
+          !validateBookField("isbn", formData.isbn, formData),
         render: () => (
           <Stack spacing={2}>
             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-              <TextField
-                fullWidth
-                type="number"
-                label={t("publicationYear")}
-                value={formData.publication_year}
-                onChange={(e) => setField("publication_year", e.target.value)}
-                inputProps={{
-                  min: 1000,
-                  max: new Date().getFullYear() + 1,
-                }}
-                helperText={t("optional")}
-              />
-              <TextField
-                fullWidth
-                type="number"
-                label={t("pages")}
-                value={formData.pages}
-                onChange={(e) => setField("pages", e.target.value)}
-                inputProps={{ min: 1 }}
-                helperText={t("optional")}
-              />
+              <Box sx={{ flex: 1 }}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  label={t("publicationYear")}
+                  value={formData.publication_year}
+                  onChange={(e) => setField("publication_year", e.target.value)}
+                  error={!!errors.fields.publication_year}
+                  slotProps={{
+                    htmlInput: {
+                      min: 1000,
+                      max: currentYear + 1,
+                    },
+                  }}
+                  helperText={errors.fields.publication_year ? undefined : t("optional")}
+                />
+                <FieldError message={errors.fields.publication_year} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  label={t("pages")}
+                  value={formData.pages}
+                  onChange={(e) => setField("pages", e.target.value)}
+                  error={!!errors.fields.pages}
+                  slotProps={{ htmlInput: { min: 1 } }}
+                  helperText={errors.fields.pages ? undefined : t("optional")}
+                />
+                <FieldError message={errors.fields.pages} />
+              </Box>
             </Stack>
-            <TextField
-              fullWidth
-              label={t("isbn")}
-              value={formData.isbn}
-              onChange={(e) => setField("isbn", e.target.value)}
-              helperText={t("optional")}
-            />
+            <Box>
+              <TextField
+                fullWidth
+                label={t("isbn")}
+                value={formData.isbn}
+                onChange={(e) => setField("isbn", e.target.value)}
+                error={!!errors.fields.isbn}
+                helperText={errors.fields.isbn ? undefined : t("optional")}
+              />
+              <FieldError message={errors.fields.isbn} />
+            </Box>
           </Stack>
         ),
       },
@@ -661,7 +745,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                   />
                 ) : (
                   <>
-                    <i
+                    <Icon
                       className="ph ph-image-square"
                       style={{ fontSize: 48, color: "var(--text-muted)" }}
                       aria-hidden="true"
@@ -727,6 +811,8 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
     tCommon,
     tType,
     setField,
+    validateBookField,
+    currentYear,
   ]);
 
   const currentStep = steps[step];
@@ -747,6 +833,32 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
   };
 
   const handleSubmit = async () => {
+    // Final safety net: never POST data the API will reject. Step gates already
+    // block this, but a restored draft or an edited value could slip through —
+    // re-validate everything and jump back to the first offending step.
+    const blocking = {};
+    ["name", "author", "price", "discount_price", "publication_year", "pages", "isbn"].forEach(
+      (f) => {
+        const msg = validateBookField(f, formData[f], formData);
+        if (msg) blocking[f] = msg;
+      },
+    );
+    if (Object.keys(blocking).length > 0) {
+      setErrors({ general: null, fields: blocking });
+      const stepForField = {
+        name: "basics",
+        author: "basics",
+        price: "pricing",
+        discount_price: "pricing",
+        publication_year: "optional",
+        pages: "optional",
+        isbn: "optional",
+      };
+      const idx = steps.findIndex((s) => s.key === stepForField[Object.keys(blocking)[0]]);
+      if (idx >= 0) setStep(idx);
+      return;
+    }
+
     setSubmitting(true);
     setErrors({ general: null, fields: {} });
     try {
@@ -854,7 +966,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
             {step + 1} / {steps.length}
           </Typography>
           <IconButton onClick={onClose} aria-label={tCommon("cancel")} size="small">
-            <i className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
+            <Icon className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
           </IconButton>
         </Box>
         <LinearProgress
@@ -911,9 +1023,9 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
               submitting ? (
                 <CircularProgress size={16} sx={{ color: "#fff" }} />
               ) : isLastStep ? (
-                <i className="ph ph-check" aria-hidden="true" />
+                <Icon className="ph ph-check" aria-hidden="true" />
               ) : (
-                <i className="ph ph-arrow-right" aria-hidden="true" />
+                <Icon className="ph ph-arrow-right" aria-hidden="true" />
               )
             }
           >

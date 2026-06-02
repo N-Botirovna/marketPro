@@ -3,18 +3,28 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { updateUserProfile } from "@/services/auth";
+import Icon from "@/components/Icon";
 
+// Locale code → backend Languages enum value (the API stores the full word).
+const LOCALE_TO_LANG = { uz: "uzbek", ru: "russian", en: "english", kaa: "karakalpak" };
+
+// Native-name labels intentionally stay outside the i18n bundle: language
+// names should always render in their own script regardless of the active
+// locale (an English speaker still sees "Русский" not "Russian").
 const LANGUAGES = [
   { code: "uz", short: "UZ", label: "O‘zbekcha" },
   { code: "ru", short: "RU", label: "Русский" },
   { code: "en", short: "EN", label: "English" },
+  { code: "kaa", short: "QQ", label: "Qaraqalpaqsha" },
 ];
 
 /**
  * Language switcher styled to match the kz-header family.
  *
  * Trigger is a compact circular button showing the two-letter active
- * locale code (e.g. "UZ"). Popover lists the three locales with native
+ * locale code (e.g. "UZ"). Popover lists the four locales with native
  * name + ISO code badge. Selection persists for the next visit and
  * triggers a locale-aware navigation.
  */
@@ -22,6 +32,7 @@ const LanguageSwitcher = ({ className = "" }) => {
   const router = useRouter();
   const pathname = usePathname();
   const activeLocale = useLocale();
+  const { isAuthenticated } = useAuth();
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
 
@@ -45,9 +56,18 @@ const LanguageSwitcher = ({ className = "" }) => {
       if (typeof window !== "undefined") {
         localStorage.setItem("NEXT_LOCALE", code);
         localStorage.setItem("locale", code);
+        // For a logged-in user this IS their language preference — persist it
+        // so <LocaleSync> keeps routing them here on later visits. Anonymous
+        // choices stay session/URL-level only (entry default is Uzbek).
+        if (isAuthenticated) localStorage.setItem("preferred_locale", code);
       }
     } catch {
       /* localStorage blocked — server middleware will fall back */
+    }
+    // Persist to the account so the choice follows the user across devices.
+    // Best-effort: a failure must not block the language switch itself.
+    if (isAuthenticated && LOCALE_TO_LANG[code]) {
+      updateUserProfile({ language: LOCALE_TO_LANG[code] }).catch(() => {});
     }
     router.replace(pathname, { locale: code });
   };
@@ -81,7 +101,7 @@ const LanguageSwitcher = ({ className = "" }) => {
                 <span className="kz-lang__item-code">{lang.short}</span>
                 <span className="kz-lang__item-label">{lang.label}</span>
                 {active && (
-                  <i className="ph-fill ph-check kz-lang__item-check" aria-hidden="true" />
+                  <Icon className="ph-fill ph-check kz-lang__item-check" aria-hidden="true" />
                 )}
               </button>
             );

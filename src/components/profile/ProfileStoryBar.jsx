@@ -5,10 +5,11 @@ import { useTranslations } from "next-intl";
 import { Box, Stack, Typography, ButtonBase } from "@mui/material";
 import { Link } from "@/i18n/navigation";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import Icon from "@/components/Icon";
 
 const StoryItem = ({ children, label, onClick, href, ariaLabel }) => {
   const content = (
-    <Stack alignItems="center" spacing={0.75} sx={{ width: 88, flexShrink: 0 }}>
+    <Stack spacing={0.75} sx={{ alignItems: "center", width: 88, flexShrink: 0 }}>
       {/* Outer gradient ring — Telegram/Instagram-style. The inner white
           gap (2px) and the actual thumbnail circle are layered via box-
           shadow + a positioned child so the image can fill the available
@@ -96,7 +97,7 @@ const AddCircle = () => (
       fontSize: 28,
     }}
   >
-    <i className="ph ph-plus" aria-hidden="true" />
+    <Icon className="ph ph-plus" aria-hidden="true" />
   </Box>
 );
 
@@ -105,28 +106,18 @@ const ThumbCircle = ({ src, alt, fallbackIcon }) => {
   // null/undefined and the empty string as "no image" so the fallback
   // icon actually renders instead of a broken <img>.
   const hasSrc = typeof src === "string" && src.trim() !== "";
+  // If the API serves a stale/404 URL, flip to the declarative icon
+  // fallback below instead of showing the browser's broken-image glyph.
+  const [failed, setFailed] = React.useState(false);
 
-  if (hasSrc) {
+  if (hasSrc && !failed) {
     return (
       // eslint-disable-next-line @next/next/no-img-element -- circle thumbnails, sizes fixed; <Image> with fill would need a wrapper per cell
       <img
         src={src}
         alt={alt}
         loading="lazy"
-        onError={(e) => {
-          // If the API serves a stale/404 URL, fall back to the icon
-          // instead of showing the browser's broken-image glyph.
-          e.currentTarget.style.display = "none";
-          const parent = e.currentTarget.parentElement;
-          if (parent && !parent.querySelector(".kz-thumb-fallback")) {
-            const span = document.createElement("span");
-            span.className = "kz-thumb-fallback";
-            span.style.cssText =
-              "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#f3f4f6;color:#94a3b8;font-size:28px;";
-            span.innerHTML = '<i class="ph ph-book-open" aria-hidden="true"></i>';
-            parent.appendChild(span);
-          }
-        }}
+        onError={() => setFailed(true)}
         style={{
           position: "absolute",
           inset: 0,
@@ -151,7 +142,7 @@ const ThumbCircle = ({ src, alt, fallbackIcon }) => {
         fontSize: 28,
       }}
     >
-      <i className={fallbackIcon} aria-hidden="true" />
+      <Icon className={fallbackIcon} aria-hidden="true" />
     </Box>
   );
 };

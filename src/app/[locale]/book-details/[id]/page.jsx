@@ -8,6 +8,7 @@ import ScrollToTopInit from "@/helper/ScrollToTopInit";
 import JsonLd from "@/components/seo/JsonLd";
 import { serverGet } from "@/lib/serverFetch";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import { localizedField } from "@/utils/localizedField";
 import { getSiteUrl } from "@/config/env";
 import { bookLd, breadcrumbLd } from "@/lib/seo/jsonLd";
 import { seoTruncate, joinParts } from "@/lib/seo/text";
@@ -58,9 +59,9 @@ export async function generateMetadata({ params }) {
     };
   }
 
-  const name = book[`name_${locale}`] || book.name_uz || book.name || fallbackTitle;
-  const author = book[`author_${locale}`] || book.author_uz || book.author || "";
-  const rawDesc = book[`description_${locale}`] || book.description_uz || book.description || "";
+  const name = localizedField(book, "name", locale) || fallbackTitle;
+  const author = localizedField(book, "author", locale);
+  const rawDesc = localizedField(book, "description", locale);
   // Strip HTML and truncate at word boundary for SERP-quality descriptions.
   // 160 chars matches Google's typical desktop SERP snippet width.
   const desc =
@@ -84,7 +85,14 @@ export async function generateMetadata({ params }) {
       description: desc,
       url,
       siteName: "Kitobzor",
-      locale: locale === "ru" ? "ru_RU" : locale === "en" ? "en_US" : "uz_UZ",
+      locale:
+        locale === "ru"
+          ? "ru_RU"
+          : locale === "en"
+            ? "en_US"
+            : locale === "kaa"
+              ? "kaa_UZ"
+              : "uz_UZ",
       images: image ? [{ url: image, alt: name }] : undefined,
     },
     twitter: {
@@ -114,7 +122,7 @@ const BookDetailsPage = async ({ params }) => {
       { name: tBreadcrumb("home"), url: `/${locale}` },
       { name: tBreadcrumb("bookShop"), url: `/${locale}/community/all` },
       {
-        name: book?.[`name_${locale}`] || book?.name_uz || book?.name || tBreadcrumb("bookDetails"),
+        name: localizedField(book, "name", locale) || tBreadcrumb("bookDetails"),
         url: `/${locale}/book-details/${id}`,
       },
     ],

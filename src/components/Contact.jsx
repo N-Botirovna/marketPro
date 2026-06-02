@@ -9,6 +9,7 @@ import {
   getInstagramHandle,
   getInstagramUrl,
 } from "@/config/env";
+import Icon from "@/components/Icon";
 import Spin from "./Spin";
 import FieldError from "./FieldError";
 import { useToast } from "./Toast";
@@ -203,7 +204,7 @@ const Contact = () => {
                     fontSize: 22,
                   }}
                 >
-                  <i className="ph-fill ph-telegram-logo" aria-hidden="true" />
+                  <Icon className="ph-fill ph-telegram-logo" aria-hidden="true" />
                 </span>
                 <span className="d-flex flex-column flex-grow-1" style={{ minWidth: 0 }}>
                   <span style={{ fontSize: 12, opacity: 0.85, fontWeight: 500 }}>
@@ -213,7 +214,7 @@ const Contact = () => {
                     @{tgHandle}
                   </span>
                 </span>
-                <i
+                <Icon
                   className="ph ph-arrow-up-right flex-shrink-0"
                   style={{ fontSize: 18, opacity: 0.85 }}
                   aria-hidden="true"
@@ -243,7 +244,7 @@ const Contact = () => {
                     fontSize: 22,
                   }}
                 >
-                  <i className="ph-fill ph-instagram-logo" aria-hidden="true" />
+                  <Icon className="ph-fill ph-instagram-logo" aria-hidden="true" />
                 </span>
                 <span className="d-flex flex-column flex-grow-1" style={{ minWidth: 0 }}>
                   <span style={{ fontSize: 12, opacity: 0.9, fontWeight: 500 }}>
@@ -253,7 +254,7 @@ const Contact = () => {
                     @{igHandle}
                   </span>
                 </span>
-                <i
+                <Icon
                   className="ph ph-arrow-up-right flex-shrink-0"
                   style={{ fontSize: 18, opacity: 0.9 }}
                   aria-hidden="true"

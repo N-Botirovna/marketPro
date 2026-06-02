@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
 import {
   Dialog,
   Box,
@@ -22,11 +23,17 @@ import {
 
 import { getRegions } from "@/services/regions";
 import { createShop } from "@/services/shopCreate";
-import { createShopBanner } from "@/services/shop";
+import { createShopBanner, updateShopLocation } from "@/services/shop";
 import { mapValidationError } from "@/lib/mapValidationError";
+import { isBlank, tooLong, isPhoneE164 } from "@/lib/validation";
+import Icon from "@/components/Icon";
+import ClockTimePicker from "@/components/shared/ClockTimePicker";
 import FieldError from "./FieldError";
 import { useToast } from "./Toast";
 import BannerEditor from "./shop/BannerEditor";
+
+// Map picker touches `window` (Leaflet) — load it client-only.
+const LocationPicker = dynamic(() => import("@/components/shared/LocationPicker"), { ssr: false });
 
 // ─── Working-day model ──────────────────────────────────────────────────────
 // Backend stores `working_days` as a free-form string (e.g. "Mon, Wed, Fri").
@@ -51,9 +58,11 @@ const joinTimeRange = ({ start, end }) => (start && end ? `${start} - ${end}` : 
 const SellerRegistrationModal = ({ show, onHide }) => {
   const t = useTranslations("SellerRegistration");
   const tCommon = useTranslations("Common");
+  const tv = useTranslations("Validation");
   const tLocation = useTranslations("Location");
   const tDays = useTranslations("Days");
   const tBanner = useTranslations("Banner");
+  const tShopLoc = useTranslations("ShopLocation");
   const { showToast, ToastContainer } = useToast();
   const fileInputRef = useRef(null);
 
@@ -75,6 +84,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
   const [workingDays, setWorkingDays] = useState(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]);
   const [workingHours, setWorkingHours] = useState({ start: "09:00", end: "18:00" });
   const [lunch, setLunch] = useState({ start: "13:00", end: "14:00" });
+  const [coords, setCoords] = useState(null);
 
   // Optional initial banner — collected here so a fresh shop can launch
   // with its first announcement already pinned. Empty draft = skip.
@@ -124,9 +134,44 @@ const SellerRegistrationModal = ({ show, onHide }) => {
   );
   const districts = selectedRegion?.districts || [];
 
+  // Mirror of ShopCreate serializer + users/utils.py phone validator. Returns
+  // a localized message or null. Phone is assembled as +998<digits> exactly
+  // like handleSubmit does, so the check matches what the API receives.
+  const validateSellerField = (name, value) => {
+    switch (name) {
+      case "name":
+        if (isBlank(value)) return tv("required");
+        if (tooLong(value, 255)) return tv("maxLength", { max: 255 });
+        return null;
+      case "bio":
+        if (isBlank(value)) return tv("required");
+        if (tooLong(value, 500)) return tv("maxLength", { max: 500 });
+        return null;
+      case "phone_number": {
+        if (isBlank(value)) return tv("required");
+        // The user types the full international number; require the leading "+"
+        // explicitly, then validate the compacted form against the E.164 shape.
+        const compact = String(value).replace(/[\s()-]/g, "");
+        if (!compact.startsWith("+")) return tv("phoneStartPlus");
+        if (!isPhoneE164(compact)) return tv("phoneInvalid");
+        return null;
+      }
+      case "region":
+      case "district":
+      case "location_text":
+        return isBlank(value) ? tv("required") : null;
+      case "telegram":
+      case "instagram":
+      case "website":
+        return tooLong(value, 77) ? tv("maxLength", { max: 77 }) : null;
+      default:
+        return null;
+    }
+  };
+
   const setField = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
-    setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
+    setFieldErrors((prev) => ({ ...prev, [name]: validateSellerField(name, value) || undefined }));
   };
 
   const handlePictureSelect = (event) => {
@@ -149,7 +194,26 @@ const SellerRegistrationModal = ({ show, onHide }) => {
     setError(null);
     setFieldErrors({});
 
-    if (!form.name.trim() || !form.phone_number.trim() || !form.region || !form.picture) {
+    // Block before any request when validation fails — mirror the backend so
+    // the user fixes the field inline instead of getting a 400.
+    const blocking = {};
+    [
+      "name",
+      "bio",
+      "phone_number",
+      "region",
+      "district",
+      "location_text",
+      "telegram",
+      "instagram",
+      "website",
+    ].forEach((f) => {
+      const msg = validateSellerField(f, form[f]);
+      if (msg) blocking[f] = msg;
+    });
+    if (!form.picture) blocking.picture = tv("required");
+    if (Object.keys(blocking).length > 0) {
+      setFieldErrors(blocking);
       setError(t("fillRequiredFields"));
       return;
     }
@@ -200,6 +264,13 @@ const SellerRegistrationModal = ({ show, onHide }) => {
             });
           });
         }
+        // Geo location is set via a separate JSON PATCH (the multipart create
+        // can't carry the `point` dict). Best-effort — a failure here must not
+        // undo an otherwise-successful registration; the owner can set it later
+        // from the edit modal.
+        if (shopId && coords) {
+          updateShopLocation(shopId, coords).catch(() => {});
+        }
         // Don't auto-close — the user needs to see the "admin will reach
         // out" copy. A toast disappears too fast for that message to land.
         setSubmittedOk(true);
@@ -247,7 +318,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
           {submittedOk ? t("successTitle") : t("modalTitle")}
         </Typography>
         <IconButton onClick={onHide} disabled={loading} size="small" aria-label={tCommon("close")}>
-          <i className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
+          <Icon className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
         </IconButton>
       </Box>
       <Divider />
@@ -278,7 +349,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               fontSize: 36,
             }}
           >
-            <i className="ph-fill ph-check-circle" aria-hidden="true" />
+            <Icon className="ph-fill ph-check-circle" aria-hidden="true" />
           </Box>
           <Typography sx={{ fontSize: 20, fontWeight: 700, mb: 1.25 }}>
             {t("successTitle")}
@@ -316,7 +387,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
           )}
 
           {/* ─── Avatar ────────────────────────────────────────────────── */}
-          <Stack alignItems="center" spacing={1.25} sx={{ mb: 3 }}>
+          <Stack spacing={1.25} sx={{ alignItems: "center", mb: 3 }}>
             <Box
               onClick={() => fileInputRef.current?.click()}
               role="button"
@@ -338,7 +409,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                   color: "var(--text-muted)",
                 }}
               >
-                <i className="ph-fill ph-storefront" aria-hidden="true" />
+                <Icon className="ph-fill ph-storefront" aria-hidden="true" />
               </Avatar>
               <Box
                 className="overlay"
@@ -356,7 +427,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                   transition: "opacity 0.15s ease",
                 }}
               >
-                <i className="ph-fill ph-camera" aria-hidden="true" />
+                <Icon className="ph-fill ph-camera" aria-hidden="true" />
               </Box>
             </Box>
             <input
@@ -387,17 +458,21 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               />
               <FieldError message={fieldErrors.name} />
             </Box>
-            <TextField
-              fullWidth
-              size="small"
-              label={t("bio")}
-              value={form.bio}
-              onChange={(e) => setField("bio", e.target.value)}
-              multiline
-              minRows={2}
-              maxRows={4}
-              helperText={t("bioHint")}
-            />
+            <Box>
+              <TextField
+                fullWidth
+                size="small"
+                label={t("bio")}
+                value={form.bio}
+                onChange={(e) => setField("bio", e.target.value)}
+                multiline
+                minRows={2}
+                maxRows={4}
+                error={!!fieldErrors.bio}
+                helperText={fieldErrors.bio ? undefined : t("bioHint")}
+              />
+              <FieldError message={fieldErrors.bio} />
+            </Box>
           </Stack>
 
           {/* ─── Location ─────────────────────────────────────────────── */}
@@ -407,18 +482,35 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               <TextField
                 fullWidth
                 size="small"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
                 label={`${t("phone")} *`}
                 value={form.phone_number}
                 onChange={(e) => setField("phone_number", e.target.value)}
-                placeholder="9X XXX XX XX"
-                InputProps={{
-                  startAdornment: (
-                    <Typography sx={{ color: "var(--text-muted)", mr: 1, fontSize: 14 }}>
-                      +998
-                    </Typography>
-                  ),
+                onFocus={() => {
+                  // Seed the "+998 " prefix so the field always starts with "+"
+                  // and the user only has to type the 9 subscriber digits. Set it
+                  // directly (not via setField) so we don't flash an "invalid"
+                  // error on an empty field the moment it gains focus.
+                  if (isBlank(form.phone_number)) {
+                    setForm((prev) => ({ ...prev, phone_number: "+998 " }));
+                  }
+                }}
+                placeholder="+998 99 888 77 66"
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <Icon
+                        className="ph ph-phone"
+                        style={{ color: "var(--text-muted)", marginRight: 8, fontSize: 18 }}
+                      />
+                    ),
+                  },
+                  htmlInput: { dir: "ltr" },
                 }}
                 error={!!fieldErrors.phone_number}
+                helperText={fieldErrors.phone_number ? undefined : t("phoneHint")}
               />
               <FieldError message={fieldErrors.phone_number} />
             </Box>
@@ -450,6 +542,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                 value={form.district}
                 onChange={(e) => setField("district", e.target.value)}
                 disabled={!form.region || districts.length === 0}
+                error={!!fieldErrors.district}
               >
                 <MenuItem value="">{tLocation("selectDistrict")}</MenuItem>
                 {districts.map((d) => (
@@ -459,14 +552,27 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                 ))}
               </TextField>
             </Stack>
-            <TextField
-              fullWidth
-              size="small"
-              label={t("address")}
-              value={form.location_text}
-              onChange={(e) => setField("location_text", e.target.value)}
-              placeholder={t("addressPlaceholder")}
-            />
+            <Box>
+              <TextField
+                fullWidth
+                size="small"
+                label={t("address")}
+                value={form.location_text}
+                onChange={(e) => setField("location_text", e.target.value)}
+                placeholder={t("addressPlaceholder")}
+                error={!!fieldErrors.location_text}
+              />
+              <FieldError message={fieldErrors.location_text} />
+            </Box>
+            <Box>
+              <Typography sx={{ fontSize: 13, fontWeight: 600, mb: 0.25 }}>
+                {tShopLoc("mapLabel")}
+              </Typography>
+              <Typography sx={{ fontSize: 12, color: "var(--text-muted)", mb: 1 }}>
+                {tShopLoc("mapHint")}
+              </Typography>
+              <LocationPicker value={coords} onChange={setCoords} />
+            </Box>
           </Stack>
 
           {/* ─── Working time ─────────────────────────────────────────── */}
@@ -479,7 +585,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               >
                 {t("workingDays")}
               </Typography>
-              <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
+              <Stack direction="row" spacing={0.75} useFlexGap sx={{ flexWrap: "wrap" }}>
                 {DAY_CODES.map((code) => {
                   const active = workingDays.includes(code);
                   return (
@@ -506,23 +612,15 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               >
                 {t("workingHours")}
               </Typography>
-              <Stack direction="row" spacing={1.5} alignItems="center">
-                <TextField
-                  size="small"
-                  type="time"
+              <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+                <ClockTimePicker
                   value={workingHours.start}
-                  onChange={(e) => setWorkingHours((prev) => ({ ...prev, start: e.target.value }))}
-                  inputProps={{ step: 300 }}
-                  sx={{ flex: 1 }}
+                  onChange={(v) => setWorkingHours((prev) => ({ ...prev, start: v }))}
                 />
                 <Typography sx={{ color: "var(--text-muted)" }}>—</Typography>
-                <TextField
-                  size="small"
-                  type="time"
+                <ClockTimePicker
                   value={workingHours.end}
-                  onChange={(e) => setWorkingHours((prev) => ({ ...prev, end: e.target.value }))}
-                  inputProps={{ step: 300 }}
-                  sx={{ flex: 1 }}
+                  onChange={(v) => setWorkingHours((prev) => ({ ...prev, end: v }))}
                 />
               </Stack>
             </Box>
@@ -534,23 +632,15 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               >
                 {t("lunch")} <span style={{ opacity: 0.6 }}>({tCommon("info")})</span>
               </Typography>
-              <Stack direction="row" spacing={1.5} alignItems="center">
-                <TextField
-                  size="small"
-                  type="time"
+              <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+                <ClockTimePicker
                   value={lunch.start}
-                  onChange={(e) => setLunch((prev) => ({ ...prev, start: e.target.value }))}
-                  inputProps={{ step: 300 }}
-                  sx={{ flex: 1 }}
+                  onChange={(v) => setLunch((prev) => ({ ...prev, start: v }))}
                 />
                 <Typography sx={{ color: "var(--text-muted)" }}>—</Typography>
-                <TextField
-                  size="small"
-                  type="time"
+                <ClockTimePicker
                   value={lunch.end}
-                  onChange={(e) => setLunch((prev) => ({ ...prev, end: e.target.value }))}
-                  inputProps={{ step: 300 }}
-                  sx={{ flex: 1 }}
+                  onChange={(v) => setLunch((prev) => ({ ...prev, end: v }))}
                 />
               </Stack>
             </Box>
@@ -575,7 +665,8 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               label="Telegram"
               value={form.telegram}
               onChange={(e) => setField("telegram", e.target.value)}
-              placeholder="@username"
+              placeholder="t.me/dokoningiz yoki @username"
+              slotProps={{ inputLabel: { shrink: true } }}
             />
             <TextField
               fullWidth
@@ -583,7 +674,8 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               label="Instagram"
               value={form.instagram}
               onChange={(e) => setField("instagram", e.target.value)}
-              placeholder="@username"
+              placeholder="instagram.com/dokoningiz yoki @username"
+              slotProps={{ inputLabel: { shrink: true } }}
             />
             <TextField
               fullWidth
@@ -591,7 +683,8 @@ const SellerRegistrationModal = ({ show, onHide }) => {
               label={t("website")}
               value={form.website}
               onChange={(e) => setField("website", e.target.value)}
-              placeholder="https://..."
+              placeholder="https://dokoningiz.uz"
+              slotProps={{ inputLabel: { shrink: true } }}
             />
           </Stack>
 
@@ -643,7 +736,7 @@ const SellerRegistrationModal = ({ show, onHide }) => {
                 loading ? (
                   <CircularProgress size={16} sx={{ color: "#fff" }} />
                 ) : (
-                  <i className="ph ph-check" aria-hidden="true" />
+                  <Icon className="ph ph-check" aria-hidden="true" />
                 )
               }
             >

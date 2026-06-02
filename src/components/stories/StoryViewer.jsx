@@ -6,6 +6,7 @@ import { Dialog, Box, IconButton, Typography, Button } from "@mui/material";
 import { useRouter } from "@/i18n/navigation";
 import { getStoryHref } from "@/services/stories";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import Icon from "@/components/Icon";
 
 const STORY_DURATION_MS = 5000;
 const PROGRESS_TICK_MS = 50;
@@ -216,7 +217,7 @@ const StoryViewer = ({ open, stories = [], startIndex = 0, onClose }) => {
                 fontSize: 96,
               }}
             >
-              <i
+              <Icon
                 className={
                   current.target.kind === "shop"
                     ? "ph-fill ph-storefront"
@@ -295,7 +296,7 @@ const StoryViewer = ({ open, stories = [], startIndex = 0, onClose }) => {
               height: 36,
             }}
           >
-            <i className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
+            <Icon className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
           </IconButton>
 
           {/* Pause indicator (visible while held) */}
@@ -404,7 +405,7 @@ const StoryViewer = ({ open, stories = [], startIndex = 0, onClose }) => {
               variant="contained"
               onClick={handleCtaClick}
               endIcon={
-                <i className="ph ph-arrow-right" style={{ fontSize: 16 }} aria-hidden="true" />
+                <Icon className="ph ph-arrow-right" style={{ fontSize: 16 }} aria-hidden="true" />
               }
               sx={{
                 pointerEvents: "auto",

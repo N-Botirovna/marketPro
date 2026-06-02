@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import FieldError from "@/components/FieldError";
+import Icon from "@/components/Icon";
 
 /**
  * Reusable single-banner form. Owner-facing.
@@ -96,10 +97,15 @@ const BannerEditor = ({
           />
         ) : (
           <Stack
-            alignItems="center"
-            justifyContent="center"
             spacing={1}
-            sx={{ width: "100%", height: "100%", textAlign: "center", px: 2 }}
+            sx={{
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              height: "100%",
+              textAlign: "center",
+              px: 2,
+            }}
           >
             <Box
               sx={{
@@ -108,7 +114,7 @@ const BannerEditor = ({
                 color: "var(--text-muted)",
               }}
             >
-              <i className="ph-fill ph-image-square" aria-hidden="true" />
+              <Icon className="ph-fill ph-image-square" aria-hidden="true" />
             </Box>
             <Typography sx={{ fontWeight: 700, fontSize: 14 }}>{t("bannerPicture")}</Typography>
             <Typography
@@ -138,7 +144,7 @@ const BannerEditor = ({
               backdropFilter: "blur(4px)",
             }}
           >
-            <i className="ph ph-pencil-simple" aria-hidden="true" />
+            <Icon className="ph ph-pencil-simple" aria-hidden="true" />
             {"  "}
             {t("editBanner")}
           </Box>
