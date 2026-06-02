@@ -21,6 +21,7 @@ import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { localizedField } from "@/utils/localizedField";
 import { bookTypeVisual, bookTypeI18nKey } from "@/utils/bookType";
 import { bookLanguageKey } from "@/utils/bookLanguage";
+import { Link } from "@/i18n/navigation";
 import Icon from "@/components/Icon";
 import BookCreateModal from "./BookCreateModal";
 import { useToast } from "./Toast";
@@ -412,7 +413,7 @@ const BookDetails = ({ bookId }) => {
                   {tBook("telegram")}
                 </Button>
               )}
-              {phoneClean && (
+              {isAuthenticated && phoneClean && (
                 <Button
                   component="a"
                   href={`tel:${phoneClean}`}
@@ -427,7 +428,7 @@ const BookDetails = ({ bookId }) => {
                   {tBook("call")}
                 </Button>
               )}
-              {phoneClean && (
+              {isAuthenticated && phoneClean && (
                 <Button
                   component="a"
                   href={`sms:${phoneClean}`}
@@ -440,6 +441,24 @@ const BookDetails = ({ bookId }) => {
                   }}
                 >
                   {tBook("sms")}
+                </Button>
+              )}
+              {/* Phone (call/SMS) is gated to signed-in users — the API only
+                  returns the seller's number when authenticated. Anonymous
+                  visitors without a Telegram option get a sign-in prompt. */}
+              {!isAuthenticated && !tgUrl && (
+                <Button
+                  component={Link}
+                  href="/login"
+                  variant="contained"
+                  startIcon={<Icon className="ph ph-lock-key" />}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 700,
+                    flex: { xs: 1, sm: "0 1 auto" },
+                  }}
+                >
+                  {tBook("loginToContact")}
                 </Button>
               )}
 

@@ -293,6 +293,7 @@
     "telegram": "Telegram",
     "call": "Call",
     "sms": "SMS",
+    "loginToContact": "Sign in to contact",
     "likeRequiresAuth": "Sign in to add to favorites.",
     "likeFailed": "Couldn't update favorites.",
     "contactPrefill": "Hello! You posted the book “{name}” on kitobzor.uz, and I'd like to get it.",

@@ -293,6 +293,7 @@
     "telegram": "Telegram",
     "call": "Qo'ng'iroq",
     "sms": "SMS",
+    "loginToContact": "Bog'lanish uchun kiring",
     "likeRequiresAuth": "Sevimlilarga qo'shish uchun tizimga kiring.",
     "likeFailed": "Sevimlilar bilan ishlashda xatolik yuz berdi.",
     "contactPrefill": "Assalomu alaykum! kitobzor.uz saytiga «{name}» kitobini joylagan ekansiz, men uni olmoqchi edim.",

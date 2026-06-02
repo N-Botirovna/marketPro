@@ -293,6 +293,7 @@
     "telegram": "Telegram",
     "call": "Звонок",
     "sms": "SMS",
+    "loginToContact": "Войдите, чтобы связаться",
     "likeRequiresAuth": "Войдите, чтобы добавить в избранное.",
     "likeFailed": "Не удалось обновить избранное.",
     "contactPrefill": "Здравствуйте! Вы разместили книгу «{name}» на сайте kitobzor.uz, я хотел(а) бы её приобрести.",
