@@ -316,6 +316,8 @@ Kitob 2 xil ko'rinishda render qilinadi — kontekstga qarab. **Inline card mark
 ### Profil
 
 - **ProfileDashboard.jsx**, **ProfileForm.jsx**, **UserProfile.jsx**, **UserPublicProfile.jsx**, **Account.jsx**.
+- **profile/ProfileEditModal.jsx** — region/district (**majburiy**, asterisk + inline xato), gender + birth_date (ixtiyoriy, native `type="date"`). i18n namespace `ProfileForm` (ilgari yo'q edi → label'lar raw key bo'lib chiqardi).
+- **Kitob joylash profil gate** (`utils/profile.js` `isProfileComplete` = region && district): `PostBookFab` bosilganda — login yo'q bo'lsa `/login?next=`, profil to'liq emas bo'lsa `/account?complete=book` (ProfileDashboard editor'ni avtomatik ochadi + sabab toast'i), aks holda BookCreateModal. Backend ham `code="profile_incomplete"` bilan enforce qiladi. ProfileDashboard'dagi "add book" tugmasi ham shu gate'dan o'tadi. Unit test: `tests/unit/profile.test.js`.
 
 ### Breadcrumb va h.k.
 
