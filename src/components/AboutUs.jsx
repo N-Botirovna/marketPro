@@ -221,22 +221,32 @@ const AboutUs = () => {
       <section className="about-cta py-48">
         <div className="container container-lg">
           <div className="cta-box bg-main-600 text-white rounded-12 p-32 text-center">
-            <h3 className="text-2xl fw-bold mb-12">{tAbout("cta.title")}</h3>
-            <p className="mb-24" style={{ maxWidth: "500px", margin: "0 auto", opacity: 0.95 }}>
+            {/* Inline colors: the template's `.btn` / heading rules outrank the
+                utility classes here, so we pin contrast explicitly — white
+                title/subtitle on green, green label on the white button. */}
+            <h3 className="text-2xl fw-bold mb-12" style={{ color: "#fff" }}>
+              {tAbout("cta.title")}
+            </h3>
+            <p
+              className="mb-24"
+              style={{ maxWidth: "500px", margin: "0 auto", opacity: 0.95, color: "#fff" }}
+            >
               {tAbout("cta.description")}
             </p>
             <div className="d-flex gap-12 justify-content-center flex-wrap">
               <button
                 type="button"
                 onClick={openSellerModal}
-                className="btn bg-white text-main-600 px-24 py-12 rounded-pill hover-bg-gray-100 fw-medium border-0"
+                className="btn bg-white px-24 py-12 rounded-pill hover-bg-gray-100 fw-medium border-0"
+                style={{ color: "var(--main-600, hsl(148, 59%, 39%))" }}
               >
                 <Icon className="ph ph-storefront me-8" />
                 {tButtons("becomeSeller")}
               </button>
               <Link
                 href="/vendor-two"
-                className="btn btn-outline-white px-24 py-12 rounded-pill hover-bg-white hover-text-main-600 fw-medium"
+                className="btn px-24 py-12 rounded-pill fw-medium"
+                style={{ color: "#fff", border: "1.5px solid rgba(255,255,255,0.7)" }}
               >
                 <Icon className="ph ph-magnifying-glass me-8" />
                 {tAbout("cta.exploreShops")}
