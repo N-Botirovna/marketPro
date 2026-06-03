@@ -631,12 +631,13 @@
       "slogan": "Books - Source of Knowledge"
     },
     "stats": {
-      "title": "Our numbers",
-      "subtitle": "The success of our platform",
+      "title": "Our 3-month plan",
+      "subtitle": "The targets we aim to reach in our first 3 months",
       "books": "Books",
       "shops": "Shops",
       "users": "Users",
-      "exchanges": "Exchanges"
+      "exchanges": "Exchanges",
+      "goalLabel": "Goal"
     },
     "mission": {
       "title": "Our Mission",
