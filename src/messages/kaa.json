@@ -631,12 +631,13 @@
       "slogan": "Kitaplar - bilim deregi"
     },
     "stats": {
-      "title": "Bizdiń sanlarımız",
-      "subtitle": "Platformamızdıń tabısı",
+      "title": "3 aylıq rejamız",
+      "subtitle": "Dáslepki 3 ayda erisiwdi maqset etken kórsetkishler",
       "books": "Kitaplar",
       "shops": "Dúkenler",
       "users": "Paydalanıwshılar",
-      "exchanges": "Almasıwlar"
+      "exchanges": "Almasıwlar",
+      "goalLabel": "Maqset"
     },
     "mission": {
       "title": "Bizdiń missiyamız",

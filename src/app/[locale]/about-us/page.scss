@@ -1,5 +1,100 @@
 @import "../../../../public/assets/sass/abstracts/index";
 
+// ─── Hero green card — alive & playful (floating books + glow + hover) ───────
+.about-hero__card {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 48px rgba(15, 118, 75, 0.35);
+  }
+}
+
+.about-hero__glow {
+  position: absolute;
+  width: 72%;
+  height: 72%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%);
+  filter: blur(6px);
+  animation: aboutGlow 5s ease-in-out infinite;
+}
+
+.about-hero__books {
+  position: relative;
+  z-index: 2;
+  font-size: clamp(96px, 22vw, 184px);
+  color: rgba(255, 255, 255, 0.95);
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.18));
+  animation: aboutFloatMain 6s ease-in-out infinite;
+}
+
+.about-hero__float {
+  position: absolute;
+  z-index: 2;
+  color: rgba(255, 255, 255, 0.85);
+
+  &--a {
+    top: 15%;
+    left: 13%;
+    font-size: clamp(24px, 5vw, 42px);
+    animation: aboutFloat 5s ease-in-out infinite;
+  }
+  &--b {
+    top: 22%;
+    right: 15%;
+    font-size: clamp(16px, 3.6vw, 28px);
+    color: rgba(255, 255, 255, 0.7);
+    animation: aboutFloat 4.2s ease-in-out infinite 0.6s;
+  }
+  &--c {
+    bottom: 16%;
+    right: 20%;
+    font-size: clamp(20px, 4.4vw, 34px);
+    animation: aboutFloat 5.6s ease-in-out infinite 1.1s;
+  }
+}
+
+@keyframes aboutFloatMain {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(2deg);
+  }
+}
+@keyframes aboutFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+@keyframes aboutGlow {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-hero__books,
+  .about-hero__float,
+  .about-hero__glow {
+    animation: none !important;
+  }
+}
+
 // The shared template ships `.btn` and heading rules with `!important`, which
 // outrank both utility classes and React inline styles inside the green CTA
 // box — that left the "become seller" label white-on-white (invisible) and the

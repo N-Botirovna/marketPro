@@ -92,7 +92,7 @@ const AboutUs = () => {
             <div className="col-lg-6">
               <div className="about-hero__image position-relative">
                 <div
-                  className="rounded-12 overflow-hidden d-flex align-items-center justify-content-center"
+                  className="about-hero__card rounded-12 overflow-hidden d-flex align-items-center justify-content-center"
                   style={{
                     position: "relative",
                     aspectRatio: "4 / 3",
@@ -102,13 +102,19 @@ const AboutUs = () => {
                       "linear-gradient(135deg, hsl(148, 59%, 42%) 0%, hsl(148, 59%, 26%) 100%)",
                   }}
                 >
+                  <span className="about-hero__glow" aria-hidden="true" />
+                  <Icon className="ph-fill ph-books about-hero__books" aria-hidden="true" />
                   <Icon
-                    className="ph-fill ph-books"
+                    className="ph-fill ph-book-open-text about-hero__float about-hero__float--a"
                     aria-hidden="true"
-                    style={{
-                      fontSize: "clamp(96px, 22vw, 184px)",
-                      color: "rgba(255, 255, 255, 0.92)",
-                    }}
+                  />
+                  <Icon
+                    className="ph-fill ph-sparkle about-hero__float about-hero__float--b"
+                    aria-hidden="true"
+                  />
+                  <Icon
+                    className="ph-fill ph-bookmark-simple about-hero__float about-hero__float--c"
+                    aria-hidden="true"
                   />
                 </div>
                 <div className="position-absolute bottom-0 start-0 bg-main-600 text-white px-20 py-12 rounded-12 m-12">
@@ -134,6 +140,22 @@ const AboutUs = () => {
             {stats.map((stat, index) => (
               <div key={index} className="col-lg-3 col-md-6">
                 <div className="stat-card text-center p-24 bg-white rounded-12 border border-gray-100 hover-border-main-600 transition-2 h-100">
+                  <span
+                    className="d-inline-flex align-items-center gap-4"
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: "var(--main-600, hsl(148, 59%, 39%))",
+                      background: "var(--main-50, hsl(148, 59%, 95%))",
+                      padding: "3px 10px",
+                      borderRadius: 999,
+                      marginBottom: 14,
+                      letterSpacing: "0.03em",
+                    }}
+                  >
+                    <Icon className="ph-fill ph-target" aria-hidden="true" />
+                    {tAbout("stats.goalLabel")}
+                  </span>
                   <div className={`${stat.color} text-3xl mb-12`}>
                     <Icon className={stat.icon} />
                   </div>

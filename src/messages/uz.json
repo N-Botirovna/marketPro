@@ -631,12 +631,13 @@
       "slogan": "Kitoblar - bilim manbai"
     },
     "stats": {
-      "title": "Bizning raqamlarimiz",
-      "subtitle": "Platformamizning muvaffaqiyati",
+      "title": "3 oylik rejamiz",
+      "subtitle": "Ishga tushganimizdan keyingi birinchi 3 oyda erishmoqchi bo'lgan maqsadlarimiz",
       "books": "Kitoblar",
       "shops": "Do'konlar",
       "users": "Foydalanuvchilar",
-      "exchanges": "Almashinuvlar"
+      "exchanges": "Almashinuvlar",
+      "goalLabel": "Maqsad"
     },
     "mission": {
       "title": "Bizning missiyamiz",
