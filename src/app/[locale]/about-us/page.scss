@@ -1,1 +1,30 @@
 @import "../../../../public/assets/sass/abstracts/index";
+
+// The shared template ships `.btn` and heading rules with `!important`, which
+// outrank both utility classes and React inline styles inside the green CTA
+// box — that left the "become seller" label white-on-white (invisible) and the
+// heading dark on green. Pin contrast with scoped, higher-specificity rules.
+.about-cta {
+  .cta-box {
+    h3,
+    p {
+      color: #fff !important;
+    }
+  }
+
+  .cta-btn-seller {
+    background: #fff !important;
+    color: var(--main-600, hsl(148, 59%, 39%)) !important;
+  }
+
+  .cta-btn-outline {
+    color: #fff !important;
+    background: transparent !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.7) !important;
+
+    &:hover {
+      background: #fff !important;
+      color: var(--main-600, hsl(148, 59%, 39%)) !important;
+    }
+  }
+}

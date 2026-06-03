@@ -237,16 +237,14 @@ const AboutUs = () => {
               <button
                 type="button"
                 onClick={openSellerModal}
-                className="btn bg-white px-24 py-12 rounded-pill hover-bg-gray-100 fw-medium border-0"
-                style={{ color: "var(--main-600, hsl(148, 59%, 39%))" }}
+                className="btn cta-btn-seller px-24 py-12 rounded-pill fw-medium border-0"
               >
                 <Icon className="ph ph-storefront me-8" />
                 {tButtons("becomeSeller")}
               </button>
               <Link
                 href="/vendor-two"
-                className="btn px-24 py-12 rounded-pill fw-medium"
-                style={{ color: "#fff", border: "1.5px solid rgba(255,255,255,0.7)" }}
+                className="btn cta-btn-outline px-24 py-12 rounded-pill fw-medium"
               >
                 <Icon className="ph ph-magnifying-glass me-8" />
                 {tAbout("cta.exploreShops")}
