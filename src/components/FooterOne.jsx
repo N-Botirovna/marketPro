@@ -139,7 +139,7 @@ const FooterOne = () => {
                     padding: 0,
                     cursor: "pointer",
                   }}
-                  className="hover-text-main-500"
+                  className="hover-text-main-600"
                 >
                   {tF("site.becomeSeller")}
                 </button>

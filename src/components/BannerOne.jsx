@@ -171,10 +171,6 @@ const BannerOne = () => {
                 />
                 <div className="kz-banner__overlay" aria-hidden="true" />
                 <div className="kz-banner__content">
-                  <span className="kz-banner__badge">
-                    <Icon className="ph-fill ph-megaphone" aria-hidden="true" />
-                    {t("promotedBadge")}
-                  </span>
                   {banner.title && <h2 className="kz-banner__title">{banner.title}</h2>}
                   {(() => {
                     const linkInfo = detectExternalLink(banner.link);
@@ -386,19 +382,20 @@ const BannerOne = () => {
         }
 
         .kz-banner__cta {
-          margin-top: 12px;
+          margin-top: 8px;
           display: inline-flex;
           align-items: center;
-          gap: 8px;
-          padding: 9px 16px;
+          gap: 6px;
+          padding: 6px 12px;
           border-radius: 999px;
           background: rgba(255, 255, 255, 0.95);
           color: #0f172a;
-          font-size: 14px;
+          font-size: 12.5px;
           font-weight: 700;
           text-decoration: none;
           line-height: 1;
           align-self: flex-start;
+          white-space: nowrap;
           transition:
             transform 0.18s ease,
             background 0.18s ease,
@@ -415,7 +412,7 @@ const BannerOne = () => {
         }
 
         .kz-banner__cta :global(i) {
-          font-size: 18px;
+          font-size: 15px;
           line-height: 1;
         }
 

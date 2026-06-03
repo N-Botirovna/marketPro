@@ -105,7 +105,7 @@ export async function generateMetadata({ params }) {
   return {
     metadataBase: new URL(SITE_URL),
     title: {
-      default: "Kitobzor — kitoblar marketplace'i",
+      default: "Kitobzor — yuqori idrok egalari uchun platforma",
       template: "%s | Kitobzor",
     },
     description:

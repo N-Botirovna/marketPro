@@ -111,7 +111,7 @@ const AboutUs = () => {
                     }}
                   />
                 </div>
-                <div className="position-absolute bottom-0 start-0 bg-main-500 text-white px-20 py-12 rounded-12 m-12">
+                <div className="position-absolute bottom-0 start-0 bg-main-600 text-white px-20 py-12 rounded-12 m-12">
                   <div className="d-flex align-items-center gap-8">
                     <Icon className="ph-fill ph-book text-lg" />
                     <div className="text-sm fw-medium">{tAbout("hero.slogan")}</div>
@@ -133,7 +133,7 @@ const AboutUs = () => {
           <div className="row gy-3">
             {stats.map((stat, index) => (
               <div key={index} className="col-lg-3 col-md-6">
-                <div className="stat-card text-center p-24 bg-white rounded-12 border border-gray-100 hover-border-main-500 transition-2 h-100">
+                <div className="stat-card text-center p-24 bg-white rounded-12 border border-gray-100 hover-border-main-600 transition-2 h-100">
                   <div className={`${stat.color} text-3xl mb-12`}>
                     <Icon className={stat.icon} />
                   </div>
@@ -152,7 +152,7 @@ const AboutUs = () => {
           <div className="row gy-4">
             <div className="col-lg-6">
               <div className="mission-card p-32 bg-main-50 rounded-12 h-100 border border-main-100">
-                <div className="w-64 h-64 flex-center bg-main-500 text-white rounded-circle mb-20">
+                <div className="w-64 h-64 flex-center bg-main-600 text-white rounded-circle mb-20">
                   <Icon className="ph-fill ph-target text-2xl" />
                 </div>
                 <h3 className="text-xl fw-bold mb-12 text-heading">{tAbout("mission.title")}</h3>
@@ -182,8 +182,8 @@ const AboutUs = () => {
           <div className="row gy-3">
             {features.map((feature, index) => (
               <div key={index} className="col-lg-3 col-md-6">
-                <div className="feature-card p-24 bg-gray-50 rounded-12 border border-gray-100 hover-border-main-500 transition-2 h-100">
-                  <div className="w-56 h-56 flex-center bg-main-50 text-main-500 rounded-circle mb-16">
+                <div className="feature-card p-24 bg-gray-50 rounded-12 border border-gray-100 hover-border-main-600 transition-2 h-100">
+                  <div className="w-56 h-56 flex-center bg-main-50 text-main-600 rounded-circle mb-16">
                     <Icon className={`${feature.icon} text-2xl`} />
                   </div>
                   <h6 className="text-md fw-semibold mb-8 text-heading">{feature.title}</h6>
@@ -220,7 +220,7 @@ const AboutUs = () => {
       {/* CTA Section */}
       <section className="about-cta py-48">
         <div className="container container-lg">
-          <div className="cta-box bg-main-500 text-white rounded-12 p-32 text-center">
+          <div className="cta-box bg-main-600 text-white rounded-12 p-32 text-center">
             <h3 className="text-2xl fw-bold mb-12">{tAbout("cta.title")}</h3>
             <p className="mb-24" style={{ maxWidth: "500px", margin: "0 auto", opacity: 0.95 }}>
               {tAbout("cta.description")}
@@ -229,14 +229,14 @@ const AboutUs = () => {
               <button
                 type="button"
                 onClick={openSellerModal}
-                className="btn bg-white text-main-500 px-24 py-12 rounded-pill hover-bg-gray-100 fw-medium border-0"
+                className="btn bg-white text-main-600 px-24 py-12 rounded-pill hover-bg-gray-100 fw-medium border-0"
               >
                 <Icon className="ph ph-storefront me-8" />
                 {tButtons("becomeSeller")}
               </button>
               <Link
                 href="/vendor-two"
-                className="btn btn-outline-white px-24 py-12 rounded-pill hover-bg-white hover-text-main-500 fw-medium"
+                className="btn btn-outline-white px-24 py-12 rounded-pill hover-bg-white hover-text-main-600 fw-medium"
               >
                 <Icon className="ph ph-magnifying-glass me-8" />
                 {tAbout("cta.exploreShops")}
