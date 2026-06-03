@@ -158,6 +158,15 @@ const CommunityBooksPage = ({ type = "all" }) => {
   const hasMore = books.length < count;
 
   // Auto-load the next page as the sentinel scrolls into view.
+  //
+  // `books.length` is in the deps on purpose: re-creating the observer after
+  // each appended page re-arms it. IntersectionObserver only fires on an
+  // intersection *transition*, so if the sentinel stays continuously within
+  // the margin (common while lazy-loaded images make the page height jump
+  // around) a persistent observer goes silent after one hit. A fresh observer
+  // re-fires for a target that's already intersecting, so this keeps filling
+  // until the sentinel is finally pushed out of view (or `hasMore` is false).
+  // `loadingRef` blocks overlap, so it can't double-fetch the same offset.
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el || !hasMore) return;
@@ -169,7 +178,7 @@ const CommunityBooksPage = ({ type = "all" }) => {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [fetchPage, hasMore]);
+  }, [fetchPage, hasMore, books.length]);
 
   const selectedRegion = useMemo(
     () => regions.find((r) => String(r.id) === regionId),
