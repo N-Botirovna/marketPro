@@ -1,14 +1,27 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { Box, Stack, Typography, TextField, MenuItem, InputAdornment } from "@mui/material";
+import {
+  Box,
+  Stack,
+  Typography,
+  TextField,
+  MenuItem,
+  InputAdornment,
+  CircularProgress,
+} from "@mui/material";
 import { getBooks } from "@/services/books";
 import { getBookCategories, getBookSubcategories } from "@/services/categories";
 import { getRegions } from "@/services/regions";
 import BookRowGrid from "@/components/shared/BookRowGrid";
 import Icon from "@/components/Icon";
+
+// Page size for the infinite-scroll feed. 24 divides evenly into the
+// 1 / 2 / 3-column responsive grid, so rows never end ragged on any
+// breakpoint.
+const PAGE_SIZE = 24;
 
 const CommunityBooksPage = ({ type = "all" }) => {
   const t = useTranslations("CommunityPage");
@@ -16,8 +29,17 @@ const CommunityBooksPage = ({ type = "all" }) => {
   const searchParams = useSearchParams();
 
   const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // first page
+  const [loadingMore, setLoadingMore] = useState(false); // subsequent pages
+  const [count, setCount] = useState(0);
   const [error, setError] = useState(null);
+
+  // Pagination cursor + a concurrency guard. Refs (not state) so the
+  // IntersectionObserver callback always reads the live value without
+  // re-subscribing on every fetch.
+  const offsetRef = useRef(0);
+  const loadingRef = useRef(false);
+  const sentinelRef = useRef(null);
 
   const [regions, setRegions] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -78,17 +100,11 @@ const CommunityBooksPage = ({ type = "all" }) => {
     setSubcategoryId("");
   }, [categoryId]);
 
-  // Fetch books on filter change
-  useEffect(() => {
-    let alive = true;
-    setLoading(true);
-    setError(null);
-
-    const params = {
-      owner_type: "user",
-      is_active: true,
-      limit: 50,
-    };
+  // The filter params shared by every page request. Memoized so the
+  // fetch callback (and the reset effect that depends on it) only changes
+  // identity when a filter actually changes — not on every render.
+  const filterParams = useMemo(() => {
+    const params = { owner_type: "user", is_active: true };
     if (type && type !== "all") params.type = type;
     if (regionId) params.region = regionId;
     if (districtId) params.district = districtId;
@@ -97,22 +113,63 @@ const CommunityBooksPage = ({ type = "all" }) => {
     if (query.trim()) params.q = query.trim();
     if (priceMin) params.price_min = priceMin;
     if (priceMax) params.price_max = priceMax;
+    return params;
+  }, [type, regionId, districtId, categoryId, subcategoryId, query, priceMin, priceMax]);
 
-    getBooks(params)
-      .then((res) => {
-        if (alive) setBooks(res.books || []);
-      })
-      .catch((err) => {
-        if (!alive) return;
-        setError(err?.normalized?.message || err?.message || t("loadError"));
-      })
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
-    return () => {
-      alive = false;
-    };
-  }, [type, regionId, districtId, categoryId, subcategoryId, query, priceMin, priceMax, t]);
+  // One fetch for both the first page (reset=true → replace) and infinite
+  // scroll (reset=false → append). The backend sorts gift/exchange/rent
+  // ahead of sale ("seller") books, so sale books live past the first
+  // page — without this paging they were simply never shown in the "all"
+  // feed. `loadingRef` blocks overlapping requests (fast scroll / refilter).
+  const fetchPage = useCallback(
+    (reset) => {
+      if (loadingRef.current) return;
+      loadingRef.current = true;
+      const offset = reset ? 0 : offsetRef.current;
+      if (reset) setLoading(true);
+      else setLoadingMore(true);
+      setError(null);
+
+      getBooks({ ...filterParams, limit: PAGE_SIZE, offset })
+        .then((res) => {
+          const fetched = res.books || [];
+          offsetRef.current = offset + fetched.length;
+          setCount(res.count ?? 0);
+          setBooks((prev) => (reset ? fetched : [...prev, ...fetched]));
+        })
+        .catch((err) => {
+          setError(err?.normalized?.message || err?.message || t("loadError"));
+        })
+        .finally(() => {
+          setLoading(false);
+          setLoadingMore(false);
+          loadingRef.current = false;
+        });
+    },
+    [filterParams, t],
+  );
+
+  // Reset to page one whenever the filters change.
+  useEffect(() => {
+    offsetRef.current = 0;
+    fetchPage(true);
+  }, [fetchPage]);
+
+  const hasMore = books.length < count;
+
+  // Auto-load the next page as the sentinel scrolls into view.
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loadingRef.current) fetchPage(false);
+      },
+      { rootMargin: "400px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [fetchPage, hasMore]);
 
   const selectedRegion = useMemo(
     () => regions.find((r) => String(r.id) === regionId),
@@ -290,30 +347,49 @@ const CommunityBooksPage = ({ type = "all" }) => {
             {error}
           </Box>
         ) : (
-          <BookRowGrid
-            books={books}
-            loading={loading}
-            skeletonCount={6}
-            showTypeBadge={showTypeBadge}
-            emptyState={
+          <>
+            <BookRowGrid
+              books={books}
+              loading={loading}
+              skeletonCount={6}
+              showTypeBadge={showTypeBadge}
+              emptyState={
+                <Box
+                  sx={{
+                    py: 6,
+                    textAlign: "center",
+                    color: "var(--text-muted)",
+                    border: "1px dashed var(--border-subtle)",
+                    borderRadius: 3,
+                  }}
+                >
+                  <Icon
+                    className="ph ph-book-open"
+                    style={{ fontSize: 40, display: "inline-block", marginBottom: 8 }}
+                    aria-hidden="true"
+                  />
+                  <Typography>{t("noResults")}</Typography>
+                </Box>
+              }
+            />
+
+            {/* Infinite-scroll trigger + spinner. The sentinel sits ~400px
+                below the last card (see observer rootMargin) so the next
+                page is already loading before the user hits the bottom. */}
+            {!loading && hasMore && (
               <Box
+                ref={sentinelRef}
                 sx={{
-                  py: 6,
-                  textAlign: "center",
-                  color: "var(--text-muted)",
-                  border: "1px dashed var(--border-subtle)",
-                  borderRadius: 3,
+                  display: "flex",
+                  justifyContent: "center",
+                  py: 4,
+                  minHeight: 48,
                 }}
               >
-                <Icon
-                  className="ph ph-book-open"
-                  style={{ fontSize: 40, display: "inline-block", marginBottom: 8 }}
-                  aria-hidden="true"
-                />
-                <Typography>{t("noResults")}</Typography>
+                {loadingMore && <CircularProgress size={28} />}
               </Box>
-            }
-          />
+            )}
+          </>
         )}
       </Box>
     </Box>
