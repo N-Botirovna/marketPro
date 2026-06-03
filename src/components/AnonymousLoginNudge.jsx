@@ -43,7 +43,17 @@ const AnonymousLoginNudge = () => {
       }
     } catch {}
 
-    const timer = window.setTimeout(() => setOpen(true), NUDGE_DELAY_MS);
+    const timer = window.setTimeout(() => {
+      // Re-check at fire time: the component lives in the root layout and the
+      // 60s timer is armed while anonymous, so a user who signs in during that
+      // window (SPA navigation never remounts this) must NOT see the nudge.
+      try {
+        if (isAuthenticated()) return;
+      } catch {
+        /* localStorage blocked — fall through and show */
+      }
+      setOpen(true);
+    }, NUDGE_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, []);
 

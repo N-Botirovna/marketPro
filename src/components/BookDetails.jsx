@@ -406,8 +406,9 @@ const BookDetails = ({ bookId }) => {
                     bgcolor: "#0088cc",
                     textTransform: "none",
                     fontWeight: 700,
+                    whiteSpace: "nowrap",
                     "&:hover": { bgcolor: "#0077b3" },
-                    flex: { xs: 1, sm: "0 1 auto" },
+                    flex: { xs: "1 1 auto", sm: "0 1 auto" },
                   }}
                 >
                   {tBook("telegram")}
@@ -422,7 +423,8 @@ const BookDetails = ({ bookId }) => {
                   sx={{
                     textTransform: "none",
                     fontWeight: 700,
-                    flex: { xs: 1, sm: "0 1 auto" },
+                    whiteSpace: "nowrap",
+                    flex: { xs: "1 1 auto", sm: "0 1 auto" },
                   }}
                 >
                   {tBook("call")}
@@ -437,7 +439,8 @@ const BookDetails = ({ bookId }) => {
                   sx={{
                     textTransform: "none",
                     fontWeight: 700,
-                    flex: { xs: 1, sm: "0 1 auto" },
+                    whiteSpace: "nowrap",
+                    flex: { xs: "1 1 auto", sm: "0 1 auto" },
                   }}
                 >
                   {tBook("sms")}
@@ -455,7 +458,8 @@ const BookDetails = ({ bookId }) => {
                   sx={{
                     textTransform: "none",
                     fontWeight: 700,
-                    flex: { xs: 1, sm: "0 1 auto" },
+                    whiteSpace: "nowrap",
+                    flex: { xs: "1 1 auto", sm: "0 1 auto" },
                   }}
                 >
                   {tBook("loginToContact")}

@@ -52,7 +52,7 @@ export async function generateMetadata({ params }) {
       ? "Kitobzor — маркетплейс книг в Узбекистане"
       : locale === "en"
         ? "Kitobzor — Uzbekistan's book marketplace"
-        : "Kitobzor — kitoblar marketplace'i";
+        : "Kitobzor — yuqori idrok egalari uchun platforma";
   return {
     title,
     description: desc,
