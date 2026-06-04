@@ -108,14 +108,6 @@ export async function generateMetadata({ params }) {
       default: "Kitobzor — yuqori idrok egalari uchun platforma",
       template: "%s | Kitobzor",
     },
-    description:
-      locale === "ru"
-        ? "Kitobzor — маркетплейс книг в Узбекистане. Покупайте, продавайте, обменивайте и дарите книги."
-        : locale === "en"
-          ? "Kitobzor — Uzbekistan's book marketplace. Buy, sell, exchange or gift new and used books."
-          : // kaa intentionally falls through to uz copy until a translator
-            // delivers Karakalpak prose (placeholder strategy, see kaa.json).
-            "Kitobzor — O'zbekistondagi kitoblar marketplace'i. Yangi va o'qilgan kitoblarni sotib oling, sotvering, sovg'a qiling yoki almashtiring.",
     openGraph: {
       siteName: "Kitobzor",
       type: "website",
@@ -150,7 +142,7 @@ export default async function RootLayout({ children, params }) {
         {/* Site-wide JSON-LD: Organization + WebSite (search-box).
             Page-level Book/BreadcrumbList/FAQPage schemas are injected
             from the individual page components. */}
-        <JsonLd data={[organizationLd({ locale }), webSiteLd({ locale })]} />
+        <JsonLd data={[organizationLd(), webSiteLd({ locale })]} />
         {/* eslint-disable-next-line no-restricted-syntax -- static bootstrap, no user input; runs BEFORE hydration to prevent light/dark flash */}
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

@@ -43,7 +43,7 @@ function asAbsoluteUrl(path) {
 
 // ── Organization (root layout — site-wide) ─────────────────────────────
 
-export function organizationLd({ locale = "uz" } = {}) {
+export function organizationLd() {
   const site = SITE();
   return {
     "@context": "https://schema.org",
@@ -52,12 +52,6 @@ export function organizationLd({ locale = "uz" } = {}) {
     alternateName: ["Kitobzor.uz", "Китобзор"],
     url: site,
     logo: `${site}/assets/images/logo/kitobzor-logo.png`,
-    description:
-      locale === "ru"
-        ? "Kitobzor — маркетплейс книг в Узбекистане: покупайте, продавайте, обменивайте и дарите книги."
-        : locale === "en"
-          ? "Kitobzor — Uzbekistan's book marketplace: buy, sell, exchange or gift books in one place."
-          : "Kitobzor — O'zbekistondagi kitoblar marketplace'i: sotib oling, soting, almashtiring yoki sovg'a qiling.",
     inLanguage: [TG_LANG_MAP.uz, TG_LANG_MAP.ru, TG_LANG_MAP.en, TG_LANG_MAP.kaa],
     sameAs: [getTelegramChannelUrl(), getInstagramUrl(), getFacebookUrl()],
     contactPoint: {
