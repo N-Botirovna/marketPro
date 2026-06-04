@@ -41,12 +41,6 @@ const OG_LOCALE = { uz: "uz_UZ", ru: "ru_RU", en: "en_US", kaa: "kaa_UZ" };
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
-  const desc =
-    locale === "ru"
-      ? "Kitobzor — маркетплейс книг в Узбекистане. Покупайте, продавайте, обменивайте или дарите книги."
-      : locale === "en"
-        ? "Kitobzor — Uzbekistan's book marketplace. Buy, sell, exchange or gift new and used books online."
-        : "Kitobzor — O'zbekistondagi kitob do'konlari va sevuvchilari uchun marketplace. Kitob sotib oling, sotvering, almashtiring, bepul tarqating yoki ijaraga oling.";
   const title =
     locale === "ru"
       ? "Kitobzor — маркетплейс книг в Узбекистане"
@@ -55,14 +49,12 @@ export async function generateMetadata({ params }) {
         : "Kitobzor — yuqori idrok egalari uchun platforma";
   return {
     title,
-    description: desc,
     alternates: {
       canonical: `${SITE_URL}/${locale}`,
       languages: buildHomeLanguageAlternates(),
     },
     openGraph: {
       title,
-      description: desc,
       url: `${SITE_URL}/${locale}`,
       siteName: "Kitobzor",
       locale: OG_LOCALE[locale] || OG_LOCALE.uz,
