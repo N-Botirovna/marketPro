@@ -105,7 +105,14 @@ export async function generateMetadata({ params }) {
   return {
     metadataBase: new URL(SITE_URL),
     title: {
-      default: "Kitobzor — yuqori idrok egalari uchun platforma",
+      // kaa intentionally falls through to the uz brand title (placeholder
+      // strategy until a translator delivers Karakalpak prose).
+      default:
+        locale === "ru"
+          ? "Kitobzor — платформа для людей с высоким интеллектом"
+          : locale === "en"
+            ? "Kitobzor — a platform for people of high intellect"
+            : "Kitobzor — yuqori idrok egalari uchun platforma",
       template: "%s | Kitobzor",
     },
     openGraph: {
