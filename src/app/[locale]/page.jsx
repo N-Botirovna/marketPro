@@ -43,9 +43,9 @@ export async function generateMetadata({ params }) {
   const { locale } = await params;
   const title =
     locale === "ru"
-      ? "Kitobzor — маркетплейс книг в Узбекистане"
+      ? "Kitobzor — платформа для людей с высоким интеллектом"
       : locale === "en"
-        ? "Kitobzor — Uzbekistan's book marketplace"
+        ? "Kitobzor — a platform for people of high intellect"
         : "Kitobzor — yuqori idrok egalari uchun platforma";
   return {
     title,
