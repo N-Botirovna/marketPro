@@ -23,6 +23,7 @@ import { bookTypeVisual, bookTypeI18nKey } from "@/utils/bookType";
 import { bookLanguageKey } from "@/utils/bookLanguage";
 import { Link } from "@/i18n/navigation";
 import Icon from "@/components/Icon";
+import { mapValidationError } from "@/lib/mapValidationError";
 import BookCreateModal from "./BookCreateModal";
 import { useToast } from "./Toast";
 
@@ -65,7 +66,7 @@ const BookDetails = ({ bookId }) => {
       })
       .catch((err) => {
         if (!alive) return;
-        setError(err?.message || tBook("loadError"));
+        setError(mapValidationError(err).general || tBook("loadError"));
       })
       .finally(() => {
         if (alive) setLoading(false);

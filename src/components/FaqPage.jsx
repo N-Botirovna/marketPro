@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { getFaqs } from "@/services/faqs";
 import Icon from "@/components/Icon";
+import { mapValidationError } from "@/lib/mapValidationError";
 import Spin from "./Spin";
 
 const normalize = (s) =>
@@ -38,7 +39,7 @@ const FaqPage = () => {
       })
       .catch((err) => {
         if (!alive) return;
-        setError(err?.normalized?.message || err?.message || t("loadError"));
+        setError(mapValidationError(err).general || t("loadError"));
       })
       .finally(() => {
         if (alive) setLoading(false);

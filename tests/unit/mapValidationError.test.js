@@ -37,6 +37,27 @@ describe("mapValidationError", () => {
     expect(result.general).toBe("Invalid request");
     expect(result.fields).toEqual({});
   });
+
+  it("never leaks the raw English circuit-breaker message", () => {
+    const circuitError = {
+      name: "CircuitOpenError",
+      code: "ECIRCUIT_OPEN",
+      message: "Circuit breaker open — backend has failed 8 times. Retry in 30s.",
+      snapshot: { failures: 8, msUntilRecovery: 30000 },
+    };
+    const result = mapValidationError(circuitError);
+    expect(result.kind).toBe("circuit");
+    expect(result.general).not.toMatch(/circuit breaker|backend has failed|retry in/i);
+    expect(result.general).toBeTruthy();
+  });
+
+  it("shows a localized message for client-side network errors, not axios text", () => {
+    const networkError = { message: "timeout of 20000ms exceeded", code: "ECONNABORTED" };
+    const result = mapValidationError(networkError);
+    expect(result.kind).toBe("network");
+    expect(result.general).not.toMatch(/timeout of|exceeded/i);
+    expect(result.general).toBeTruthy();
+  });
 });
 
 describe("pickFieldError", () => {

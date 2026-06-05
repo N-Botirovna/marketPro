@@ -17,6 +17,7 @@ import { getBookCategories, getBookSubcategories } from "@/services/categories";
 import { getRegions } from "@/services/regions";
 import BookRowGrid from "@/components/shared/BookRowGrid";
 import Icon from "@/components/Icon";
+import { mapValidationError } from "@/lib/mapValidationError";
 
 // Page size for the infinite-scroll feed. 24 divides evenly into the
 // 1 / 2 / 3-column responsive grid, so rows never end ragged on any
@@ -138,7 +139,7 @@ const CommunityBooksPage = ({ type = "all" }) => {
           setBooks((prev) => (reset ? fetched : [...prev, ...fetched]));
         })
         .catch((err) => {
-          setError(err?.normalized?.message || err?.message || t("loadError"));
+          setError(mapValidationError(err).general || t("loadError"));
         })
         .finally(() => {
           setLoading(false);

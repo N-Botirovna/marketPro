@@ -269,8 +269,13 @@ httpClient.interceptors.response.use(
     const serverError = isServerErrorStatus(status);
     const networkErr = isNetworkError(error);
 
+    // Only a genuine backend 5xx trips the breaker. A client-side network
+    // blip (flaky mobile connection) is not a backend fault — failing the
+    // single request is enough; we must not globally short-circuit for 30s
+    // and then wrongly tell the user the backend has failed. `recordFailure`
+    // is a no-op when passed a falsy flag, so network errors don't count.
     if (serverError || networkErr) {
-      circuit.recordFailure(true);
+      circuit.recordFailure(serverError);
     }
 
     if (isDev) {
