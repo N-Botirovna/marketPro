@@ -6,6 +6,7 @@ import { Box, Tabs, Tab, Stack, Typography } from "@mui/material";
 import { getPolicies } from "@/services/policies";
 import { sanitizeHtml } from "@/lib/sanitize";
 import Icon from "@/components/Icon";
+import { mapValidationError } from "@/lib/mapValidationError";
 import Spin from "./Spin";
 
 const POLICY_TYPES = [
@@ -88,7 +89,7 @@ const PoliciesSection = () => {
       })
       .catch((err) => {
         if (!alive) return;
-        setError(err?.normalized?.message || err?.message || "Error");
+        setError(mapValidationError(err).general || "Error");
       })
       .finally(() => {
         if (alive) setLoading(false);
