@@ -42,15 +42,34 @@ img[loading="lazy"] {
   will-change: background-color, border-color;
 }
 
-/* Optimize product cards */
+/* Optimize product cards.
+   The intrinsic-size is the placeholder height an off-screen card reserves
+   before its content is painted. It MUST be >= the card's real rendered height,
+   otherwise content-visibility clips the bottom of the card (the "Batafsil
+   ko'rish" CTA was getting cut off). Measured BookCard heights in the BookGrid:
+   2-col (xs/sm) ~474px, 3-col (md/lg) ~527px, 4-col (xl) ~610px. We round up per
+   breakpoint and add the `auto` keyword so the browser swaps in the exact
+   measured height after the first paint (no scroll jump on revisit). */
 .product-card {
   content-visibility: auto;
-  contain-intrinsic-size: 300px;
+  contain-intrinsic-size: auto 500px;
+}
+
+@media (min-width: 768px) {
+  .product-card {
+    contain-intrinsic-size: auto 540px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .product-card {
+    contain-intrinsic-size: auto 620px;
+  }
 }
 
 .vendor-card {
   content-visibility: auto;
-  contain-intrinsic-size: 200px;
+  contain-intrinsic-size: auto 360px;
 }
 
 /* Critical CSS - Prevent FOUC */
@@ -58,4 +77,3 @@ html {
   visibility: visible;
   opacity: 1;
 }
-

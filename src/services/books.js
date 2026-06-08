@@ -38,6 +38,24 @@ function toBackendType(t) {
 // (see lib/imageCompress.js) keeps real uploads far under this ceiling.
 const UPLOAD_TIMEOUT_MS = 60_000;
 
+// The Book create/update endpoint only declares MultiPartParser + FormParser
+// (it accepts a `picture` file), so a JSON body is rejected with HTTP 415
+// "Unsupported media type application/json". Callers that pass a plain object
+// (e.g. archive → { is_active: false }) would otherwise have axios serialize it
+// as JSON. Normalize every non-FormData payload to multipart so the contract
+// holds regardless of how the caller built it.
+export function toBookFormData(payload) {
+  if (payload instanceof FormData) return payload;
+  const fd = new FormData();
+  Object.entries(payload || {}).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+    // Booleans must go over the wire as "true"/"false" strings — DRF's
+    // BooleanField parses those in form data; `String(true)` is exactly that.
+    fd.append(key, typeof value === "boolean" ? String(value) : value);
+  });
+  return fd;
+}
+
 export async function getBooks(params = {}) {
   const safeParams = { ...params };
   if (safeParams.type) safeParams.type = toBackendType(safeParams.type);
@@ -116,7 +134,7 @@ export async function getUserArchivedBooks(userId, limit = 12) {
 export async function createBook(bookData) {
   const { data } = await http.post(
     API_ENDPOINTS.BOOKS.CREATE,
-    bookData,
+    toBookFormData(bookData),
     withIdempotency({ timeout: UPLOAD_TIMEOUT_MS }),
   );
   invalidateBookCaches();
@@ -131,7 +149,7 @@ export async function createBook(bookData) {
 export async function patchBook(bookId, bookData) {
   const { data } = await http.patch(
     `${API_ENDPOINTS.BOOKS.DETAIL}/${bookId}/`,
-    bookData,
+    toBookFormData(bookData),
     withIdempotency({ timeout: UPLOAD_TIMEOUT_MS }),
   );
   invalidateBookCaches();
