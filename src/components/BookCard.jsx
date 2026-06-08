@@ -15,10 +15,12 @@ const BookCard = ({
   onEdit,
   onDelete,
   onArchive,
+  onRestore,
   currentUserId = null,
   showEditForOwn = true,
   onLikeUpdate,
   isArchiving = false,
+  isRestoring = false,
 }) => {
   // Hooks MUST run on every render in the same order — putting
   // `if (!book) return null` above them would change the call order
@@ -156,6 +158,22 @@ const BookCard = ({
               <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
             ) : (
               <Icon className="ph-fill ph-archive" aria-hidden="true" />
+            )}
+          </button>
+        )}
+        {showEditForOwn && onRestore && book?.is_active === false && (
+          <button
+            type="button"
+            className="book-card__action-btn is-restore"
+            onClick={() => onRestore(book)}
+            aria-label={tProduct("restoreButton")}
+            title={tProduct("restoreButton")}
+            disabled={isRestoring}
+          >
+            {isRestoring ? (
+              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+            ) : (
+              <Icon className="ph-fill ph-arrow-counter-clockwise" aria-hidden="true" />
             )}
           </button>
         )}

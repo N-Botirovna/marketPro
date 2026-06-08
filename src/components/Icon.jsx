@@ -4,6 +4,7 @@
 // ICON_MAP below; the <Icon> component resolves them by their phosphor class.
 import {
   Archive,
+  ArrowCounterClockwise,
   ArrowLeft,
   ArrowRight,
   ArrowSquareOut,
@@ -89,6 +90,7 @@ import {
 // phosphor glyph name (without the `ph-` prefix) -> SVG component
 const ICON_MAP = {
   archive: Archive,
+  "arrow-counter-clockwise": ArrowCounterClockwise,
   "arrow-left": ArrowLeft,
   "arrow-right": ArrowRight,
   "arrow-square-out": ArrowSquareOut,

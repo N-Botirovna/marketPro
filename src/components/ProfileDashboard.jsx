@@ -43,6 +43,7 @@ const ProfileDashboard = () => {
   const [userShops, setUserShops] = useState([]);
   const [booksLoading, setBooksLoading] = useState(false);
   const [archivingBookId, setArchivingBookId] = useState(null);
+  const [restoringBookId, setRestoringBookId] = useState(null);
   const [showBookModal, setShowBookModal] = useState(false);
   const [showStoryModal, setShowStoryModal] = useState(false);
   const [editingBook, setEditingBook] = useState(null);
@@ -305,6 +306,55 @@ const ProfileDashboard = () => {
       });
     } finally {
       setArchivingBookId(null);
+      setBooksLoading(false);
+    }
+  };
+
+  const handleRestoreBook = async (book) => {
+    if (!book?.id || !userData?.id) {
+      return;
+    }
+
+    if (!window.confirm(tProduct("restoreConfirm"))) {
+      return;
+    }
+
+    try {
+      setRestoringBookId(book.id);
+      setBooksLoading(true);
+
+      const response = await patchBook(book.id, { is_active: true });
+
+      if (response?.success === false) {
+        showToast({
+          type: "error",
+          title: tCommon("error"),
+          message: tProduct("archiveUnknownError", {
+            message: response?.message || tProduct("unknownError"),
+          }),
+          duration: 4000,
+        });
+      } else {
+        showToast({
+          type: "success",
+          title: tCommon("success"),
+          message: tProduct("restoreSuccess"),
+          duration: 3000,
+        });
+      }
+
+      await fetchBooksData(userData.id);
+    } catch (error) {
+      console.error("Error restoring book:", error);
+      const mapped = mapValidationError(error);
+      showToast({
+        type: "error",
+        title: tCommon("error"),
+        message: mapped.general || tProduct("restoreError"),
+        duration: 4000,
+      });
+    } finally {
+      setRestoringBookId(null);
       setBooksLoading(false);
     }
   };
@@ -634,6 +684,8 @@ const ProfileDashboard = () => {
             onEditBook={handleEditBook}
             onArchiveBook={handleArchiveBook}
             archivingBookId={archivingBookId}
+            onRestoreBook={handleRestoreBook}
+            restoringBookId={restoringBookId}
           />
 
           <Box sx={{ textAlign: "center", pt: 2 }}>

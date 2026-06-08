@@ -19,6 +19,8 @@ const ProfileTabs = ({
   onEditBook,
   onArchiveBook,
   archivingBookId,
+  onRestoreBook,
+  restoringBookId,
 }) => {
   const tProfile = useTranslations("ProfileDashboard");
 
@@ -94,6 +96,8 @@ const ProfileTabs = ({
             onEdit={onEditBook}
             currentUserId={userData?.id}
             showEditForOwn={true}
+            onRestore={onRestoreBook}
+            isRestoring={restoringBookId === book.id}
           />
         )}
       />
