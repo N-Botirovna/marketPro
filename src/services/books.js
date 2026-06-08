@@ -29,6 +29,15 @@ function toBackendType(t) {
   return t && TYPE_REQ_ALIAS[t] ? TYPE_REQ_ALIAS[t] : t;
 }
 
+// Photo uploads ride on these mutations. The default 20s axios timeout is fine
+// for JSON but too tight for a multipart upload on a mobile connection — the
+// request would abort while the backend was still receiving/resizing the image,
+// the spinner appeared to hang, and a retry created a duplicate book. Match the
+// server's window instead (nginx proxy_read_timeout + gunicorn --timeout = 60s)
+// so a genuinely slow upload is allowed to finish. Client-side compression
+// (see lib/imageCompress.js) keeps real uploads far under this ceiling.
+const UPLOAD_TIMEOUT_MS = 60_000;
+
 export async function getBooks(params = {}) {
   const safeParams = { ...params };
   if (safeParams.type) safeParams.type = toBackendType(safeParams.type);
@@ -105,7 +114,11 @@ export async function getUserArchivedBooks(userId, limit = 12) {
 }
 
 export async function createBook(bookData) {
-  const { data } = await http.post(API_ENDPOINTS.BOOKS.CREATE, bookData, withIdempotency());
+  const { data } = await http.post(
+    API_ENDPOINTS.BOOKS.CREATE,
+    bookData,
+    withIdempotency({ timeout: UPLOAD_TIMEOUT_MS }),
+  );
   invalidateBookCaches();
   return {
     book: normalizeItem(data),
@@ -119,7 +132,7 @@ export async function patchBook(bookId, bookData) {
   const { data } = await http.patch(
     `${API_ENDPOINTS.BOOKS.DETAIL}/${bookId}/`,
     bookData,
-    withIdempotency(),
+    withIdempotency({ timeout: UPLOAD_TIMEOUT_MS }),
   );
   invalidateBookCaches();
   return {

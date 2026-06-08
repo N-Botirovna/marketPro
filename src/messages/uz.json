@@ -415,6 +415,8 @@
     "description": "Tavsif",
     "uploadPhoto": "Kitob rasmini yuklang",
     "photoHint": "Bosib o'tib rasmni tanlang yoki bu yerga tashlab qo'ying",
+    "photoProcessing": "Rasm tayyorlanmoqda...",
+    "som": "so'm",
     "ownerLabel": "Kim tomonidan",
     "conditionLabel": "Holati",
     "coverLabel": "Muqova",

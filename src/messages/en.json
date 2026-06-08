@@ -415,6 +415,8 @@
     "description": "Description",
     "uploadPhoto": "Upload book photo",
     "photoHint": "Click to choose an image",
+    "photoProcessing": "Preparing image...",
+    "som": "UZS",
     "ownerLabel": "Posted by",
     "conditionLabel": "Condition",
     "coverLabel": "Cover",

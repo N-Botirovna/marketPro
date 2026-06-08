@@ -415,6 +415,8 @@
     "description": "Táriyp",
     "uploadPhoto": "Kitap súwretin júkleń",
     "photoHint": "Basıp súwret saylań yáki bul jerge taslań",
+    "photoProcessing": "Súwret tayarlanbaqta...",
+    "som": "swm",
     "ownerLabel": "Kim tárepinen",
     "conditionLabel": "Halatı",
     "coverLabel": "Muqaba",

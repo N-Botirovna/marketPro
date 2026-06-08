@@ -415,6 +415,8 @@
     "description": "Описание",
     "uploadPhoto": "Загрузите фото книги",
     "photoHint": "Нажмите, чтобы выбрать изображение",
+    "photoProcessing": "Подготовка изображения...",
+    "som": "сум",
     "ownerLabel": "Опубликовано",
     "conditionLabel": "Состояние",
     "coverLabel": "Обложка",

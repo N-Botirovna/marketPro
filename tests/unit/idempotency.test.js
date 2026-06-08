@@ -52,19 +52,34 @@ describe("withIdempotency (flag enabled)", () => {
   });
 });
 
-describe("withIdempotency (flag disabled — default)", () => {
+describe("withIdempotency (enabled by default when unset)", () => {
   beforeEach(() => {
     delete process.env.NEXT_PUBLIC_ENABLE_IDEMPOTENCY;
   });
 
-  it("is a no-op when the env flag is unset", () => {
+  it("adds the header when the env flag is unset (default ON)", () => {
+    const config = withIdempotency({ headers: { Authorization: "Bearer x" } });
+    expect(config.headers["Idempotency-Key"]).toBeTruthy();
+    expect(config.headers.Authorization).toBe("Bearer x");
+  });
+
+  it("preserves any caller-provided timeout/config alongside the header", () => {
+    const config = withIdempotency({ timeout: 60000 });
+    expect(config.timeout).toBe(60000);
+    expect(config.headers["Idempotency-Key"]).toBeTruthy();
+  });
+});
+
+describe("withIdempotency (escape hatch — explicitly disabled)", () => {
+  it.each(["0", "false", "off", "OFF", "False"])("is a no-op when the flag is %s", (val) => {
+    process.env.NEXT_PUBLIC_ENABLE_IDEMPOTENCY = val;
     const config = withIdempotency({ headers: { Authorization: "Bearer x" } });
     expect(config.headers?.["Idempotency-Key"]).toBeUndefined();
-    // and preserves the original config shape unchanged
     expect(config.headers.Authorization).toBe("Bearer x");
   });
 
   it("does not add the header even when an explicit key is passed", () => {
+    process.env.NEXT_PUBLIC_ENABLE_IDEMPOTENCY = "0";
     const config = withIdempotency({}, "fixed-key-1");
     expect(config.headers?.["Idempotency-Key"]).toBeUndefined();
   });

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Dialog,
@@ -24,6 +24,7 @@ import { getShopsByOwner } from "@/services/shops";
 import { mapValidationError } from "@/lib/mapValidationError";
 import { useDraftStorage } from "@/hooks/useDraftStorage";
 import { isBlank, tooLong, isIntStr, toNum } from "@/lib/validation";
+import { compressImage, fileToDataUrl } from "@/lib/imageCompress";
 import Icon from "@/components/Icon";
 import { useToast } from "./Toast";
 import FieldError from "./FieldError";
@@ -155,6 +156,17 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
   const [step, setStep] = useState(0);
   const [errors, setErrors] = useState({ general: null, fields: {} });
   const [submitting, setSubmitting] = useState(false);
+  // True while we downscale + re-encode a freshly picked photo in the browser.
+  const [photoProcessing, setPhotoProcessing] = useState(false);
+
+  // The modal stays mounted across opens (PostBookMount toggles `isOpen`), so an
+  // async task (image compression, submit) can resolve AFTER the user closed it.
+  // Mirror `isOpen` in a ref to drop those late writes instead of repopulating a
+  // closed form.
+  const openRef = useRef(isOpen);
+  useEffect(() => {
+    openRef.current = isOpen;
+  }, [isOpen]);
 
   // Data loaders
   const [categories, setCategories] = useState([]);
@@ -350,6 +362,27 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
     },
     [formData, validateBookField],
   );
+
+  // Handle a freshly picked photo: shrink it in the browser before it ever
+  // touches the form state, so the eventual upload is small and fast. Falls
+  // back to the raw file on any failure (compressImage guarantees this), and
+  // the preview always mirrors the bytes we'll actually send.
+  const handlePhotoPick = useCallback(async (file) => {
+    if (!file) return;
+    setPhotoProcessing(true);
+    try {
+      const optimized = await compressImage(file);
+      const preview = await fileToDataUrl(optimized).catch(() => null);
+      // Modal may have been closed while we were compressing — don't write back
+      // into a form the user already dismissed.
+      if (openRef.current) {
+        setFormData((prev) => ({ ...prev, picture: optimized, picture_preview: preview }));
+      }
+    } finally {
+      // Always clear the flag (component stays mounted) so a reopen isn't stuck.
+      setPhotoProcessing(false);
+    }
+  }, []);
 
   // Steps definition. Each entry has:
   //   key, title, subtitle, validate(), render()
@@ -702,16 +735,9 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                 hidden
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (!file) return;
-                  const reader = new FileReader();
-                  reader.onload = (ev) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      picture: file,
-                      picture_preview: ev.target.result,
-                    }));
-                  };
-                  reader.readAsDataURL(file);
+                  // Reset the input so re-picking the same file fires onChange.
+                  e.target.value = "";
+                  handlePhotoPick(file);
                 }}
               />
               <Box
@@ -764,6 +790,26 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
                     </Typography>
                   </>
                 )}
+                {photoProcessing && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 1,
+                      bgcolor: "rgba(255, 255, 255, 0.78)",
+                      backdropFilter: "blur(2px)",
+                    }}
+                  >
+                    <CircularProgress size={24} />
+                    <Typography variant="caption" sx={{ color: "var(--text-secondary)" }}>
+                      {t("photoProcessing")}
+                    </Typography>
+                  </Box>
+                )}
               </Box>
               <FieldError message={errors.fields.picture} />
             </Box>
@@ -813,6 +859,8 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
     setField,
     validateBookField,
     currentYear,
+    handlePhotoPick,
+    photoProcessing,
   ]);
 
   const currentStep = steps[step];
@@ -820,7 +868,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
   const canNext = currentStep ? currentStep.validate() : false;
 
   const handleNext = () => {
-    if (!canNext) return;
+    if (!canNext || photoProcessing) return;
     if (isLastStep) {
       handleSubmit();
     } else {
@@ -911,17 +959,23 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
         setFormData(DEFAULTS);
         setStep(0);
       } else {
-        setErrors({
-          general: response.message || t("error"),
-          fields: {},
-        });
+        const msg = response.message || t("error");
+        setErrors({ general: msg, fields: {} });
+        // The inline alert lives at the top of the scrollable body; on the long
+        // review step the user is at the bottom (Save button) and never sees it.
+        // A toast surfaces the failure no matter where they are scrolled.
+        showToast({ type: "error", title: tCommon("error"), message: msg, duration: 5000 });
       }
     } catch (error) {
       const mapped = mapValidationError(error);
+      const msg = mapped.general || t("error");
       setErrors({
-        general: mapped.general || t("error"),
+        general: msg,
         fields: mapped.fields || {},
       });
+      // Always toast — the inline alert can be scrolled out of view on the
+      // review step, which is exactly where submit happens.
+      showToast({ type: "error", title: tCommon("error"), message: msg, duration: 5000 });
       // Jump back to first step with an error so the user sees it.
       const firstErrorStep = findFirstStepWithError(steps, mapped.fields || {});
       if (firstErrorStep >= 0) setStep(firstErrorStep);
@@ -1017,7 +1071,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
           <Button
             variant="contained"
             onClick={handleNext}
-            disabled={!canNext || submitting}
+            disabled={!canNext || submitting || photoProcessing}
             sx={{ textTransform: "none", flex: 2, fontWeight: 600 }}
             startIcon={
               submitting ? (
@@ -1090,22 +1144,37 @@ const findFirstStepWithError = (steps, fieldErrors) => {
   return -1;
 };
 
+// Group thousands with a thin space: 12000 → "12 000". Locale-agnostic so it
+// renders identically on server/client (no hydration drift) and across uz/ru/en.
+const groupThousands = (v) => String(v ?? "").replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+
+/**
+ * Final review — redesigned to fit a single phone screen (no scroll on the
+ * common case). A hero row (cover + title/author/type/price) carries the
+ * identity; a dense 2-column grid lists the secondary attributes. Empty fields
+ * are dropped so a gift listing with no price/ISBN stays compact.
+ */
 const ReviewSection = ({ formData, categories, shops, t, tType }) => {
   const cat = categories.find((c) => String(c.id) === String(formData.category));
   const sub = cat?.subcategories?.find((s) => String(s.id) === String(formData.sub_category));
   const shop = shops.find((s) => String(s.id) === String(formData.shop));
-  const rows = [
-    { label: t("name"), value: formData.name },
-    { label: t("author"), value: formData.author },
-    { label: t("bookType"), value: tType(formData.type === "seller" ? "sell" : formData.type) },
+
+  const hasPrice = needsPrice(formData.type) && formData.price !== "" && formData.price != null;
+  const discount = formData.discount_price;
+  const hasDiscount =
+    hasPrice &&
+    discount !== "" &&
+    discount != null &&
+    Number(discount) > 0 &&
+    Number(discount) < Number(formData.price);
+
+  const details = [
     { label: t("conditionLabel"), value: t(`condition.${formData.condition}`) },
     { label: t("category"), value: cat?.name },
     { label: t("subCategory"), value: sub?.name },
     { label: t("language"), value: t(`languages.${formData.language}`) },
     { label: t("scriptType"), value: t(`scripts.${formData.script_type}`) },
     { label: t("coverLabel"), value: t(`covers.${formData.cover_type}`) },
-    { label: t("price"), value: formData.price },
-    { label: t("discountPrice"), value: formData.discount_price },
     { label: t("publicationYear"), value: formData.publication_year },
     { label: t("pages"), value: formData.pages },
     { label: t("isbn"), value: formData.isbn },
@@ -1113,50 +1182,164 @@ const ReviewSection = ({ formData, categories, shops, t, tType }) => {
   ].filter((r) => r.value !== "" && r.value != null && r.value !== undefined);
 
   return (
-    <Stack spacing={1.25}>
-      {formData.picture_preview && (
+    <Stack spacing={1.5}>
+      {/* Hero: cover + identity */}
+      <Box sx={{ display: "flex", gap: 1.5 }}>
         <Box
           sx={{
+            width: { xs: 76, sm: 88 },
+            flexShrink: 0,
+            aspectRatio: "3 / 4",
+            borderRadius: 2,
+            overflow: "hidden",
+            bgcolor: "var(--surface-muted)",
+            border: "1px solid var(--border-subtle)",
             display: "flex",
+            alignItems: "center",
             justifyContent: "center",
-            mb: 1,
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={formData.picture_preview}
-            alt=""
-            style={{
-              maxWidth: "100%",
-              maxHeight: 220,
-              borderRadius: 12,
-            }}
-          />
+          {formData.picture_preview ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={formData.picture_preview}
+              alt=""
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          ) : (
+            <Icon
+              className="ph ph-image-square"
+              style={{ fontSize: 30, color: "var(--text-muted)" }}
+              aria-hidden="true"
+            />
+          )}
         </Box>
-      )}
-      {rows.map((row) => (
-        <Stack
-          key={row.label}
-          direction="row"
-          spacing={1.5}
-          sx={{
-            py: 0.75,
-            borderBottom: "1px solid var(--border-subtle)",
-          }}
-        >
+
+        <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
           <Typography
-            variant="caption"
             sx={{
-              color: "var(--text-muted)",
-              minWidth: 120,
-              fontWeight: 600,
+              fontWeight: 700,
+              fontSize: 16,
+              lineHeight: 1.25,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
             }}
           >
-            {row.label}
+            {formData.name}
           </Typography>
-          <Typography sx={{ flex: 1, fontSize: 14 }}>{row.value}</Typography>
-        </Stack>
-      ))}
+          <Typography
+            variant="body2"
+            sx={{
+              color: "var(--text-muted)",
+              mt: 0.25,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {formData.author}
+          </Typography>
+
+          <Box
+            sx={{
+              mt: "auto",
+              pt: 1,
+              display: "flex",
+              alignItems: "baseline",
+              gap: 1,
+              flexWrap: "wrap",
+            }}
+          >
+            <Box
+              component="span"
+              sx={{
+                px: 1,
+                py: 0.25,
+                borderRadius: 999,
+                fontSize: 12,
+                fontWeight: 700,
+                bgcolor: "primary.50",
+                color: "primary.main",
+                alignSelf: "center",
+              }}
+            >
+              {tType(formData.type === "seller" ? "sell" : formData.type)}
+            </Box>
+            {hasPrice && (
+              <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.75, minWidth: 0 }}>
+                <Typography component="span" sx={{ fontWeight: 800, fontSize: 16 }}>
+                  {groupThousands(hasDiscount ? discount : formData.price)}
+                  <Box
+                    component="span"
+                    sx={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", ml: 0.5 }}
+                  >
+                    {t("som")}
+                  </Box>
+                </Typography>
+                {hasDiscount && (
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontSize: 12,
+                      color: "var(--text-muted)",
+                      textDecoration: "line-through",
+                    }}
+                  >
+                    {groupThousands(formData.price)}
+                  </Typography>
+                )}
+              </Box>
+            )}
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Secondary attributes — dense two-column grid */}
+      {details.length > 0 && (
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            columnGap: 1.5,
+            rowGap: 0.25,
+            border: "1px solid var(--border-subtle)",
+            borderRadius: 2,
+            p: 1.25,
+          }}
+        >
+          {details.map((row) => (
+            <Box key={row.label} sx={{ minWidth: 0, py: 0.4 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  display: "block",
+                  color: "var(--text-muted)",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: 0.2,
+                }}
+              >
+                {row.label}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: 13.5,
+                  fontWeight: 500,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+                title={String(row.value)}
+              >
+                {row.value}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      )}
     </Stack>
   );
 };
