@@ -143,7 +143,24 @@ export function isRefreshTokenExpired() {
   return !loginTime;
 }
 
-export async function refreshAccessToken() {
+// Shared in-flight refresh. Many useAuth consumers (header, footer, LocaleSync,
+// and one per BookCard…) can hit a stale access token in the same tick. Without
+// a shared promise they stampede POST /auth/refresh — dozens of calls in one
+// second — which trips the auth-zone rate limit (429) AND, because the backend
+// rotates+blacklists refresh tokens (ROTATE_REFRESH_TOKENS), every loser gets
+// 400/401 → clearAuthStorage() → the user is logged out moments after logging
+// in. Collapsing concurrent callers onto one refresh removes the storm.
+let _refreshPromise = null;
+
+export function refreshAccessToken() {
+  if (_refreshPromise) return _refreshPromise;
+  _refreshPromise = _doRefreshAccessToken().finally(() => {
+    _refreshPromise = null;
+  });
+  return _refreshPromise;
+}
+
+async function _doRefreshAccessToken() {
   const refreshToken = getItem("refresh_token");
   if (!refreshToken) throw new Error("No refresh token");
 
