@@ -213,8 +213,6 @@ httpClient.interceptors.request.use(async (config) => {
 
 // ---- Refresh queue ----------------------------------------------------------
 
-const REFRESH_TIMEOUT_MS = 8000;
-
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -222,19 +220,6 @@ const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => (error ? prom.reject(error) : prom.resolve(token)));
   failedQueue = [];
 };
-
-function refreshWithTimeout(refreshToken) {
-  const refreshCall = axios.post(`${API_BASE_URL}${API_ENDPOINTS.AUTH.REFRESH}`, {
-    refresh_token: refreshToken,
-  });
-  const timeout = new Promise((_, reject) => {
-    setTimeout(
-      () => reject(new Error(`Token refresh timed out after ${REFRESH_TIMEOUT_MS}ms`)),
-      REFRESH_TIMEOUT_MS,
-    );
-  });
-  return Promise.race([refreshCall, timeout]);
-}
 
 // The auto-login page (`/{locale}/auth/auto`) acquires a session from a
 // one-time ticket. It renders under the main layout, so the header fires
@@ -357,22 +342,19 @@ httpClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = getItem("refresh_token");
-        if (!refreshToken) throw new Error("No refresh token available");
+        // Delegate to the shared refreshAccessToken so this 401 path and every
+        // useAuth consumer collapse onto ONE in-flight refresh. Doing our own
+        // refresh here would race theirs, rotate the refresh token
+        // (ROTATE_REFRESH_TOKENS) and 400 the loser → spurious logout. Dynamic
+        // import avoids a static http<->auth import cycle; it stores the new
+        // tokens, we then read the fresh access token from storage.
+        const { refreshAccessToken } = await import("@/services/auth");
+        await refreshAccessToken();
 
-        const response = await refreshWithTimeout(refreshToken);
-
-        const newAccessToken = response.data?.access_token;
-        const newRefreshToken = response.data?.refresh_token;
-        const expiresIn = response.data?.expires_in || response.data?.expires_in_seconds || 4800;
-
+        const newAccessToken = getItem(AUTH_TOKEN_STORAGE_KEY);
         if (!newAccessToken) throw new Error("No new access token received");
 
-        setItem(AUTH_TOKEN_STORAGE_KEY, newAccessToken);
         httpClient.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
-        setItem("token_expires_at", Date.now() + expiresIn * 1000);
-        if (newRefreshToken) setItem("refresh_token", newRefreshToken);
-
         processQueue(null, newAccessToken);
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return httpClient(originalRequest);
