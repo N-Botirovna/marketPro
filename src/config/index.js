@@ -17,7 +17,10 @@ export const PROTECTED_PAGES = ["/account", "/wishlist", "/user"];
 // Legacy export — kept so callers that imported PUBLIC_PAGES still work.
 // Login / register surfaces are always reachable by definition; we list them
 // here so any leftover `PUBLIC_PAGES.includes(...)` check passes through.
-export const PUBLIC_PAGES = ["/login", "/register", "/forgot-password"];
+// `/auth/auto` is the bot auto-login interstitial — hide the header there so
+// it doesn't fire authenticated background requests (or drive logout) while
+// the one-time ticket is being exchanged.
+export const PUBLIC_PAGES = ["/login", "/register", "/forgot-password", "/auth/auto"];
 
 export const AUTH_TOKEN_STORAGE_KEY = "auth_token";
 
