@@ -21,6 +21,18 @@ export const useAuth = () => {
   const abortRef = useRef(null);
 
   const checkAuthStatus = useCallback(async () => {
+    // Stand down on the bot auto-login page. It acquires a session from a
+    // one-time ticket via AutoLoginClient; if the other useAuth consumers
+    // (footer, LocaleSync, cards…) also run here they fire concurrent
+    // refreshes — which rotate the refresh token (ROTATE_REFRESH_TOKENS), so
+    // the losers get 400 and clearAuthStorage() wipes the tokens the ticket
+    // exchange just stored, leaving the user logged out. Let AutoLoginClient
+    // own auth here; we re-check normally after its post-login hard reload.
+    if (typeof window !== "undefined" && window.location.pathname.includes("/auth/auto")) {
+      setIsLoading(false);
+      return;
+    }
+
     // Abort any in-flight check before starting a new one
     abortRef.current?.abort();
     const controller = new AbortController();
