@@ -236,6 +236,18 @@ function refreshWithTimeout(refreshToken) {
   return Promise.race([refreshCall, timeout]);
 }
 
+// The auto-login page (`/{locale}/auth/auto`) acquires a session from a
+// one-time ticket. It renders under the main layout, so the header fires
+// authenticated background requests that 401 while the ticket exchange is
+// still in flight. If the 401 handler clears storage and hard-redirects to
+// /login, it tears down the page mid-exchange — the ticket POST is aborted
+// (observed as HTTP 499) and the user is wrongly bounced to manual OTP.
+// Detect that page and let AutoLoginClient own the auth lifecycle there.
+function isOnAutoLoginPage() {
+  if (typeof window === "undefined") return false;
+  return window.location.pathname.includes("/auth/auto");
+}
+
 function buildLoginRedirectUrl(locale) {
   if (typeof window === "undefined") return `/${locale}/login`;
   const raw = window.location.pathname + window.location.search;
@@ -324,7 +336,14 @@ httpClient.interceptors.response.use(
     }
 
     // ---- 401 token refresh -------------------------------------------------
-    if (error?.response?.status === 401 && !originalRequest._retry) {
+    // `skipAuthRefresh` callers (e.g. ticket login) own their auth flow — let
+    // their original 401 (e.g. code=ticket_invalid) propagate untouched so the
+    // caller can show the right message instead of a generic refresh failure.
+    if (
+      error?.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.skipAuthRefresh
+    ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -360,13 +379,18 @@ httpClient.interceptors.response.use(
       } catch (refreshError) {
         if (isDev) console.error("❌ Token refresh failed:", refreshError.message);
         processQueue(refreshError, null);
-        clearHttpCache();
-        clearAuthStorage();
-        delete httpClient.defaults.headers.common["Authorization"];
 
-        if (typeof window !== "undefined") {
-          const locale = getCurrentLocale() || "uz";
-          window.location.href = buildLoginRedirectUrl(locale);
+        // On the auto-login page a 401 is expected (no session yet) — never
+        // clear storage or redirect, or we abort the in-flight ticket login.
+        if (!isOnAutoLoginPage()) {
+          clearHttpCache();
+          clearAuthStorage();
+          delete httpClient.defaults.headers.common["Authorization"];
+
+          if (typeof window !== "undefined") {
+            const locale = getCurrentLocale() || "uz";
+            window.location.href = buildLoginRedirectUrl(locale);
+          }
         }
 
         return Promise.reject(refreshError);
