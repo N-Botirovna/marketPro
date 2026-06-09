@@ -40,16 +40,23 @@ const AutoLoginClient = ({ ticket, next = "/" }) => {
         await loginWithTicket(ticket);
         if (!alive) return;
 
-        // Redirect immediately — no artificial delay, no extra /me round-trip.
-        // The bot deep-link already targets the user's locale (the Ticket view
-        // builds `/{locale}/auth/auto?...` from their saved language), so we
-        // keep the current URL locale and go straight to `next`.
         setState("success");
         const safeNext = next && next.startsWith("/") ? next : "/";
-        // Strip any leading locale prefix in `next` so the locale option
-        // takes effect; next-intl's router prepends the locale.
+        // Strip any leading locale prefix in `next`; we re-add the current one.
         const stripped = stripLocalePrefix(safeNext);
-        router.replace(stripped, { locale: currentLocale });
+
+        // HARD navigation (full reload), not router.replace. This page renders
+        // under the main layout, so a client-side nav would NOT remount the
+        // header / useAuth / ProtectedRoute — they'd keep their pre-login
+        // "logged out" state even though tokens are now stored, and the user
+        // would land looking unauthenticated. A full reload re-initialises
+        // everything from localStorage, so they arrive authenticated.
+        const target = `/${currentLocale}${stripped === "/" ? "" : stripped}`;
+        if (typeof window !== "undefined") {
+          window.location.replace(target);
+        } else {
+          router.replace(stripped, { locale: currentLocale });
+        }
       } catch (err) {
         if (!alive) return;
         setState("error");
