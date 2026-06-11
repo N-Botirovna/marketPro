@@ -118,10 +118,10 @@ const CommunityBooksPage = ({ type = "all" }) => {
   }, [type, regionId, districtId, categoryId, subcategoryId, query, priceMin, priceMax]);
 
   // One fetch for both the first page (reset=true → replace) and infinite
-  // scroll (reset=false → append). The backend sorts gift/exchange/rent
-  // ahead of sale ("seller") books, so sale books live past the first
-  // page — without this paging they were simply never shown in the "all"
-  // feed. `loadingRef` blocks overlapping requests (fast scroll / refilter).
+  // scroll (reset=false → append). The backend orders the feed as
+  // fresh-listings-first + a daily-rotating shuffle (stable within a day),
+  // so offsets stay consistent across pages mid-session. `loadingRef`
+  // blocks overlapping requests (fast scroll / refilter).
   const fetchPage = useCallback(
     (reset) => {
       if (loadingRef.current) return;

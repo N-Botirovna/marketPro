@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { formatPrice } from "@/utils/formatPrice";
 import { openShareSheet } from "@/lib/shareSheet";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import { bookOwnerLocation } from "@/utils/location";
 import Icon from "@/components/Icon";
 import { useToast } from "./Toast";
 
@@ -71,6 +72,7 @@ const BookCard = ({
     })();
   const isOwnBook = currentUserId && book.posted_by?.id === currentUserId;
   const showEditButton = showEditForOwn && isOwnBook && onEdit;
+  const ownerLocation = bookOwnerLocation(book);
 
   const handleShare = (e) => {
     e.preventDefault();
@@ -254,11 +256,23 @@ const BookCard = ({
           )}
         </div>
 
-        <div className="book-card__meta-row mt-8">
-          <Icon className="ph-fill ph-storefront book-card__meta-icon" aria-hidden="true" />
-          <span className="book-card__meta-text book-card__seller">
-            {`${tCommon("seller")}: ${sellerName}`}
+        <div className="book-card__meta-row mt-8 justify-content-between">
+          <span className="d-inline-flex align-items-center gap-4" style={{ minWidth: 0 }}>
+            <Icon className="ph-fill ph-storefront book-card__meta-icon" aria-hidden="true" />
+            <span className="book-card__meta-text book-card__seller">
+              {`${tCommon("seller")}: ${sellerName}`}
+            </span>
           </span>
+          {ownerLocation && (
+            <span
+              className="d-inline-flex align-items-center gap-4 flex-shrink-0"
+              style={{ maxWidth: "58%" }}
+              title={ownerLocation}
+            >
+              <Icon className="ph-fill ph-map-pin book-card__meta-icon" aria-hidden="true" />
+              <span className="book-card__meta-text">{ownerLocation}</span>
+            </span>
+          )}
         </div>
 
         <Link

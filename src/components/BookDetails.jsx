@@ -219,7 +219,13 @@ const BookDetails = ({ bookId }) => {
     book.shop?.name ||
     [book.posted_by?.first_name, book.posted_by?.last_name].filter(Boolean).join(" ") ||
     tBook("user");
-  const ownerSub = book.shop ? tBook("shop") : book.posted_by?.region?.name || tBook("user");
+  // Backend sends the poster's location as flat `region_name`/`district_name`
+  // fields on `posted_by` (UserShortSerializer) — there is no nested
+  // `region.name` object, reading that path always came back undefined.
+  const ownerLocation = [book.posted_by?.region_name, book.posted_by?.district_name]
+    .filter(Boolean)
+    .join(", ");
+  const ownerSub = book.shop ? tBook("shop") : ownerLocation || tBook("user");
   const ownerPic = book.shop?.picture || book.posted_by?.picture || null;
 
   const canEdit = Boolean(book.can_update);
@@ -613,6 +619,7 @@ const BookDetails = ({ bookId }) => {
               value={book.pages ? `${book.pages} ${tBook("pagesUnit")}` : null}
             />
             <DetailRow label={tBook("isbn")} value={book.isbn} />
+            <DetailRow label={tCommon("location")} value={ownerLocation || null} />
             <DetailRow label={tBook("postedOn")} value={formatDate(book.created_at)} last />
           </Box>
         </Box>

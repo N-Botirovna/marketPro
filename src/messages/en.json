@@ -925,6 +925,10 @@
     "viewMore": "Read more",
     "promoteStory": "Post as story",
     "promotedBadge": "New announcement",
+    "social": {
+      "instagram": "Our Instagram page",
+      "telegram": "Our Telegram channel"
+    },
     "cta": {
       "openInTelegram": "Open in Telegram",
       "openInInstagram": "Open in Instagram",
