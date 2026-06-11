@@ -925,6 +925,10 @@
     "viewMore": "Подробнее",
     "promoteStory": "В сторис",
     "promotedBadge": "Новое объявление",
+    "social": {
+      "instagram": "Наша страница в Instagram",
+      "telegram": "Наш Telegram-канал"
+    },
     "cta": {
       "openInTelegram": "Открыть в Telegram",
       "openInInstagram": "Открыть в Instagram",
