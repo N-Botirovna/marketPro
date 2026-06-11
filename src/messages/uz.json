@@ -925,6 +925,10 @@
     "viewMore": "Batafsil",
     "promoteStory": "Story qilish",
     "promotedBadge": "Yangi e'lon",
+    "social": {
+      "instagram": "Instagram sahifamiz",
+      "telegram": "Telegram kanalimiz"
+    },
     "cta": {
       "openInTelegram": "Telegram'da ochish",
       "openInInstagram": "Instagram'da ochish",

@@ -4,6 +4,7 @@ import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { getBanners } from "@/services/banners";
+import { getInstagramUrl, getTelegramChannelUrl } from "@/config/env";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { detectExternalLink } from "@/utils/externalLink";
 import Icon from "@/components/Icon";
@@ -192,6 +193,32 @@ const BannerOne = () => {
               </article>
             );
           })}
+
+          {/* Social quick-links — fixed on the stage (not per-slide), so the
+              brand channels are one tap away no matter which announcement is
+              showing. Mirrors the pips' frosted-pill look. */}
+          <div className="kz-banner__social">
+            <a
+              href={getInstagramUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="kz-banner__social-btn"
+              aria-label={t("social.instagram")}
+              title={t("social.instagram")}
+            >
+              <Icon className="ph-fill ph-instagram-logo" aria-hidden="true" />
+            </a>
+            <a
+              href={getTelegramChannelUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="kz-banner__social-btn"
+              aria-label={t("social.telegram")}
+              title={t("social.telegram")}
+            >
+              <Icon className="ph-fill ph-telegram-logo" aria-hidden="true" />
+            </a>
+          </div>
 
           {/* Side arrows — hidden on touch screens (no hover affordance,
               swipe handles it). */}
@@ -458,6 +485,52 @@ const BannerOne = () => {
           .kz-banner__arrow {
             display: none;
           }
+        }
+
+        .kz-banner__social {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          display: inline-flex;
+          gap: 6px;
+          z-index: 3;
+        }
+        @media (min-width: 768px) {
+          .kz-banner__social {
+            top: 16px;
+            right: 16px;
+            gap: 8px;
+          }
+        }
+        .kz-banner__social-btn {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: rgba(0, 0, 0, 0.28);
+          backdrop-filter: blur(6px);
+          color: #fff;
+          font-size: 17px;
+          line-height: 1;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          text-decoration: none;
+          transition:
+            background 0.18s ease,
+            transform 0.18s ease;
+        }
+        @media (min-width: 768px) {
+          .kz-banner__social-btn {
+            width: 36px;
+            height: 36px;
+            font-size: 19px;
+          }
+        }
+        .kz-banner__social-btn:hover,
+        .kz-banner__social-btn:focus-visible {
+          background: rgba(0, 0, 0, 0.5);
+          transform: translateY(-1px);
+          outline: none;
         }
 
         .kz-banner__pips {

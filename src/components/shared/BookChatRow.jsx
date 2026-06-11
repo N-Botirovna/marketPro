@@ -7,15 +7,21 @@ import { Link } from "@/i18n/navigation";
 import { formatPrice } from "@/utils/formatPrice";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { bookTypeVisual, bookTypeI18nKey } from "@/utils/bookType";
+import { bookOwnerLocation } from "@/utils/location";
 import Icon from "@/components/Icon";
 
 /**
  * Compact horizontal book card used in the feed/browse listings:
  *
- *   ┌────────────────────────────────────┐
- *   │ [thumb 60]  Title (bold)   [badge]  │
- *   │             Author · Price          │
- *   └────────────────────────────────────┘
+ *   ┌──────────────────────────────────────┐
+ *   │ [thumb 64]  Title (bold)     [badge]  │
+ *   │             Author                    │
+ *   │             Price        📍 Location  │
+ *   └──────────────────────────────────────┘
+ *
+ * The trailing column is vertically split: type badge pinned top-right,
+ * the poster's "Region, District" pinned bottom-right (hidden when the
+ * payload carries no location — e.g. shop books).
  *
  * It is a *self-contained card* (border + shadow + hover lift, mirroring
  * ShopCard) so it can sit in a responsive grid — `BookRowGrid` lays these out
@@ -42,6 +48,8 @@ const BookChatRow = ({ book, showTypeBadge = true }) => {
   const price = book.discount_price || book.price;
   const priceLabel = isMonetary && price ? formatPrice(price, locale) : null;
   const typeLabel = !isMonetary && badge ? tType(bookTypeI18nKey(typeKey)) : null;
+  const location = bookOwnerLocation(book);
+  const hasTrailing = Boolean((showTypeBadge && badge) || location);
 
   return (
     <Link
@@ -55,7 +63,7 @@ const BookChatRow = ({ book, showTypeBadge = true }) => {
           height: "100%",
           alignItems: "center",
           px: { xs: 1.5, md: 1.75 },
-          py: 1.25,
+          py: 1.5,
           borderRadius: 2.5,
           bgcolor: "var(--surface-card)",
           border: "1px solid var(--border-subtle)",
@@ -70,8 +78,8 @@ const BookChatRow = ({ book, showTypeBadge = true }) => {
       >
         <Box
           sx={{
-            width: { xs: 52, md: 60 },
-            height: { xs: 52, md: 60 },
+            width: { xs: 56, md: 64 },
+            height: { xs: 56, md: 64 },
             borderRadius: 2,
             overflow: "hidden",
             bgcolor: "var(--surface-muted)",
@@ -147,20 +155,58 @@ const BookChatRow = ({ book, showTypeBadge = true }) => {
             )
           )}
         </Box>
-        {showTypeBadge && badge && (
-          <Chip
-            size="small"
-            label={tType(bookTypeI18nKey(typeKey))}
+        {hasTrailing && (
+          <Stack
             sx={{
-              height: 22,
-              fontSize: 11,
-              fontWeight: 600,
-              bgcolor: badge.bg,
-              color: badge.color,
-              border: "none",
+              alignSelf: "stretch",
+              alignItems: "flex-end",
               flexShrink: 0,
+              gap: 0.75,
             }}
-          />
+          >
+            {showTypeBadge && badge && (
+              <Chip
+                size="small"
+                label={tType(bookTypeI18nKey(typeKey))}
+                sx={{
+                  height: 22,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  bgcolor: badge.bg,
+                  color: badge.color,
+                  border: "none",
+                }}
+              />
+            )}
+            {location && (
+              <Box
+                sx={{
+                  mt: "auto",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  maxWidth: { xs: 124, md: 156 },
+                  minWidth: 0,
+                }}
+              >
+                <Icon
+                  className="ph-fill ph-map-pin"
+                  style={{
+                    fontSize: 13,
+                    color: "var(--main-600, hsl(148, 59%, 39%))",
+                    flexShrink: 0,
+                  }}
+                  aria-hidden="true"
+                />
+                <Typography
+                  noWrap
+                  sx={{ fontSize: 11, lineHeight: 1.4, color: "var(--text-muted)" }}
+                >
+                  {location}
+                </Typography>
+              </Box>
+            )}
+          </Stack>
         )}
       </Stack>
     </Link>
