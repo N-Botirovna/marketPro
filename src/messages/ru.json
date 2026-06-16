@@ -235,7 +235,9 @@
     "telegramChannel": "Telegram-канал",
     "telegramCaption": "Новости и объявления",
     "instagram": "Instagram",
-    "instagramCaption": "Книги и магазины"
+    "instagramCaption": "Книги и магазины",
+    "metaTitle": "Связаться с нами",
+    "metaDescription": "Свяжитесь с командой Kitobzor: вопросы, предложения или проблемы — мы всегда на связи."
   },
   "Auth": {
     "welcome": "Добро пожаловать в Kitobzor!",
@@ -693,7 +695,9 @@
       "title": "Присоединяйтесь к нашему сообществу",
       "description": "Станьте продавцом или изучите наши магазины",
       "exploreShops": "Изучить магазины"
-    }
+    },
+    "metaTitle": "О нас",
+    "metaDescription": "Kitobzor — платформа, объединяющая книжные магазины и любителей книг. Наша миссия и показатели."
   },
   "ThemeToggle": {
     "switchToDark": "Перейти в тёмный режим",

@@ -235,7 +235,9 @@
     "telegramChannel": "Telegram kanal",
     "telegramCaption": "Jańalıqlar hám járiyalawlar",
     "instagram": "Instagram",
-    "instagramCaption": "Kitaplar hám dúkenler haqqında"
+    "instagramCaption": "Kitaplar hám dúkenler haqqında",
+    "metaTitle": "Baylanıs",
+    "metaDescription": "Kitobzor toparı menen baylanısıń: sorawıńız, usınısıńız yamasa máseleńiz bolsa, biz benen baylanısıń."
   },
   "Auth": {
     "welcome": "Kitobzorǵa xosh kelipsiz!",
@@ -693,7 +695,9 @@
       "title": "Bizdiń jámáátimizge qosılıń",
       "description": "Satıwshı bolıń yáki bizdiń dúkenlerimizdi kórip shıǵıń",
       "exploreShops": "Dúkenlerdi kóriw"
-    }
+    },
+    "metaTitle": "Biz haqqımızda",
+    "metaDescription": "Kitobzor — kitap dúkanları hám kitap súygenlerdi birlestiretuǵın platforma. Bizdiń maqsetimiz hám kórsetkishlerimiz."
   },
   "ThemeToggle": {
     "switchToDark": "Túngi rejimge ótiw",

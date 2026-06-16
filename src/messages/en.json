@@ -235,7 +235,9 @@
     "telegramChannel": "Telegram channel",
     "telegramCaption": "News and announcements",
     "instagram": "Instagram",
-    "instagramCaption": "Books and shops"
+    "instagramCaption": "Books and shops",
+    "metaTitle": "Contact us",
+    "metaDescription": "Get in touch with the Kitobzor team — questions, suggestions or issues, we're here to help."
   },
   "Auth": {
     "welcome": "Welcome to Kitobzor!",
@@ -693,7 +695,9 @@
       "title": "Join Our Community",
       "description": "Become a seller or explore our shops",
       "exploreShops": "Explore Shops"
-    }
+    },
+    "metaTitle": "About us",
+    "metaDescription": "Kitobzor — a platform connecting bookstores and book lovers. Our mission and what we stand for."
   },
   "ThemeToggle": {
     "switchToDark": "Switch to dark mode",

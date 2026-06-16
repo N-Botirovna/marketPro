@@ -235,7 +235,9 @@
     "telegramChannel": "Telegram kanal",
     "telegramCaption": "Yangiliklar va e'lonlar",
     "instagram": "Instagram",
-    "instagramCaption": "Kitoblar va do'konlar haqida"
+    "instagramCaption": "Kitoblar va do'konlar haqida",
+    "metaTitle": "Bog'lanish",
+    "metaDescription": "Kitobzor jamoasi bilan bog'laning: savol, taklif yoki muammoingiz bo'lsa, biz bilan aloqaga chiqing."
   },
   "Auth": {
     "welcome": "Kitobzorga xush kelibsiz!",
@@ -693,7 +695,9 @@
       "title": "Bizning jamoamizga qo'shiling",
       "description": "Sotuvchi bo'ling yoki bizning do'konlarimizni ko'rib chiqing",
       "exploreShops": "Do'konlarni ko'rish"
-    }
+    },
+    "metaTitle": "Biz haqimizda",
+    "metaDescription": "Kitobzor — kitob do'konlari va kitobxonlarni birlashtiruvchi platforma. Bizning missiyamiz va ko'rsatkichlarimiz."
   },
   "ThemeToggle": {
     "switchToDark": "Tungi rejimga o'tish",
