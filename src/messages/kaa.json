@@ -311,7 +311,12 @@
     "stats_likes": "{count, plural, one {# unatıw} other {# unatıw}}",
     "stats_views": "{count, plural, one {# kórilgen} other {# kórilgen}}",
     "stats_comments": "{count, plural, one {# pikir} other {# pikir}}",
-    "untitled": "Kitap"
+    "untitled": "Kitap",
+    "giftTitle": "Sıylıq etiw yamasa soraw",
+    "giftWish": "Maǵan sıylıq etsin",
+    "giftGive": "Jaqınıńızǵa sıylıq etiń",
+    "giftWishText": "📚 «{name}» kitabın oqıǵım keledi — kimde-kim maǵan sıylıq etse, júdá quwanar edim 🎁",
+    "giftGiveText": "📖 Saǵan «{name}» kitabın sıylıq etpekshimen, oqıysań ba?"
   },
   "BookCard": {
     "noName": "Kitap Atı Joq",

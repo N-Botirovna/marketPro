@@ -311,7 +311,12 @@
     "stats_likes": "{count, plural, one {# yoqtirish} other {# yoqtirish}}",
     "stats_views": "{count, plural, one {# ko'rilgan} other {# ko'rilgan}}",
     "stats_comments": "{count, plural, one {# izoh} other {# izoh}}",
-    "untitled": "Kitob"
+    "untitled": "Kitob",
+    "giftTitle": "Sovg'a qilish yoki so'rash",
+    "giftWish": "Menga sovg'a qilishsin",
+    "giftGive": "Yaqiningizga sovg'a qiling",
+    "giftWishText": "📚 «{name}» kitobini o'qimoqchiman — kimdir menga sovg'a qilsa juda xursand bo'lardim 🎁",
+    "giftGiveText": "📖 Senga «{name}» kitobini sovg'a qilmoqchiman, o'qiysanmi?"
   },
   "BookCard": {
     "noName": "Kitob Nomi Mavjud Emas",

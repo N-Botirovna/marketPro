@@ -311,7 +311,12 @@
     "stats_likes": "{count, plural, one {# лайк} few {# лайка} many {# лайков} other {# лайков}}",
     "stats_views": "{count, plural, one {# просмотр} few {# просмотра} many {# просмотров} other {# просмотров}}",
     "stats_comments": "{count, plural, one {# комментарий} few {# комментария} many {# комментариев} other {# комментариев}}",
-    "untitled": "Книга"
+    "untitled": "Книга",
+    "giftTitle": "Подарить или попросить в подарок",
+    "giftWish": "Хочу получить в подарок",
+    "giftGive": "Подарить близкому",
+    "giftWishText": "📚 Хочу прочитать книгу «{name}» — будет здорово, если кто-нибудь подарит мне её 🎁",
+    "giftGiveText": "📖 Хочу подарить тебе книгу «{name}», прочитаешь?"
   },
   "BookCard": {
     "noName": "Название книги отсутствует",
