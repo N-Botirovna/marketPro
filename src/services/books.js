@@ -70,6 +70,22 @@ export async function getBookById(id) {
   return { book: normalizeItem(data) };
 }
 
+/**
+ * Notify the admin channel that a website visitor tapped a contact button on
+ * this book (call / SMS / Telegram). Fire-and-forget: a logging failure must
+ * never block the user's actual contact action, so errors are swallowed. The
+ * backend distinguishes signed-in buyers from anonymous guests (no token) and
+ * throttles repeat pings per visitor+book.
+ */
+export async function logBookContact(id) {
+  if (!id) return;
+  try {
+    await http.post(`${API_ENDPOINTS.BOOKS.DETAIL}/${id}/contact/`, {});
+  } catch {
+    /* best-effort: never surface a notification failure to the user */
+  }
+}
+
 export async function getHomePageBooks() {
   return await getBooks({ for_home_page: true, is_active: true, limit: 12 });
 }
