@@ -13,7 +13,8 @@ import {
   Skeleton,
   IconButton,
 } from "@mui/material";
-import { getBookById, logBookContact } from "@/services/books";
+import { getBookById, logBookContact, logBookShare } from "@/services/books";
+import { trackEvent } from "@/lib/analytics";
 import { useLike } from "@/hooks/useLike";
 import { useAuth } from "@/hooks/useAuth";
 import { openShareSheet } from "@/lib/shareSheet";
@@ -153,9 +154,33 @@ const BookDetails = ({ bookId }) => {
   const handleShare = () => {
     if (!book) return;
     const bookTitle = localizedField(book, "name", locale) || tBook("untitled");
+    trackEvent("book_share", { book_id: book.id });
     openShareSheet({
       title: bookTitle,
       text: `${bookTitle} — Kitobzor`,
+      url: typeof window !== "undefined" ? window.location.pathname : "",
+    });
+  };
+
+  // ── Gift loop ──────────────────────────────────────────────────────────
+  // A distribution feature: any visitor (no login needed) can forward this
+  // book to a friend either to receive it as a gift (`mode="wish"`) or to gift
+  // it to someone (`mode="gift"`). Both open the same share sheet pre-filled
+  // with a distinct message; the book link renders a rich Telegram/social
+  // preview from the per-book OG image. A fire-and-forget ping also tells the
+  // admin channel a warm gift-intent lead exists.
+  const handleGift = (mode) => {
+    if (!book) return;
+    const bookTitle = localizedField(book, "name", locale) || tBook("untitled");
+    const text =
+      mode === "gift"
+        ? tBook("giftGiveText", { name: bookTitle })
+        : tBook("giftWishText", { name: bookTitle });
+    logBookShare(book.id, mode);
+    trackEvent("book_gift_share", { book_id: book.id, mode });
+    openShareSheet({
+      title: bookTitle,
+      text,
       url: typeof window !== "undefined" ? window.location.pathname : "",
     });
   };
@@ -539,6 +564,73 @@ const BookDetails = ({ bookId }) => {
                 </IconButton>
               )}
             </Stack>
+
+            {/* Gift loop — forward this book to a friend to receive or give as
+                a gift. Open to everyone (no login gate): a public link with a
+                rich OG preview, plus a warm-lead ping to the admin channel. */}
+            <Box
+              sx={{
+                p: 1.75,
+                borderRadius: 2.5,
+                border: "1px dashed var(--border-subtle)",
+                bgcolor: "var(--surface-card)",
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: 13,
+                  fontWeight: 700,
+                  mb: 1.25,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.75,
+                  color: "var(--text-primary)",
+                }}
+              >
+                <Icon className="ph-fill ph-gift" style={{ color: "#db2777", fontSize: 16 }} />
+                {tBook("giftTitle")}
+              </Typography>
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} useFlexGap>
+                <Button
+                  onClick={() => handleGift("wish")}
+                  variant="outlined"
+                  fullWidth
+                  startIcon={<Icon className="ph ph-sparkle" />}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 700,
+                    justifyContent: "flex-start",
+                    color: "var(--text-primary)",
+                    borderColor: "var(--border-subtle)",
+                    "&:hover": {
+                      borderColor: "#db2777",
+                      bgcolor: "rgba(219, 39, 119, 0.06)",
+                    },
+                  }}
+                >
+                  {tBook("giftWish")}
+                </Button>
+                <Button
+                  onClick={() => handleGift("gift")}
+                  variant="outlined"
+                  fullWidth
+                  startIcon={<Icon className="ph ph-gift" />}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 700,
+                    justifyContent: "flex-start",
+                    color: "var(--text-primary)",
+                    borderColor: "var(--border-subtle)",
+                    "&:hover": {
+                      borderColor: "#db2777",
+                      bgcolor: "rgba(219, 39, 119, 0.06)",
+                    },
+                  }}
+                >
+                  {tBook("giftGive")}
+                </Button>
+              </Stack>
+            </Box>
 
             {/* Seller card — one place, no duplicates. */}
             <Stack

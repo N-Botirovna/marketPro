@@ -311,7 +311,12 @@
     "stats_likes": "{count, plural, one {# like} other {# likes}}",
     "stats_views": "{count, plural, one {# view} other {# views}}",
     "stats_comments": "{count, plural, one {# comment} other {# comments}}",
-    "untitled": "Book"
+    "untitled": "Book",
+    "giftTitle": "Gift it or ask for it",
+    "giftWish": "Ask someone to gift me",
+    "giftGive": "Gift it to someone",
+    "giftWishText": "📚 I'd love to read “{name}” — it would make me so happy if someone gifted it to me 🎁",
+    "giftGiveText": "📖 I'd like to gift you “{name}” — would you read it?"
   },
   "BookCard": {
     "noName": "Book Name Not Available",

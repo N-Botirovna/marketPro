@@ -86,6 +86,22 @@ export async function logBookContact(id) {
   }
 }
 
+/**
+ * Notify the admin channel that a website visitor forwarded this book via the
+ * gift loop — either to gift it to someone (`kind="gift"`) or to receive it as
+ * a gift (`kind="wish"`). Fire-and-forget: a logging failure must never block
+ * the share sheet from opening. The backend tags the sharer (signed-in vs
+ * guest), threads the kind, and throttles repeats per visitor+book+kind.
+ */
+export async function logBookShare(id, kind) {
+  if (!id || !kind) return;
+  try {
+    await http.post(`${API_ENDPOINTS.BOOKS.DETAIL}/${id}/share/`, { kind });
+  } catch {
+    /* best-effort: never surface a notification failure to the user */
+  }
+}
+
 export async function getHomePageBooks() {
   return await getBooks({ for_home_page: true, is_active: true, limit: 12 });
 }
