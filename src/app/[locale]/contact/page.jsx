@@ -4,6 +4,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import Contact from "@/components/Contact";
 import ColorInit from "@/helper/ColorInit";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
+import { buildAlternates } from "@/lib/seo/alternates";
 
 // FaqSection used to render below the contact form. It was pulled — FAQ
 // has a dedicated page reachable from the header menu and footer link,
@@ -14,11 +15,15 @@ const BottomFooter = dynamic(() => import("@/components/BottomFooter"));
 
 export const revalidate = 86400;
 
-export const metadata = {
-  title: "Aloqa — Kitobzor",
-  description:
-    "Kitobzor jamoasi bilan bog'lanish: savol, taklif yoki muammoingiz bo'lsa, biz bilan aloqaga chiqing.",
-};
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Contact" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: buildAlternates(locale, "contact"),
+  };
+}
 
 const page = async () => {
   const tBreadcrumb = await getTranslations("Breadcrumb");
