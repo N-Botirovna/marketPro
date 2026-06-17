@@ -111,9 +111,14 @@ const BookChatRow = ({ book, showTypeBadge = true }) => {
               fontWeight: 600,
               fontSize: 14,
               color: "var(--text-primary)",
+              // Wrap to 2 lines instead of a single-line cut: in narrow grid
+              // columns (e.g. the book-detail "more from seller" list) a
+              // nowrap ellipsis chopped most titles. Two lines show the full
+              // name for realistic lengths, matching the roomier home feed.
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
               overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
               lineHeight: 1.3,
             }}
           >
@@ -124,9 +129,10 @@ const BookChatRow = ({ book, showTypeBadge = true }) => {
               sx={{
                 fontSize: 12,
                 color: "var(--text-muted)",
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
                 overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
               }}
             >
               {book.author}
