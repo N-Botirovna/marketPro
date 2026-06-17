@@ -15,9 +15,12 @@ const BookCreateModal = dynamic(() => import("./BookCreateModal"), {
 export default function PostBookMount() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  // Pre-selected shop when launched from a shop page (else null = personal).
+  const [initialShopId, setInitialShopId] = useState(null);
 
   useEffect(() => {
-    const handler = () => {
+    const handler = (e) => {
+      setInitialShopId(e?.detail?.shopId ?? null);
       setMounted(true);
       setOpen(true);
     };
@@ -29,6 +32,7 @@ export default function PostBookMount() {
   return (
     <BookCreateModal
       isOpen={open}
+      initialShopId={initialShopId}
       onClose={() => setOpen(false)}
       onSuccess={() => setOpen(false)}
     />

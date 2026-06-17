@@ -318,7 +318,10 @@
     "giftWish": "Menga sovg'a qilishsin",
     "giftGive": "Yaqiningizga sovg'a qiling",
     "giftWishText": "📚 «{name}» kitobini o'qimoqchiman — kimdir menga sovg'a qilsa juda xursand bo'lardim 🎁",
-    "giftGiveText": "📖 Senga «{name}» kitobini sovg'a qilmoqchiman, o'qiysanmi?"
+    "giftGiveText": "📖 Senga «{name}» kitobini sovg'a qilmoqchiman, o'qiysanmi?",
+    "seeAll": "Hammasini ko'rish",
+    "moreFromShop": "{name} do'konidan boshqa kitoblar",
+    "moreFromUser": "Ushbu sotuvchidan boshqa kitoblar"
   },
   "BookCard": {
     "noName": "Kitob Nomi Mavjud Emas",
@@ -818,7 +821,8 @@
     "telegram": "Telegram",
     "openingHours": "Ish vaqti",
     "lunchBreak": "Tushlik",
-    "workingDays": "Ish kunlari"
+    "workingDays": "Ish kunlari",
+    "addBook": "Kitob qo'shish"
   },
   "BooksPage": {
     "title": {

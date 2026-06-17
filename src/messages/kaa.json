@@ -318,7 +318,10 @@
     "giftWish": "Maǵan sıylıq etsin",
     "giftGive": "Jaqınıńızǵa sıylıq etiń",
     "giftWishText": "📚 «{name}» kitabın oqıǵım keledi — kimde-kim maǵan sıylıq etse, júdá quwanar edim 🎁",
-    "giftGiveText": "📖 Saǵan «{name}» kitabın sıylıq etpekshimen, oqıysań ba?"
+    "giftGiveText": "📖 Saǵan «{name}» kitabın sıylıq etpekshimen, oqıysań ba?",
+    "seeAll": "Hámmesin kóriw",
+    "moreFromShop": "{name} dúkanınan basqa kitaplar",
+    "moreFromUser": "Bul satıwshıdan basqa kitaplar"
   },
   "BookCard": {
     "noName": "Kitap Atı Joq",
@@ -818,7 +821,8 @@
     "telegram": "Telegram",
     "openingHours": "Jumıs waqtı",
     "lunchBreak": "Túslik",
-    "workingDays": "Jumıs kúnleri"
+    "workingDays": "Jumıs kúnleri",
+    "addBook": "Kitap qosıw"
   },
   "BooksPage": {
     "title": {

@@ -318,7 +318,10 @@
     "giftWish": "Хочу получить в подарок",
     "giftGive": "Подарить близкому",
     "giftWishText": "📚 Хочу прочитать книгу «{name}» — будет здорово, если кто-нибудь подарит мне её 🎁",
-    "giftGiveText": "📖 Хочу подарить тебе книгу «{name}», прочитаешь?"
+    "giftGiveText": "📖 Хочу подарить тебе книгу «{name}», прочитаешь?",
+    "seeAll": "Смотреть все",
+    "moreFromShop": "Другие книги магазина «{name}»",
+    "moreFromUser": "Другие книги этого продавца"
   },
   "BookCard": {
     "noName": "Название книги отсутствует",
@@ -818,7 +821,8 @@
     "telegram": "Telegram",
     "openingHours": "Часы работы",
     "lunchBreak": "Обед",
-    "workingDays": "Рабочие дни"
+    "workingDays": "Рабочие дни",
+    "addBook": "Добавить книгу"
   },
   "BooksPage": {
     "title": {
