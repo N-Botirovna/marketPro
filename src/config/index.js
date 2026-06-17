@@ -12,7 +12,7 @@ export const SUPPORT_PHONE = getSupportPhone();
 // `/user` is gated because the backend `/auth/<id>/` endpoint requires auth
 // (user-enumeration / H-1 privacy protection) — anonymous visitors would
 // otherwise hit a 401→login loop.
-export const PROTECTED_PAGES = ["/account", "/wishlist", "/user"];
+export const PROTECTED_PAGES = ["/account", "/wishlist", "/user", "/admin"];
 
 // Legacy export — kept so callers that imported PUBLIC_PAGES still work.
 // Login / register surfaces are always reachable by definition; we list them
@@ -108,5 +108,13 @@ export const API_ENDPOINTS = {
     ACTIVE: "api/v1/book/give-away/active/",
     LIST: "api/v1/give-away/",
     DETAIL: "api/v1/give-away", // prefix
+  },
+  // Staff-only CEO/Founder dashboard. The backend enforces `IsAdminUser`
+  // (is_staff); the /admin route is additionally role-gated client-side for UX.
+  ADMIN: {
+    SUMMARY: "api/v1/analytics/dashboard/summary/",
+    FUNNEL: "api/v1/analytics/dashboard/funnel/",
+    DEMAND: "api/v1/analytics/dashboard/demand/",
+    SUPPLY: "api/v1/analytics/dashboard/supply/",
   },
 };
