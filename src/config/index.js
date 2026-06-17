@@ -112,11 +112,6 @@ export const API_ENDPOINTS = {
     POLICIES: "api/v1/base/policies/",
     CONTACT: "api/v1/base/contact-us/",
   },
-  GIVEAWAY: {
-    ACTIVE: "api/v1/book/give-away/active/",
-    LIST: "api/v1/give-away/",
-    DETAIL: "api/v1/give-away", // prefix
-  },
   // Staff-only CEO/Founder dashboard. The backend enforces `IsAdminUser`
   // (is_staff); the /admin route is additionally role-gated client-side for UX.
   ADMIN: {

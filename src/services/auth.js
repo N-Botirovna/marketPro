@@ -134,6 +134,20 @@ export function isTokenExpired() {
   return jwtExp ? Date.now() >= jwtExp : false;
 }
 
+/**
+ * "Does the user have a refresh session?" — the single oracle both useAuth and
+ * the http.js anonymous-mutation guard must use. In cookie mode the refresh
+ * token is HttpOnly (invisible to JS), so we fall back to the `login_time`
+ * marker (set on login, cleared on logout). In body mode we check the
+ * JS-readable refresh token directly. Without this helper, callers that read
+ * `getItem("refresh_token")` see `null` in cookie mode and wrongly treat a
+ * valid session as logged-out (FE-H1/H3).
+ */
+export function hasRefreshSession() {
+  if (COOKIE_REFRESH) return !!getItem("login_time");
+  return !!getItem("refresh_token");
+}
+
 export function isRefreshTokenExpired() {
   // Cookie mode: the refresh token is HttpOnly — JS can't read it to inspect
   // its `exp`. Treat it as "maybe valid" and let the server be the authority:
@@ -245,12 +259,19 @@ export async function logoutUser() {
   // already-blacklisted token), we still proceed with the local wipe —
   // the user clicked logout, and the access token is short-lived. We
   // never block logout on the network.
-  const refreshToken = getItem("refresh_token");
-  if (refreshToken) {
+  //
+  // FE-H2: in cookie mode there's no JS-readable refresh token to gate on —
+  // the HttpOnly cookie authenticates the logout call — so we must ALWAYS hit
+  // the endpoint (with an empty body) to blacklist the cookie server-side and
+  // let the backend clear it. Gating on getItem("refresh_token") here (always
+  // null in cookie mode) silently skipped blacklisting, leaving a stolen
+  // refresh cookie replayable after the user "logged out".
+  const refreshToken = COOKIE_REFRESH ? null : getItem("refresh_token");
+  if (COOKIE_REFRESH || refreshToken) {
     try {
       await http.post(
         API_ENDPOINTS.AUTH.LOGOUT,
-        { refresh_token: refreshToken },
+        COOKIE_REFRESH ? {} : { refresh_token: refreshToken },
         { skipAuthRefresh: true },
       );
     } catch (error) {

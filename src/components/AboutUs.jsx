@@ -56,11 +56,6 @@ const AboutUs = () => {
       title: tAbout("features.exchange.title"),
       description: tAbout("features.exchange.description"),
     },
-    {
-      icon: "ph-fill ph-gift",
-      title: tAbout("features.giveaway.title"),
-      description: tAbout("features.giveaway.description"),
-    },
   ];
 
   return (
@@ -138,7 +133,7 @@ const AboutUs = () => {
           </div>
           <div className="row gy-3">
             {stats.map((stat, index) => (
-              <div key={index} className="col-lg-3 col-md-6">
+              <div key={index} className="col-6 col-md-4 col-lg-3">
                 <div className="stat-card text-center p-24 bg-white rounded-12 border border-gray-100 hover-border-main-600 transition-2 h-100">
                   <span
                     className="d-inline-flex align-items-center gap-4"
@@ -203,7 +198,7 @@ const AboutUs = () => {
           </div>
           <div className="row gy-3">
             {features.map((feature, index) => (
-              <div key={index} className="col-lg-3 col-md-6">
+              <div key={index} className="col-6 col-md-4 col-lg-3">
                 <div className="feature-card p-24 bg-gray-50 rounded-12 border border-gray-100 hover-border-main-600 transition-2 h-100">
                   <div className="w-56 h-56 flex-center bg-main-50 text-main-600 rounded-circle mb-16">
                     <Icon className={`${feature.icon} text-2xl`} />
@@ -251,7 +246,12 @@ const AboutUs = () => {
             </h3>
             <p
               className="mb-24"
-              style={{ maxWidth: "500px", margin: "0 auto", opacity: 0.95, color: "#fff" }}
+              style={{
+                maxWidth: "min(500px, 100%)",
+                margin: "0 auto",
+                opacity: 0.95,
+                color: "#fff",
+              }}
             >
               {tAbout("cta.description")}
             </p>

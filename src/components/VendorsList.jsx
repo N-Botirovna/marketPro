@@ -156,7 +156,7 @@ const VendorsList = () => {
         <div className="container container-lg">
           <div className="row g-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="col-12 col-md-6 col-xxl-4">
+              <div key={i} className="col-12 col-md-6 col-lg-4">
                 <ShopCardSkeleton />
               </div>
             ))}
@@ -203,7 +203,7 @@ const VendorsList = () => {
 
         {/* Filters */}
         <div className="row mb-40">
-          <div className="col-lg-3 col-md-6 mb-16">
+          <div className="col-12 col-md-6 col-lg-3 mb-16">
             <select
               className="common-input form-select w-100"
               value={filters.region}
@@ -217,7 +217,7 @@ const VendorsList = () => {
               ))}
             </select>
           </div>
-          <div className="col-lg-3 col-md-6 mb-16">
+          <div className="col-12 col-md-6 col-lg-3 mb-16">
             <select
               className="common-input form-select w-100"
               value={filters.district}
@@ -233,7 +233,7 @@ const VendorsList = () => {
                 ))}
             </select>
           </div>
-          <div className="col-lg-2 col-md-6 mb-16">
+          <div className="col-12 col-md-6 col-lg-2 mb-16">
             <button onClick={clearFilters} className="btn btn-outline-secondary w-100">
               {tBtn("clear")}
             </button>
@@ -258,7 +258,7 @@ const VendorsList = () => {
           )}
           {shops.length > 0 ? (
             shops.map((shop) => (
-              <div key={shop.id} className="col-12 col-md-6 col-xxl-4">
+              <div key={shop.id} className="col-12 col-md-6 col-lg-4">
                 <ShopCard shop={shop} />
               </div>
             ))

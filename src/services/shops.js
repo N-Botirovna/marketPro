@@ -1,10 +1,10 @@
 import http from "@/lib/http";
 import { API_ENDPOINTS } from "@/config";
-import { normalizeListResponse } from "@/utils/normalizeResponse";
+import { normalizeListResponse, normalizeItem } from "@/utils/normalizeResponse";
 
 export async function getShops(params = {}) {
   const cleanParams = Object.fromEntries(
-    Object.entries(params).filter(([, v]) => v !== '' && v !== null && v !== undefined)
+    Object.entries(params).filter(([, v]) => v !== "" && v !== null && v !== undefined),
   );
   const { data } = await http.get(API_ENDPOINTS.SHOPS.LIST, { params: cleanParams });
   const { result: shops, count, next, previous, raw } = normalizeListResponse(data);
@@ -13,7 +13,10 @@ export async function getShops(params = {}) {
 
 export async function getShopById(id) {
   const { data } = await http.get(`${API_ENDPOINTS.SHOPS.DETAIL}/${id}/`);
-  return { shop: data ?? null, raw: data };
+  // FE-M1: unwrap the DRF single-item envelope ({result:{...}}) consistently
+  // with books.js, so callers read the shop — not the envelope — if/when the
+  // detail endpoint wraps its payload.
+  return { shop: normalizeItem(data), raw: data };
 }
 
 export async function getHomePageShops(limit = 8) {

@@ -677,10 +677,6 @@
       "exchange": {
         "title": "Book Exchange",
         "description": "Exchange your read books with other books. Join the book exchange community."
-      },
-      "giveaway": {
-        "title": "Gift Books",
-        "description": "Regularly held giveaways. Books are given away and winners are selected."
       }
     },
     "shops": {

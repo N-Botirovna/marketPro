@@ -3,10 +3,10 @@ import {
   getAuthToken,
   isTokenExpired,
   isRefreshTokenExpired,
+  hasRefreshSession,
   refreshAccessToken,
   logoutUser,
 } from "@/services/auth";
-import { getItem } from "@/utils/storage";
 import { clearHttpCache } from "@/lib/http";
 import { useStorageSync, notifyAuthChange } from "@/hooks/useStorageSync";
 
@@ -57,9 +57,12 @@ export const useAuth = () => {
       const currentToken = getAuthToken();
 
       if (!currentToken) {
-        const refreshToken = getItem("refresh_token");
-        if (refreshToken && !isRefreshTokenExpired()) {
-          devLog("⚠️ No access token, but refresh token exists. Refreshing...");
+        // FE-H1: gate on hasRefreshSession() (cookie mode → `login_time`,
+        // body mode → JS refresh token) instead of reading `refresh_token`
+        // directly, which is always null in cookie mode and would render a
+        // valid cookie session as logged-out.
+        if (hasRefreshSession() && !isRefreshTokenExpired()) {
+          devLog("⚠️ No access token, but refresh session exists. Refreshing...");
           try {
             await refreshAccessToken();
             if (signal.aborted) return;
