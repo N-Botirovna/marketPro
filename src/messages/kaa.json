@@ -1007,5 +1007,69 @@
   "Vendor": {
     "searchPlaceholder": "Dúken atı boyınsha izleń...",
     "showingResults": "Kórsetilbekte: {start}-{end} / {total}"
+  },
+  "Admin": {
+    "title": "Boshqaruv paneli",
+    "subtitle": "CEO / Founder uchun statistika",
+    "loading": "Yuklanmoqda...",
+    "error": "Ma'lumotni yuklab bo'lmadi",
+    "empty": "Ma'lumot yo'q",
+    "range": {
+      "7": "7 kun",
+      "30": "30 kun",
+      "90": "90 kun"
+    },
+    "tabs": {
+      "summary": "Umumiy",
+      "funnel": "Funnel",
+      "demand": "Talab",
+      "supply": "Taklif"
+    },
+    "kpi": {
+      "totalUsers": "Jami foydalanuvchi",
+      "newUsers": "Yangi (davr)",
+      "activeUsers": "Faol",
+      "totalBooks": "Jami kitob",
+      "activeBooks": "Faol kitob",
+      "newBooks": "Yangi kitob",
+      "totalShops": "Do'konlar",
+      "bannedBooks": "Bloklangan"
+    },
+    "growth": {
+      "title": "O'sish (kunlik)",
+      "newUsers": "Yangi foydalanuvchi",
+      "newBooks": "Yangi kitob",
+      "activeUsers": "Faol foydalanuvchi"
+    },
+    "funnel": {
+      "views": "Ko'rishlar",
+      "contacts": "Kontaktlar",
+      "shares": "Ulashishlar",
+      "gift": "Sovg'a",
+      "wish": "Tilak",
+      "viewToContact": "Ko'rish→Kontakt",
+      "viewToShare": "Ko'rish→Ulashish",
+      "bySource": "Manba bo'yicha",
+      "web": "Veb",
+      "bot": "Bot"
+    },
+    "demand": {
+      "totalSearches": "Jami qidiruv",
+      "distinct": "Noyob so'rov",
+      "topSearches": "Top qidiruvlar",
+      "gaps": "Talab bo'shlig'i (natijasiz)",
+      "query": "So'rov",
+      "count": "Soni",
+      "avgResults": "O'rtacha natija"
+    },
+    "supply": {
+      "byType": "Tur bo'yicha",
+      "byCondition": "Holat bo'yicha",
+      "topSellers": "Top sotuvchilar",
+      "topShops": "Top do'konlar",
+      "topCategories": "Top kategoriyalar",
+      "topRegions": "Top hududlar",
+      "bannedRatio": "Bloklangan ulush"
+    }
   }
 }

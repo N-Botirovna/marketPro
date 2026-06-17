@@ -1007,5 +1007,69 @@
   "Vendor": {
     "searchPlaceholder": "Поиск магазинов по названию...",
     "showingResults": "Показано: {start}-{end} из {total}"
+  },
+  "Admin": {
+    "title": "Панель управления",
+    "subtitle": "Статистика для CEO / Founder",
+    "loading": "Загрузка...",
+    "error": "Не удалось загрузить данные",
+    "empty": "Нет данных",
+    "range": {
+      "7": "7 дней",
+      "30": "30 дней",
+      "90": "90 дней"
+    },
+    "tabs": {
+      "summary": "Обзор",
+      "funnel": "Воронка",
+      "demand": "Спрос",
+      "supply": "Предложение"
+    },
+    "kpi": {
+      "totalUsers": "Всего пользователей",
+      "newUsers": "Новые (период)",
+      "activeUsers": "Активные",
+      "totalBooks": "Всего книг",
+      "activeBooks": "Активные книги",
+      "newBooks": "Новые книги",
+      "totalShops": "Магазины",
+      "bannedBooks": "Заблокировано"
+    },
+    "growth": {
+      "title": "Рост (по дням)",
+      "newUsers": "Новые пользователи",
+      "newBooks": "Новые книги",
+      "activeUsers": "Активные пользователи"
+    },
+    "funnel": {
+      "views": "Просмотры",
+      "contacts": "Контакты",
+      "shares": "Поделились",
+      "gift": "Подарок",
+      "wish": "Желание",
+      "viewToContact": "Просмотр→Контакт",
+      "viewToShare": "Просмотр→Поделиться",
+      "bySource": "По источнику",
+      "web": "Веб",
+      "bot": "Бот"
+    },
+    "demand": {
+      "totalSearches": "Всего поисков",
+      "distinct": "Уникальные запросы",
+      "topSearches": "Топ запросов",
+      "gaps": "Неудовлетворённый спрос",
+      "query": "Запрос",
+      "count": "Кол-во",
+      "avgResults": "Сред. результатов"
+    },
+    "supply": {
+      "byType": "По типу",
+      "byCondition": "По состоянию",
+      "topSellers": "Топ продавцов",
+      "topShops": "Топ магазинов",
+      "topCategories": "Топ категорий",
+      "topRegions": "Топ регионов",
+      "bannedRatio": "Доля заблокированных"
+    }
   }
 }

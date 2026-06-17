@@ -36,6 +36,9 @@ const TTL_MAP = [
   ["/like", 0],
   ["/comment", 0],
   ["/my-list", 0],
+  // Founder dashboard — short cache so a tab switch / range toggle is snappy
+  // without serving stale ops data or hammering the aggregation queries.
+  ["/analytics/dashboard/", 60 * 1000], // 60 s
   // Static-ish content
   ["/regions", 24 * 60 * 60 * 1000], // 24 h — almost never changes
   ["/faqs", 24 * 60 * 60 * 1000], // 24 h
