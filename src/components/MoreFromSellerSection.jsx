@@ -11,7 +11,7 @@ import { getSellerBooks } from "@/services/books";
 /**
  * "More from this seller" — the bottom block on a book detail page. One call to
  * `getSellerBooks(bookId)` resolves whether the seller is a user or a shop and
- * returns up to 5 OTHER active books, the total count, and a seller descriptor.
+ * returns up to 6 OTHER active books, the total count, and a seller descriptor.
  * The "see all" link points at the seller's full catalog (shop detail / public
  * user profile). The whole section self-hides when the seller has no other
  * books, so it never renders an empty shell.
@@ -27,7 +27,7 @@ export default function MoreFromSellerSection({ bookId }) {
     if (!bookId) return undefined;
     let alive = true;
     setLoading(true);
-    getSellerBooks(bookId, 5)
+    getSellerBooks(bookId, 6)
       .then((res) => {
         if (!alive) return;
         setSeller(res.seller);
@@ -99,7 +99,7 @@ export default function MoreFromSellerSection({ bookId }) {
         )}
       </Stack>
 
-      <BookRowGrid books={books} loading={loading} skeletonCount={3} />
+      <BookRowGrid books={books} loading={loading} skeletonCount={6} />
     </Box>
   );
 }
