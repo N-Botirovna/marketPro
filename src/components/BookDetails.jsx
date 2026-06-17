@@ -13,7 +13,8 @@ import {
   Skeleton,
   IconButton,
 } from "@mui/material";
-import { getBookById } from "@/services/books";
+import { getBookById, logBookContact, logBookShare } from "@/services/books";
+import { trackEvent } from "@/lib/analytics";
 import { useLike } from "@/hooks/useLike";
 import { useAuth } from "@/hooks/useAuth";
 import { openShareSheet } from "@/lib/shareSheet";
@@ -21,8 +22,9 @@ import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { localizedField } from "@/utils/localizedField";
 import { bookTypeVisual, bookTypeI18nKey } from "@/utils/bookType";
 import { bookLanguageKey } from "@/utils/bookLanguage";
-import { Link } from "@/i18n/navigation";
+import { useRouter, usePathname } from "@/i18n/navigation";
 import Icon from "@/components/Icon";
+import { getContactActions } from "@/utils/contactActions";
 import { mapValidationError } from "@/lib/mapValidationError";
 import BookCreateModal from "./BookCreateModal";
 import { useToast } from "./Toast";
@@ -37,6 +39,8 @@ const BookDetails = ({ bookId }) => {
 
   const { isAuthenticated } = useAuth();
   const { showToast, ToastContainer } = useToast();
+  const router = useRouter();
+  const pathname = usePathname();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -150,9 +154,33 @@ const BookDetails = ({ bookId }) => {
   const handleShare = () => {
     if (!book) return;
     const bookTitle = localizedField(book, "name", locale) || tBook("untitled");
+    trackEvent("book_share", { book_id: book.id });
     openShareSheet({
       title: bookTitle,
       text: `${bookTitle} — Kitobzor`,
+      url: typeof window !== "undefined" ? window.location.pathname : "",
+    });
+  };
+
+  // ── Gift loop ──────────────────────────────────────────────────────────
+  // A distribution feature: any visitor (no login needed) can forward this
+  // book to a friend either to receive it as a gift (`mode="wish"`) or to gift
+  // it to someone (`mode="gift"`). Both open the same share sheet pre-filled
+  // with a distinct message; the book link renders a rich Telegram/social
+  // preview from the per-book OG image. A fire-and-forget ping also tells the
+  // admin channel a warm gift-intent lead exists.
+  const handleGift = (mode) => {
+    if (!book) return;
+    const bookTitle = localizedField(book, "name", locale) || tBook("untitled");
+    const text =
+      mode === "gift"
+        ? tBook("giftGiveText", { name: bookTitle })
+        : tBook("giftWishText", { name: bookTitle });
+    logBookShare(book.id, mode);
+    trackEvent("book_gift_share", { book_id: book.id, mode });
+    openShareSheet({
+      title: bookTitle,
+      text,
       url: typeof window !== "undefined" ? window.location.pathname : "",
     });
   };
@@ -204,16 +232,39 @@ const BookDetails = ({ bookId }) => {
   const typeText = tBook(bookTypeI18nKey(typeKey) || "sell");
   const isMonetary = typeKey === "seller" || typeKey === "rent";
 
-  const tg = book?.posted_by?.telegram_username;
-  const phone = book?.posted_by?.app_phone_number || book?.posted_by?.phone_number || null;
-  const tgHandle = tg ? tg.replace(/^@/, "") : null;
-  const phoneClean = phone ? phone.replace(/\s/g, "") : null;
+  // Contact is login-gated: the API only returns the seller's phone /
+  // telegram handle to authenticated viewers, but the public has_phone /
+  // has_telegram booleans let us keep the buttons visible for everyone.
+  // Anonymous clicks are intercepted (toast + redirect to /login) instead of
+  // opening the channel — see `guardContact` below.
   // next-intl resolves the `{name}` placeholder when the values dict is
   // passed inline. Doing a manual `.replace("{name}", ...)` made the call
   // arity-mismatch in next-intl v4 and the helper returned the raw key
   // path ("BookDetails.contactPrefill") instead of the formatted string.
-  const contactBody = encodeURIComponent(tBook("contactPrefill", { name: book?.name || "" }));
-  const tgUrl = tgHandle ? `https://t.me/${tgHandle}?text=${contactBody}` : null;
+  const contactPrefill = tBook("contactPrefill", { name: book?.name || "" });
+  const { hasTelegram, hasPhone, tgUrl, telHref, smsHref } = getContactActions({
+    postedBy: book?.posted_by,
+    isAuthenticated,
+    prefill: contactPrefill,
+  });
+
+  // A contact button was tapped. Always fire a (fire-and-forget) channel
+  // notification — the backend tags it as a website contact and tells a
+  // signed-in buyer apart from an anonymous guest. Signed-in viewers then
+  // proceed to the tel:/sms:/t.me link; anonymous viewers are stopped,
+  // told to sign in, and bounced to login (preserving where to return to).
+  const guardContact = (e) => {
+    logBookContact(bookId);
+    if (isAuthenticated) return;
+    e.preventDefault();
+    showToast({
+      type: "info",
+      title: tBook("loginRequiredTitle"),
+      message: tBook("loginRequiredMessage"),
+    });
+    const next = pathname || "";
+    router.push(next ? `/login?next=${encodeURIComponent(next)}` : "/login");
+  };
 
   const ownerName =
     book.shop?.name ||
@@ -398,15 +449,18 @@ const BookDetails = ({ bookId }) => {
             {/* Primary actions */}
             <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
               {/* Contact options — show every method the seller actually has,
-                  not just one. Telegram only when a USERNAME exists (t.me/<u>
-                  is the one link that survives the "forwarded-message" privacy
-                  block); otherwise the phone (call + SMS) is the reliable path. */}
-              {tgUrl && (
+                  for everyone. Contact is login-gated: signed-in viewers get a
+                  working tel:/sms:/t.me link; anonymous viewers see the same
+                  buttons but a tap is intercepted (toast + redirect to login)
+                  via `guardContact`. Button visibility uses the public
+                  has_telegram/has_phone booleans so it works pre-login too. */}
+              {hasTelegram && (
                 <Button
                   component="a"
-                  href={tgUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={isAuthenticated && tgUrl ? tgUrl : "#"}
+                  onClick={guardContact}
+                  target={isAuthenticated ? "_blank" : undefined}
+                  rel={isAuthenticated ? "noopener noreferrer" : undefined}
                   variant="contained"
                   startIcon={<Icon className="ph-fill ph-telegram-logo" />}
                   sx={{
@@ -421,10 +475,11 @@ const BookDetails = ({ bookId }) => {
                   {tBook("telegram")}
                 </Button>
               )}
-              {isAuthenticated && phoneClean && (
+              {hasPhone && (
                 <Button
                   component="a"
-                  href={`tel:${phoneClean}`}
+                  href={isAuthenticated && telHref ? telHref : "#"}
+                  onClick={guardContact}
                   variant="contained"
                   startIcon={<Icon className="ph-fill ph-phone" />}
                   sx={{
@@ -437,10 +492,11 @@ const BookDetails = ({ bookId }) => {
                   {tBook("call")}
                 </Button>
               )}
-              {isAuthenticated && phoneClean && (
+              {hasPhone && (
                 <Button
                   component="a"
-                  href={`sms:${phoneClean}`}
+                  href={isAuthenticated && smsHref ? smsHref : "#"}
+                  onClick={guardContact}
                   variant="outlined"
                   startIcon={<Icon className="ph ph-chat-circle" />}
                   sx={{
@@ -451,25 +507,6 @@ const BookDetails = ({ bookId }) => {
                   }}
                 >
                   {tBook("sms")}
-                </Button>
-              )}
-              {/* Phone (call/SMS) is gated to signed-in users — the API only
-                  returns the seller's number when authenticated. Anonymous
-                  visitors without a Telegram option get a sign-in prompt. */}
-              {!isAuthenticated && !tgUrl && (
-                <Button
-                  component={Link}
-                  href="/login"
-                  variant="contained"
-                  startIcon={<Icon className="ph ph-lock-key" />}
-                  sx={{
-                    textTransform: "none",
-                    fontWeight: 700,
-                    whiteSpace: "nowrap",
-                    flex: { xs: "1 1 auto", sm: "0 1 auto" },
-                  }}
-                >
-                  {tBook("loginToContact")}
                 </Button>
               )}
 
@@ -527,6 +564,73 @@ const BookDetails = ({ bookId }) => {
                 </IconButton>
               )}
             </Stack>
+
+            {/* Gift loop — forward this book to a friend to receive or give as
+                a gift. Open to everyone (no login gate): a public link with a
+                rich OG preview, plus a warm-lead ping to the admin channel. */}
+            <Box
+              sx={{
+                p: 1.75,
+                borderRadius: 2.5,
+                border: "1px dashed var(--border-subtle)",
+                bgcolor: "var(--surface-card)",
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: 13,
+                  fontWeight: 700,
+                  mb: 1.25,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.75,
+                  color: "var(--text-primary)",
+                }}
+              >
+                <Icon className="ph-fill ph-gift" style={{ color: "#db2777", fontSize: 16 }} />
+                {tBook("giftTitle")}
+              </Typography>
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} useFlexGap>
+                <Button
+                  onClick={() => handleGift("wish")}
+                  variant="outlined"
+                  fullWidth
+                  startIcon={<Icon className="ph ph-sparkle" />}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 700,
+                    justifyContent: "flex-start",
+                    color: "var(--text-primary)",
+                    borderColor: "var(--border-subtle)",
+                    "&:hover": {
+                      borderColor: "#db2777",
+                      bgcolor: "rgba(219, 39, 119, 0.06)",
+                    },
+                  }}
+                >
+                  {tBook("giftWish")}
+                </Button>
+                <Button
+                  onClick={() => handleGift("gift")}
+                  variant="outlined"
+                  fullWidth
+                  startIcon={<Icon className="ph ph-gift" />}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 700,
+                    justifyContent: "flex-start",
+                    color: "var(--text-primary)",
+                    borderColor: "var(--border-subtle)",
+                    "&:hover": {
+                      borderColor: "#db2777",
+                      bgcolor: "rgba(219, 39, 119, 0.06)",
+                    },
+                  }}
+                >
+                  {tBook("giftGive")}
+                </Button>
+              </Stack>
+            </Box>
 
             {/* Seller card — one place, no duplicates. */}
             <Stack

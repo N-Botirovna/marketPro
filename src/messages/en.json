@@ -235,7 +235,9 @@
     "telegramChannel": "Telegram channel",
     "telegramCaption": "News and announcements",
     "instagram": "Instagram",
-    "instagramCaption": "Books and shops"
+    "instagramCaption": "Books and shops",
+    "metaTitle": "Contact us",
+    "metaDescription": "Get in touch with the Kitobzor team — questions, suggestions or issues, we're here to help."
   },
   "Auth": {
     "welcome": "Welcome to Kitobzor!",
@@ -296,6 +298,8 @@
     "call": "Call",
     "sms": "SMS",
     "loginToContact": "Sign in to contact",
+    "loginRequiredTitle": "Please sign in first",
+    "loginRequiredMessage": "Sign in to contact the book's owner.",
     "likeRequiresAuth": "Sign in to add to favorites.",
     "likeFailed": "Couldn't update favorites.",
     "contactPrefill": "Hello! You posted the book “{name}” on kitobzor.uz, and I'd like to get it.",
@@ -309,7 +313,12 @@
     "stats_likes": "{count, plural, one {# like} other {# likes}}",
     "stats_views": "{count, plural, one {# view} other {# views}}",
     "stats_comments": "{count, plural, one {# comment} other {# comments}}",
-    "untitled": "Book"
+    "untitled": "Book",
+    "giftTitle": "Gift it or ask for it",
+    "giftWish": "Ask someone to gift me",
+    "giftGive": "Gift it to someone",
+    "giftWishText": "📚 I'd love to read “{name}” — it would make me so happy if someone gifted it to me 🎁",
+    "giftGiveText": "📖 I'd like to gift you “{name}” — would you read it?"
   },
   "BookCard": {
     "noName": "Book Name Not Available",
@@ -686,7 +695,9 @@
       "title": "Join Our Community",
       "description": "Become a seller or explore our shops",
       "exploreShops": "Explore Shops"
-    }
+    },
+    "metaTitle": "About us",
+    "metaDescription": "Kitobzor — a platform connecting bookstores and book lovers. Our mission and what we stand for."
   },
   "ThemeToggle": {
     "switchToDark": "Switch to dark mode",

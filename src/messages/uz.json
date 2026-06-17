@@ -235,7 +235,9 @@
     "telegramChannel": "Telegram kanal",
     "telegramCaption": "Yangiliklar va e'lonlar",
     "instagram": "Instagram",
-    "instagramCaption": "Kitoblar va do'konlar haqida"
+    "instagramCaption": "Kitoblar va do'konlar haqida",
+    "metaTitle": "Bog'lanish",
+    "metaDescription": "Kitobzor jamoasi bilan bog'laning: savol, taklif yoki muammoingiz bo'lsa, biz bilan aloqaga chiqing."
   },
   "Auth": {
     "welcome": "Kitobzorga xush kelibsiz!",
@@ -296,6 +298,8 @@
     "call": "Qo'ng'iroq",
     "sms": "SMS",
     "loginToContact": "Bog'lanish uchun kiring",
+    "loginRequiredTitle": "Avval tizimga kiring",
+    "loginRequiredMessage": "Kitob egasi bilan bog'lanish uchun tizimga kiring.",
     "likeRequiresAuth": "Sevimlilarga qo'shish uchun tizimga kiring.",
     "likeFailed": "Sevimlilar bilan ishlashda xatolik yuz berdi.",
     "contactPrefill": "Assalomu alaykum! kitobzor.uz saytiga «{name}» kitobini joylagan ekansiz, men uni olmoqchi edim.",
@@ -309,7 +313,12 @@
     "stats_likes": "{count, plural, one {# yoqtirish} other {# yoqtirish}}",
     "stats_views": "{count, plural, one {# ko'rilgan} other {# ko'rilgan}}",
     "stats_comments": "{count, plural, one {# izoh} other {# izoh}}",
-    "untitled": "Kitob"
+    "untitled": "Kitob",
+    "giftTitle": "Sovg'a qilish yoki so'rash",
+    "giftWish": "Menga sovg'a qilishsin",
+    "giftGive": "Yaqiningizga sovg'a qiling",
+    "giftWishText": "📚 «{name}» kitobini o'qimoqchiman — kimdir menga sovg'a qilsa juda xursand bo'lardim 🎁",
+    "giftGiveText": "📖 Senga «{name}» kitobini sovg'a qilmoqchiman, o'qiysanmi?"
   },
   "BookCard": {
     "noName": "Kitob Nomi Mavjud Emas",
@@ -686,7 +695,9 @@
       "title": "Bizning jamoamizga qo'shiling",
       "description": "Sotuvchi bo'ling yoki bizning do'konlarimizni ko'rib chiqing",
       "exploreShops": "Do'konlarni ko'rish"
-    }
+    },
+    "metaTitle": "Biz haqimizda",
+    "metaDescription": "Kitobzor — kitob do'konlari va kitobxonlarni birlashtiruvchi platforma. Bizning missiyamiz va ko'rsatkichlarimiz."
   },
   "ThemeToggle": {
     "switchToDark": "Tungi rejimga o'tish",

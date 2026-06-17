@@ -6,23 +6,13 @@ import ColorInit from "@/helper/ColorInit";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
 import JsonLd from "@/components/seo/JsonLd";
 import { serverGet, unwrapList } from "@/lib/serverFetch";
-import { getSiteUrl } from "@/config/env";
 import { faqPageLd, breadcrumbLd } from "@/lib/seo/jsonLd";
-import { routing } from "@/i18n/routing";
+import { buildAlternates } from "@/lib/seo/alternates";
 
 const FooterOne = dynamic(() => import("@/components/FooterOne"));
 const BottomFooter = dynamic(() => import("@/components/BottomFooter"));
 
 export const revalidate = 86400;
-
-const SITE_URL = getSiteUrl();
-
-function buildLanguageAlternates() {
-  const languages = {};
-  for (const loc of routing.locales) languages[loc] = `${SITE_URL}/${loc}/faq`;
-  languages["x-default"] = `${SITE_URL}/uz/faq`;
-  return languages;
-}
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
@@ -30,10 +20,7 @@ export async function generateMetadata({ params }) {
   return {
     title: t("title"),
     description: t("subtitle"),
-    alternates: {
-      canonical: `${SITE_URL}/${locale}/faq`,
-      languages: buildLanguageAlternates(),
-    },
+    alternates: buildAlternates(locale, "faq"),
   };
 }
 

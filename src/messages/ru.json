@@ -235,7 +235,9 @@
     "telegramChannel": "Telegram-канал",
     "telegramCaption": "Новости и объявления",
     "instagram": "Instagram",
-    "instagramCaption": "Книги и магазины"
+    "instagramCaption": "Книги и магазины",
+    "metaTitle": "Связаться с нами",
+    "metaDescription": "Свяжитесь с командой Kitobzor: вопросы, предложения или проблемы — мы всегда на связи."
   },
   "Auth": {
     "welcome": "Добро пожаловать в Kitobzor!",
@@ -296,6 +298,8 @@
     "call": "Звонок",
     "sms": "SMS",
     "loginToContact": "Войдите, чтобы связаться",
+    "loginRequiredTitle": "Сначала войдите",
+    "loginRequiredMessage": "Войдите, чтобы связаться с владельцем книги.",
     "likeRequiresAuth": "Войдите, чтобы добавить в избранное.",
     "likeFailed": "Не удалось обновить избранное.",
     "contactPrefill": "Здравствуйте! Вы разместили книгу «{name}» на сайте kitobzor.uz, я хотел(а) бы её приобрести.",
@@ -309,7 +313,12 @@
     "stats_likes": "{count, plural, one {# лайк} few {# лайка} many {# лайков} other {# лайков}}",
     "stats_views": "{count, plural, one {# просмотр} few {# просмотра} many {# просмотров} other {# просмотров}}",
     "stats_comments": "{count, plural, one {# комментарий} few {# комментария} many {# комментариев} other {# комментариев}}",
-    "untitled": "Книга"
+    "untitled": "Книга",
+    "giftTitle": "Подарить или попросить в подарок",
+    "giftWish": "Хочу получить в подарок",
+    "giftGive": "Подарить близкому",
+    "giftWishText": "📚 Хочу прочитать книгу «{name}» — будет здорово, если кто-нибудь подарит мне её 🎁",
+    "giftGiveText": "📖 Хочу подарить тебе книгу «{name}», прочитаешь?"
   },
   "BookCard": {
     "noName": "Название книги отсутствует",
@@ -686,7 +695,9 @@
       "title": "Присоединяйтесь к нашему сообществу",
       "description": "Станьте продавцом или изучите наши магазины",
       "exploreShops": "Изучить магазины"
-    }
+    },
+    "metaTitle": "О нас",
+    "metaDescription": "Kitobzor — платформа, объединяющая книжные магазины и любителей книг. Наша миссия и показатели."
   },
   "ThemeToggle": {
     "switchToDark": "Перейти в тёмный режим",

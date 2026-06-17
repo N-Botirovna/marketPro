@@ -5,6 +5,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import CommunityBooksPage from "@/components/CommunityBooksPage";
 import ColorInit from "@/helper/ColorInit";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
+import { buildAlternates } from "@/lib/seo/alternates";
 
 const FooterOne = dynamic(() => import("@/components/FooterOne"));
 const BottomFooter = dynamic(() => import("@/components/BottomFooter"));
@@ -18,6 +19,7 @@ export async function generateMetadata({ params }) {
   return {
     title: `${t(`title.${type}`)} — Kitobzor`,
     description: t(`subtitle.${type}`),
+    alternates: buildAlternates(locale, `community/${type}`),
   };
 }
 

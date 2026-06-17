@@ -235,7 +235,9 @@
     "telegramChannel": "Telegram kanal",
     "telegramCaption": "Jańalıqlar hám járiyalawlar",
     "instagram": "Instagram",
-    "instagramCaption": "Kitaplar hám dúkenler haqqında"
+    "instagramCaption": "Kitaplar hám dúkenler haqqında",
+    "metaTitle": "Baylanıs",
+    "metaDescription": "Kitobzor toparı menen baylanısıń: sorawıńız, usınısıńız yamasa máseleńiz bolsa, biz benen baylanısıń."
   },
   "Auth": {
     "welcome": "Kitobzorǵa xosh kelipsiz!",
@@ -296,6 +298,8 @@
     "call": "Qońıraw",
     "sms": "SMS",
     "loginToContact": "Baylanıs ushın kiriń",
+    "loginRequiredTitle": "Aldın sistemağa kiriń",
+    "loginRequiredMessage": "Kitap iyesi menen baylanıs ushın sistemağa kiriń.",
     "likeRequiresAuth": "Saylanǵanlarǵa qosıw ushın sistemaǵa kiriń.",
     "likeFailed": "Saylanǵanlar menen islewde qátelik júz berdi.",
     "contactPrefill": "Assalawma áleykum! kitobzor.uz saytına «{name}» kitabın jaylastırǵan ekensiz, men onı almaqshı edim.",
@@ -309,7 +313,12 @@
     "stats_likes": "{count, plural, one {# unatıw} other {# unatıw}}",
     "stats_views": "{count, plural, one {# kórilgen} other {# kórilgen}}",
     "stats_comments": "{count, plural, one {# pikir} other {# pikir}}",
-    "untitled": "Kitap"
+    "untitled": "Kitap",
+    "giftTitle": "Sıylıq etiw yamasa soraw",
+    "giftWish": "Maǵan sıylıq etsin",
+    "giftGive": "Jaqınıńızǵa sıylıq etiń",
+    "giftWishText": "📚 «{name}» kitabın oqıǵım keledi — kimde-kim maǵan sıylıq etse, júdá quwanar edim 🎁",
+    "giftGiveText": "📖 Saǵan «{name}» kitabın sıylıq etpekshimen, oqıysań ba?"
   },
   "BookCard": {
     "noName": "Kitap Atı Joq",
@@ -686,7 +695,9 @@
       "title": "Bizdiń jámáátimizge qosılıń",
       "description": "Satıwshı bolıń yáki bizdiń dúkenlerimizdi kórip shıǵıń",
       "exploreShops": "Dúkenlerdi kóriw"
-    }
+    },
+    "metaTitle": "Biz haqqımızda",
+    "metaDescription": "Kitobzor — kitap dúkanları hám kitap súygenlerdi birlestiretuǵın platforma. Bizdiń maqsetimiz hám kórsetkishlerimiz."
   },
   "ThemeToggle": {
     "switchToDark": "Túngi rejimge ótiw",
