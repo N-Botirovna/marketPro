@@ -677,10 +677,6 @@
       "exchange": {
         "title": "Kitob almashish",
         "description": "O'qilgan kitoblaringizni boshqa kitoblar bilan almashtirish. Kitob almashish jamoasiga qo'shiling."
-      },
-      "giveaway": {
-        "title": "Sovg'a kitoblar",
-        "description": "Muntazam ravishda o'tkaziladigan giveawaylar. Kitoblar sovg'a qilinadi va yutuqlar tanlanadi."
       }
     },
     "shops": {

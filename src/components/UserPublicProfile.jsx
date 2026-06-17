@@ -109,7 +109,7 @@ const UserPublicProfile = ({ userId }) => {
     <section className="user-public-profile py-80">
       <div className="container container-lg">
         <div className="row gy-4">
-          <div className="col-lg-4">
+          <div className="col-12 col-lg-4">
             <div className="bg-white border border-gray-100 rounded-16 shadow-sm p-32 h-100">
               <div className="text-center">
                 <span className="d-inline-flex w-120 h-120 rounded-circle overflow-hidden bg-gray-50 mb-16">
@@ -160,7 +160,7 @@ const UserPublicProfile = ({ userId }) => {
             </div>
           </div>
 
-          <div className="col-lg-8">
+          <div className="col-12 col-lg-8">
             <div className="d-flex align-items-center justify-content-between mb-24 flex-wrap gap-12">
               <div>
                 <h5 className="text-gray-900 mb-4">{tUserProfile("booksHeading")}</h5>

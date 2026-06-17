@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_BASE_URL, API_ENDPOINTS, AUTH_TOKEN_STORAGE_KEY } from "@/config";
+import { API_BASE_URL, API_ENDPOINTS, AUTH_TOKEN_STORAGE_KEY, COOKIE_REFRESH } from "@/config";
 import { getItem, setItem, getCurrentLocale } from "@/utils/storage";
 import { clearAuthStorage } from "@/utils/authStorage";
 import { serializeParams } from "@/utils/serializeParams";
@@ -50,7 +50,6 @@ const TTL_MAP = [
   ["/products", 10 * 60 * 1000], // 10 min
   ["/vendors", 10 * 60 * 1000], // 10 min
   ["/shops", 10 * 60 * 1000], // 10 min
-  ["/giveaway", 10 * 60 * 1000], // 10 min
 ];
 
 const getTTL = (url = "") => {
@@ -142,6 +141,14 @@ httpClient.interceptors.request.use(async (config) => {
     const ttl = getTTL(config.url);
 
     if (ttl === 0) return config;
+
+    // FE-C1: a stale-while-revalidate background refresh MUST hit the network
+    // and write through. It already carries `_cacheKey`/`_cacheTTL` from the
+    // foreground stale-hit. Without this short-circuit it re-enters the cache
+    // lookup → finds the same stale entry → serves it from the adapter again,
+    // so the network refetch never happens and SWR endpoints stay stale until
+    // full TTL expiry. Skip straight to the network.
+    if (config._swrBackground) return config;
 
     const cacheKey = buildCacheKey(config.url, config.params, currentLocale, token);
     const result = cacheLookup(cacheKey, ttl);
@@ -307,12 +314,17 @@ httpClient.interceptors.response.use(
       const isMutation = ["post", "put", "patch", "delete"].includes(reqMethod);
       const respStatus = error?.response?.status;
       const hasAuthToken = typeof window !== "undefined" && !!getItem(AUTH_TOKEN_STORAGE_KEY);
-      const hasRefreshToken = typeof window !== "undefined" && !!getItem("refresh_token");
+      // FE-H3: in cookie mode the refresh token is HttpOnly, so `refresh_token`
+      // is always absent — use the `login_time` session marker instead. Reading
+      // `refresh_token` directly here would show the "please sign in" modal to a
+      // logged-in cookie user whose access token momentarily lapsed.
+      const hasRefreshSession =
+        typeof window !== "undefined" && !!getItem(COOKIE_REFRESH ? "login_time" : "refresh_token");
       if (
         (respStatus === 401 || respStatus === 403) &&
         isMutation &&
         !hasAuthToken &&
-        !hasRefreshToken &&
+        !hasRefreshSession &&
         !originalRequest._skipAuthRequiredModal &&
         typeof window !== "undefined"
       ) {
