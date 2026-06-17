@@ -87,7 +87,11 @@ const httpClient = axios.create({
     "Content-Type": "application/json",
     Accept: "application/json",
   },
-  withCredentials: false,
+  // Send/receive the HttpOnly refresh cookie (C-4). Only the path-scoped
+  // `kz_refresh` cookie (/api/v1/auth/) actually rides any request; other
+  // endpoints set no cookies, so this is effectively free elsewhere. The
+  // backend allows credentials for the explicit FE origin (CORS).
+  withCredentials: true,
   timeout: 20000,
 });
 

@@ -24,6 +24,14 @@ export const PUBLIC_PAGES = ["/login", "/register", "/forgot-password", "/auth/a
 
 export const AUTH_TOKEN_STORAGE_KEY = "auth_token";
 
+// C-4 (partial): the 14-day refresh token lives in an HttpOnly cookie set by
+// the backend, NOT in localStorage — so XSS can't exfiltrate it. The backend
+// is additive (still accepts a body refresh token), so flipping this to
+// `false` + rebuilding cleanly reverts to the old body-token behaviour
+// (instant-ish rollback). The short-lived access token stays in localStorage
+// + Authorization header, so the rest of the auth flow is unchanged.
+export const COOKIE_REFRESH = true;
+
 export const API_ENDPOINTS = {
   AUTH: {
     // Trailing slashes are MANDATORY — Django's APPEND_SLASH issues a 301
