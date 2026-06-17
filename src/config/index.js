@@ -73,6 +73,18 @@ export const API_ENDPOINTS = {
       DELETE: "api/v1/book/comment",
     },
   },
+  // Book collections (bundles). The backend lives under the book app
+  // (/api/v1/book/collections/...). DETAIL is a prefix — callers append
+  // `/${id}/`; membership actions append `/${id}/books/...`.
+  COLLECTIONS: {
+    LIST: "api/v1/book/collections/list/",
+    DETAIL: "api/v1/book/collections", // append `/${id}/`
+    CREATE: "api/v1/book/collections/create/",
+    UPDATE: "api/v1/book/collections", // append `/${id}/` — PATCH
+    DELETE: "api/v1/book/collections", // append `/${id}/` — DELETE
+    ADD_BOOK: "api/v1/book/collections", // append `/${id}/books/add/`
+    BOOK: "api/v1/book/collections", // append `/${id}/books/${bookId}/` (DELETE) or `.../move/`
+  },
   SHOPS: {
     LIST: "api/v1/shop/list/",
     DETAIL: "api/v1/shop", // caller appends `/${id}/`

@@ -44,6 +44,7 @@ const TTL_MAP = [
   ["/faqs", 24 * 60 * 60 * 1000], // 24 h
   ["/policies", 24 * 60 * 60 * 1000], // 24 h — admin-curated content
   ["/stories", 2 * 60 * 1000], // 2 min — frequent freshness, expires fast
+  ["/collections", 5 * 60 * 1000], // 5 min — bundles change less than feeds
   ["/categories", 60 * 60 * 1000], // 1 h
   ["/banners", 30 * 60 * 1000], // 30 min
   ["/books", 10 * 60 * 1000], // 10 min

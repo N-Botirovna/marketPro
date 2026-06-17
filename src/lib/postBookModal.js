@@ -23,3 +23,17 @@ export function openPostBookFromShopModal(shopId) {
 }
 
 export const POST_BOOK_MODAL_EVENT = EVENT;
+
+// Pre-question: "sell a single book or build a collection?". The entry points
+// (FAB, shop "add" button) open this chooser, which then dispatches the book
+// or collection modal event. Carries an optional shopId for shop context.
+const CHOOSER_EVENT = "post-book-chooser:open";
+
+export function openPostChooser(shopId = null) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(
+    new CustomEvent(CHOOSER_EVENT, { detail: { shopId: shopId ? String(shopId) : null } }),
+  );
+}
+
+export const POST_BOOK_CHOOSER_EVENT = CHOOSER_EVENT;

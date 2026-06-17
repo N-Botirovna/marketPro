@@ -4,6 +4,7 @@ import BannerOne from "@/components/BannerOne";
 import HomeMainEntryChips from "@/components/home/HomeMainEntryChips";
 import HomeStoryBar from "@/components/home/HomeStoryBar";
 import HomeShopsRow from "@/components/home/HomeShopsRow";
+import HomeCollectionsRow from "@/components/home/HomeCollectionsRow";
 import HomeBookList from "@/components/home/HomeBookList";
 import ColorInit from "@/helper/ColorInit";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
@@ -65,6 +66,8 @@ export async function generateMetadata({ params }) {
 
 const bookParams = (type) => ({
   is_active: true,
+  // Hide books bundled into a collection — they show once as a collection card.
+  standalone: true,
   type,
   owner_type: "user",
   // 6 so the home feed fills exactly two full rows of the 3-column BookRowGrid
@@ -107,6 +110,7 @@ const page = async ({ params }) => {
       <HomeMainEntryChips />
       <HomeStoryBar initialStories={initialStories} />
       <HomeShopsRow initialShops={initialShops} />
+      <HomeCollectionsRow />
 
       <HomeBookList
         type="sell"

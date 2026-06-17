@@ -96,7 +96,9 @@
     "cancel": "Biykarlaw",
     "save": "Saqlaw",
     "close": "Jabıw",
-    "loading": "Júklenbekte..."
+    "loading": "Júklenbekte...",
+    "back": "Artqa",
+    "delete": "Óshiriw"
   },
   "Breadcrumb": {
     "home": "Bas bet",
@@ -1071,5 +1073,58 @@
       "topRegions": "Top hududlar",
       "bannedRatio": "Bloklangan ulush"
     }
+  },
+  "CollectionCreateModal": {
+    "title": "Toplam dúziw",
+    "priceTitle": "Toplam bahası",
+    "pickTitle": "Kitap tańlań",
+    "listHint": "Toplamǵa keminde 2 kitap qosıń.",
+    "empty": "Ále kitap qosılmaǵan",
+    "addNew": "Jańa kitap",
+    "addExisting": "Bar kitap",
+    "continue": "Dawam etiw",
+    "needTwo": "Keminde 2 kitap kerek.",
+    "sumLabel": "Ayrım bahalar jıyındısı",
+    "sumHint": "{count} kitaptıń bahası",
+    "bundlePrice": "Toplam bahası (ulıwma)",
+    "cheaperHint": "Ayrım bahalar jıyındısınan arzan bolǵanı maqul.",
+    "tooHigh": "Toplam bahası ayrım bahalar jıyındısınan aspawı kerek.",
+    "savings": "{amount} úneminiz",
+    "create": "Toplam jaratıw",
+    "created": "Toplam jaratıldı",
+    "error": "Qátelik júz berdi",
+    "noExisting": "Qosıw ushın bos kitap joq",
+    "addSelected": "Tańlanǵanlardı qosıw",
+    "chooseTitle": "Nelerdi jaylaysız?",
+    "chooseSingle": "Bir kitap",
+    "chooseSingleDesc": "Bir kitaptı ayrım satıw",
+    "chooseCollection": "Toplam",
+    "chooseCollectionDesc": "Bir neshe kitaptı birge satıw"
+  },
+  "CollectionCard": {
+    "untitled": "Toplam",
+    "discount": "{percent}% jeńillik",
+    "itemCount": "{count} dana",
+    "homeTitle": "Kitap toplamları",
+    "seeAll": "Hámmesin kóriw",
+    "none": "Toplamlar joq"
+  },
+  "CollectionDetails": {
+    "notFound": "Toplam tabılmadı",
+    "untitled": "Toplam",
+    "bundleBadge": "{count} kitap toplamı",
+    "savePercent": "{percent}% úneminiz",
+    "manage": "Basqarıw",
+    "doneManaging": "Tayyar",
+    "deleteCollection": "Toplamdı óshiriw",
+    "deleteConfirm": "Toplamdı óshiresizbe? Kitaplar óshpeydi, tek toplam.",
+    "deleted": "Toplam óshirildi",
+    "memberBooks": "Toplamdaǵı kitaplar ({count})",
+    "moveBook": "Basqa toplamǵa kóshiriw",
+    "detachBook": "Toplamnan ajratıw",
+    "detached": "Kitap ajratıldı",
+    "moved": "Kitap kóshirildi",
+    "actionFailed": "Ámel orınlanbadı",
+    "noTargets": "Basqa toplam joq"
   }
 }
