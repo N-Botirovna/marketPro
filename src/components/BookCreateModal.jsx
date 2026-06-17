@@ -145,7 +145,16 @@ const StepHeading = ({ title, subtitle }) => (
   </Box>
 );
 
-const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null, initialShopId = null }) => {
+const BookCreateModal = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  editBook = null,
+  initialShopId = null,
+  // When true (collection wizard) the owner step is hidden so every book in a
+  // bundle stays under the same owner; `initialShopId` (null = personal) wins.
+  lockShop = false,
+}) => {
   const t = useTranslations("BookCreateModal");
   const tCommon = useTranslations("Common");
   const tType = useTranslations("BookTypeChips");
@@ -429,7 +438,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null, initialS
       },
       {
         key: "owner",
-        when: () => shops.length > 0,
+        when: () => shops.length > 0 && !lockShop,
         title: t("step.ownerTitle"),
         subtitle: t("step.ownerSubtitle"),
         validate: () => true,

@@ -96,7 +96,9 @@
     "cancel": "Отмена",
     "save": "Сохранить",
     "close": "Закрыть",
-    "loading": "Загрузка..."
+    "loading": "Загрузка...",
+    "back": "Назад",
+    "delete": "Удалить"
   },
   "Breadcrumb": {
     "home": "Главная",
@@ -1071,5 +1073,58 @@
       "topRegions": "Топ регионов",
       "bannedRatio": "Доля заблокированных"
     }
+  },
+  "CollectionCreateModal": {
+    "title": "Создать набор",
+    "priceTitle": "Цена набора",
+    "pickTitle": "Выберите книги",
+    "listHint": "Добавьте в набор минимум 2 книги.",
+    "empty": "Книги ещё не добавлены",
+    "addNew": "Новая книга",
+    "addExisting": "Существующая",
+    "continue": "Продолжить",
+    "needTwo": "Нужно минимум 2 книги.",
+    "sumLabel": "Сумма отдельных цен",
+    "sumHint": "Цена {count} книг",
+    "bundlePrice": "Цена набора (общая)",
+    "cheaperHint": "Лучше дешевле суммы отдельных цен.",
+    "tooHigh": "Цена набора не должна превышать сумму отдельных цен.",
+    "savings": "Экономия {amount}",
+    "create": "Создать набор",
+    "created": "Набор создан",
+    "error": "Произошла ошибка",
+    "noExisting": "Нет свободных книг",
+    "addSelected": "Добавить выбранные",
+    "chooseTitle": "Что разместить?",
+    "chooseSingle": "Одна книга",
+    "chooseSingleDesc": "Продать одну книгу отдельно",
+    "chooseCollection": "Набор",
+    "chooseCollectionDesc": "Продать несколько книг вместе"
+  },
+  "CollectionCard": {
+    "untitled": "Набор",
+    "discount": "скидка {percent}%",
+    "itemCount": "{count} шт.",
+    "homeTitle": "Наборы книг",
+    "seeAll": "Смотреть все",
+    "none": "Наборов нет"
+  },
+  "CollectionDetails": {
+    "notFound": "Набор не найден",
+    "untitled": "Набор",
+    "bundleBadge": "Набор из {count} книг",
+    "savePercent": "экономия {percent}%",
+    "manage": "Управление",
+    "doneManaging": "Готово",
+    "deleteCollection": "Удалить набор",
+    "deleteConfirm": "Удалить набор? Книги не удалятся, только набор.",
+    "deleted": "Набор удалён",
+    "memberBooks": "Книги в наборе ({count})",
+    "moveBook": "Переместить в другой набор",
+    "detachBook": "Убрать из набора",
+    "detached": "Книга убрана",
+    "moved": "Книга перемещена",
+    "actionFailed": "Не удалось выполнить",
+    "noTargets": "Других наборов нет"
   }
 }

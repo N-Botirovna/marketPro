@@ -18,7 +18,9 @@ import {
 import dynamic from "next/dynamic";
 import { getShopDetails } from "@/services/shop";
 import { getBooks } from "@/services/books";
-import { openPostBookFromShopModal } from "@/lib/postBookModal";
+import { getCollectionsByShop } from "@/services/collections";
+import CollectionRowGrid from "@/components/shared/CollectionRowGrid";
+import { openPostChooser } from "@/lib/postBookModal";
 import { getBookCategories, getBookSubcategories } from "@/services/categories";
 import BookRowGrid from "@/components/shared/BookRowGrid";
 import { openShareSheet } from "@/lib/shareSheet";
@@ -98,6 +100,7 @@ const localizeWorkingDays = (raw, tDays) => {
 
 const ShopDetailPage = ({ shopId }) => {
   const t = useTranslations("ShopDetailPage");
+  const tColl = useTranslations("CollectionCard");
   const tDays = useTranslations("Days");
   const tShare = useTranslations("Share");
   const tShopEdit = useTranslations("ShopEdit");
@@ -129,6 +132,7 @@ const ShopDetailPage = ({ shopId }) => {
 
   const [books, setBooks] = useState([]);
   const [booksLoading, setBooksLoading] = useState(true);
+  const [collections, setCollections] = useState([]);
 
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
@@ -219,6 +223,9 @@ const ShopDetailPage = ({ shopId }) => {
     if (categoryId) params.category = categoryId;
     if (subcategoryId) params.sub_category = subcategoryId;
     if (debouncedQuery) params.q = debouncedQuery;
+    // Hide books bundled into a collection from the standalone grid (they show
+    // as a collection card above). While searching, keep them findable.
+    else params.standalone = true;
 
     getBooks(params)
       .then((res) => {
@@ -232,6 +239,19 @@ const ShopDetailPage = ({ shopId }) => {
       alive = false;
     };
   }, [shopId, categoryId, subcategoryId, debouncedQuery]);
+
+  // ── Shop collections (bundles) ──────────────────────────────────────
+  useEffect(() => {
+    if (!shopId) return undefined;
+    let alive = true;
+    getCollectionsByShop(shopId, 12)
+      .then((res) => alive && setCollections(res.collections || []))
+      .catch(() => {})
+      .finally(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [shopId]);
 
   // ── Derived ──────────────────────────────────────────────────────────
   const star = useMemo(() => formatStar(shop?.star), [shop]);
@@ -535,7 +555,7 @@ const ShopDetailPage = ({ shopId }) => {
                   )}
                   {shop?.can_update && (
                     <Button
-                      onClick={() => openPostBookFromShopModal(shop.id)}
+                      onClick={() => openPostChooser(shop.id)}
                       variant="contained"
                       size="small"
                       startIcon={<Icon className="ph ph-plus" aria-hidden="true" />}
@@ -714,6 +734,15 @@ const ShopDetailPage = ({ shopId }) => {
             ))}
           </TextField>
         </Stack>
+
+        {collections.length > 0 && (
+          <Box sx={{ mb: 3 }}>
+            <Typography sx={{ fontSize: { xs: 16, md: 18 }, fontWeight: 700, mb: 1.5 }}>
+              {tColl("homeTitle")}
+            </Typography>
+            <CollectionRowGrid collections={collections} />
+          </Box>
+        )}
 
         <BookRowGrid
           books={books}

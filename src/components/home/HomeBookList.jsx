@@ -30,7 +30,9 @@ const HomeBookList = ({ type, ownerType, titleKey, viewAllHref, limit = 6, initi
   useEffect(() => {
     if (hasInitial) return undefined;
     let alive = true;
-    const params = { is_active: true, limit };
+    // `standalone` hides books that live inside a collection — the bundle
+    // shows once as a collection card (see HomeCollectionsRow) instead.
+    const params = { is_active: true, standalone: true, limit };
     if (type) params.type = type;
     if (ownerType) params.owner_type = ownerType;
 

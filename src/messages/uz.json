@@ -96,7 +96,9 @@
     "cancel": "Bekor qilish",
     "save": "Saqlash",
     "close": "Yopish",
-    "loading": "Yuklanmoqda..."
+    "loading": "Yuklanmoqda...",
+    "back": "Orqaga",
+    "delete": "O'chirish"
   },
   "Breadcrumb": {
     "home": "Bosh sahifa",
@@ -1071,5 +1073,58 @@
       "topRegions": "Top hududlar",
       "bannedRatio": "Bloklangan ulush"
     }
+  },
+  "CollectionCreateModal": {
+    "title": "To'plam tuzish",
+    "priceTitle": "To'plam narxi",
+    "pickTitle": "Kitob tanlang",
+    "listHint": "To'plamga kamida 2 ta kitob qo'shing.",
+    "empty": "Hali kitob qo'shilmagan",
+    "addNew": "Yangi kitob",
+    "addExisting": "Mavjud kitob",
+    "continue": "Davom etish",
+    "needTwo": "Kamida 2 ta kitob kerak.",
+    "sumLabel": "Alohida narxlar yig'indisi",
+    "sumHint": "{count} ta kitobning narxi",
+    "bundlePrice": "To'plam narxi (umumiy)",
+    "cheaperHint": "Alohida narxlar yig'indisidan arzon bo'lgani ma'qul.",
+    "tooHigh": "To'plam narxi alohida narxlar yig'indisidan oshmasligi kerak.",
+    "savings": "{amount} tejaysiz",
+    "create": "To'plam yaratish",
+    "created": "To'plam yaratildi",
+    "error": "Xatolik yuz berdi",
+    "noExisting": "Qo'shish uchun bo'sh kitob yo'q",
+    "addSelected": "Tanlanganlarni qo'shish",
+    "chooseTitle": "Nima joylaysiz?",
+    "chooseSingle": "Bitta kitob",
+    "chooseSingleDesc": "Bitta kitobni alohida soting",
+    "chooseCollection": "To'plam",
+    "chooseCollectionDesc": "Bir nechta kitobni birga soting"
+  },
+  "CollectionCard": {
+    "untitled": "To'plam",
+    "discount": "{percent}% chegirma",
+    "itemCount": "{count} ta",
+    "homeTitle": "Kitob to'plamlari",
+    "seeAll": "Hammasini ko'rish",
+    "none": "To'plamlar yo'q"
+  },
+  "CollectionDetails": {
+    "notFound": "To'plam topilmadi",
+    "untitled": "To'plam",
+    "bundleBadge": "{count} ta kitob to'plami",
+    "savePercent": "{percent}% tejaysiz",
+    "manage": "Boshqarish",
+    "doneManaging": "Tayyor",
+    "deleteCollection": "To'plamni o'chirish",
+    "deleteConfirm": "To'plamni o'chirasizmi? Kitoblar o'chmaydi, faqat to'plam.",
+    "deleted": "To'plam o'chirildi",
+    "memberBooks": "To'plamdagi kitoblar ({count})",
+    "moveBook": "Boshqa to'plamga ko'chirish",
+    "detachBook": "To'plamdan ajratish",
+    "detached": "Kitob ajratildi",
+    "moved": "Kitob ko'chirildi",
+    "actionFailed": "Amal bajarilmadi",
+    "noTargets": "Boshqa to'plam yo'q"
   }
 }
