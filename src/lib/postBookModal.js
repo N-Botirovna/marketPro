@@ -8,7 +8,18 @@ const EVENT = "post-book-modal:open";
 
 export function openPostBookModal() {
   if (typeof window === "undefined") return;
-  window.dispatchEvent(new CustomEvent(EVENT));
+  // No shopId → personal listing (the modal still lets owners pick a shop).
+  window.dispatchEvent(new CustomEvent(EVENT, { detail: { shopId: null } }));
+}
+
+/**
+ * Open the modal pre-attributed to a specific shop — used from the owner's
+ * shop page so "add book here" lists under the shop automatically. The backend
+ * still validates that the caller owns/staffs the shop.
+ */
+export function openPostBookFromShopModal(shopId) {
+  if (typeof window === "undefined" || !shopId) return;
+  window.dispatchEvent(new CustomEvent(EVENT, { detail: { shopId: String(shopId) } }));
 }
 
 export const POST_BOOK_MODAL_EVENT = EVENT;

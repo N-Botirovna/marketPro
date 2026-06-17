@@ -27,6 +27,7 @@ import Icon from "@/components/Icon";
 import { getContactActions } from "@/utils/contactActions";
 import { mapValidationError } from "@/lib/mapValidationError";
 import BookCreateModal from "./BookCreateModal";
+import MoreFromSellerSection from "./MoreFromSellerSection";
 import { useToast } from "./Toast";
 
 const BookDetails = ({ bookId }) => {
@@ -754,6 +755,9 @@ const BookDetails = ({ bookId }) => {
             />
           )}
         </Stack>
+
+        {/* ─── More from this seller (user or shop) ─────────────────── */}
+        <MoreFromSellerSection bookId={book.id} />
 
         {/* Edit modal */}
         <BookCreateModal

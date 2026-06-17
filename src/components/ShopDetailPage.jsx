@@ -18,6 +18,7 @@ import {
 import dynamic from "next/dynamic";
 import { getShopDetails } from "@/services/shop";
 import { getBooks } from "@/services/books";
+import { openPostBookFromShopModal } from "@/lib/postBookModal";
 import { getBookCategories, getBookSubcategories } from "@/services/categories";
 import BookRowGrid from "@/components/shared/BookRowGrid";
 import { openShareSheet } from "@/lib/shareSheet";
@@ -531,6 +532,21 @@ const ShopDetailPage = ({ shopId }) => {
                     >
                       <Icon className="ph ph-globe" />
                     </IconButton>
+                  )}
+                  {shop?.can_update && (
+                    <Button
+                      onClick={() => openPostBookFromShopModal(shop.id)}
+                      variant="contained"
+                      size="small"
+                      startIcon={<Icon className="ph ph-plus" aria-hidden="true" />}
+                      sx={{
+                        textTransform: "none",
+                        fontWeight: 700,
+                        borderRadius: 999,
+                      }}
+                    >
+                      {t("addBook")}
+                    </Button>
                   )}
                   {shop?.can_update && (
                     <Button
