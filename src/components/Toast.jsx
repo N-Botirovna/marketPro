@@ -101,8 +101,11 @@ const Toast = ({
         className={`toast ${isVisible ? "show" : ""}`}
         role="alert"
         style={{
-          minWidth: "320px",
-          maxWidth: "420px",
+          // FE-M2: a fixed 320px min inside a position-fixed container (with
+          // p-3 = 16px gutters) overflows a 320px viewport and barely fits at
+          // 360px. Clamp to the available width on phones, fixed min on ≥360px.
+          minWidth: "min(320px, calc(100vw - 32px))",
+          maxWidth: "min(420px, calc(100vw - 32px))",
           backgroundColor: "var(--surface-elevated)",
           color: "var(--text-primary)",
           border: `1px solid ${getBorderColor()}`,

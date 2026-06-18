@@ -1,5 +1,5 @@
 import http from "@/lib/http";
-import { AUTH_TOKEN_STORAGE_KEY, API_ENDPOINTS } from "@/config";
+import { AUTH_TOKEN_STORAGE_KEY, API_ENDPOINTS, COOKIE_REFRESH } from "@/config";
 import { setItem, getItem } from "@/utils/storage";
 import { clearAuthStorage } from "@/utils/authStorage";
 import { withIdempotency } from "@/lib/idempotency";
@@ -41,7 +41,9 @@ export async function loginWithPhoneOtp({ phone_number, otp_code }) {
     setItem("login_time", Date.now());
   }
 
-  if (refreshToken) {
+  // C-4: in cookie mode the refresh token arrives via an HttpOnly Set-Cookie,
+  // so we never persist it in JS-readable storage. Body mode keeps the old path.
+  if (refreshToken && !COOKIE_REFRESH) {
     setItem("refresh_token", refreshToken);
   }
 
@@ -79,7 +81,9 @@ export async function loginWithCode(otp_code) {
     saveAccessToken(accessToken, expiresIn);
     setItem("login_time", Date.now());
   }
-  if (refreshToken) {
+  // C-4: in cookie mode the refresh token arrives via an HttpOnly Set-Cookie,
+  // so we never persist it in JS-readable storage. Body mode keeps the old path.
+  if (refreshToken && !COOKIE_REFRESH) {
     setItem("refresh_token", refreshToken);
   }
 
@@ -130,7 +134,27 @@ export function isTokenExpired() {
   return jwtExp ? Date.now() >= jwtExp : false;
 }
 
+/**
+ * "Does the user have a refresh session?" — the single oracle both useAuth and
+ * the http.js anonymous-mutation guard must use. In cookie mode the refresh
+ * token is HttpOnly (invisible to JS), so we fall back to the `login_time`
+ * marker (set on login, cleared on logout). In body mode we check the
+ * JS-readable refresh token directly. Without this helper, callers that read
+ * `getItem("refresh_token")` see `null` in cookie mode and wrongly treat a
+ * valid session as logged-out (FE-H1/H3).
+ */
+export function hasRefreshSession() {
+  if (COOKIE_REFRESH) return !!getItem("login_time");
+  return !!getItem("refresh_token");
+}
+
 export function isRefreshTokenExpired() {
+  // Cookie mode: the refresh token is HttpOnly — JS can't read it to inspect
+  // its `exp`. Treat it as "maybe valid" and let the server be the authority:
+  // a refresh attempt either succeeds or returns 401, which the 401 handler /
+  // ProtectedRoute already turn into a login redirect.
+  if (COOKIE_REFRESH) return false;
+
   const refreshToken = getItem("refresh_token");
   if (!refreshToken) return true;
 
@@ -161,15 +185,18 @@ export function refreshAccessToken() {
 }
 
 async function _doRefreshAccessToken() {
-  const refreshToken = getItem("refresh_token");
-  if (!refreshToken) throw new Error("No refresh token");
+  // Cookie mode: the HttpOnly `kz_refresh` cookie authenticates the refresh —
+  // there's no JS-readable refresh token to gate on or send. Body mode keeps
+  // reading/sending it from localStorage.
+  const refreshToken = COOKIE_REFRESH ? null : getItem("refresh_token");
+  if (!COOKIE_REFRESH && !refreshToken) throw new Error("No refresh token");
 
   devLog("🔄 Refreshing access token");
 
   try {
     const { data } = await http.post(
       API_ENDPOINTS.AUTH.REFRESH,
-      { refresh_token: refreshToken },
+      COOKIE_REFRESH ? {} : { refresh_token: refreshToken },
       { skipAuthRefresh: true },
     );
 
@@ -177,7 +204,7 @@ async function _doRefreshAccessToken() {
       saveAccessToken(data.access_token, data?.expires_in || data?.expires_in_seconds);
     }
 
-    if (data?.refresh_token) {
+    if (data?.refresh_token && !COOKIE_REFRESH) {
       setItem("refresh_token", data.refresh_token);
     }
 
@@ -214,7 +241,9 @@ export async function loginWithTicket(ticket) {
     saveAccessToken(accessToken, expiresIn);
     setItem("login_time", Date.now());
   }
-  if (refreshToken) {
+  // C-4: in cookie mode the refresh token arrives via an HttpOnly Set-Cookie,
+  // so we never persist it in JS-readable storage. Body mode keeps the old path.
+  if (refreshToken && !COOKIE_REFRESH) {
     setItem("refresh_token", refreshToken);
   }
   return {
@@ -230,12 +259,19 @@ export async function logoutUser() {
   // already-blacklisted token), we still proceed with the local wipe —
   // the user clicked logout, and the access token is short-lived. We
   // never block logout on the network.
-  const refreshToken = getItem("refresh_token");
-  if (refreshToken) {
+  //
+  // FE-H2: in cookie mode there's no JS-readable refresh token to gate on —
+  // the HttpOnly cookie authenticates the logout call — so we must ALWAYS hit
+  // the endpoint (with an empty body) to blacklist the cookie server-side and
+  // let the backend clear it. Gating on getItem("refresh_token") here (always
+  // null in cookie mode) silently skipped blacklisting, leaving a stolen
+  // refresh cookie replayable after the user "logged out".
+  const refreshToken = COOKIE_REFRESH ? null : getItem("refresh_token");
+  if (COOKIE_REFRESH || refreshToken) {
     try {
       await http.post(
         API_ENDPOINTS.AUTH.LOGOUT,
-        { refresh_token: refreshToken },
+        COOKIE_REFRESH ? {} : { refresh_token: refreshToken },
         { skipAuthRefresh: true },
       );
     } catch (error) {
@@ -248,6 +284,11 @@ export async function logoutUser() {
 export function isAuthenticated() {
   const token = getItem(AUTH_TOKEN_STORAGE_KEY);
   if (token) return true;
+
+  // Cookie mode: the refresh token is invisible to JS, so use `login_time`
+  // (set on login, cleared on logout) as an optimistic "has a session" marker.
+  // The server validates it on the next request / refresh.
+  if (COOKIE_REFRESH) return !!getItem("login_time");
 
   const refreshToken = getItem("refresh_token");
   return !!refreshToken && !isRefreshTokenExpired();

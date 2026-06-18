@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { isAuthenticated, getUserProfile } from "@/services/auth";
-import { openPostBookModal } from "@/lib/postBookModal";
+import { openPostChooser } from "@/lib/postBookModal";
 import { isProfileComplete } from "@/utils/profile";
 import Icon from "@/components/Icon";
 
@@ -52,9 +52,9 @@ const PostBookFab = () => {
         router.push("/account?complete=book");
         return;
       }
-      openPostBookModal();
+      openPostChooser();
     } catch {
-      openPostBookModal();
+      openPostChooser();
     } finally {
       setChecking(false);
     }

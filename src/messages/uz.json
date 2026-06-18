@@ -96,7 +96,9 @@
     "cancel": "Bekor qilish",
     "save": "Saqlash",
     "close": "Yopish",
-    "loading": "Yuklanmoqda..."
+    "loading": "Yuklanmoqda...",
+    "back": "Orqaga",
+    "delete": "O'chirish"
   },
   "Breadcrumb": {
     "home": "Bosh sahifa",
@@ -318,7 +320,10 @@
     "giftWish": "Menga sovg'a qilishsin",
     "giftGive": "Yaqiningizga sovg'a qiling",
     "giftWishText": "📚 «{name}» kitobini o'qimoqchiman — kimdir menga sovg'a qilsa juda xursand bo'lardim 🎁",
-    "giftGiveText": "📖 Senga «{name}» kitobini sovg'a qilmoqchiman, o'qiysanmi?"
+    "giftGiveText": "📖 Senga «{name}» kitobini sovg'a qilmoqchiman, o'qiysanmi?",
+    "seeAll": "Hammasini ko'rish",
+    "moreFromShop": "{name} do'konidan boshqa kitoblar",
+    "moreFromUser": "Ushbu sotuvchidan boshqa kitoblar"
   },
   "BookCard": {
     "noName": "Kitob Nomi Mavjud Emas",
@@ -677,10 +682,6 @@
       "exchange": {
         "title": "Kitob almashish",
         "description": "O'qilgan kitoblaringizni boshqa kitoblar bilan almashtirish. Kitob almashish jamoasiga qo'shiling."
-      },
-      "giveaway": {
-        "title": "Sovg'a kitoblar",
-        "description": "Muntazam ravishda o'tkaziladigan giveawaylar. Kitoblar sovg'a qilinadi va yutuqlar tanlanadi."
       }
     },
     "shops": {
@@ -822,7 +823,8 @@
     "telegram": "Telegram",
     "openingHours": "Ish vaqti",
     "lunchBreak": "Tushlik",
-    "workingDays": "Ish kunlari"
+    "workingDays": "Ish kunlari",
+    "addBook": "Kitob qo'shish"
   },
   "BooksPage": {
     "title": {
@@ -1007,5 +1009,122 @@
   "Vendor": {
     "searchPlaceholder": "Do'kon nomi bo'yicha qidiring...",
     "showingResults": "Ko'rsatilmoqda: {start}-{end} / {total}"
+  },
+  "Admin": {
+    "title": "Boshqaruv paneli",
+    "subtitle": "CEO / Founder uchun statistika",
+    "loading": "Yuklanmoqda...",
+    "error": "Ma'lumotni yuklab bo'lmadi",
+    "empty": "Ma'lumot yo'q",
+    "range": {
+      "7": "7 kun",
+      "30": "30 kun",
+      "90": "90 kun"
+    },
+    "tabs": {
+      "summary": "Umumiy",
+      "funnel": "Funnel",
+      "demand": "Talab",
+      "supply": "Taklif"
+    },
+    "kpi": {
+      "totalUsers": "Jami foydalanuvchi",
+      "newUsers": "Yangi (davr)",
+      "activeUsers": "Faol",
+      "totalBooks": "Jami kitob",
+      "activeBooks": "Faol kitob",
+      "newBooks": "Yangi kitob",
+      "totalShops": "Do'konlar",
+      "bannedBooks": "Bloklangan"
+    },
+    "growth": {
+      "title": "O'sish (kunlik)",
+      "newUsers": "Yangi foydalanuvchi",
+      "newBooks": "Yangi kitob",
+      "activeUsers": "Faol foydalanuvchi"
+    },
+    "funnel": {
+      "views": "Ko'rishlar",
+      "contacts": "Kontaktlar",
+      "shares": "Ulashishlar",
+      "gift": "Sovg'a",
+      "wish": "Tilak",
+      "viewToContact": "Ko'rish→Kontakt",
+      "viewToShare": "Ko'rish→Ulashish",
+      "bySource": "Manba bo'yicha",
+      "web": "Veb",
+      "bot": "Bot"
+    },
+    "demand": {
+      "totalSearches": "Jami qidiruv",
+      "distinct": "Noyob so'rov",
+      "topSearches": "Top qidiruvlar",
+      "gaps": "Talab bo'shlig'i (natijasiz)",
+      "query": "So'rov",
+      "count": "Soni",
+      "avgResults": "O'rtacha natija"
+    },
+    "supply": {
+      "byType": "Tur bo'yicha",
+      "byCondition": "Holat bo'yicha",
+      "topSellers": "Top sotuvchilar",
+      "topShops": "Top do'konlar",
+      "topCategories": "Top kategoriyalar",
+      "topRegions": "Top hududlar",
+      "bannedRatio": "Bloklangan ulush"
+    }
+  },
+  "CollectionCreateModal": {
+    "title": "To'plam tuzish",
+    "priceTitle": "To'plam narxi",
+    "pickTitle": "Kitob tanlang",
+    "listHint": "To'plamga kamida 2 ta kitob qo'shing.",
+    "empty": "Hali kitob qo'shilmagan",
+    "addNew": "Yangi kitob",
+    "addExisting": "Mavjud kitob",
+    "continue": "Davom etish",
+    "needTwo": "Kamida 2 ta kitob kerak.",
+    "sumLabel": "Alohida narxlar yig'indisi",
+    "sumHint": "{count} ta kitobning narxi",
+    "bundlePrice": "To'plam narxi (umumiy)",
+    "cheaperHint": "Alohida narxlar yig'indisidan arzon bo'lgani ma'qul.",
+    "tooHigh": "To'plam narxi alohida narxlar yig'indisidan oshmasligi kerak.",
+    "savings": "{amount} tejaysiz",
+    "create": "To'plam yaratish",
+    "created": "To'plam yaratildi",
+    "error": "Xatolik yuz berdi",
+    "noExisting": "Qo'shish uchun bo'sh kitob yo'q",
+    "addSelected": "Tanlanganlarni qo'shish",
+    "chooseTitle": "Nima joylaysiz?",
+    "chooseSingle": "Bitta kitob",
+    "chooseSingleDesc": "Bitta kitobni alohida soting",
+    "chooseCollection": "To'plam",
+    "chooseCollectionDesc": "Bir nechta kitobni birga soting"
+  },
+  "CollectionCard": {
+    "untitled": "To'plam",
+    "discount": "{percent}% chegirma",
+    "itemCount": "{count} ta",
+    "homeTitle": "Kitob to'plamlari",
+    "seeAll": "Hammasini ko'rish",
+    "none": "To'plamlar yo'q"
+  },
+  "CollectionDetails": {
+    "notFound": "To'plam topilmadi",
+    "untitled": "To'plam",
+    "bundleBadge": "{count} ta kitob to'plami",
+    "savePercent": "{percent}% tejaysiz",
+    "manage": "Boshqarish",
+    "doneManaging": "Tayyor",
+    "deleteCollection": "To'plamni o'chirish",
+    "deleteConfirm": "To'plamni o'chirasizmi? Kitoblar o'chmaydi, faqat to'plam.",
+    "deleted": "To'plam o'chirildi",
+    "memberBooks": "To'plamdagi kitoblar ({count})",
+    "moveBook": "Boshqa to'plamga ko'chirish",
+    "detachBook": "To'plamdan ajratish",
+    "detached": "Kitob ajratildi",
+    "moved": "Kitob ko'chirildi",
+    "actionFailed": "Amal bajarilmadi",
+    "noTargets": "Boshqa to'plam yo'q"
   }
 }

@@ -71,6 +71,25 @@ export async function getBookById(id) {
 }
 
 /**
+ * "More from this seller" — up to `limit` (default 6) OTHER active books from
+ * the same seller as `bookId` (the posting user, or the shop for a shop
+ * listing), plus a seller descriptor ({ kind: "user"|"shop", id, name }) and
+ * the total count for a "see all" link. One call; the backend resolves
+ * user-vs-shop and excludes the current book.
+ */
+export async function getSellerBooks(bookId, limit = 6) {
+  const { data } = await http.get(`${API_ENDPOINTS.BOOKS.DETAIL}/${bookId}/seller-books/`, {
+    params: { limit },
+  });
+  const result = data?.result ?? {};
+  return {
+    seller: result.seller ?? null,
+    count: typeof result.count === "number" ? result.count : 0,
+    books: Array.isArray(result.results) ? result.results : [],
+  };
+}
+
+/**
  * Notify the admin channel that a website visitor tapped a contact button on
  * this book (call / SMS / Telegram). Fire-and-forget: a logging failure must
  * never block the user's actual contact action, so errors are swallowed. The

@@ -96,7 +96,9 @@
     "cancel": "Cancel",
     "save": "Save",
     "close": "Close",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "back": "Back",
+    "delete": "Delete"
   },
   "Breadcrumb": {
     "home": "Home",
@@ -318,7 +320,10 @@
     "giftWish": "Ask someone to gift me",
     "giftGive": "Gift it to someone",
     "giftWishText": "📚 I'd love to read “{name}” — it would make me so happy if someone gifted it to me 🎁",
-    "giftGiveText": "📖 I'd like to gift you “{name}” — would you read it?"
+    "giftGiveText": "📖 I'd like to gift you “{name}” — would you read it?",
+    "seeAll": "See all",
+    "moreFromShop": "More books from {name}",
+    "moreFromUser": "More from this seller"
   },
   "BookCard": {
     "noName": "Book Name Not Available",
@@ -677,10 +682,6 @@
       "exchange": {
         "title": "Book Exchange",
         "description": "Exchange your read books with other books. Join the book exchange community."
-      },
-      "giveaway": {
-        "title": "Gift Books",
-        "description": "Regularly held giveaways. Books are given away and winners are selected."
       }
     },
     "shops": {
@@ -822,7 +823,8 @@
     "telegram": "Telegram",
     "openingHours": "Hours",
     "lunchBreak": "Lunch",
-    "workingDays": "Working days"
+    "workingDays": "Working days",
+    "addBook": "Add book"
   },
   "BooksPage": {
     "title": {
@@ -1007,5 +1009,122 @@
   "Vendor": {
     "searchPlaceholder": "Search shops by name...",
     "showingResults": "Showing {start}-{end} of {total} results"
+  },
+  "Admin": {
+    "title": "Admin dashboard",
+    "subtitle": "CEO / Founder statistics",
+    "loading": "Loading...",
+    "error": "Failed to load data",
+    "empty": "No data",
+    "range": {
+      "7": "7 days",
+      "30": "30 days",
+      "90": "90 days"
+    },
+    "tabs": {
+      "summary": "Overview",
+      "funnel": "Funnel",
+      "demand": "Demand",
+      "supply": "Supply"
+    },
+    "kpi": {
+      "totalUsers": "Total users",
+      "newUsers": "New (period)",
+      "activeUsers": "Active",
+      "totalBooks": "Total books",
+      "activeBooks": "Active books",
+      "newBooks": "New books",
+      "totalShops": "Shops",
+      "bannedBooks": "Banned"
+    },
+    "growth": {
+      "title": "Growth (daily)",
+      "newUsers": "New users",
+      "newBooks": "New books",
+      "activeUsers": "Active users"
+    },
+    "funnel": {
+      "views": "Views",
+      "contacts": "Contacts",
+      "shares": "Shares",
+      "gift": "Gift",
+      "wish": "Wish",
+      "viewToContact": "View→Contact",
+      "viewToShare": "View→Share",
+      "bySource": "By source",
+      "web": "Web",
+      "bot": "Bot"
+    },
+    "demand": {
+      "totalSearches": "Total searches",
+      "distinct": "Distinct queries",
+      "topSearches": "Top searches",
+      "gaps": "Unmet demand (no results)",
+      "query": "Query",
+      "count": "Count",
+      "avgResults": "Avg results"
+    },
+    "supply": {
+      "byType": "By type",
+      "byCondition": "By condition",
+      "topSellers": "Top sellers",
+      "topShops": "Top shops",
+      "topCategories": "Top categories",
+      "topRegions": "Top regions",
+      "bannedRatio": "Banned ratio"
+    }
+  },
+  "CollectionCreateModal": {
+    "title": "Create a collection",
+    "priceTitle": "Bundle price",
+    "pickTitle": "Pick books",
+    "listHint": "Add at least 2 books to the collection.",
+    "empty": "No books added yet",
+    "addNew": "New book",
+    "addExisting": "Existing book",
+    "continue": "Continue",
+    "needTwo": "At least 2 books are required.",
+    "sumLabel": "Sum of individual prices",
+    "sumHint": "Price of {count} books",
+    "bundlePrice": "Bundle price (total)",
+    "cheaperHint": "Best kept cheaper than the sum of individual prices.",
+    "tooHigh": "Bundle price must not exceed the sum of individual prices.",
+    "savings": "You save {amount}",
+    "create": "Create collection",
+    "created": "Collection created",
+    "error": "Something went wrong",
+    "noExisting": "No free books to add",
+    "addSelected": "Add selected",
+    "chooseTitle": "What are you posting?",
+    "chooseSingle": "A single book",
+    "chooseSingleDesc": "Sell one book on its own",
+    "chooseCollection": "A collection",
+    "chooseCollectionDesc": "Sell several books together"
+  },
+  "CollectionCard": {
+    "untitled": "Collection",
+    "discount": "{percent}% off",
+    "itemCount": "{count} books",
+    "homeTitle": "Book collections",
+    "seeAll": "See all",
+    "none": "No collections"
+  },
+  "CollectionDetails": {
+    "notFound": "Collection not found",
+    "untitled": "Collection",
+    "bundleBadge": "Bundle of {count} books",
+    "savePercent": "save {percent}%",
+    "manage": "Manage",
+    "doneManaging": "Done",
+    "deleteCollection": "Delete collection",
+    "deleteConfirm": "Delete this collection? The books are not deleted, only the bundle.",
+    "deleted": "Collection deleted",
+    "memberBooks": "Books in this collection ({count})",
+    "moveBook": "Move to another collection",
+    "detachBook": "Detach from collection",
+    "detached": "Book detached",
+    "moved": "Book moved",
+    "actionFailed": "Action failed",
+    "noTargets": "No other collections"
   }
 }

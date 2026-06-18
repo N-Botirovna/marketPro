@@ -18,6 +18,9 @@ import {
 import dynamic from "next/dynamic";
 import { getShopDetails } from "@/services/shop";
 import { getBooks } from "@/services/books";
+import { getCollectionsByShop } from "@/services/collections";
+import CollectionRowGrid from "@/components/shared/CollectionRowGrid";
+import { openPostChooser } from "@/lib/postBookModal";
 import { getBookCategories, getBookSubcategories } from "@/services/categories";
 import BookRowGrid from "@/components/shared/BookRowGrid";
 import { openShareSheet } from "@/lib/shareSheet";
@@ -97,6 +100,7 @@ const localizeWorkingDays = (raw, tDays) => {
 
 const ShopDetailPage = ({ shopId }) => {
   const t = useTranslations("ShopDetailPage");
+  const tColl = useTranslations("CollectionCard");
   const tDays = useTranslations("Days");
   const tShare = useTranslations("Share");
   const tShopEdit = useTranslations("ShopEdit");
@@ -128,6 +132,7 @@ const ShopDetailPage = ({ shopId }) => {
 
   const [books, setBooks] = useState([]);
   const [booksLoading, setBooksLoading] = useState(true);
+  const [collections, setCollections] = useState([]);
 
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
@@ -218,6 +223,9 @@ const ShopDetailPage = ({ shopId }) => {
     if (categoryId) params.category = categoryId;
     if (subcategoryId) params.sub_category = subcategoryId;
     if (debouncedQuery) params.q = debouncedQuery;
+    // Hide books bundled into a collection from the standalone grid (they show
+    // as a collection card above). While searching, keep them findable.
+    else params.standalone = true;
 
     getBooks(params)
       .then((res) => {
@@ -231,6 +239,19 @@ const ShopDetailPage = ({ shopId }) => {
       alive = false;
     };
   }, [shopId, categoryId, subcategoryId, debouncedQuery]);
+
+  // ── Shop collections (bundles) ──────────────────────────────────────
+  useEffect(() => {
+    if (!shopId) return undefined;
+    let alive = true;
+    getCollectionsByShop(shopId, 12)
+      .then((res) => alive && setCollections(res.collections || []))
+      .catch(() => {})
+      .finally(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [shopId]);
 
   // ── Derived ──────────────────────────────────────────────────────────
   const star = useMemo(() => formatStar(shop?.star), [shop]);
@@ -534,6 +555,21 @@ const ShopDetailPage = ({ shopId }) => {
                   )}
                   {shop?.can_update && (
                     <Button
+                      onClick={() => openPostChooser(shop.id)}
+                      variant="contained"
+                      size="small"
+                      startIcon={<Icon className="ph ph-plus" aria-hidden="true" />}
+                      sx={{
+                        textTransform: "none",
+                        fontWeight: 700,
+                        borderRadius: 999,
+                      }}
+                    >
+                      {t("addBook")}
+                    </Button>
+                  )}
+                  {shop?.can_update && (
+                    <Button
                       onClick={() => setEditOpen(true)}
                       variant="outlined"
                       size="small"
@@ -699,11 +735,24 @@ const ShopDetailPage = ({ shopId }) => {
           </TextField>
         </Stack>
 
+        {collections.length > 0 && (
+          <Box sx={{ mb: 3 }}>
+            <Typography sx={{ fontSize: { xs: 16, md: 18 }, fontWeight: 700, mb: 1.5 }}>
+              {tColl("homeTitle")}
+            </Typography>
+            <CollectionRowGrid collections={collections} />
+          </Box>
+        )}
+
         <BookRowGrid
           books={books}
           loading={booksLoading}
           skeletonCount={5}
-          showTypeBadge={false}
+          // A shop sells mixed types (sell/rent/gift/exchange) with no
+          // per-type header, so show the type chip — same as the community
+          // feed and the book-detail "more from seller" list. Plain sells
+          // with a price suppress the redundant chip inside BookChatRow.
+          showTypeBadge={true}
           emptyState={
             <Stack
               spacing={1}

@@ -27,6 +27,7 @@ import Icon from "@/components/Icon";
 import { getContactActions } from "@/utils/contactActions";
 import { mapValidationError } from "@/lib/mapValidationError";
 import BookCreateModal from "./BookCreateModal";
+import MoreFromSellerSection from "./MoreFromSellerSection";
 import { useToast } from "./Toast";
 
 const BookDetails = ({ bookId }) => {
@@ -679,25 +680,10 @@ const BookDetails = ({ bookId }) => {
           </Stack>
         </Stack>
 
-        {/* ─── Description ───────────────────────────────────────────── */}
-        {(localized("description") || book.description) && (
-          <Box sx={{ mt: { xs: 3, md: 5 } }}>
-            <SectionHeading icon="ph-fill ph-book-open" text={tBook("aboutBook")} />
-            <Typography
-              sx={{
-                color: "var(--text-secondary)",
-                lineHeight: 1.65,
-                whiteSpace: "pre-wrap",
-                fontSize: 14.5,
-              }}
-            >
-              {localized("description") || book.description}
-            </Typography>
-          </Box>
-        )}
-
-        {/* ─── Details list — fold of all metadata, single source. ── */}
-        <Box sx={{ mt: { xs: 3, md: 4 } }}>
+        {/* ─── Details list — fold of all metadata, single source. ──
+            Shown BEFORE the description: the at-a-glance facts (language,
+            cover, year, pages, location…) are what a buyer scans first. */}
+        <Box sx={{ mt: { xs: 3, md: 5 } }}>
           <SectionHeading icon="ph-fill ph-list-bullets" text={tBook("detailsTitle")} />
           <Box
             sx={{
@@ -728,6 +714,23 @@ const BookDetails = ({ bookId }) => {
           </Box>
         </Box>
 
+        {/* ─── Description (after the details) ───────────────────────── */}
+        {(localized("description") || book.description) && (
+          <Box sx={{ mt: { xs: 3, md: 4 } }}>
+            <SectionHeading icon="ph-fill ph-book-open" text={tBook("aboutBook")} />
+            <Typography
+              sx={{
+                color: "var(--text-secondary)",
+                lineHeight: 1.65,
+                whiteSpace: "pre-wrap",
+                fontSize: 14.5,
+              }}
+            >
+              {localized("description") || book.description}
+            </Typography>
+          </Box>
+        )}
+
         {/* ─── Stats — small, contextual ───────────────────────────── */}
         <Stack
           direction="row"
@@ -754,6 +757,9 @@ const BookDetails = ({ bookId }) => {
             />
           )}
         </Stack>
+
+        {/* ─── More from this seller (user or shop) ─────────────────── */}
+        <MoreFromSellerSection bookId={book.id} />
 
         {/* Edit modal */}
         <BookCreateModal

@@ -12,7 +12,7 @@ export const SUPPORT_PHONE = getSupportPhone();
 // `/user` is gated because the backend `/auth/<id>/` endpoint requires auth
 // (user-enumeration / H-1 privacy protection) — anonymous visitors would
 // otherwise hit a 401→login loop.
-export const PROTECTED_PAGES = ["/account", "/wishlist", "/user"];
+export const PROTECTED_PAGES = ["/account", "/wishlist", "/user", "/admin"];
 
 // Legacy export — kept so callers that imported PUBLIC_PAGES still work.
 // Login / register surfaces are always reachable by definition; we list them
@@ -23,6 +23,14 @@ export const PROTECTED_PAGES = ["/account", "/wishlist", "/user"];
 export const PUBLIC_PAGES = ["/login", "/register", "/forgot-password", "/auth/auto"];
 
 export const AUTH_TOKEN_STORAGE_KEY = "auth_token";
+
+// C-4 (partial): the 14-day refresh token lives in an HttpOnly cookie set by
+// the backend, NOT in localStorage — so XSS can't exfiltrate it. The backend
+// is additive (still accepts a body refresh token), so flipping this to
+// `false` + rebuilding cleanly reverts to the old body-token behaviour
+// (instant-ish rollback). The short-lived access token stays in localStorage
+// + Authorization header, so the rest of the auth flow is unchanged.
+export const COOKIE_REFRESH = true;
 
 export const API_ENDPOINTS = {
   AUTH: {
@@ -65,6 +73,18 @@ export const API_ENDPOINTS = {
       DELETE: "api/v1/book/comment",
     },
   },
+  // Book collections (bundles). The backend lives under the book app
+  // (/api/v1/book/collections/...). DETAIL is a prefix — callers append
+  // `/${id}/`; membership actions append `/${id}/books/...`.
+  COLLECTIONS: {
+    LIST: "api/v1/book/collections/list/",
+    DETAIL: "api/v1/book/collections", // append `/${id}/`
+    CREATE: "api/v1/book/collections/create/",
+    UPDATE: "api/v1/book/collections", // append `/${id}/` — PATCH
+    DELETE: "api/v1/book/collections", // append `/${id}/` — DELETE
+    ADD_BOOK: "api/v1/book/collections", // append `/${id}/books/add/`
+    BOOK: "api/v1/book/collections", // append `/${id}/books/${bookId}/` (DELETE) or `.../move/`
+  },
   SHOPS: {
     LIST: "api/v1/shop/list/",
     DETAIL: "api/v1/shop", // caller appends `/${id}/`
@@ -104,9 +124,12 @@ export const API_ENDPOINTS = {
     POLICIES: "api/v1/base/policies/",
     CONTACT: "api/v1/base/contact-us/",
   },
-  GIVEAWAY: {
-    ACTIVE: "api/v1/book/give-away/active/",
-    LIST: "api/v1/give-away/",
-    DETAIL: "api/v1/give-away", // prefix
+  // Staff-only CEO/Founder dashboard. The backend enforces `IsAdminUser`
+  // (is_staff); the /admin route is additionally role-gated client-side for UX.
+  ADMIN: {
+    SUMMARY: "api/v1/analytics/dashboard/summary/",
+    FUNNEL: "api/v1/analytics/dashboard/funnel/",
+    DEMAND: "api/v1/analytics/dashboard/demand/",
+    SUPPLY: "api/v1/analytics/dashboard/supply/",
   },
 };

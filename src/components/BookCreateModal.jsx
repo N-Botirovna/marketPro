@@ -145,7 +145,16 @@ const StepHeading = ({ title, subtitle }) => (
   </Box>
 );
 
-const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
+const BookCreateModal = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  editBook = null,
+  initialShopId = null,
+  // When true (collection wizard) the owner step is hidden so every book in a
+  // bundle stays under the same owner; `initialShopId` (null = personal) wins.
+  lockShop = false,
+}) => {
   const t = useTranslations("BookCreateModal");
   const tCommon = useTranslations("Common");
   const tType = useTranslations("BookTypeChips");
@@ -185,6 +194,14 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
     if (!isOpen || editBook || !draft) return;
     setFormData((prev) => ({ ...prev, ...draft }));
   }, [isOpen, editBook, draft]);
+
+  // Launched from a shop page → pre-attribute to that shop. Runs after the
+  // draft restore so it wins over a stale personal draft's `shop`. The owner
+  // step still renders (so the user can see/change it), defaulting to the shop.
+  useEffect(() => {
+    if (!isOpen || editBook || !initialShopId) return;
+    setFormData((prev) => ({ ...prev, shop: String(initialShopId) }));
+  }, [isOpen, editBook, initialShopId]);
 
   // Hydrate from `editBook` once when modal opens.
   useEffect(() => {
@@ -421,7 +438,7 @@ const BookCreateModal = ({ isOpen, onClose, onSuccess, editBook = null }) => {
       },
       {
         key: "owner",
-        when: () => shops.length > 0,
+        when: () => shops.length > 0 && !lockShop,
         title: t("step.ownerTitle"),
         subtitle: t("step.ownerSubtitle"),
         validate: () => true,
