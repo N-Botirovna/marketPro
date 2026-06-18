@@ -748,7 +748,11 @@ const ShopDetailPage = ({ shopId }) => {
           books={books}
           loading={booksLoading}
           skeletonCount={5}
-          showTypeBadge={false}
+          // A shop sells mixed types (sell/rent/gift/exchange) with no
+          // per-type header, so show the type chip — same as the community
+          // feed and the book-detail "more from seller" list. Plain sells
+          // with a price suppress the redundant chip inside BookChatRow.
+          showTypeBadge={true}
           emptyState={
             <Stack
               spacing={1}
