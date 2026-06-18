@@ -17,6 +17,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import Icon from "@/components/Icon";
 import { formatPrice } from "@/utils/formatPrice";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import CollectionMontage from "@/components/shared/CollectionMontage";
 import {
   getCollectionById,
   deleteCollection,
@@ -26,14 +27,6 @@ import {
   getCollectionsByShop,
 } from "@/services/collections";
 import { useToast } from "./Toast";
-
-const MONTAGE_CELL = { width: "50%", height: "50%", position: "absolute", overflow: "hidden" };
-const CELL_POS = [
-  { top: 0, left: 0 },
-  { top: 0, right: 0 },
-  { bottom: 0, left: 0 },
-  { bottom: 0, right: 0 },
-];
 
 export default function CollectionDetails({ collectionId }) {
   const t = useTranslations("CollectionDetails");
@@ -207,29 +200,7 @@ export default function CollectionDetails({ collectionId }) {
               border: "1px solid var(--border-subtle)",
             }}
           >
-            {covers.length ? (
-              covers.map((src, i) => (
-                <Box key={i} sx={{ ...MONTAGE_CELL, ...CELL_POS[i] }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element -- montage tile */}
-                  <img
-                    src={resolveMediaUrl(src)}
-                    alt=""
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                </Box>
-              ))
-            ) : (
-              <Icon
-                className="ph ph-stack"
-                style={{
-                  fontSize: 56,
-                  color: "var(--text-muted)",
-                  position: "absolute",
-                  inset: 0,
-                  margin: "auto",
-                }}
-              />
-            )}
+            <CollectionMontage covers={covers} iconSize={56} />
           </Box>
 
           <Stack spacing={1.5} sx={{ flex: 1, minWidth: 0, width: "100%" }}>

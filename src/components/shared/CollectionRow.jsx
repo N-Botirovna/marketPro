@@ -5,9 +5,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { Box, Stack, Typography, Chip } from "@mui/material";
 import { Link } from "@/i18n/navigation";
 import { formatPrice } from "@/utils/formatPrice";
-import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { bookOwnerLocation } from "@/utils/location";
 import Icon from "@/components/Icon";
+import CollectionMontage from "@/components/shared/CollectionMontage";
 
 /**
  * Compact bundle card for feed/browse grids — the collection sibling of
@@ -19,17 +19,10 @@ import Icon from "@/components/Icon";
  *   │            ̶O̶r̶i̶g̶i̶n̶a̶l̶  -20%   📍 Loc      │
  *   └────────────────────────────────────────┘
  *
- * The thumbnail is a 2×2 montage of the first member covers with a "stack"
- * badge so a bundle reads as a bundle at a glance.
+ * The thumbnail is an adaptive montage of the first member covers (see
+ * CollectionMontage) with a "stack" badge so a bundle reads as a bundle at a
+ * glance.
  */
-const MONTAGE_CELL = { width: "50%", height: "50%", position: "absolute", overflow: "hidden" };
-const CELL_POS = [
-  { top: 0, left: 0 },
-  { top: 0, right: 0 },
-  { bottom: 0, left: 0 },
-  { bottom: 0, right: 0 },
-];
-
 const CollectionRow = ({ collection }) => {
   const t = useTranslations("CollectionCard");
   const locale = useLocale();
@@ -82,31 +75,7 @@ const CollectionRow = ({ collection }) => {
             flexShrink: 0,
           }}
         >
-          {covers.length ? (
-            covers.map((src, i) => (
-              <Box key={i} sx={{ ...MONTAGE_CELL, ...CELL_POS[i] }}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- tiny montage tile */}
-                <img
-                  src={resolveMediaUrl(src)}
-                  alt=""
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  loading="lazy"
-                />
-              </Box>
-            ))
-          ) : (
-            <Icon
-              className="ph ph-stack"
-              style={{
-                fontSize: 24,
-                color: "var(--text-muted)",
-                position: "absolute",
-                inset: 0,
-                margin: "auto",
-              }}
-              aria-hidden="true"
-            />
-          )}
+          <CollectionMontage covers={covers} iconSize={24} />
           <Box
             sx={{
               position: "absolute",
