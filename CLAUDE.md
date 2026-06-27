@@ -254,6 +254,22 @@ Bularni o'chirmang — context manbasi sifatida saqlanadi. Lekin **fakt manbasi 
 - `public/assets/sass/` — template scaffolding.
 - **Yangi SCSS rule qo'shishdan oldin** Bootstrap utility yoki MUI `sx` bilan hal qila olasizmi ko'ring.
 
+### 4) Design-system tokenlari + umumiy primitivlar (2026-06 UX polish)
+
+5 bosqichli UX/UI sayqali bitta izchil dizayn tilini joriy qildi. **Yangi UI yozganda qayta ixtiro qilmang — shularni ishlating:**
+
+- **Tokenlar** (`globals.scss` `:root`, additive; dark-mode override'lar bor):
+  - Radius: `--radius-sm|md|lg|xl|pill`
+  - Soya: `--shadow-sm|hover|pop` (+ legacy `--shadow-card|elevated`)
+  - Focus ring: `--ring` (brend rangli; `:focus-visible`'da ishlating)
+  - Motion: `--dur-fast|base|slow`, `--ease-out`, `--ease-in-out`
+  - Layout: `--section-gap`, `--container-max`
+- **Umumiy komponentlar** (`src/components/shared/`):
+  - `SectionHeader.jsx` — sarlavha + "barchasi →" pill (`title`, `href`, `seeAllLabel`, `size` "md"|"lg"). Home qatorlari ishlatadi.
+  - `EmptyState.jsx` — dumaloq ikon-badge + `title` + `description` + `children` (CTA) + `dashed`. **Barcha** bo'sh/xato holatlari uchun yagona namuna (detal, ro'yxat, profil tablar, staff).
+- **CSS utility klasslari** (`globals.scss`): `.kz-see-all`, `.kz-type-tab` (browse-by-type pill), `.kz-otp-input` (login kod maydoni), `.kz-fade-up` (CSS-only kirish animatsiyasi — `prefers-reduced-motion` xavfsiz, kontentni hech qachon yashirmaydi).
+- **MUI theme** (`MaterialThemeProvider.jsx`): `shape.borderRadius: 10` (input/select), MuiButton radius 10 + fw 600, MuiDialog paper radius 16, MuiChip fw 600. Forma modallari shu orqali kohez'iv — **modal'larning 1000+ qatorli body'siga tegmang**, theme'dan sozlang.
+
 ### PurgeCSS (`postcss.config.mjs`)
 
 - Production-only.
