@@ -8,6 +8,7 @@ import { formatPrice } from "@/utils/formatPrice";
 import { openShareSheet } from "@/lib/shareSheet";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { bookOwnerLocation } from "@/utils/location";
+import { bookTypeVisual, bookTypeI18nKey } from "@/utils/bookType";
 import Icon from "@/components/Icon";
 import { useToast } from "./Toast";
 
@@ -74,6 +75,17 @@ const BookCard = ({
   const showEditButton = showEditForOwn && isOwnBook && onEdit;
   const ownerLocation = bookOwnerLocation(book);
 
+  // Visual identity + offer state for the price row / cover. `seller` is the
+  // default (no chip — the price already implies a sale); gift/exchange/rent
+  // get a coloured type chip beside the price, matching BookChatRow.
+  const typeVisual = bookTypeVisual(book.type);
+  const isMonetary = book.type !== "gift" && book.type !== "exchange";
+  const showTypeChip = Boolean(typeVisual) && book.type !== "seller";
+  const authorText = getLocalizedField("author") || tCommon("unknownAuthor");
+  const byline = book.publication_year ? `${authorText} · ${book.publication_year}` : authorText;
+  const viewCount = book.view_count || 0;
+  const showStats = viewCount > 0 || likeCount > 0;
+
   const handleShare = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -113,7 +125,7 @@ const BookCard = ({
   };
 
   return (
-    <div className="book-card product-card h-100 p-8 p-sm-12 border border-gray-100 hover-border-main-600 rounded-16 position-relative transition-2">
+    <div className="book-card product-card">
       <div className="book-card__actions">
         <button
           type="button"
@@ -191,47 +203,51 @@ const BookCard = ({
           </button>
         )}
       </div>
-      {book.percentage && (
-        <span className="product-card__badge bg-danger-600 px-8 py-4 text-sm text-white">
-          -{book.percentage}%
-        </span>
-      )}
 
-      <Link href={`/book-details/${book.id}`} className="book-card__thumb flex-center">
+      <Link href={`/book-details/${book.id}`} className="book-card__thumb">
         <img
           src={resolveMediaUrl(book.picture, "/assets/images/thumbs/product-img7.png")}
           alt={book.name}
           loading="lazy"
         />
+
+        {book.percentage ? (
+          <div className="book-card__cover-badges">
+            <span className="book-card__cover-badge">-{book.percentage}%</span>
+          </div>
+        ) : null}
+
+        {showStats && (
+          <div className="book-card__cover-stats">
+            {viewCount > 0 && (
+              <span className="book-card__cover-stat">
+                <Icon className="ph-fill ph-eye" aria-hidden="true" />
+                {viewCount}
+              </span>
+            )}
+            {likeCount > 0 && (
+              <span className="book-card__cover-stat">
+                <Icon className="ph-fill ph-heart" aria-hidden="true" />
+                {likeCount}
+              </span>
+            )}
+          </div>
+        )}
       </Link>
 
-      <div className="book-card__content mt-12">
-        <h6 className="book-card__title mb-8">
-          <Link href={`/book-details/${book.id}`} className="link text-line-2">
+      <div className="book-card__content">
+        <h6 className="book-card__title">
+          <Link href={`/book-details/${book.id}`} className="link">
             {getLocalizedField("name") || tBookCard("noName")}
           </Link>
         </h6>
 
-        <div className="book-card__meta-row mb-8">
-          <Icon className="ph-fill ph-user book-card__meta-icon" aria-hidden="true" />
-          <span className="book-card__meta-text">
-            {getLocalizedField("author") || tCommon("unknownAuthor")}
-          </span>
-        </div>
+        <p className="book-card__byline" title={byline}>
+          {byline}
+        </p>
 
-        {book.publication_year && (
-          <div className="book-card__meta-row mb-8">
-            <Icon className="ph-fill ph-calendar-blank book-card__meta-icon" aria-hidden="true" />
-            <span className="book-card__meta-text">{book.publication_year}</span>
-          </div>
-        )}
-
-        <div className="book-card__price mb-8">
-          {book.type === "gift" ? (
-            <span className="book-card__price-current text-success">{tType("gift")}</span>
-          ) : book.type === "exchange" ? (
-            <span className="book-card__price-current text-warning">{tType("exchange")}</span>
-          ) : book.price ? (
+        <div className="book-card__price-row">
+          {isMonetary && book.price ? (
             <>
               <span className="book-card__price-current">
                 {formatPrice(book.discount_price || book.price, locale)}
@@ -241,44 +257,38 @@ const BookCard = ({
               )}
             </>
           ) : null}
-        </div>
-
-        <div className="book-card__counters">
-          <span className="book-card__counter">
-            <Icon className="ph ph-eye" aria-hidden="true" />
-            {book.view_count || 0}
-          </span>
-          {likeCount > 0 && (
-            <span className="book-card__counter">
-              <Icon className="ph ph-heart" aria-hidden="true" />
-              {likeCount}
-            </span>
-          )}
-        </div>
-
-        <div className="book-card__meta-row mt-8 justify-content-between">
-          <span className="d-inline-flex align-items-center gap-4" style={{ minWidth: 0 }}>
-            <Icon className="ph-fill ph-storefront book-card__meta-icon" aria-hidden="true" />
-            <span className="book-card__meta-text book-card__seller">
-              {`${tCommon("seller")}: ${sellerName}`}
-            </span>
-          </span>
-          {ownerLocation && (
+          {showTypeChip && (
             <span
-              className="d-inline-flex align-items-center gap-4 flex-shrink-0"
-              style={{ maxWidth: "58%" }}
-              title={ownerLocation}
+              className="book-card__type-chip"
+              style={{ backgroundColor: typeVisual.bg, color: typeVisual.color }}
             >
-              <Icon className="ph-fill ph-map-pin book-card__meta-icon" aria-hidden="true" />
-              <span className="book-card__meta-text">{ownerLocation}</span>
+              <Icon className={typeVisual.icon} aria-hidden="true" />
+              {tType(bookTypeI18nKey(book.type))}
             </span>
           )}
         </div>
 
-        <Link
-          href={`/book-details/${book.id}`}
-          className="book-card__cta btn bg-main-50 text-main-600 hover-bg-main-600 hover-text-white rounded-pill flex-align gap-8 mt-16 w-100 justify-content-center"
-        >
+        {(sellerName || ownerLocation) && (
+          <div className="book-card__footer">
+            {sellerName && (
+              <span
+                className="book-card__footer-item"
+                title={`${tCommon("seller")}: ${sellerName}`}
+              >
+                <Icon className="ph-fill ph-storefront" aria-hidden="true" />
+                <span>{sellerName}</span>
+              </span>
+            )}
+            {ownerLocation && (
+              <span className="book-card__footer-item" title={ownerLocation}>
+                <Icon className="ph-fill ph-map-pin" aria-hidden="true" />
+                <span>{ownerLocation}</span>
+              </span>
+            )}
+          </div>
+        )}
+
+        <Link href={`/book-details/${book.id}`} className="book-card__cta">
           {tBookCard("viewDetails")} <Icon className="ph ph-arrow-right" aria-hidden="true" />
         </Link>
       </div>

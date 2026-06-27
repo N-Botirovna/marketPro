@@ -262,7 +262,7 @@ Bularni o'chirmang — context manbasi sifatida saqlanadi. Lekin **fakt manbasi 
 
 ### Performance optimizations (`performance.css`)
 
-- `content-visibility: auto` — kartochka va image'lar offscreen render'sini "abstract box" qiladi.
+- `content-visibility: auto` — faqat `img[loading="lazy"]` uchun (offscreen rasm dekodini kechiktiradi). ⚠️ **`.product-card` (BookCard)'da ataylab ISHLATILMAYDI**: fixed `contain-intrinsic-size` placeholder kartochkaning haqiqiy balandligidan past bo'lganda pastki qismini (yashil "Batafsil ko'rish" CTA tugmasi) kesib qo'yardi va scroll paytida kartochkalar balandligi sakrab, grid notekis ko'rinardi. Kartochkalar kichik + muqovalar allaqachon `loading="lazy"`, shuning uchun containment foydadan ko'ra zarar keltirardi. (`.vendor-card` ham olib tashlandi — ShopCard migratsiyasidan keyin o'lik klass.)
 - `will-change` — slider va hover joylari uchun.
 - `@media (prefers-reduced-motion)` — accessibility.
 

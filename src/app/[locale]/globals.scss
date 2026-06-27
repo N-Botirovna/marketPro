@@ -365,14 +365,263 @@ body.body-no-scroll {
   }
 }
 
-// ─── BookCard action buttons (top-right corner) ──────────────────────────────
-// Always-visible action chips. Replaces the previous low-contrast
-// outline-button approach where icons looked invisible against the white
-// card surface until the user hovered.
+// ─── BookCard — professional marketplace card ────────────────────────────────
+// Full-bleed cover (overlay badges + engagement stats) over a clean padded
+// content well with a pinned CTA. One card primitive for the profile, wishlist,
+// public-profile and archive grids (`shared/BookGrid`, 2 / 3 / 4 columns).
+// Everything visual lives here so the JSX root stays `.book-card .product-card`.
+.book-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--surface-card, #ffffff);
+  border: 1px solid var(--border-subtle, rgba(15, 23, 42, 0.08));
+  border-radius: 16px;
+  overflow: hidden; // clip the full-bleed cover to the card's corner radius
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-elevated, 0 12px 24px rgba(15, 23, 42, 0.1));
+    border-color: var(--main-200, hsl(148, 45%, 82%));
+  }
+
+  // ── Cover ────────────────────────────────────────────────────────────────
+  &__thumb {
+    position: relative;
+    display: block;
+    aspect-ratio: 3 / 4;
+    width: 100%;
+    overflow: hidden;
+    background-color: var(--neutral-50, #f8fafc);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s ease;
+    }
+  }
+
+  &:hover &__thumb img {
+    transform: scale(1.05);
+  }
+
+  // Discount chip — pinned top-left over the cover.
+  &__cover-badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  &__cover-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 24px;
+    padding: 0 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    color: #ffffff;
+    background-color: var(--danger-600, #dc2626);
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
+  }
+
+  // Views / likes — subtle overlay along the bottom of the cover.
+  &__cover-stats {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 22px 12px 8px;
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0));
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  &__cover-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+
+    i {
+      font-size: 14px;
+    }
+  }
+
+  // ── Content well ───────────────────────────────────────────────────────────
+  &__content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 6px;
+    padding: 12px;
+  }
+
+  &__title {
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.3;
+    font-size: clamp(14px, 1.5vw, 16px);
+
+    .link {
+      color: var(--text-primary, #0f172a);
+      text-decoration: none;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      // Reserve two lines so 1- and 2-line titles align across the grid.
+      min-height: 2.6em;
+      word-break: break-word;
+      transition: color 0.15s ease;
+    }
+
+    .link:hover {
+      color: var(--main-600, hsl(148, 59%, 39%));
+    }
+  }
+
+  // Author · year, one muted line.
+  &__byline {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--text-muted, #64748b);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__price-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  &__price-current {
+    font-size: clamp(15px, 1.6vw, 18px);
+    font-weight: 800;
+    color: var(--main-600, hsl(148, 59%, 39%));
+  }
+
+  &__price-old {
+    font-size: 12.5px;
+    color: var(--text-muted, #94a3b8);
+    text-decoration: line-through;
+  }
+
+  // Type chip (gift / exchange / rent) beside the price — colours from
+  // BOOK_TYPE_VISUALS via inline style; matches BookChatRow / BookDetails.
+  &__type-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 22px;
+    padding: 0 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+
+    i {
+      font-size: 12px;
+    }
+  }
+
+  // Seller / location footer — compact, muted, divided from the body.
+  &__footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    margin-top: 2px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-subtle, rgba(15, 23, 42, 0.06));
+  }
+
+  &__footer-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    font-size: 11.5px;
+    color: var(--text-muted, #64748b);
+
+    i {
+      font-size: 13px;
+      color: var(--main-600, hsl(148, 59%, 39%));
+      flex-shrink: 0;
+    }
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  // ── CTA — pinned to the bottom so it aligns across the row. ────────────────
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: auto;
+    padding: 9px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--main-700, hsl(148, 59%, 31%));
+    background-color: var(--main-50, hsl(148, 59%, 95%));
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    i {
+      font-size: 15px;
+      transition: transform 0.15s ease;
+    }
+
+    &:hover {
+      background-color: var(--main-600, hsl(148, 59%, 39%));
+      color: #ffffff;
+
+      i {
+        transform: translateX(3px);
+      }
+    }
+  }
+}
+
+// ─── BookCard action buttons (top-right of the cover) ────────────────────────
+// Always-visible glassy chips. Replaces the previous low-contrast outline
+// buttons whose icons looked invisible against the white card until hover.
 .book-card__actions {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 10px;
+  right: 10px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -380,17 +629,19 @@ body.body-no-scroll {
 }
 
 .book-card__action-btn {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  background-color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   color: var(--neutral-700, #475569);
-  font-size: 18px;
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+  font-size: 17px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.16);
   transition:
     transform 0.15s ease,
     background-color 0.15s ease,
@@ -407,7 +658,8 @@ body.body-no-scroll {
   &:hover,
   &:focus-visible {
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.22);
   }
 
   &:focus-visible {
@@ -434,7 +686,6 @@ body.body-no-scroll {
     color: var(--main-700, hsl(148, 59%, 31%));
 
     &:hover {
-      background-color: var(--main-50, hsl(148, 59%, 95%));
       color: var(--main-700, hsl(148, 59%, 31%));
     }
   }
@@ -443,7 +694,6 @@ body.body-no-scroll {
     color: #b45309;
 
     &:hover {
-      background-color: #fef3c7;
       color: #92400e;
     }
   }
@@ -452,7 +702,6 @@ body.body-no-scroll {
     color: var(--main-700, hsl(148, 59%, 31%));
 
     &:hover {
-      background-color: var(--main-50, hsl(148, 59%, 95%));
       color: var(--main-700, hsl(148, 59%, 31%));
     }
   }
@@ -461,7 +710,6 @@ body.body-no-scroll {
     color: var(--danger-600, #dc2626);
 
     &:hover {
-      background-color: #fee2e2;
       color: var(--danger-700, #b91c1c);
     }
   }
@@ -470,7 +718,6 @@ body.body-no-scroll {
     color: var(--main-700, hsl(148, 59%, 31%));
 
     &:hover {
-      background-color: var(--main-50, hsl(148, 59%, 95%));
       color: var(--main-700, hsl(148, 59%, 31%));
     }
   }
@@ -480,151 +727,13 @@ body.body-no-scroll {
   .book-card__actions {
     top: 8px;
     right: 8px;
-    gap: 4px;
+    gap: 5px;
   }
 
   .book-card__action-btn {
-    width: 34px;
-    height: 34px;
-    font-size: 16px;
-  }
-}
-
-// ─── BookCard responsive content layout ──────────────────────────────────────
-.book-card {
-  display: flex;
-  flex-direction: column;
-  background-color: #ffffff;
-
-  &__thumb {
-    aspect-ratio: 3 / 4;
-    width: 100%;
-    min-height: 0;
-    overflow: hidden;
-    border-radius: 12px;
-    background-color: var(--neutral-50, #f8fafc);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.25s ease;
-    }
-  }
-
-  &:hover .book-card__thumb img {
-    transform: scale(1.04);
-  }
-
-  &__content {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-  }
-
-  &__title {
-    margin: 0;
-    font-weight: 600;
-    line-height: 1.3;
-    font-size: clamp(14px, 1.6vw, 17px);
-
-    .link {
-      color: var(--neutral-900, #0f172a);
-      text-decoration: none;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      // Reserve two lines so 1-line and 2-line titles align across the grid
-      // (uniform card heads), while still clamping longer titles with an
-      // ellipsis instead of clipping mid-word.
-      min-height: 2.6em;
-      word-break: break-word;
-    }
-  }
-
-  &__meta-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
-  }
-
-  &__meta-icon {
-    color: var(--main-600, hsl(148, 59%, 39%));
-    font-size: 14px;
-    flex-shrink: 0;
-  }
-
-  &__meta-text {
-    font-size: clamp(11px, 1.2vw, 13px);
-    color: var(--neutral-500, #64748b);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &__seller {
-    color: var(--neutral-600, #475569);
-  }
-
-  &__price {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  &__price-current {
-    font-size: clamp(14px, 1.6vw, 17px);
-    font-weight: 700;
-    color: var(--neutral-900, #0f172a);
-  }
-
-  &__price-old {
-    font-size: clamp(12px, 1.3vw, 14px);
-    color: var(--neutral-400, #94a3b8);
-    text-decoration: line-through;
-  }
-
-  &__counters {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  &__counter {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--neutral-500, #64748b);
-
-    i {
-      font-size: 14px;
-    }
-  }
-
-  &__cta {
-    font-size: clamp(12px, 1.3vw, 14px);
-    padding: 10px 18px;
-    font-weight: 600;
-    // Pin the CTA to the bottom so it lines up across cards regardless of how
-    // many meta rows (year / price / counters) a given book has → uniform grid.
-    margin-top: auto;
-  }
-}
-
-@media (max-width: 575.98px) {
-  .book-card {
-    &__cta {
-      padding: 9px 14px;
-      font-size: 13px;
-    }
+    width: 32px;
+    height: 32px;
+    font-size: 15px;
   }
 }
 
