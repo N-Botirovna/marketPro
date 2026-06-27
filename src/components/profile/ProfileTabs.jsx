@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import BookCard from "@/components/BookCard";
 import BookGrid from "@/components/shared/BookGrid";
 import Icon from "@/components/Icon";
+import EmptyState from "@/components/shared/EmptyState";
 import ProfileStaffTab from "./ProfileStaffTab";
 
 const ProfileTabs = ({
@@ -25,11 +26,7 @@ const ProfileTabs = ({
   const tProfile = useTranslations("ProfileDashboard");
 
   const renderEmptyState = (iconClass, title, subtitle) => (
-    <div className="text-center py-60">
-      <Icon className={`${iconClass} text-gray-300 text-5xl mb-16`}></Icon>
-      <h5 className="text-gray-500 mb-0">{title}</h5>
-      <p className="text-gray-400 text-sm mt-8">{subtitle}</p>
-    </div>
+    <EmptyState icon={iconClass} title={title} description={subtitle} dashed />
   );
 
   const renderBooksTab = () => (

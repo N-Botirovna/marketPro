@@ -19,6 +19,7 @@ import { useToast } from "@/components/Toast";
 import { listStaff, addStaff, removeStaff } from "@/services/shopStaff";
 import { mapValidationError } from "@/lib/mapValidationError";
 import Icon from "@/components/Icon";
+import EmptyState from "@/components/shared/EmptyState";
 
 const ProfileStaffTab = ({ shops = [] }) => {
   const t = useTranslations("ProfileDashboard");
@@ -132,25 +133,11 @@ const ProfileStaffTab = ({ shops = [] }) => {
   if (!shops.length) {
     return (
       <Box sx={{ p: { xs: 2, md: 4 } }}>
-        <Box
-          sx={{
-            textAlign: "center",
-            py: 6,
-            color: "var(--text-muted)",
-          }}
-        >
-          <Icon
-            className="ph ph-storefront"
-            style={{ fontSize: 48, display: "inline-block", marginBottom: 12 }}
-            aria-hidden="true"
-          />
-          <Typography sx={{ fontWeight: 600, color: "var(--text-secondary)" }}>
-            {tStaff("noShopsTitle")}
-          </Typography>
-          <Typography variant="body2" sx={{ mt: 1 }}>
-            {tStaff("noShopsSubtitle")}
-          </Typography>
-        </Box>
+        <EmptyState
+          icon="ph ph-storefront"
+          title={tStaff("noShopsTitle")}
+          description={tStaff("noShopsSubtitle")}
+        />
       </Box>
     );
   }
@@ -262,17 +249,12 @@ const ProfileStaffTab = ({ shops = [] }) => {
       )}
 
       {!loading && !error && staff.length === 0 && (
-        <Box sx={{ py: 4, textAlign: "center", color: "var(--text-muted)" }}>
-          <Icon
-            className="ph ph-users-three"
-            style={{ fontSize: 40, display: "inline-block", marginBottom: 8 }}
-            aria-hidden="true"
-          />
-          <Typography>{tStaff("emptyTitle")}</Typography>
-          <Typography variant="body2" sx={{ mt: 0.5 }}>
-            {tStaff("emptySubtitle")}
-          </Typography>
-        </Box>
+        <EmptyState
+          icon="ph ph-users-three"
+          title={tStaff("emptyTitle")}
+          description={tStaff("emptySubtitle")}
+          sx={{ py: { xs: 4, md: 5 } }}
+        />
       )}
 
       {!loading && !error && staff.length > 0 && (
