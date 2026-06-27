@@ -48,11 +48,27 @@ const buildTheme = (mode) =>
             background: { default: "#f4f5f7", paper: "#ffffff" },
           }),
     },
+    // Rounder default geometry so MUI inputs/selects in the form modals match
+    // the app's rounded aesthetic (cards 16, pills 999) instead of MUI's sharp
+    // 4px. Affects every OutlinedInput/TextField/Select at once.
+    shape: { borderRadius: 10 },
     typography: baseTypography,
     components: {
       MuiButton: {
         styleOverrides: {
-          root: { textTransform: "none", borderRadius: 8 },
+          root: { textTransform: "none", borderRadius: 10, fontWeight: 600 },
+        },
+      },
+      // Dialogs that don't set their own PaperProps still get a soft, rounded
+      // surface (the big form modals override this with full-screen-on-mobile).
+      MuiDialog: {
+        styleOverrides: {
+          paper: { borderRadius: 16 },
+        },
+      },
+      MuiChip: {
+        styleOverrides: {
+          root: { fontWeight: 600 },
         },
       },
       MuiMenu: {
