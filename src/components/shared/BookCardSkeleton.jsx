@@ -6,13 +6,19 @@ import React from "react";
  * grid doesn't reflow when real cards swap in. Shimmer comes from `.kz-skel`.
  */
 const BookCardSkeleton = () => (
-  <div className="book-card h-100 p-8 p-sm-12 border border-gray-100 rounded-16" aria-hidden="true">
-    <div className="kz-skel" style={{ width: "100%", aspectRatio: "3 / 4", borderRadius: 12 }} />
-    <div className="mt-12 d-flex flex-column" style={{ gap: 8 }}>
-      <div className="kz-skel" style={{ height: 14, width: "85%" }} />
-      <div className="kz-skel" style={{ height: 12, width: "55%" }} />
-      <div className="kz-skel" style={{ height: 16, width: "40%" }} />
-      <div className="kz-skel mt-8" style={{ height: 38, width: "100%", borderRadius: 999 }} />
+  <div className="book-card" aria-hidden="true">
+    <div className="book-card__thumb">
+      <div className="kz-skel" style={{ width: "100%", height: "100%" }} />
+    </div>
+    <div className="book-card__content">
+      <div className="kz-skel" style={{ height: 14, width: "90%" }} />
+      <div className="kz-skel" style={{ height: 14, width: "60%" }} />
+      <div className="kz-skel" style={{ height: 12, width: "45%" }} />
+      <div className="kz-skel" style={{ height: 18, width: "50%", marginTop: 2 }} />
+      <div
+        className="kz-skel"
+        style={{ height: 36, width: "100%", borderRadius: 999, marginTop: "auto" }}
+      />
     </div>
   </div>
 );
