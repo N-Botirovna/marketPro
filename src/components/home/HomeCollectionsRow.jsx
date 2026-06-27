@@ -2,11 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Box, Stack, Typography } from "@mui/material";
-import { Link } from "@/i18n/navigation";
+import { Box } from "@mui/material";
 import { getCollections } from "@/services/collections";
 import CollectionRowGrid from "@/components/shared/CollectionRowGrid";
-import Icon from "@/components/Icon";
+import SectionHeader from "@/components/shared/SectionHeader";
 
 /**
  * Home "Collections / bundles" row — same channel-header + responsive grid as
@@ -38,41 +37,7 @@ const HomeCollectionsRow = ({ limit = 6 }) => {
   return (
     <Box component="section" sx={{ bgcolor: "var(--surface-page)", py: { xs: 2, md: 2.75 } }}>
       <Box sx={{ maxWidth: 1240, mx: "auto", px: { xs: 2, md: 3 } }}>
-        <Stack direction="row" spacing={2} sx={{ alignItems: "center", mb: 1.5, minHeight: 32 }}>
-          <Typography
-            component="h2"
-            sx={{
-              flex: 1,
-              minWidth: 0,
-              fontSize: { xs: 16, md: 18 },
-              fontWeight: 700,
-              color: "var(--text-primary)",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {t("homeTitle")}
-          </Typography>
-          <Link
-            href="/collections"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-              flexShrink: 0,
-              fontSize: 13,
-              fontWeight: 600,
-              color: "var(--main-600, hsl(148, 59%, 39%))",
-              textDecoration: "none",
-              padding: "6px 12px",
-              borderRadius: 999,
-            }}
-          >
-            {t("seeAll")}
-            <Icon className="ph ph-caret-right" aria-hidden="true" style={{ fontSize: 14 }} />
-          </Link>
-        </Stack>
+        <SectionHeader title={t("homeTitle")} href="/collections" seeAllLabel={t("seeAll")} />
         <CollectionRowGrid collections={collections} loading={loading} skeletonCount={limit} />
       </Box>
     </Box>

@@ -372,12 +372,26 @@ const HeaderOne = () => {
           background: var(--surface-card, #fff);
           border-bottom: 1px solid transparent;
           transition:
-            box-shadow 0.18s ease,
-            border-color 0.18s ease;
+            box-shadow var(--dur-base, 0.22s) var(--ease-out, ease),
+            border-color var(--dur-base, 0.22s) var(--ease-out, ease),
+            background-color var(--dur-base, 0.22s) var(--ease-out, ease);
         }
+        /* Once scrolled, the bar turns into a frosted-glass surface: a
+           translucent fill + backdrop blur lets page content tint through
+           subtly (iOS / Telegram style) rather than a flat opaque slab. */
         .kz-header--scrolled {
+          background: color-mix(in srgb, var(--surface-card, #fff) 82%, transparent);
+          -webkit-backdrop-filter: blur(12px) saturate(150%);
+          backdrop-filter: blur(12px) saturate(150%);
           border-bottom-color: var(--border-subtle, #e5e7eb);
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+          box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        }
+        /* Browsers without backdrop-filter keep a solid bar (no content
+           bleeding through a half-transparent header). */
+        @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+          .kz-header--scrolled {
+            background: var(--surface-card, #fff);
+          }
         }
         .kz-header__inner {
           max-width: 1240px;
