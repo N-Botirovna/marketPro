@@ -18,6 +18,7 @@ import FieldError from "@/components/FieldError";
 import { isBlank, tooLong, isPhoneE164 } from "@/lib/validation";
 import Icon from "@/components/Icon";
 
+// Inner cluster of related fields.
 const FieldGroup = ({ children }) => <Stack spacing={1.75}>{children}</Stack>;
 
 const ProfileEditModal = ({
@@ -94,13 +95,27 @@ const ProfileEditModal = ({
         },
       }}
     >
+      {/* Grab handle — signals a draggable/dismissible bottom sheet. */}
+      <Box
+        aria-hidden="true"
+        sx={{
+          width: 36,
+          height: 4,
+          borderRadius: 999,
+          bgcolor: "var(--border-strong, rgba(15,23,42,0.16))",
+          mx: "auto",
+          mt: 1,
+          mb: 0.5,
+          flexShrink: 0,
+        }}
+      />
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           px: { xs: 2, md: 3 },
-          py: 2,
+          py: 1.5,
           flexShrink: 0,
         }}
       >
@@ -130,156 +145,163 @@ const ProfileEditModal = ({
           width: "100%",
         }}
       >
-        <FieldGroup>
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={1.75}>
-            <TextField
-              fullWidth
-              label={tProfileForm("firstName")}
-              name="first_name"
-              value={profileFormData?.first_name || ""}
-              onChange={handleChange}
-              size="small"
-              autoComplete="given-name"
-            />
-            <TextField
-              fullWidth
-              label={tProfileForm("lastName")}
-              name="last_name"
-              value={profileFormData?.last_name || ""}
-              onChange={handleChange}
-              size="small"
-              autoComplete="family-name"
-            />
-          </Stack>
+        <Stack spacing={2.75}>
+          <FieldGroup>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.75}>
+              <TextField
+                fullWidth
+                label={tProfileForm("firstName")}
+                name="first_name"
+                value={profileFormData?.first_name || ""}
+                onChange={handleChange}
+                size="small"
+                autoComplete="given-name"
+              />
+              <TextField
+                fullWidth
+                label={tProfileForm("lastName")}
+                name="last_name"
+                value={profileFormData?.last_name || ""}
+                onChange={handleChange}
+                size="small"
+                autoComplete="family-name"
+              />
+            </Stack>
 
-          <Box>
+            <Box>
+              <TextField
+                fullWidth
+                label={t("phone")}
+                name="app_phone_number"
+                type="tel"
+                value={profileFormData?.app_phone_number || ""}
+                onChange={handleChange}
+                placeholder={t("phonePlaceholder")}
+                size="small"
+                autoComplete="tel"
+                error={!!fieldErrors.app_phone_number}
+              />
+              <FieldError message={fieldErrors.app_phone_number} />
+            </Box>
+          </FieldGroup>
+
+          {/* Location group — region + district are required so a posted book
+              is locatable; the free-text address sits with them. */}
+          <FieldGroup>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.75} alignItems="flex-start">
+              <Box sx={{ flex: 1, width: "100%" }}>
+                <TextField
+                  fullWidth
+                  select
+                  required
+                  label={t("region")}
+                  name="region"
+                  value={profileFormData?.region || ""}
+                  onChange={handleChange}
+                  disabled={regionsLoading}
+                  size="small"
+                  error={!!fieldErrors.region}
+                >
+                  <MenuItem value="">
+                    {regionsLoading ? t("loadingData") : tLocation("selectRegion")}
+                  </MenuItem>
+                  {regions.map((region) => (
+                    <MenuItem key={region.id} value={String(region.id)}>
+                      {region.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <FieldError message={fieldErrors.region} />
+              </Box>
+
+              <Box sx={{ flex: 1, width: "100%" }}>
+                <TextField
+                  fullWidth
+                  select
+                  required
+                  label={t("district")}
+                  name="district"
+                  value={profileFormData?.district || ""}
+                  onChange={handleChange}
+                  disabled={!profileFormData?.region || districtOptions.length === 0}
+                  size="small"
+                  error={!!fieldErrors.district}
+                >
+                  <MenuItem value="">
+                    {!profileFormData?.region
+                      ? tLocation("selectRegion")
+                      : districtOptions.length === 0
+                        ? tLocation("noDistricts")
+                        : tLocation("selectDistrict")}
+                  </MenuItem>
+                  {districtOptions.map((district) => (
+                    <MenuItem key={district.id} value={String(district.id)}>
+                      {district.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <FieldError message={fieldErrors.district} />
+              </Box>
+            </Stack>
+
             <TextField
               fullWidth
-              label={t("phone")}
-              name="app_phone_number"
-              type="tel"
-              value={profileFormData?.app_phone_number || ""}
+              label={t("location")}
+              name="location_text"
+              value={profileFormData?.location_text || ""}
               onChange={handleChange}
-              placeholder={t("phonePlaceholder")}
+              placeholder={tProfileForm("enterFullAddress")}
               size="small"
-              autoComplete="tel"
-              error={!!fieldErrors.app_phone_number}
             />
-            <FieldError message={fieldErrors.app_phone_number} />
-          </Box>
+          </FieldGroup>
 
-          {/* Region + district are required so a posted book is locatable. */}
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={1.75} alignItems="flex-start">
-            <Box sx={{ flex: 1, width: "100%" }}>
+          {/* Optional details — gender, birth date, bio. */}
+          <FieldGroup>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.75}>
               <TextField
                 fullWidth
                 select
-                required
-                label={t("region")}
-                name="region"
-                value={profileFormData?.region || ""}
+                label={`${tProfileForm("gender")} (${tProfileForm("optionalLabel")})`}
+                name="gender"
+                value={profileFormData?.gender || ""}
                 onChange={handleChange}
-                disabled={regionsLoading}
                 size="small"
-                error={!!fieldErrors.region}
               >
-                <MenuItem value="">
-                  {regionsLoading ? t("loadingData") : tLocation("selectRegion")}
-                </MenuItem>
-                {regions.map((region) => (
-                  <MenuItem key={region.id} value={String(region.id)}>
-                    {region.name}
-                  </MenuItem>
-                ))}
+                <MenuItem value="">{tProfileForm("selectGender")}</MenuItem>
+                <MenuItem value="male">{tProfileForm("genderMale")}</MenuItem>
+                <MenuItem value="female">{tProfileForm("genderFemale")}</MenuItem>
               </TextField>
-              <FieldError message={fieldErrors.region} />
-            </Box>
 
-            <Box sx={{ flex: 1, width: "100%" }}>
               <TextField
                 fullWidth
-                select
-                required
-                label={t("district")}
-                name="district"
-                value={profileFormData?.district || ""}
+                type="date"
+                label={`${tProfileForm("birthDate")} (${tProfileForm("optionalLabel")})`}
+                name="birth_date"
+                value={profileFormData?.birth_date || ""}
                 onChange={handleChange}
-                disabled={!profileFormData?.region || districtOptions.length === 0}
                 size="small"
-                error={!!fieldErrors.district}
-              >
-                <MenuItem value="">
-                  {!profileFormData?.region
-                    ? tLocation("selectRegion")
-                    : districtOptions.length === 0
-                      ? tLocation("noDistricts")
-                      : tLocation("selectDistrict")}
-                </MenuItem>
-                {districtOptions.map((district) => (
-                  <MenuItem key={district.id} value={String(district.id)}>
-                    {district.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <FieldError message={fieldErrors.district} />
+                InputLabelProps={{ shrink: true }}
+              />
+            </Stack>
+
+            <Box>
+              <TextField
+                fullWidth
+                label={t("bioTitle")}
+                name="bio"
+                value={profileFormData?.bio || ""}
+                onChange={handleChange}
+                placeholder={t("bioEmpty")}
+                size="small"
+                multiline
+                minRows={3}
+                maxRows={6}
+                error={!!fieldErrors.bio}
+              />
+              <FieldError message={fieldErrors.bio} />
             </Box>
-          </Stack>
-
-          {/* Gender + birth date — both optional. */}
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={1.75}>
-            <TextField
-              fullWidth
-              select
-              label={`${tProfileForm("gender")} (${tProfileForm("optionalLabel")})`}
-              name="gender"
-              value={profileFormData?.gender || ""}
-              onChange={handleChange}
-              size="small"
-            >
-              <MenuItem value="">{tProfileForm("selectGender")}</MenuItem>
-              <MenuItem value="male">{tProfileForm("genderMale")}</MenuItem>
-              <MenuItem value="female">{tProfileForm("genderFemale")}</MenuItem>
-            </TextField>
-
-            <TextField
-              fullWidth
-              type="date"
-              label={`${tProfileForm("birthDate")} (${tProfileForm("optionalLabel")})`}
-              name="birth_date"
-              value={profileFormData?.birth_date || ""}
-              onChange={handleChange}
-              size="small"
-              InputLabelProps={{ shrink: true }}
-            />
-          </Stack>
-
-          <TextField
-            fullWidth
-            label={t("location")}
-            name="location_text"
-            value={profileFormData?.location_text || ""}
-            onChange={handleChange}
-            placeholder={tProfileForm("enterFullAddress")}
-            size="small"
-          />
-
-          <Box>
-            <TextField
-              fullWidth
-              label={t("bioTitle")}
-              name="bio"
-              value={profileFormData?.bio || ""}
-              onChange={handleChange}
-              placeholder={t("bioEmpty")}
-              size="small"
-              multiline
-              minRows={3}
-              maxRows={6}
-              error={!!fieldErrors.bio}
-            />
-            <FieldError message={fieldErrors.bio} />
-          </Box>
-        </FieldGroup>
+          </FieldGroup>
+        </Stack>
       </Box>
 
       <Divider />
@@ -294,25 +316,27 @@ const ProfileEditModal = ({
           width: "100%",
         }}
       >
+        {/* Primary action dominates: Save is twice the width of Cancel so the
+            confirming action is unmistakable. */}
         <Stack direction="row" spacing={1.5}>
           <Button
-            fullWidth
             variant="outlined"
             onClick={onClose}
-            sx={{ borderRadius: 2, textTransform: "none", py: 1 }}
+            sx={{ flex: 1, borderRadius: 2, textTransform: "none", py: 1.1 }}
           >
             {t("cancel")}
           </Button>
           <Button
-            fullWidth
             variant="contained"
+            disableElevation
             onClick={handleSubmit}
             disabled={!hasChanges || saving}
             sx={{
+              flex: 2,
               borderRadius: 2,
               textTransform: "none",
-              py: 1,
-              fontWeight: 600,
+              py: 1.1,
+              fontWeight: 700,
             }}
             startIcon={saving ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : null}
           >
