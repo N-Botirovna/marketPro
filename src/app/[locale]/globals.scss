@@ -812,6 +812,45 @@ body.body-no-scroll {
   }
 }
 
+// ─── Browse-by-type tabs (CommunityBooksPage) ────────────────────────────────
+// Pill links that switch the browse type. Active = filled brand; others are
+// outlined and tint to brand on hover. Horizontal-scrollable on mobile.
+.kz-type-tab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 16px;
+  border-radius: var(--radius-pill, 999px);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  color: var(--text-secondary);
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  transition:
+    background-color var(--dur-fast, 0.15s) var(--ease-out, ease),
+    color var(--dur-fast, 0.15s) var(--ease-out, ease),
+    border-color var(--dur-fast, 0.15s) var(--ease-out, ease);
+
+  &:hover {
+    color: var(--main-700, hsl(148, 59%, 31%));
+    border-color: var(--main-600, hsl(148, 59%, 39%));
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--ring, 0 0 0 3px hsl(148 59% 39% / 0.35));
+  }
+
+  &.is-active {
+    color: #ffffff;
+    background-color: var(--main-600, hsl(148, 59%, 39%));
+    border-color: var(--main-600, hsl(148, 59%, 39%));
+  }
+}
+
 // ─── ProfileTabs (sticky nav, horizontal scroll on mobile) ───────────────────
 // Only the nav row sticks; content scrolls past it. `position: sticky` on a
 // child of an `overflow: hidden` ancestor is broken, so the wrapper must not

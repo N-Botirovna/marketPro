@@ -15,6 +15,7 @@ import {
 import { getBooks } from "@/services/books";
 import { getBookCategories, getBookSubcategories } from "@/services/categories";
 import { getRegions } from "@/services/regions";
+import { Link } from "@/i18n/navigation";
 import BookRowGrid from "@/components/shared/BookRowGrid";
 import Icon from "@/components/Icon";
 import { mapValidationError } from "@/lib/mapValidationError";
@@ -24,9 +25,16 @@ import { mapValidationError } from "@/lib/mapValidationError";
 // breakpoint.
 const PAGE_SIZE = 24;
 
+// Browse-by-type switcher. Each tab deep-links to its own route so the
+// selection is shareable/bookmarkable and SEO-indexable (the page is
+// route-driven, `[type]`); previously the only way to change type was the
+// URL. Order matches the home feed sections.
+const TYPE_TABS = ["all", "sell", "gift", "exchange", "rent"];
+
 const CommunityBooksPage = ({ type = "all" }) => {
   const t = useTranslations("CommunityPage");
   const tLocation = useTranslations("Location");
+  const tType = useTranslations("BookTypeChips");
   const searchParams = useSearchParams();
 
   const [books, setBooks] = useState([]);
@@ -210,9 +218,36 @@ const CommunityBooksPage = ({ type = "all" }) => {
         >
           {t(`title.${type}`)}
         </Typography>
-        <Typography sx={{ color: "var(--text-secondary)", mb: 2.5 }}>
+        <Typography sx={{ color: "var(--text-secondary)", mb: 2 }}>
           {t(`subtitle.${type}`)}
         </Typography>
+
+        {/* Browse-by-type tabs — horizontal scroll on mobile, no scrollbar.
+            Pill links to each /community/{type}; the active one is filled. */}
+        <Box
+          role="tablist"
+          aria-label={tType("ariaLabel")}
+          sx={{
+            display: "flex",
+            gap: 1,
+            mb: 2.5,
+            overflowX: "auto",
+            pb: 0.5,
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": { display: "none" },
+          }}
+        >
+          {TYPE_TABS.map((tab) => (
+            <Link
+              key={tab}
+              href={`/community/${tab}`}
+              className={`kz-type-tab${type === tab ? " is-active" : ""}`}
+              aria-current={type === tab ? "page" : undefined}
+            >
+              {tType(tab)}
+            </Link>
+          ))}
+        </Box>
 
         <Stack direction={{ xs: "column", md: "row" }} spacing={1.5} sx={{ mb: 1.5 }}>
           <TextField
@@ -346,15 +381,31 @@ const CommunityBooksPage = ({ type = "all" }) => {
         {error ? (
           <Box
             sx={{
-              py: 4,
+              py: { xs: 6, md: 8 },
+              px: 2,
               textAlign: "center",
-              color: "var(--text-secondary)",
               border: "1px solid var(--border-subtle)",
-              borderRadius: 3,
+              borderRadius: "var(--radius-lg, 16px)",
               bgcolor: "var(--surface-card)",
             }}
           >
-            {error}
+            <Box
+              sx={{
+                width: 64,
+                height: 64,
+                mx: "auto",
+                mb: 2,
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                bgcolor: "var(--surface-muted)",
+                color: "var(--text-muted)",
+              }}
+            >
+              <Icon className="ph ph-warning-circle" style={{ fontSize: 30 }} aria-hidden="true" />
+            </Box>
+            <Typography sx={{ color: "var(--text-secondary)" }}>{error}</Typography>
           </Box>
         ) : (
           <>
@@ -366,19 +417,32 @@ const CommunityBooksPage = ({ type = "all" }) => {
               emptyState={
                 <Box
                   sx={{
-                    py: 6,
+                    py: { xs: 6, md: 8 },
+                    px: 2,
                     textAlign: "center",
-                    color: "var(--text-muted)",
                     border: "1px dashed var(--border-subtle)",
-                    borderRadius: 3,
+                    borderRadius: "var(--radius-lg, 16px)",
                   }}
                 >
-                  <Icon
-                    className="ph ph-book-open"
-                    style={{ fontSize: 40, display: "inline-block", marginBottom: 8 }}
-                    aria-hidden="true"
-                  />
-                  <Typography>{t("noResults")}</Typography>
+                  <Box
+                    sx={{
+                      width: 64,
+                      height: 64,
+                      mx: "auto",
+                      mb: 2,
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      bgcolor: "var(--surface-muted)",
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    <Icon className="ph ph-book-open" style={{ fontSize: 30 }} aria-hidden="true" />
+                  </Box>
+                  <Typography sx={{ fontWeight: 600, color: "var(--text-primary)" }}>
+                    {t("noResults")}
+                  </Typography>
                 </Box>
               }
             />

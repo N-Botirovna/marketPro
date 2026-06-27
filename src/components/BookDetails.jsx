@@ -22,7 +22,7 @@ import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { localizedField } from "@/utils/localizedField";
 import { bookTypeVisual, bookTypeI18nKey } from "@/utils/bookType";
 import { bookLanguageKey } from "@/utils/bookLanguage";
-import { useRouter, usePathname } from "@/i18n/navigation";
+import { useRouter, usePathname, Link } from "@/i18n/navigation";
 import Icon from "@/components/Icon";
 import { getContactActions } from "@/utils/contactActions";
 import { mapValidationError } from "@/lib/mapValidationError";
@@ -211,18 +211,54 @@ const BookDetails = ({ bookId }) => {
     );
   }
 
-  if (error) {
+  // Error and "not found" share one calm, centered empty-state: an icon, a
+  // clear message, and a way out (browse all books) so the page is never a
+  // dead end.
+  if (error || !book) {
+    const isError = Boolean(error);
     return (
-      <Box sx={{ maxWidth: 720, mx: "auto", px: 2, py: 5, textAlign: "center" }}>
-        <Typography color="error">{error}</Typography>
-      </Box>
-    );
-  }
-
-  if (!book) {
-    return (
-      <Box sx={{ maxWidth: 720, mx: "auto", px: 2, py: 5, textAlign: "center" }}>
-        <Typography sx={{ color: "var(--text-muted)" }}>{tBook("notFound")}</Typography>
+      <Box
+        sx={{
+          maxWidth: 560,
+          mx: "auto",
+          px: 2,
+          py: { xs: 6, md: 9 },
+          textAlign: "center",
+        }}
+      >
+        <Box
+          sx={{
+            width: 72,
+            height: 72,
+            mx: "auto",
+            mb: 2.5,
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            bgcolor: "var(--surface-muted)",
+            color: "var(--text-muted)",
+          }}
+        >
+          <Icon
+            className={isError ? "ph ph-warning-circle" : "ph ph-book-open"}
+            style={{ fontSize: 34 }}
+            aria-hidden="true"
+          />
+        </Box>
+        <Typography sx={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)", mb: 0.75 }}>
+          {isError ? error : tBook("notFound")}
+        </Typography>
+        <Button
+          component={Link}
+          href="/community/all"
+          variant="contained"
+          disableElevation
+          startIcon={<Icon className="ph ph-books" />}
+          sx={{ mt: 1.5, textTransform: "none", fontWeight: 700, borderRadius: 2 }}
+        >
+          {tCommon("viewAll")}
+        </Button>
       </Box>
     );
   }
