@@ -42,10 +42,11 @@ const ShopCard = ({ shop }) => {
           bgcolor: "var(--surface-card)",
           border: "1px solid var(--border-subtle)",
           boxShadow: "var(--shadow-card)",
-          transition: "transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease",
+          transition:
+            "transform var(--dur-base, 0.2s) var(--ease-out), box-shadow var(--dur-base, 0.2s) var(--ease-out), border-color var(--dur-base, 0.2s) var(--ease-out)",
           "&:hover": {
-            transform: "translateY(-2px)",
-            boxShadow: "var(--shadow-elevated)",
+            transform: "translateY(-3px)",
+            boxShadow: "var(--shadow-hover, 0 6px 18px rgba(15,23,42,0.09))",
             borderColor: "var(--main-600, hsl(148, 59%, 39%))",
           },
         }}

@@ -301,7 +301,7 @@ const BookDetails = ({ bookId }) => {
         py: { xs: 2.5, md: 4 },
       }}
     >
-      <Box sx={{ maxWidth: 980, mx: "auto", px: { xs: 2, md: 3 } }}>
+      <Box className="kz-fade-up" sx={{ maxWidth: 980, mx: "auto", px: { xs: 2, md: 3 } }}>
         {/* ─── Top: cover + main meta ─────────────────────────────── */}
         <Stack
           direction={{ xs: "column", md: "row" }}

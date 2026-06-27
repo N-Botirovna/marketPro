@@ -207,7 +207,7 @@ const CommunityBooksPage = ({ type = "all" }) => {
         py: { xs: 2.5, md: 4 },
       }}
     >
-      <Box sx={{ maxWidth: 1240, mx: "auto", px: { xs: 2, md: 3 } }}>
+      <Box className="kz-fade-up" sx={{ maxWidth: 1240, mx: "auto", px: { xs: 2, md: 3 } }}>
         <Typography
           component="h1"
           sx={{
