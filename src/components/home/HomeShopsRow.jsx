@@ -2,12 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Box, Stack, Typography } from "@mui/material";
-import { Link } from "@/i18n/navigation";
+import { Box } from "@mui/material";
 import { getHomePageShops } from "@/services/shops";
 import ShopCard from "@/components/shop/ShopCard";
 import ShopCardSkeleton from "@/components/shared/ShopCardSkeleton";
-import Icon from "@/components/Icon";
+import SectionHeader from "@/components/shared/SectionHeader";
 
 /**
  * Home-page shops row.
@@ -45,52 +44,7 @@ const HomeShopsRow = ({ initialShops }) => {
   return (
     <Box sx={{ bgcolor: "var(--surface-page)", py: { xs: 2, md: 3 } }}>
       <Box sx={{ maxWidth: 1240, mx: "auto", px: { xs: 2, md: 3 } }}>
-        <Stack direction="row" spacing={2} sx={{ alignItems: "center", mb: 1.5, minHeight: 32 }}>
-          <Typography
-            component="h2"
-            sx={{
-              flex: 1,
-              minWidth: 0,
-              fontSize: { xs: 17, md: 20 },
-              fontWeight: 700,
-              letterSpacing: "-0.01em",
-              color: "var(--text-primary)",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              lineHeight: 1.25,
-            }}
-          >
-            {t("title")}
-          </Typography>
-          <Link
-            href="/shops"
-            aria-label={`${t("title")} — ${t("seeAll")}`}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-              flexShrink: 0,
-              fontSize: 13,
-              fontWeight: 600,
-              color: "var(--main-600, hsl(148, 59%, 39%))",
-              textDecoration: "none",
-              padding: "6px 12px",
-              borderRadius: 999,
-              background: "transparent",
-              transition: "background 0.15s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--surface-muted)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-            }}
-          >
-            {t("seeAll")}
-            <Icon className="ph ph-caret-right" aria-hidden="true" style={{ fontSize: 14 }} />
-          </Link>
-        </Stack>
+        <SectionHeader title={t("title")} href="/shops" seeAllLabel={t("seeAll")} size="lg" />
 
         {/* Grid: 1 col on mobile (full-width rows), 2 col on tablet,
             3 col on desktop. Each cell hosts one `ShopCard`. */}

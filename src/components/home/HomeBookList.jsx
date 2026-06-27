@@ -2,11 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Box, Stack, Typography } from "@mui/material";
-import { Link } from "@/i18n/navigation";
+import { Box } from "@mui/material";
 import { getBooks } from "@/services/books";
 import BookRowGrid from "@/components/shared/BookRowGrid";
-import Icon from "@/components/Icon";
+import SectionHeader from "@/components/shared/SectionHeader";
 
 /**
  * Telegram chat-row inspired home section. Lists up to `limit` books filtered
@@ -56,55 +55,7 @@ const HomeBookList = ({ type, ownerType, titleKey, viewAllHref, limit = 6, initi
   return (
     <Box component="section" sx={{ bgcolor: "var(--surface-page)", py: { xs: 2, md: 2.75 } }}>
       <Box sx={{ maxWidth: 1240, mx: "auto", px: { xs: 2, md: 3 } }}>
-        {/* Telegram-style channel header: title left, pill "see all" right,
-            generous gap so long titles never crash into the link. Title
-            ellipses on overflow instead of wrapping under the link. */}
-        <Stack direction="row" spacing={2} sx={{ alignItems: "center", mb: 1.5, minHeight: 32 }}>
-          <Typography
-            component="h2"
-            sx={{
-              flex: 1,
-              minWidth: 0,
-              fontSize: { xs: 16, md: 18 },
-              fontWeight: 700,
-              letterSpacing: "-0.01em",
-              color: "var(--text-primary)",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              lineHeight: 1.25,
-            }}
-          >
-            {t(titleKey)}
-          </Typography>
-          <Link
-            href={viewAllHref}
-            aria-label={`${t(titleKey)} — ${t("seeAll")}`}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-              flexShrink: 0,
-              fontSize: 13,
-              fontWeight: 600,
-              color: "var(--main-600, hsl(148, 59%, 39%))",
-              textDecoration: "none",
-              padding: "6px 12px",
-              borderRadius: 999,
-              background: "transparent",
-              transition: "background 0.15s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--surface-muted)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-            }}
-          >
-            {t("seeAll")}
-            <Icon className="ph ph-caret-right" aria-hidden="true" style={{ fontSize: 14 }} />
-          </Link>
-        </Stack>
+        <SectionHeader title={t(titleKey)} href={viewAllHref} seeAllLabel={t("seeAll")} />
 
         <BookRowGrid books={books} loading={loading} skeletonCount={limit} showTypeBadge={!type} />
       </Box>

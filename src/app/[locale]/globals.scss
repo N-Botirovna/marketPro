@@ -66,6 +66,36 @@
   --shadow-card: 0 2px 6px rgba(15, 23, 42, 0.06);
   --shadow-elevated: 0 4px 12px rgba(15, 23, 42, 0.1);
 
+  // ── Design-system scales (minimalist / professional) ──────────────────────
+  // Opt-in tokens so surfaces share one rhythm. Existing components keep their
+  // hard-coded values; new/polished ones reference these for consistency.
+
+  // Corner radius
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-pill: 999px;
+
+  // Elevation (soft, low-contrast — depth without heaviness)
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06);
+  --shadow-hover: 0 6px 18px rgba(15, 23, 42, 0.09);
+  --shadow-pop: 0 14px 36px rgba(15, 23, 42, 0.14);
+
+  // Focus ring (keyboard a11y) — brand-tinted, consistent everywhere
+  --ring: 0 0 0 3px hsl(148 59% 39% / 0.35);
+
+  // Motion — one easing/duration language across the app
+  --dur-fast: 0.15s;
+  --dur-base: 0.22s;
+  --dur-slow: 0.4s;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  // Layout rhythm
+  --section-gap: clamp(28px, 4vw, 48px);
+  --container-max: 1200px;
+
   color-scheme: light;
 }
 
@@ -89,6 +119,10 @@
 
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4);
   --shadow-elevated: 0 6px 16px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-hover: 0 6px 18px rgba(0, 0, 0, 0.5);
+  --shadow-pop: 0 14px 36px rgba(0, 0, 0, 0.6);
+  --ring: 0 0 0 3px hsl(148 59% 49% / 0.45);
 
   color-scheme: dark;
 }
@@ -734,6 +768,47 @@ body.body-no-scroll {
     width: 32px;
     height: 32px;
     font-size: 15px;
+  }
+}
+
+// ─── Section header "see all" link (shared/SectionHeader.jsx) ────────────────
+// Pill link to the right of a section title. Hover/focus live here (CSS) rather
+// than as inline JS handlers, and the caret nudges right on hover for a subtle,
+// consistent micro-interaction across every home/list section.
+.kz-see-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill, 999px);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--main-600, hsl(148, 59%, 39%));
+  text-decoration: none;
+  background-color: transparent;
+  transition:
+    background-color var(--dur-fast, 0.15s) var(--ease-out, ease),
+    color var(--dur-fast, 0.15s) var(--ease-out, ease);
+
+  i {
+    font-size: 14px;
+    transition: transform var(--dur-fast, 0.15s) var(--ease-out, ease);
+  }
+
+  &:hover {
+    background-color: var(--surface-muted);
+  }
+
+  &:hover i {
+    transform: translateX(2px);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--ring, 0 0 0 3px hsl(148 59% 39% / 0.35));
   }
 }
 
