@@ -17,6 +17,7 @@ import { getBookCategories, getBookSubcategories } from "@/services/categories";
 import { getRegions } from "@/services/regions";
 import { Link } from "@/i18n/navigation";
 import BookRowGrid from "@/components/shared/BookRowGrid";
+import EmptyState from "@/components/shared/EmptyState";
 import Icon from "@/components/Icon";
 import { mapValidationError } from "@/lib/mapValidationError";
 
@@ -379,34 +380,11 @@ const CommunityBooksPage = ({ type = "all" }) => {
         </Stack>
 
         {error ? (
-          <Box
-            sx={{
-              py: { xs: 6, md: 8 },
-              px: 2,
-              textAlign: "center",
-              border: "1px solid var(--border-subtle)",
-              borderRadius: "var(--radius-lg, 16px)",
-              bgcolor: "var(--surface-card)",
-            }}
-          >
-            <Box
-              sx={{
-                width: 64,
-                height: 64,
-                mx: "auto",
-                mb: 2,
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                bgcolor: "var(--surface-muted)",
-                color: "var(--text-muted)",
-              }}
-            >
-              <Icon className="ph ph-warning-circle" style={{ fontSize: 30 }} aria-hidden="true" />
-            </Box>
-            <Typography sx={{ color: "var(--text-secondary)" }}>{error}</Typography>
-          </Box>
+          <EmptyState
+            icon="ph ph-warning-circle"
+            title={error}
+            sx={{ border: "1px solid var(--border-subtle)", bgcolor: "var(--surface-card)" }}
+          />
         ) : (
           <>
             <BookRowGrid
@@ -414,37 +392,7 @@ const CommunityBooksPage = ({ type = "all" }) => {
               loading={loading}
               skeletonCount={6}
               showTypeBadge={showTypeBadge}
-              emptyState={
-                <Box
-                  sx={{
-                    py: { xs: 6, md: 8 },
-                    px: 2,
-                    textAlign: "center",
-                    border: "1px dashed var(--border-subtle)",
-                    borderRadius: "var(--radius-lg, 16px)",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 64,
-                      height: 64,
-                      mx: "auto",
-                      mb: 2,
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      bgcolor: "var(--surface-muted)",
-                      color: "var(--text-muted)",
-                    }}
-                  >
-                    <Icon className="ph ph-book-open" style={{ fontSize: 30 }} aria-hidden="true" />
-                  </Box>
-                  <Typography sx={{ fontWeight: 600, color: "var(--text-primary)" }}>
-                    {t("noResults")}
-                  </Typography>
-                </Box>
-              }
+              emptyState={<EmptyState icon="ph ph-book-open" title={t("noResults")} dashed />}
             />
 
             {/* Infinite-scroll trigger + spinner. The sentinel sits ~400px
