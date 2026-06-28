@@ -22,49 +22,12 @@ function saveAccessToken(token, expiresIn = 4800) {
   setItem("token_expires_at", Date.now() + expiresIn * 1000);
 }
 
-export async function loginWithPhoneOtp({ phone_number, otp_code }) {
-  const { data } = await http.post(
-    API_ENDPOINTS.AUTH.LOGIN,
-    {
-      phone_number,
-      otp_code,
-    },
-    withIdempotency(),
-  );
-
-  const accessToken = data?.access_token;
-  const refreshToken = data?.refresh_token;
-  const expiresIn = data?.expires_in || data?.expires_in_seconds;
-
-  if (accessToken) {
-    saveAccessToken(accessToken, expiresIn);
-    setItem("login_time", Date.now());
-  }
-
-  // C-4: in cookie mode the refresh token arrives via an HttpOnly Set-Cookie,
-  // so we never persist it in JS-readable storage. Body mode keeps the old path.
-  if (refreshToken && !COOKIE_REFRESH) {
-    setItem("refresh_token", refreshToken);
-  }
-
-  devLog("🔐 Login successful", {
-    hasAccessToken: !!accessToken,
-    hasRefreshToken: !!refreshToken,
-    expiresIn,
-  });
-
-  return {
-    access_token: accessToken || null,
-    refresh_token: refreshToken || null,
-    user: data?.user || null,
-    expiresIn: expiresIn || null,
-  };
-}
-
 /**
- * Code-only login. The bot mints a short-lived 6-digit OTP; the user types
- * it once, no phone number step. Server resolves the user from the active
- * OTP row and returns the same JWT envelope as loginWithPhoneOtp.
+ * Code-only login — the single canonical sign-in path. The bot mints a
+ * short-lived 6-digit OTP; the user types it once, no phone number step.
+ * Server resolves the user from the active OTP row and returns the JWT
+ * envelope. (The legacy phone+OTP `loginWithPhoneOtp` was removed — every
+ * surface now uses this code-only flow.)
  */
 export async function loginWithCode(otp_code) {
   const { data } = await http.post(
