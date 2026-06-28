@@ -76,6 +76,15 @@
     "language": "Til",
     "aboutUs": "Biz haqqımızda"
   },
+  "Nav": {
+    "primary": "Tiykarǵı navigatsiya",
+    "home": "Bas bet",
+    "books": "Kitaplar",
+    "post": "Qosıw",
+    "collections": "Toplamlar",
+    "profile": "Profil",
+    "shops": "Dúkenler"
+  },
   "Common": {
     "location": "Jaylasıw",
     "seller": "Satıwshı",

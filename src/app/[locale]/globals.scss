@@ -60,6 +60,12 @@
   --text-muted: #64748b;
   --text-on-brand: #ffffff;
 
+  // Brand accent (Kitobzor green — mirrors the MUI theme `primary.main`).
+  // Single source for app-shell active states, CTAs, brand chrome.
+  --brand: hsl(148, 59%, 39%);
+  --brand-strong: hsl(148, 59%, 31%);
+  --brand-soft: hsla(148, 59%, 39%, 0.12);
+
   --border-subtle: rgba(15, 23, 42, 0.08);
   --border-strong: rgba(15, 23, 42, 0.16);
 
@@ -109,6 +115,11 @@
   --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
 
+  // Brand reads brighter on dark surfaces so active states stay legible.
+  --brand: hsl(148, 59%, 52%);
+  --brand-strong: hsl(148, 59%, 60%);
+  --brand-soft: hsla(148, 59%, 52%, 0.18);
+
   // Global headings use `color: hsl(var(--heading-color))` (_typography.scss).
   // Light value (#121535) was dark-on-dark in dark mode (QA B-3). Flip to a
   // light HSL triplet so every h1–h6 on a dark surface is legible.
@@ -142,6 +153,16 @@ body,
 body {
   background-color: var(--surface-page);
   color: var(--text-primary);
+}
+
+// App-shell bottom tab bar (mobile/tablet < lg) is fixed over the content;
+// reserve space so the last row / footer isn't hidden behind it. Desktop
+// (>= lg) uses the side rail and needs no bottom inset.
+@media (max-width: 991.98px) {
+  body {
+    --bottom-nav-h: 60px;
+    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 // In dark mode, many Bootstrap-styled cards/sections in legacy markup still

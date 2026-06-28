@@ -76,6 +76,15 @@
     "language": "Til",
     "aboutUs": "Biz haqimizda"
   },
+  "Nav": {
+    "primary": "Asosiy navigatsiya",
+    "home": "Asosiy",
+    "books": "Kitoblar",
+    "post": "Joylash",
+    "collections": "To'plamlar",
+    "profile": "Profil",
+    "shops": "Do'konlar"
+  },
   "Common": {
     "location": "Joylashuv",
     "seller": "Sotuvchi",

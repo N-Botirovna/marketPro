@@ -76,6 +76,15 @@
     "language": "Language",
     "aboutUs": "About us"
   },
+  "Nav": {
+    "primary": "Primary navigation",
+    "home": "Home",
+    "books": "Books",
+    "post": "Post",
+    "collections": "Collections",
+    "profile": "Profile",
+    "shops": "Shops"
+  },
   "Common": {
     "location": "Location",
     "seller": "Seller",
