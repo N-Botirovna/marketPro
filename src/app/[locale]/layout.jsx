@@ -68,6 +68,11 @@ const PostBookMount = dynamic(() => import("@/components/PostBookMount"), {
 const BottomTabBar = dynamic(() => import("@/components/shell/BottomTabBar"), {
   loading: () => null,
 });
+// App-shell desktop side rail — the persistent left navigation on ≥ lg.
+// Content is offset by `--rail-w` via globals.scss.
+const SideRail = dynamic(() => import("@/components/shell/SideRail"), {
+  loading: () => null,
+});
 // Global share sheet — mounted at the layout root so any component can
 // dispatch `share-sheet:open` and get a Telegram/WhatsApp/SMS picker.
 const ShareSheetMount = dynamic(() => import("@/components/ShareSheetMount"), {
@@ -194,6 +199,7 @@ export default async function RootLayout({ children, params }) {
                 <PostBookMount />
                 <ShareSheetMount />
                 <BottomTabBar />
+                <SideRail />
               </ProtectedRoute>
             </MaterialThemeProvider>
           </NextIntlClientProvider>

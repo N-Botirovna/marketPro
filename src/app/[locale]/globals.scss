@@ -66,6 +66,10 @@
   --brand-strong: hsl(148, 59%, 31%);
   --brand-soft: hsla(148, 59%, 39%, 0.12);
 
+  // App-shell desktop side rail width (content is offset by this on ≥ lg).
+  --rail-w: 84px;
+  --rail-w-xl: 92px;
+
   --border-subtle: rgba(15, 23, 42, 0.08);
   --border-strong: rgba(15, 23, 42, 0.16);
 
@@ -162,6 +166,20 @@ body {
   body {
     --bottom-nav-h: 60px;
     padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+// App-shell side rail (desktop ≥ lg) is fixed on the left; offset the whole
+// document (sticky header + content both shift since the header is in flow)
+// so nothing sits under the rail.
+@media (min-width: 992px) {
+  body {
+    padding-left: var(--rail-w, 84px);
+  }
+}
+@media (min-width: 1280px) {
+  body {
+    padding-left: var(--rail-w-xl, 92px);
   }
 }
 
