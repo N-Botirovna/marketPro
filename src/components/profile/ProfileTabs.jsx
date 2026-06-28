@@ -30,7 +30,7 @@ const ProfileTabs = ({
   );
 
   const renderBooksTab = () => (
-    <div className="p-3 p-md-4">
+    <div className="px-2 px-md-4 py-3 py-md-4">
       <div className="profile-tabs__head">
         <div className="profile-tabs__head-title">
           <h3 className="text-xl text-md-2xl fw-bold text-gray-900 mb-0">{tProfile("myBooks")}</h3>
@@ -67,7 +67,7 @@ const ProfileTabs = ({
   );
 
   const renderArchiveTab = () => (
-    <div className="p-3 p-md-4">
+    <div className="px-2 px-md-4 py-3 py-md-4">
       <div className="profile-tabs__head profile-tabs__head--single">
         <div className="profile-tabs__head-title">
           <h3 className="text-xl text-md-2xl fw-bold text-gray-900 mb-0">
