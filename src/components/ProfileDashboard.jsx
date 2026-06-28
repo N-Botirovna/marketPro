@@ -617,75 +617,64 @@ const ProfileDashboard = () => {
         }}
       >
         <Stack spacing={{ xs: 2, md: 2.5 }}>
-          {/* Header cluster stays a comfortable centered column so the hero,
-              story bar and contact card don't stretch thin on wide screens;
-              only the books grid below spans the full width (wishlist-parity). */}
-          <Box sx={{ width: "100%", maxWidth: 760, mx: "auto" }}>
-            <Stack spacing={{ xs: 2, md: 2.5 }}>
-              <ProfileHero
-                user={userData}
-                stats={{
-                  books: userBooks.length,
-                  archive: archivedBooks.length,
-                  shops: userShops.length,
-                }}
-                avatarUploading={avatarUploading}
-                onAvatarChange={handleAvatarChange}
-                onEditClick={handleEditProfile}
-                onShareClick={handleShareProfile}
-                locationLine={locationChip}
-                roleLabel={roleLabel}
-              />
+          <ProfileHero
+            user={userData}
+            stats={{
+              books: userBooks.length,
+              archive: archivedBooks.length,
+              shops: userShops.length,
+            }}
+            avatarUploading={avatarUploading}
+            onAvatarChange={handleAvatarChange}
+            onEditClick={handleEditProfile}
+            onShareClick={handleShareProfile}
+            locationLine={locationChip}
+            roleLabel={roleLabel}
+          />
 
-              <ProfileStoryBar
-                books={userBooks}
-                shops={userShops}
-                onAddBookClick={handleCreateBook}
-              />
+          <ProfileStoryBar books={userBooks} shops={userShops} onAddBookClick={handleCreateBook} />
 
-              {userShops.length > 0 && (
-                <Stack direction="row" sx={{ justifyContent: "center", flexWrap: "wrap", gap: 1 }}>
-                  <Button
-                    variant="contained"
-                    onClick={() => setShowStoryModal(true)}
-                    startIcon={
-                      <Icon
-                        className="ph ph-paper-plane-tilt"
-                        style={{ fontSize: 18 }}
-                        aria-hidden="true"
-                      />
-                    }
-                    sx={{ textTransform: "none", fontWeight: 600, borderRadius: 5, px: 3 }}
-                  >
-                    {tProfile("addStory")}
-                  </Button>
-                  {/* Quick link to the owner's shop page, where the edit (pencil)
+          {userShops.length > 0 && (
+            <Stack direction="row" sx={{ justifyContent: "center", flexWrap: "wrap", gap: 1 }}>
+              <Button
+                variant="contained"
+                onClick={() => setShowStoryModal(true)}
+                startIcon={
+                  <Icon
+                    className="ph ph-paper-plane-tilt"
+                    style={{ fontSize: 18 }}
+                    aria-hidden="true"
+                  />
+                }
+                sx={{ textTransform: "none", fontWeight: 600, borderRadius: 5, px: 3 }}
+              >
+                {tProfile("addStory")}
+              </Button>
+              {/* Quick link to the owner's shop page, where the edit (pencil)
                   button lives — the editor was previously only reachable from
                   the public shop page, which owners couldn't find. */}
-                  {userShops.map((shop) => (
-                    <Button
-                      key={shop.id}
-                      component={Link}
-                      href={`/shops/${shop.id}`}
-                      variant="outlined"
-                      startIcon={
-                        <Icon
-                          className="ph ph-storefront"
-                          style={{ fontSize: 18 }}
-                          aria-hidden="true"
-                        />
-                      }
-                      sx={{ textTransform: "none", fontWeight: 600, borderRadius: 5, px: 3 }}
-                    >
-                      {userShops.length > 1 ? shop.name : tShopLoc("myShop")}
-                    </Button>
-                  ))}
-                </Stack>
-              )}
-
-              <ProfileInfoList user={userData} locationLine={locationFull} />
+              {userShops.map((shop) => (
+                <Button
+                  key={shop.id}
+                  component={Link}
+                  href={`/shops/${shop.id}`}
+                  variant="outlined"
+                  startIcon={
+                    <Icon
+                      className="ph ph-storefront"
+                      style={{ fontSize: 18 }}
+                      aria-hidden="true"
+                    />
+                  }
+                  sx={{ textTransform: "none", fontWeight: 600, borderRadius: 5, px: 3 }}
+                >
+                  {userShops.length > 1 ? shop.name : tShopLoc("myShop")}
+                </Button>
+              ))}
             </Stack>
-          </Box>
+          )}
+
+          <ProfileInfoList user={userData} locationLine={locationFull} />
 
           <ProfileTabs
             activeTab={activeTab}
