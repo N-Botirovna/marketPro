@@ -28,6 +28,17 @@ const baseTypography = {
     "Arial",
     "sans-serif",
   ].join(","),
+  // Phase 3 type polish — tighter, more confident headings and roomier body
+  // line-height (sizes left at MUI defaults to avoid layout shifts; this only
+  // refines weight/tracking/rhythm where MUI Typography variants are used).
+  h1: { fontWeight: 800, letterSpacing: "-0.02em" },
+  h2: { fontWeight: 800, letterSpacing: "-0.02em" },
+  h3: { fontWeight: 700, letterSpacing: "-0.02em" },
+  h4: { fontWeight: 700, letterSpacing: "-0.015em" },
+  h5: { fontWeight: 700, letterSpacing: "-0.01em" },
+  h6: { fontWeight: 700, letterSpacing: "-0.01em" },
+  body1: { lineHeight: 1.6 },
+  body2: { lineHeight: 1.55 },
 };
 
 const buildTheme = (mode) =>

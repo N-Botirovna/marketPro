@@ -35,7 +35,7 @@ const HomeCollectionsRow = ({ limit = 6 }) => {
   if (!loading && collections.length === 0) return null;
 
   return (
-    <Box component="section" sx={{ bgcolor: "var(--surface-page)", py: { xs: 2, md: 2.75 } }}>
+    <Box component="section" sx={{ bgcolor: "var(--surface-page)", py: { xs: 2.5, md: 4 } }}>
       <Box sx={{ maxWidth: 1240, mx: "auto", px: { xs: 2, md: 3 } }}>
         <SectionHeader title={t("homeTitle")} href="/collections" seeAllLabel={t("seeAll")} />
         <CollectionRowGrid collections={collections} loading={loading} skeletonCount={limit} />
