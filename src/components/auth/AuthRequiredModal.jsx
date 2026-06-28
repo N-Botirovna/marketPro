@@ -14,7 +14,7 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
-import { loginWithPhoneOtp } from "@/services/auth";
+import { loginWithCode } from "@/services/auth";
 import { mapValidationError } from "@/lib/mapValidationError";
 import { getBotUrl } from "@/config/env";
 import Icon from "@/components/Icon";
@@ -34,9 +34,9 @@ const BOT_DEEP_LINK = getBotUrl({ start: "login" });
  *   - Primary CTA opens the Telegram bot (`?start=login`). The bot's main
  *     menu offers two flows: "auto-login link" (one-tap return to the
  *     site) and "OTP code" (paste it here).
- *   - The inline form below is the OTP fallback — phone + 4–6-digit code
- *     → POST /auth/login/. On success we close the modal and let the
- *     user retry their original action.
+ *   - The inline form below is the code-only fallback — just the 6-digit
+ *     code (no phone), matching the canonical /login page (loginWithCode).
+ *     On success we close the modal and let the user retry their action.
  *
  * Design choice: we do NOT auto-replay the failed mutation. Mutation
  * payloads can contain FormData, idempotency keys, and ephemeral file
@@ -47,7 +47,6 @@ const AuthRequiredModal = () => {
   const t = useTranslations("AuthRequiredModal");
   const tCommon = useTranslations("Common");
   const [open, setOpen] = useState(false);
-  const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -73,7 +72,7 @@ const AuthRequiredModal = () => {
     setError(null);
   };
 
-  const canSubmit = !submitting && phone.trim().length >= 9 && code.trim().length >= 4;
+  const canSubmit = !submitting && code.trim().length >= 4;
 
   const handleSubmit = async (event) => {
     event?.preventDefault?.();
@@ -81,17 +80,13 @@ const AuthRequiredModal = () => {
     setSubmitting(true);
     setError(null);
     try {
-      const res = await loginWithPhoneOtp({
-        phone_number: phone.trim(),
-        otp_code: code.trim(),
-      });
+      const res = await loginWithCode(code.trim());
       if (res?.access_token) {
         setSuccess(true);
         // Give the user a beat to read the success state, then close.
         // Caller-side: they retry their original action manually.
         window.setTimeout(() => {
           setOpen(false);
-          setPhone("");
           setCode("");
         }, 900);
       } else {
@@ -203,23 +198,13 @@ const AuthRequiredModal = () => {
               <TextField
                 fullWidth
                 size="small"
-                type="tel"
-                label={t("phoneLabel")}
-                placeholder="+998 9X XXX XX XX"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                autoComplete="tel"
-                disabled={submitting}
-              />
-              <TextField
-                fullWidth
-                size="small"
                 label={t("codeLabel")}
                 placeholder="123456"
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
                 inputMode="numeric"
                 autoComplete="one-time-code"
+                autoFocus
                 disabled={submitting}
               />
               {error && (
