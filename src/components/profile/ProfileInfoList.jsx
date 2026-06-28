@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useTranslations } from "next-intl";
-import { Box, Stack, Typography, Divider } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import Icon from "@/components/Icon";
 
 const Row = ({ icon, label, value, href }) => {
@@ -151,11 +151,21 @@ const ProfileInfoList = ({ user, locationLine, locale }) => {
       >
         {t("infoTitle")}
       </Typography>
-      <Stack divider={<Divider flexItem />}>
+      {/* Contact items flow into as many columns as the card width allows, so
+          the card fills a full-width profile instead of being a sparse single
+          column. One column on phones. */}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", sm: "repeat(auto-fit, minmax(220px, 1fr))" },
+          columnGap: 3,
+          rowGap: 0.5,
+        }}
+      >
         {rows.map((row) => (
           <Row key={row.key} icon={row.icon} label={row.label} value={row.value} href={row.href} />
         ))}
-      </Stack>
+      </Box>
     </Box>
   );
 };
