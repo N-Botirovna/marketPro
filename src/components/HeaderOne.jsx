@@ -505,6 +505,21 @@ const HeaderOne = () => {
           }
         }
 
+        /* Desktop (>= lg): the app-shell side rail owns the brand + primary
+           nav (and the footer owns the secondary links), so the header sheds
+           its logo and hamburger and becomes a slim top utility bar — theme,
+           language, profile — right-aligned via the .kz-header__right auto
+           margin. The drawer close button (also .kz-header__icon-btn, but
+           inside .kz-drawer__head) is unaffected by the child combinator. */
+        @media (min-width: 992px) {
+          :global(.kz-header__logo) {
+            display: none;
+          }
+          .kz-header__inner > .kz-header__icon-btn {
+            display: none;
+          }
+        }
+
         .kz-header__icon-btn {
           width: 36px;
           height: 36px;

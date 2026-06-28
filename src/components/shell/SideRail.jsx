@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import Icon from "@/components/Icon";
@@ -23,6 +24,11 @@ export default function SideRail() {
 
   return (
     <aside className="kz-rail" aria-label={t("Nav.primary")}>
+      <Link href="/" className="kz-rail__brand" aria-label="Kitobzor">
+        <span className="kz-rail__brand-mark" aria-hidden="true">
+          <Image src="/assets/images/logo/kitobzor-logo.png" alt="" width={40} height={40} />
+        </span>
+      </Link>
       <ul className="kz-rail__list">
         {RAIL_NAV.map((item) => {
           const active = isNavItemActive(item, pathname);
@@ -53,8 +59,6 @@ export default function SideRail() {
           z-index: 95;
           background: var(--surface-card);
           border-right: 1px solid var(--border-subtle);
-          /* Clear the top header band so the first item sits below it. */
-          padding-top: 76px;
           display: none;
           overflow-y: auto;
           overscroll-behavior: contain;
@@ -64,6 +68,33 @@ export default function SideRail() {
           .kz-rail {
             display: block;
           }
+        }
+
+        /* Brand sits at the very top, aligned to the header band height — on
+           desktop the header sheds its own logo, so this is THE brand mark. */
+        .kz-rail :global(.kz-rail__brand) {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 64px;
+          border-bottom: 1px solid var(--border-subtle);
+          text-decoration: none;
+        }
+        .kz-rail__brand-mark {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          overflow: hidden;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--brand-soft);
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        }
+        .kz-rail__brand-mark :global(img) {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
 
         .kz-rail__list {
