@@ -95,6 +95,7 @@ const CardSelect = ({ options, value, onChange, getLabel, getCaption }) => (
             cursor: "pointer",
             textAlign: "left",
             transition: "border-color 0.15s ease, background-color 0.15s ease",
+            "&:hover": selected ? undefined : { borderColor: "primary.light" },
           }}
         >
           <Box
