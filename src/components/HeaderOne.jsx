@@ -12,6 +12,7 @@ import { openSellerModal } from "@/lib/sellerModal";
 import Icon from "@/components/Icon";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSwitcher from "./LanguageSwitcher";
+import SearchBar from "./shell/SearchBar";
 
 /**
  * Telegram-inspired header.
@@ -158,6 +159,13 @@ const HeaderOne = () => {
             <span className="kz-header__logo-text">kitobzor</span>
           </Link>
 
+          {/* Desktop search — fills the space the logo/hamburger vacate on the
+              app-shell header (≥ lg). Hidden below lg, where it drops to a
+              full-width row under the bar (see kz-header__search-row). */}
+          <div className="kz-header__search-slot">
+            <SearchBar />
+          </div>
+
           {/* Right cluster: theme · language · profile. All three stay
               visible on every breakpoint — settings shouldn't disappear
               on mobile. They simply tighten up below 576px. */}
@@ -241,6 +249,12 @@ const HeaderOne = () => {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Mobile/tablet (< lg) search — a full-width row under the top bar,
+            an app-like pattern that keeps the tight top row uncrowded. */}
+        <div className="kz-header__search-row">
+          <SearchBar />
         </div>
       </header>
 
@@ -502,6 +516,48 @@ const HeaderOne = () => {
         @media (min-width: 992px) {
           .kz-header__right {
             gap: 6px;
+          }
+        }
+
+        /* Desktop (>= lg): the app-shell side rail owns the brand + primary
+           nav (and the footer owns the secondary links), so the header sheds
+           its logo and hamburger and becomes a slim top utility bar — theme,
+           language, profile — right-aligned via the .kz-header__right auto
+           margin. The drawer close button (also .kz-header__icon-btn, but
+           inside .kz-drawer__head) is unaffected by the child combinator. */
+        @media (min-width: 992px) {
+          :global(.kz-header__logo) {
+            display: none;
+          }
+          .kz-header__inner > .kz-header__icon-btn {
+            display: none;
+          }
+        }
+
+        /* Global search. Desktop (>= lg): inline in the top bar, filling the
+           space the logo/hamburger vacated, utilities pushed right by the auto
+           margin. Below lg: hidden inline, shown as a full-width row instead. */
+        .kz-header__search-slot {
+          display: none;
+        }
+        @media (min-width: 992px) {
+          .kz-header__search-slot {
+            display: block;
+            flex: 0 1 520px;
+            margin-right: auto;
+          }
+        }
+        .kz-header__search-row {
+          padding: 0 8px 10px;
+        }
+        @media (min-width: 576px) {
+          .kz-header__search-row {
+            padding: 0 12px 12px;
+          }
+        }
+        @media (min-width: 992px) {
+          .kz-header__search-row {
+            display: none;
           }
         }
 

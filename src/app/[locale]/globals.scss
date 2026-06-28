@@ -50,9 +50,12 @@
 
 // ─── Theme tokens (light = default, dark = `[data-theme="dark"]`) ────────────
 :root {
-  --surface-page: #f4f5f7;
+  // Ultra-clean minimal (Phase 3): an airier near-white page so white cards
+  // read as content on a calm canvas, delineated by hairline borders + very
+  // light shadows rather than heavy elevation.
+  --surface-page: #f7f8fa;
   --surface-card: #ffffff;
-  --surface-muted: #f8fafc;
+  --surface-muted: #f6f8fb;
   --surface-elevated: #ffffff;
 
   --text-primary: #0f172a;
@@ -60,11 +63,21 @@
   --text-muted: #64748b;
   --text-on-brand: #ffffff;
 
+  // Brand accent (Kitobzor green — mirrors _variable.scss --main + MUI primary).
+  // Single source for app-shell active states, CTAs, brand chrome.
+  --brand: hsl(150, 55%, 35%);
+  --brand-strong: hsl(150, 55%, 27%);
+  --brand-soft: hsla(150, 55%, 35%, 0.12);
+
+  // App-shell desktop side rail width (content is offset by this on ≥ lg).
+  --rail-w: 84px;
+  --rail-w-xl: 92px;
+
   --border-subtle: rgba(15, 23, 42, 0.08);
   --border-strong: rgba(15, 23, 42, 0.16);
 
-  --shadow-card: 0 2px 6px rgba(15, 23, 42, 0.06);
-  --shadow-elevated: 0 4px 12px rgba(15, 23, 42, 0.1);
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-elevated: 0 4px 10px rgba(15, 23, 42, 0.07);
 
   // ── Design-system scales (minimalist / professional) ──────────────────────
   // Opt-in tokens so surfaces share one rhythm. Existing components keep their
@@ -77,13 +90,14 @@
   --radius-xl: 22px;
   --radius-pill: 999px;
 
-  // Elevation (soft, low-contrast — depth without heaviness)
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06);
-  --shadow-hover: 0 6px 18px rgba(15, 23, 42, 0.09);
-  --shadow-pop: 0 14px 36px rgba(15, 23, 42, 0.14);
+  // Elevation (ultra-minimal — hairline borders do most of the delineation;
+  // shadows are a whisper, lifting only on interaction).
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-hover: 0 4px 14px rgba(15, 23, 42, 0.07);
+  --shadow-pop: 0 12px 30px rgba(15, 23, 42, 0.1);
 
   // Focus ring (keyboard a11y) — brand-tinted, consistent everywhere
-  --ring: 0 0 0 3px hsl(148 59% 39% / 0.35);
+  --ring: 0 0 0 3px hsl(150 55% 35% / 0.35);
 
   // Motion — one easing/duration language across the app
   --dur-fast: 0.15s;
@@ -109,6 +123,11 @@
   --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
 
+  // Brand reads brighter on dark surfaces so active states stay legible.
+  --brand: hsl(150, 55%, 52%);
+  --brand-strong: hsl(150, 55%, 62%);
+  --brand-soft: hsla(150, 55%, 52%, 0.18);
+
   // Global headings use `color: hsl(var(--heading-color))` (_typography.scss).
   // Light value (#121535) was dark-on-dark in dark mode (QA B-3). Flip to a
   // light HSL triplet so every h1–h6 on a dark surface is legible.
@@ -122,7 +141,7 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-hover: 0 6px 18px rgba(0, 0, 0, 0.5);
   --shadow-pop: 0 14px 36px rgba(0, 0, 0, 0.6);
-  --ring: 0 0 0 3px hsl(148 59% 49% / 0.45);
+  --ring: 0 0 0 3px hsl(150 55% 49% / 0.45);
 
   color-scheme: dark;
 }
@@ -142,6 +161,30 @@ body,
 body {
   background-color: var(--surface-page);
   color: var(--text-primary);
+}
+
+// App-shell bottom tab bar (mobile/tablet < lg) is fixed over the content;
+// reserve space so the last row / footer isn't hidden behind it. Desktop
+// (>= lg) uses the side rail and needs no bottom inset.
+@media (max-width: 991.98px) {
+  body {
+    --bottom-nav-h: 60px;
+    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+// App-shell side rail (desktop ≥ lg) is fixed on the left; offset the whole
+// document (sticky header + content both shift since the header is in flow)
+// so nothing sits under the rail.
+@media (min-width: 992px) {
+  body {
+    padding-left: var(--rail-w, 84px);
+  }
+}
+@media (min-width: 1280px) {
+  body {
+    padding-left: var(--rail-w-xl, 92px);
+  }
 }
 
 // In dark mode, many Bootstrap-styled cards/sections in legacy markup still

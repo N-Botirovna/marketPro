@@ -9,10 +9,12 @@ import { getResolvedTheme, subscribeTheme } from "@/lib/theme";
 // NOTE: CssBaseline is intentionally NOT applied — the project depends on
 // Bootstrap 5 for layout/utilities, and CssBaseline would strip those
 // margins/borders/typography.
+// Mirrors _variable.scss --main-h/s/l (150 / 55% / 35%, deepened in Phase 3)
+// and the --brand tokens in globals.scss. Keep all three in sync.
 const BRAND = {
-  main: "hsl(148, 59%, 39%)",
-  light: "hsl(148, 59%, 90%)",
-  dark: "hsl(148, 59%, 31%)",
+  main: "hsl(150, 55%, 35%)",
+  light: "hsl(150, 55%, 90%)",
+  dark: "hsl(150, 55%, 27%)",
   contrastText: "#ffffff",
 };
 
@@ -45,7 +47,8 @@ const buildTheme = (mode) =>
             divider: "rgba(255, 255, 255, 0.12)",
           }
         : {
-            background: { default: "#f4f5f7", paper: "#ffffff" },
+            // Sync with --surface-page (globals.scss) — airier near-white page.
+            background: { default: "#f7f8fa", paper: "#ffffff" },
           }),
     },
     // NOTE: do NOT set `shape.borderRadius` here — in MUI it multiplies every
@@ -82,7 +85,8 @@ const buildTheme = (mode) =>
         styleOverrides: {
           paper: {
             borderRadius: 12,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
+            // Ultra-minimal: lighter, cooler menu elevation.
+            boxShadow: "0 8px 28px rgba(15,23,42,0.10)",
           },
         },
       },
