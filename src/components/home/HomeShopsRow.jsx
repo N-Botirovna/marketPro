@@ -42,7 +42,7 @@ const HomeShopsRow = ({ initialShops }) => {
   if (!loading && shops.length === 0) return null;
 
   return (
-    <Box sx={{ bgcolor: "var(--surface-page)", py: { xs: 2, md: 3 } }}>
+    <Box sx={{ bgcolor: "var(--surface-page)", py: { xs: 2.5, md: 4 } }}>
       <Box sx={{ maxWidth: 1240, mx: "auto", px: { xs: 2, md: 3 } }}>
         <SectionHeader title={t("title")} href="/shops" seeAllLabel={t("seeAll")} size="lg" />
 

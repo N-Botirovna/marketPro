@@ -53,7 +53,7 @@ const HomeBookList = ({ type, ownerType, titleKey, viewAllHref, limit = 6, initi
   if (!loading && books.length === 0) return null;
 
   return (
-    <Box component="section" sx={{ bgcolor: "var(--surface-page)", py: { xs: 2, md: 2.75 } }}>
+    <Box component="section" sx={{ bgcolor: "var(--surface-page)", py: { xs: 2.5, md: 4 } }}>
       <Box sx={{ maxWidth: 1240, mx: "auto", px: { xs: 2, md: 3 } }}>
         <SectionHeader title={t(titleKey)} href={viewAllHref} seeAllLabel={t("seeAll")} />
 

@@ -16,26 +16,26 @@ import Icon from "@/components/Icon";
  * - href        optional "see all" target (next-intl Link)
  * - seeAllLabel label for the see-all link (required when `href` is set)
  * - as          heading level/tag (default "h2")
- * - size        "md" (16/18px) default | "lg" (17/20px) for top-level rows
+ * - size        "md" (16/19px) default | "lg" (18/22px) for top-level rows
  */
 const SectionHeader = ({ title, href, seeAllLabel, as = "h2", size = "md" }) => {
-  const fontSize = size === "lg" ? { xs: 17, md: 20 } : { xs: 16, md: 18 };
+  const fontSize = size === "lg" ? { xs: 18, md: 22 } : { xs: 16, md: 19 };
 
   return (
-    <Stack direction="row" spacing={2} sx={{ alignItems: "center", mb: 1.5, minHeight: 32 }}>
+    <Stack direction="row" spacing={2} sx={{ alignItems: "center", mb: 2, minHeight: 32 }}>
       <Typography
         component={as}
         sx={{
           flex: 1,
           minWidth: 0,
           fontSize,
-          fontWeight: 700,
-          letterSpacing: "-0.01em",
+          fontWeight: 800,
+          letterSpacing: "-0.02em",
           color: "var(--text-primary)",
           overflow: "hidden",
           textOverflow: "ellipsis",
           whiteSpace: "nowrap",
-          lineHeight: 1.25,
+          lineHeight: 1.2,
         }}
       >
         {title}
