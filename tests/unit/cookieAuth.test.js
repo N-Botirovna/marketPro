@@ -25,7 +25,7 @@ import { COOKIE_REFRESH } from "@/config";
 import { setItem } from "@/utils/storage";
 import {
   refreshAccessToken,
-  loginWithPhoneOtp,
+  loginWithCode,
   isRefreshTokenExpired,
   hasRefreshSession,
   logoutUser,
@@ -55,7 +55,7 @@ describe("cookie-mode auth (C-4)", () => {
     post.mockResolvedValue({
       data: { access_token: "AAA", refresh_token: "RRR", expires_in_seconds: 4800 },
     });
-    await loginWithPhoneOtp({ phone_number: "+998900000000", otp_code: "123456" });
+    await loginWithCode("123456");
     const keys = setItem.mock.calls.map((c) => c[0]);
     expect(keys).toContain("auth_token");
     expect(keys).toContain("login_time");
