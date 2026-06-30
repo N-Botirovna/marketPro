@@ -110,7 +110,7 @@ const ShopDetailPage = ({ shopId }) => {
     const name = shop?.name || "Kitobzor";
     openShareSheet({
       title: name,
-      text: `${name} — Kitobzor`,
+      text: tShare("shopCaption", { name }),
       url: typeof window !== "undefined" ? window.location.pathname : "",
     });
   };

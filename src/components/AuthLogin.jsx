@@ -100,8 +100,8 @@ const AuthLogin = () => {
                 onSubmit={handleSubmit}
                 style={{
                   background: "var(--surface-card)",
-                  borderRadius: 20,
-                  boxShadow: "0 12px 40px rgba(0,0,0,0.10)",
+                  borderRadius: "var(--radius-xl, 22px)",
+                  boxShadow: "var(--shadow-pop, 0 14px 36px rgba(15,23,42,0.14))",
                   border: "1px solid var(--border-subtle)",
                   padding: "32px 26px",
                 }}
@@ -151,7 +151,7 @@ const AuthLogin = () => {
                     fontWeight: 700,
                     fontSize: "0.98rem",
                     padding: "13px 20px",
-                    borderRadius: 12,
+                    borderRadius: "var(--radius-md, 12px)",
                     textDecoration: "none",
                     boxShadow: "0 8px 20px rgba(0,136,204,0.30)",
                   }}
@@ -192,15 +192,8 @@ const AuthLogin = () => {
                   value={code}
                   onChange={handleChange}
                   maxLength={CODE_LENGTH}
-                  className="common-input"
+                  className="kz-otp-input"
                   aria-label={tAuth("codeLabel")}
-                  style={{
-                    textAlign: "center",
-                    fontSize: "1.7rem",
-                    letterSpacing: "0.55em",
-                    padding: "14px 12px 14px 18px",
-                    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                  }}
                   aria-describedby="otp-hint"
                 />
                 <small

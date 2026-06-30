@@ -2,10 +2,8 @@
 
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
-import { usePathname, useRouter } from "@/i18n/navigation";
-import { isAuthenticated, getUserProfile } from "@/services/auth";
-import { openPostChooser } from "@/lib/postBookModal";
-import { isProfileComplete } from "@/utils/profile";
+import { usePathname } from "@/i18n/navigation";
+import { usePostBookAction } from "@/hooks/usePostBookAction";
 import Icon from "@/components/Icon";
 
 const HIDDEN_SUFFIXES = ["/login", "/auth/auto"];
@@ -27,38 +25,13 @@ const shouldHide = (pathname) => {
  */
 const PostBookFab = () => {
   const t = useTranslations("Fab");
-  const router = useRouter();
   const pathname = usePathname();
   const [hovered, setHovered] = useState(false);
-  const [checking, setChecking] = useState(false);
+  // Shared "post a book" gate (login → profile → chooser). Same hook backs the
+  // bottom tab bar's center "+" so both entry-points behave identically.
+  const { trigger, checking } = usePostBookAction();
 
   if (shouldHide(pathname)) return null;
-
-  const handleClick = async () => {
-    // Step 1 — must be logged in. Carry the current page so login returns here.
-    if (!isAuthenticated()) {
-      const next = encodeURIComponent(pathname || "/");
-      router.push(`/login?next=${next}`);
-      return;
-    }
-    // Step 2 — must have a complete profile (region + district). Check the
-    // live profile, then either route to the profile editor or open the
-    // create modal. If the check itself fails (network), fall through and
-    // let the backend's `profile_incomplete` guard have the final say.
-    setChecking(true);
-    try {
-      const { user } = await getUserProfile();
-      if (!isProfileComplete(user)) {
-        router.push("/account?complete=book");
-        return;
-      }
-      openPostChooser();
-    } catch {
-      openPostChooser();
-    } finally {
-      setChecking(false);
-    }
-  };
 
   return (
     <>
@@ -72,7 +45,7 @@ const PostBookFab = () => {
         </span>
         <button
           type="button"
-          onClick={handleClick}
+          onClick={trigger}
           disabled={checking}
           aria-busy={checking}
           aria-label={t("postBookAria")}
@@ -100,6 +73,14 @@ const PostBookFab = () => {
           gap: 10px;
           /* Safe-area for iOS home-bar */
           margin-bottom: env(safe-area-inset-bottom, 0);
+        }
+
+        /* Mobile/tablet (< lg) post via the bottom tab bar's center "+" — the
+           floating FAB would collide with it, so it's desktop-only now. */
+        @media (max-width: 991.98px) {
+          .post-book-fab__wrap {
+            display: none;
+          }
         }
 
         .post-book-fab__label {

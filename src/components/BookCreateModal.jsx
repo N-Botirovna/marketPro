@@ -95,6 +95,7 @@ const CardSelect = ({ options, value, onChange, getLabel, getCaption }) => (
             cursor: "pointer",
             textAlign: "left",
             transition: "border-color 0.15s ease, background-color 0.15s ease",
+            "&:hover": selected ? undefined : { borderColor: "primary.light" },
           }}
         >
           <Box
@@ -1025,18 +1026,47 @@ const BookCreateModal = ({
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
+            gap: 1,
             px: { xs: 2, md: 3 },
             py: 1.5,
           }}
         >
-          <Typography sx={{ fontSize: 16, fontWeight: 700 }}>
+          <Typography
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              fontSize: 16,
+              fontWeight: 700,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
             {editBook ? t("editBook") : t("addBook")}
           </Typography>
-          <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>
-            {step + 1} / {steps.length}
-          </Typography>
-          <IconButton onClick={onClose} aria-label={tCommon("cancel")} size="small">
+          {/* Step pill — compact, right-aligned, never crowds the title on a
+              360px screen (was a bare counter floating in the header centre). */}
+          <Box
+            component="span"
+            sx={{
+              flexShrink: 0,
+              fontSize: 12,
+              fontWeight: 700,
+              color: "var(--text-secondary)",
+              bgcolor: "var(--surface-muted)",
+              px: 1,
+              py: 0.25,
+              borderRadius: 999,
+            }}
+          >
+            {step + 1}/{steps.length}
+          </Box>
+          <IconButton
+            onClick={onClose}
+            aria-label={tCommon("cancel")}
+            size="small"
+            sx={{ flexShrink: 0 }}
+          >
             <Icon className="ph ph-x" style={{ fontSize: 18 }} aria-hidden="true" />
           </IconButton>
         </Box>

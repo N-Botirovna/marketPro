@@ -9,10 +9,12 @@ import { getResolvedTheme, subscribeTheme } from "@/lib/theme";
 // NOTE: CssBaseline is intentionally NOT applied — the project depends on
 // Bootstrap 5 for layout/utilities, and CssBaseline would strip those
 // margins/borders/typography.
+// Mirrors _variable.scss --main-h/s/l (150 / 55% / 35%, deepened in Phase 3)
+// and the --brand tokens in globals.scss. Keep all three in sync.
 const BRAND = {
-  main: "hsl(148, 59%, 39%)",
-  light: "hsl(148, 59%, 90%)",
-  dark: "hsl(148, 59%, 31%)",
+  main: "hsl(150, 55%, 35%)",
+  light: "hsl(150, 55%, 90%)",
+  dark: "hsl(150, 55%, 27%)",
   contrastText: "#ffffff",
 };
 
@@ -26,6 +28,17 @@ const baseTypography = {
     "Arial",
     "sans-serif",
   ].join(","),
+  // Phase 3 type polish — tighter, more confident headings and roomier body
+  // line-height (sizes left at MUI defaults to avoid layout shifts; this only
+  // refines weight/tracking/rhythm where MUI Typography variants are used).
+  h1: { fontWeight: 800, letterSpacing: "-0.02em" },
+  h2: { fontWeight: 800, letterSpacing: "-0.02em" },
+  h3: { fontWeight: 700, letterSpacing: "-0.02em" },
+  h4: { fontWeight: 700, letterSpacing: "-0.015em" },
+  h5: { fontWeight: 700, letterSpacing: "-0.01em" },
+  h6: { fontWeight: 700, letterSpacing: "-0.01em" },
+  body1: { lineHeight: 1.6 },
+  body2: { lineHeight: 1.55 },
 };
 
 const buildTheme = (mode) =>
@@ -45,21 +58,46 @@ const buildTheme = (mode) =>
             divider: "rgba(255, 255, 255, 0.12)",
           }
         : {
-            background: { default: "#f4f5f7", paper: "#ffffff" },
+            // Sync with --surface-page (globals.scss) — airier near-white page.
+            background: { default: "#f7f8fa", paper: "#ffffff" },
           }),
     },
+    // NOTE: do NOT set `shape.borderRadius` here — in MUI it multiplies every
+    // numeric `borderRadius` in `sx` app-wide (e.g. `borderRadius: 3` → 3×),
+    // which over-rounds dialogs/cards. Round inputs explicitly instead (below).
     typography: baseTypography,
     components: {
       MuiButton: {
         styleOverrides: {
-          root: { textTransform: "none", borderRadius: 8 },
+          root: { textTransform: "none", borderRadius: 10, fontWeight: 600 },
+        },
+      },
+      // Round inputs/selects to match the app's rounded aesthetic (the original
+      // MUI 4px looked sharp next to the rounded cards) — px value, so it does
+      // NOT cascade into the `sx` borderRadius multiplier.
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: { borderRadius: 10 },
+        },
+      },
+      // Dialogs that don't set their own PaperProps still get a soft, rounded
+      // surface (the big form modals override this with full-screen-on-mobile).
+      MuiDialog: {
+        styleOverrides: {
+          paper: { borderRadius: 16 },
+        },
+      },
+      MuiChip: {
+        styleOverrides: {
+          root: { fontWeight: 600 },
         },
       },
       MuiMenu: {
         styleOverrides: {
           paper: {
             borderRadius: 12,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
+            // Ultra-minimal: lighter, cooler menu elevation.
+            boxShadow: "0 8px 28px rgba(15,23,42,0.10)",
           },
         },
       },

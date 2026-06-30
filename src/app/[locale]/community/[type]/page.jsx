@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
-import Breadcrumb from "@/components/Breadcrumb";
 import CommunityBooksPage from "@/components/CommunityBooksPage";
 import ColorInit from "@/helper/ColorInit";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
@@ -30,13 +29,10 @@ const Page = async ({ params }) => {
     notFound();
   }
 
-  const tCommunity = await getTranslations("CommunityPage");
-
   return (
     <>
       <ColorInit color={true} />
       <ScrollToTopInit color="#299E60" />
-      <Breadcrumb title={tCommunity(`title.${type}`)} />
       <CommunityBooksPage type={type} />
       <FooterOne />
       <BottomFooter />

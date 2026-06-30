@@ -214,10 +214,13 @@ $font-sizes: (
   --display-one: clamp(2.5rem, -0.0733rem + 6.3692vw, 7.5rem); // Min:40px - Max:120px
   /* Font Size End */
 
-  /* template main color */
-  --main-h: 148;
-  --main-s: 59%;
-  --main-l: 39%;
+  /* template main color — deepened/de-noised for a premium feel (Phase 3
+     design language). Kept in the same green family; the whole 50–900 scale
+     and every legacy green derive from these. Mirrored in MUI theme
+     (MaterialThemeProvider BRAND) and the --brand tokens (globals.scss). */
+  --main-h: 150;
+  --main-s: 55%;
+  --main-l: 35%;
   --main: var(--main-h) var(--main-s) var(--main-l);
 
   /* template main color */

@@ -1,7 +1,6 @@
 import "./home.scss";
 import dynamic from "next/dynamic";
 import BannerOne from "@/components/BannerOne";
-import HomeMainEntryChips from "@/components/home/HomeMainEntryChips";
 import HomeStoryBar from "@/components/home/HomeStoryBar";
 import HomeShopsRow from "@/components/home/HomeShopsRow";
 import HomeCollectionsRow from "@/components/home/HomeCollectionsRow";
@@ -107,7 +106,6 @@ const page = async ({ params }) => {
       <ScrollToTopInit color="#299E60" />
       <ColorInit color={false} />
       <BannerOne />
-      <HomeMainEntryChips />
       <HomeStoryBar initialStories={initialStories} />
       <HomeShopsRow initialShops={initialShops} />
       <HomeCollectionsRow />

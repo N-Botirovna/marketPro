@@ -1,7 +1,5 @@
 import dynamic from "next/dynamic";
-import { getTranslations } from "next-intl/server";
 import ProfileDashboard from "@/components/ProfileDashboard";
-import Breadcrumb from "@/components/Breadcrumb";
 import ColorInit from "@/helper/ColorInit";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
 
@@ -20,10 +18,7 @@ export const metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 
-const page = async ({ params }) => {
-  const { locale } = await params;
-  const tBreadcrumb = await getTranslations("Breadcrumb");
-
+const page = async () => {
   return (
     <>
       {/* ColorInit */}
@@ -31,9 +26,6 @@ const page = async ({ params }) => {
 
       {/* ScrollToTop */}
       <ScrollToTopInit color="#FA6400" />
-
-      {/* Breadcrumb */}
-      <Breadcrumb title={tBreadcrumb("myAccount")} />
 
       {/* ProfileDashboard */}
       <ProfileDashboard />

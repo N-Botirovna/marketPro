@@ -22,10 +22,11 @@ import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { localizedField } from "@/utils/localizedField";
 import { bookTypeVisual, bookTypeI18nKey } from "@/utils/bookType";
 import { bookLanguageKey } from "@/utils/bookLanguage";
-import { useRouter, usePathname } from "@/i18n/navigation";
+import { useRouter, usePathname, Link } from "@/i18n/navigation";
 import Icon from "@/components/Icon";
 import { getContactActions } from "@/utils/contactActions";
 import { mapValidationError } from "@/lib/mapValidationError";
+import EmptyState from "@/components/shared/EmptyState";
 import BookCreateModal from "./BookCreateModal";
 import MoreFromSellerSection from "./MoreFromSellerSection";
 import { useToast } from "./Toast";
@@ -155,10 +156,13 @@ const BookDetails = ({ bookId }) => {
   const handleShare = () => {
     if (!book) return;
     const bookTitle = localizedField(book, "name", locale) || tBook("untitled");
+    const bookAuthor = localizedField(book, "author", locale);
     trackEvent("book_share", { book_id: book.id });
     openShareSheet({
       title: bookTitle,
-      text: `${bookTitle} — Kitobzor`,
+      text: bookAuthor
+        ? tShare("bookCaption", { name: bookTitle, author: bookAuthor })
+        : tShare("bookCaptionNoAuthor", { name: bookTitle }),
       url: typeof window !== "undefined" ? window.location.pathname : "",
     });
   };
@@ -211,18 +215,28 @@ const BookDetails = ({ bookId }) => {
     );
   }
 
-  if (error) {
+  // Error and "not found" share one calm, centered empty-state: an icon, a
+  // clear message, and a way out (browse all books) so the page is never a
+  // dead end.
+  if (error || !book) {
+    const isError = Boolean(error);
     return (
-      <Box sx={{ maxWidth: 720, mx: "auto", px: 2, py: 5, textAlign: "center" }}>
-        <Typography color="error">{error}</Typography>
-      </Box>
-    );
-  }
-
-  if (!book) {
-    return (
-      <Box sx={{ maxWidth: 720, mx: "auto", px: 2, py: 5, textAlign: "center" }}>
-        <Typography sx={{ color: "var(--text-muted)" }}>{tBook("notFound")}</Typography>
+      <Box sx={{ maxWidth: 560, mx: "auto", px: 2 }}>
+        <EmptyState
+          icon={isError ? "ph ph-warning-circle" : "ph ph-book-open"}
+          title={isError ? error : tBook("notFound")}
+        >
+          <Button
+            component={Link}
+            href="/community/all"
+            variant="contained"
+            disableElevation
+            startIcon={<Icon className="ph ph-books" />}
+            sx={{ textTransform: "none", fontWeight: 700, borderRadius: 2 }}
+          >
+            {tCommon("viewAll")}
+          </Button>
+        </EmptyState>
       </Box>
     );
   }
@@ -290,7 +304,7 @@ const BookDetails = ({ bookId }) => {
         py: { xs: 2.5, md: 4 },
       }}
     >
-      <Box sx={{ maxWidth: 980, mx: "auto", px: { xs: 2, md: 3 } }}>
+      <Box className="kz-fade-up" sx={{ maxWidth: 980, mx: "auto", px: { xs: 2, md: 3 } }}>
         {/* ─── Top: cover + main meta ─────────────────────────────── */}
         <Stack
           direction={{ xs: "column", md: "row" }}

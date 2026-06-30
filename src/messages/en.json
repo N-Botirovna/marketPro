@@ -76,6 +76,15 @@
     "language": "Language",
     "aboutUs": "About us"
   },
+  "Nav": {
+    "primary": "Primary navigation",
+    "home": "Home",
+    "books": "Books",
+    "post": "Post",
+    "collections": "Collections",
+    "profile": "Profile",
+    "shops": "Shops"
+  },
   "Common": {
     "location": "Location",
     "seller": "Seller",
@@ -1004,7 +1013,11 @@
     "targetEmail": "Email",
     "targetCopy": "Copy link",
     "targetInstagram": "Instagram",
-    "instagramHint": "Link copied — paste it in your Instagram story or DM"
+    "instagramHint": "Link copied — paste it in your Instagram story or DM",
+    "bookCaption": "📖 “{name}” — {author}\nDetails and seller contact — at the link",
+    "bookCaptionNoAuthor": "📖 “{name}”\nDetails and seller contact — at the link",
+    "shopCaption": "🏬 “{name}” — a shop on Kitobzor\nIts books and address — at the link",
+    "profileCaption": "👤 {name} — a profile on Kitobzor\nTheir books — at the link"
   },
   "Vendor": {
     "searchPlaceholder": "Search shops by name...",

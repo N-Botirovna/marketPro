@@ -76,6 +76,15 @@
     "language": "Til",
     "aboutUs": "Biz haqimizda"
   },
+  "Nav": {
+    "primary": "Asosiy navigatsiya",
+    "home": "Asosiy",
+    "books": "Kitoblar",
+    "post": "Joylash",
+    "collections": "To'plamlar",
+    "profile": "Profil",
+    "shops": "Do'konlar"
+  },
   "Common": {
     "location": "Joylashuv",
     "seller": "Sotuvchi",
@@ -1004,7 +1013,11 @@
     "targetEmail": "Email",
     "targetCopy": "Havolani nusxalash",
     "targetInstagram": "Instagram",
-    "instagramHint": "Havola nusxalandi — Instagram'da story yoki DM'ga qo'ying"
+    "instagramHint": "Havola nusxalandi — Instagram'da story yoki DM'ga qo'ying",
+    "bookCaption": "📖 «{name}» — {author}\nTafsilotlar va egasi bilan bog'lanish — havolada",
+    "bookCaptionNoAuthor": "📖 «{name}»\nTafsilotlar va egasi bilan bog'lanish — havolada",
+    "shopCaption": "🏬 «{name}» — Kitobzor'dagi do'kon\nKitoblari va manzili havolada",
+    "profileCaption": "👤 {name} — Kitobzor'dagi profil\nJoylagan kitoblari havolada"
   },
   "Vendor": {
     "searchPlaceholder": "Do'kon nomi bo'yicha qidiring...",

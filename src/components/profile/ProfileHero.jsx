@@ -59,136 +59,152 @@ const ProfileHero = ({
         boxShadow: "var(--shadow-card)",
       }}
     >
-      <Stack spacing={2} sx={{ alignItems: "center" }}>
-        <Box sx={{ position: "relative", display: "inline-block" }}>
-          <Avatar
-            src={user?.picture || undefined}
-            alt={fullName}
-            sx={{
-              width: { xs: 100, md: 140 },
-              height: { xs: 100, md: 140 },
-              fontSize: { xs: 36, md: 48 },
-              bgcolor: "primary.light",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-            }}
-          >
-            {initial}
-          </Avatar>
-          <IconButton
-            onClick={() => fileInputRef.current?.click()}
-            disabled={avatarUploading}
-            aria-label={t("cameraButton")}
-            sx={{
-              position: "absolute",
-              bottom: 0,
-              right: 0,
-              width: 36,
-              height: 36,
-              bgcolor: "primary.main",
-              color: "#fff",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-              "&:hover": { bgcolor: "primary.dark" },
-              "&.Mui-disabled": { bgcolor: "grey.400", color: "#fff" },
-            }}
-          >
-            {avatarUploading ? (
-              <CircularProgress size={18} sx={{ color: "#fff" }} />
-            ) : (
-              <Icon className="ph ph-camera" style={{ fontSize: 18 }} />
-            )}
-          </IconButton>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={handleFileSelect}
-          />
-        </Box>
-
-        <Box sx={{ textAlign: "center", width: "100%" }}>
-          <Typography
-            component="h1"
-            sx={{
-              fontSize: { xs: 20, md: 24 },
-              fontWeight: 700,
-              color: "text.primary",
-              lineHeight: 1.2,
-            }}
-          >
-            {fullName}
-          </Typography>
-          {phone && (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              {phone}
-            </Typography>
-          )}
-          {(locationLine || roleLabel) && (
-            <Stack
-              direction="row"
-              spacing={1}
-              sx={{ justifyContent: "center", flexWrap: "wrap", mt: 1, rowGap: 1 }}
-            >
-              {locationLine && (
-                <Chip
-                  size="small"
-                  icon={
-                    <Icon className="ph ph-map-pin" style={{ fontSize: 14, color: "inherit" }} />
-                  }
-                  label={locationLine}
-                  sx={{
-                    bgcolor: "var(--surface-muted)",
-                    color: "var(--text-secondary)",
-                    height: 24,
-                  }}
-                />
-              )}
-              {roleLabel && (
-                <Chip
-                  size="small"
-                  label={roleLabel}
-                  color="primary"
-                  variant="outlined"
-                  sx={{ height: 24 }}
-                />
-              )}
-            </Stack>
-          )}
-        </Box>
-
+      <Stack spacing={{ xs: 2, md: 2.5 }}>
+        {/* Top row: a horizontal banner on desktop (avatar · identity · actions),
+            a centered stack on mobile. */}
         <Stack
-          direction="row"
-          spacing={1.5}
-          sx={{ flexWrap: "wrap", justifyContent: "center", rowGap: 1 }}
+          direction={{ xs: "column", md: "row" }}
+          spacing={{ xs: 2, md: 3 }}
+          sx={{ alignItems: "center" }}
         >
-          <Button
-            variant="contained"
-            onClick={onEditClick}
-            startIcon={<Icon className="ph ph-pencil-simple" style={{ fontSize: 16 }} />}
-            sx={{
-              borderRadius: 2,
-              textTransform: "none",
-              px: 3,
-              fontWeight: 600,
-            }}
+          <Box sx={{ position: "relative", flexShrink: 0 }}>
+            <Avatar
+              src={user?.picture || undefined}
+              alt={fullName}
+              sx={{
+                width: { xs: 100, md: 140 },
+                height: { xs: 100, md: 140 },
+                fontSize: { xs: 36, md: 48 },
+                bgcolor: "primary.light",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+              }}
+            >
+              {initial}
+            </Avatar>
+            <IconButton
+              onClick={() => fileInputRef.current?.click()}
+              disabled={avatarUploading}
+              aria-label={t("cameraButton")}
+              sx={{
+                position: "absolute",
+                bottom: 0,
+                right: 0,
+                width: 36,
+                height: 36,
+                bgcolor: "primary.main",
+                color: "#fff",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                "&:hover": { bgcolor: "primary.dark" },
+                "&.Mui-disabled": { bgcolor: "grey.400", color: "#fff" },
+              }}
+            >
+              {avatarUploading ? (
+                <CircularProgress size={18} sx={{ color: "#fff" }} />
+              ) : (
+                <Icon className="ph ph-camera" style={{ fontSize: 18 }} />
+              )}
+            </IconButton>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={handleFileSelect}
+            />
+          </Box>
+
+          <Box
+            sx={{ flex: 1, minWidth: 0, width: "100%", textAlign: { xs: "center", md: "left" } }}
           >
-            {t("editProfile")}
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={onShareClick}
-            startIcon={<Icon className="ph ph-share-network" style={{ fontSize: 16 }} />}
-            sx={{
-              borderRadius: 2,
-              textTransform: "none",
-              px: 3,
-              fontWeight: 600,
-            }}
+            <Typography
+              component="h1"
+              sx={{
+                fontSize: { xs: 20, md: 24 },
+                fontWeight: 700,
+                color: "text.primary",
+                lineHeight: 1.2,
+              }}
+            >
+              {fullName}
+            </Typography>
+            {phone && (
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                {phone}
+              </Typography>
+            )}
+            {(locationLine || roleLabel) && (
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  justifyContent: { xs: "center", md: "flex-start" },
+                  flexWrap: "wrap",
+                  mt: 1,
+                  rowGap: 1,
+                }}
+              >
+                {locationLine && (
+                  <Chip
+                    size="small"
+                    icon={
+                      <Icon className="ph ph-map-pin" style={{ fontSize: 14, color: "inherit" }} />
+                    }
+                    label={locationLine}
+                    sx={{
+                      bgcolor: "var(--surface-muted)",
+                      color: "var(--text-secondary)",
+                      height: 24,
+                    }}
+                  />
+                )}
+                {roleLabel && (
+                  <Chip
+                    size="small"
+                    label={roleLabel}
+                    color="primary"
+                    variant="outlined"
+                    sx={{ height: 24 }}
+                  />
+                )}
+              </Stack>
+            )}
+          </Box>
+
+          <Stack
+            direction="row"
+            spacing={1.5}
+            sx={{ flexWrap: "wrap", justifyContent: "center", rowGap: 1 }}
           >
-            {t("share")}
-          </Button>
+            <Button
+              variant="contained"
+              onClick={onEditClick}
+              startIcon={<Icon className="ph ph-pencil-simple" style={{ fontSize: 16 }} />}
+              sx={{
+                borderRadius: 2,
+                textTransform: "none",
+                px: 3,
+                fontWeight: 600,
+              }}
+            >
+              {t("editProfile")}
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={onShareClick}
+              startIcon={<Icon className="ph ph-share-network" style={{ fontSize: 16 }} />}
+              sx={{
+                borderRadius: 2,
+                textTransform: "none",
+                px: 3,
+                fontWeight: 600,
+              }}
+            >
+              {t("share")}
+            </Button>
+          </Stack>
         </Stack>
 
+        {/* Stats span the full banner width below the identity row. */}
         <Stack
           direction="row"
           divider={

@@ -32,6 +32,7 @@ const ProfileDashboard = () => {
   const tProfileMessages = useTranslations("Profile");
   const tCommon = useTranslations("Common");
   const tShopLoc = useTranslations("ShopLocation");
+  const tShare = useTranslations("Share");
   const { showToast, ToastContainer } = useToast();
   const searchParams = useSearchParams();
   const completePromptShownRef = useRef(false);
@@ -240,7 +241,7 @@ const ProfileDashboard = () => {
       [userData?.first_name, userData?.last_name].filter(Boolean).join(" ") || "Profile";
     openShareSheet({
       title: fullName,
-      text: `${fullName} — Kitobzor`,
+      text: tShare("profileCaption", { name: fullName }),
       url: `/${locale}/user/${userData?.id || ""}`,
     });
   };
@@ -607,7 +608,11 @@ const ProfileDashboard = () => {
     >
       <Box
         sx={{
-          maxWidth: 720,
+          // App-standard content width (matches community + wishlist at 1240).
+          // Was 720, which crammed the books grid — col-md-4/col-xl-3 keys off
+          // the viewport, not this box, so a wide desktop forced 4 tiny ~160px
+          // cards into a 720 column. 1240 gives the grid wishlist-parity.
+          maxWidth: 1240,
           mx: "auto",
           px: { xs: 2, md: 3 },
         }}
