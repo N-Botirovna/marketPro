@@ -36,7 +36,8 @@ const BookCard = ({
   const tProduct = useTranslations("ProductDetailsOne");
   const tType = useTranslations("BookTypeChips");
   const tShare = useTranslations("Share");
-  // tShare keys consumed: shareBook (aria/title on the share button below).
+  // tShare keys consumed: shareBook (aria/title on the share button below),
+  // bookCaption/bookCaptionNoAuthor (forwarded share caption).
   const { isAuthenticated } = useAuth();
   const { showToast, ToastContainer } = useToast();
 
@@ -90,9 +91,12 @@ const BookCard = ({
     e.preventDefault();
     e.stopPropagation();
     const bookName = getLocalizedField("name") || tBookCard("noName");
+    const bookAuthor = getLocalizedField("author");
     openShareSheet({
       title: bookName,
-      text: `${bookName} — Kitobzor`,
+      text: bookAuthor
+        ? tShare("bookCaption", { name: bookName, author: bookAuthor })
+        : tShare("bookCaptionNoAuthor", { name: bookName }),
       url: `/${locale}/book-details/${book.id}`,
     });
   };

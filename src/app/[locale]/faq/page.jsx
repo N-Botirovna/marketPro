@@ -1,6 +1,5 @@
 import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
-import Breadcrumb from "@/components/Breadcrumb";
 import FaqPage from "@/components/FaqPage";
 import ColorInit from "@/helper/ColorInit";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
@@ -54,7 +53,6 @@ const Page = async ({ params }) => {
       <ColorInit color={true} />
       <ScrollToTopInit color="#299E60" />
       <JsonLd data={[faqSchema, breadcrumbSchema]} />
-      <Breadcrumb title={tBreadcrumb("faq")} />
       <FaqPage />
       <FooterOne />
       <BottomFooter />

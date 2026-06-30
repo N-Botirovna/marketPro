@@ -1,6 +1,5 @@
 import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
-import Breadcrumb from "@/components/Breadcrumb";
 import PoliciesSection from "@/components/PoliciesSection";
 import ColorInit from "@/helper/ColorInit";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
@@ -22,13 +21,10 @@ export async function generateMetadata({ params }) {
 }
 
 const Page = async () => {
-  const tBreadcrumb = await getTranslations("Breadcrumb");
-
   return (
     <>
       <ColorInit color={true} />
       <ScrollToTopInit color="#299E60" />
-      <Breadcrumb title={tBreadcrumb("policies")} />
       <PoliciesSection />
       <FooterOne />
       <BottomFooter />

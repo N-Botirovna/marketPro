@@ -156,10 +156,13 @@ const BookDetails = ({ bookId }) => {
   const handleShare = () => {
     if (!book) return;
     const bookTitle = localizedField(book, "name", locale) || tBook("untitled");
+    const bookAuthor = localizedField(book, "author", locale);
     trackEvent("book_share", { book_id: book.id });
     openShareSheet({
       title: bookTitle,
-      text: `${bookTitle} — Kitobzor`,
+      text: bookAuthor
+        ? tShare("bookCaption", { name: bookTitle, author: bookAuthor })
+        : tShare("bookCaptionNoAuthor", { name: bookTitle }),
       url: typeof window !== "undefined" ? window.location.pathname : "",
     });
   };

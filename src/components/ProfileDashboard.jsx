@@ -32,6 +32,7 @@ const ProfileDashboard = () => {
   const tProfileMessages = useTranslations("Profile");
   const tCommon = useTranslations("Common");
   const tShopLoc = useTranslations("ShopLocation");
+  const tShare = useTranslations("Share");
   const { showToast, ToastContainer } = useToast();
   const searchParams = useSearchParams();
   const completePromptShownRef = useRef(false);
@@ -240,7 +241,7 @@ const ProfileDashboard = () => {
       [userData?.first_name, userData?.last_name].filter(Boolean).join(" ") || "Profile";
     openShareSheet({
       title: fullName,
-      text: `${fullName} — Kitobzor`,
+      text: tShare("profileCaption", { name: fullName }),
       url: `/${locale}/user/${userData?.id || ""}`,
     });
   };

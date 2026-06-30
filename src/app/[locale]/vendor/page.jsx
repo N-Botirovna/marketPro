@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
-import BreadcrumbThree from "@/components/BreadcrumbThree";
+import PageHeader from "@/components/shared/PageHeader";
 import VendorsList from "@/components/VendorsList";
 import ColorInit from "@/helper/ColorInit";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
@@ -31,8 +31,8 @@ const page = async () => {
       {/* ScrollToTop */}
       <ScrollToTopInit color="#299E60" />
 
-      {/* BreadcrumbThree */}
-      <BreadcrumbThree title={tBreadcrumb("shops")} />
+      {/* Page header */}
+      <PageHeader title={tBreadcrumb("shops")} />
 
       {/* VendorsList */}
       <VendorsList />
