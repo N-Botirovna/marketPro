@@ -1,6 +1,5 @@
 import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
-import Breadcrumb from "@/components/Breadcrumb";
 import ShopDetailPage from "@/components/ShopDetailPage";
 import ColorInit from "@/helper/ColorInit";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
@@ -110,7 +109,6 @@ const Page = async ({ params }) => {
       <ColorInit color={true} />
       <ScrollToTopInit color="#299E60" />
       <JsonLd data={[businessSchema, breadcrumbSchema]} />
-      <Breadcrumb title={tBreadcrumb("shopDetails")} />
       <ShopDetailPage shopId={id} />
       <FooterOne />
       <BottomFooter />

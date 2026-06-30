@@ -814,6 +814,83 @@ body.body-no-scroll {
   }
 }
 
+// ─── Unified page header (shared/PageHeader.jsx) ─────────────────────────────
+// Flat, app-like replacement for the legacy tinted breadcrumb banners. Lives on
+// the page surface (no band), with a slim muted trail above a confident title +
+// optional subtitle — same rhythm as the redesigned content below it.
+.kz-page-header {
+  background-color: transparent;
+
+  &__inner {
+    max-width: var(--container-max, 1200px);
+    margin: 0 auto;
+    padding: clamp(20px, 4vw, 32px) 16px clamp(8px, 2vw, 14px);
+
+    @media (min-width: 768px) {
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+  }
+
+  &__crumbs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: var(--text-muted);
+
+    i {
+      font-size: 13px;
+      color: var(--text-muted);
+      opacity: 0.7;
+    }
+  }
+
+  &__crumb-home,
+  &__crumb-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: var(--radius-sm, 6px);
+    transition: color var(--dur-fast, 0.15s) var(--ease-out, ease);
+
+    &:hover {
+      color: var(--main-600, hsl(148, 59%, 39%));
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--ring, 0 0 0 3px hsl(148 59% 39% / 0.35));
+    }
+  }
+
+  &__crumb-current {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: clamp(24px, 4vw, 32px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--text-primary);
+  }
+
+  &__subtitle {
+    margin: 8px 0 0;
+    max-width: 60ch;
+    font-size: clamp(14px, 1.6vw, 16px);
+    line-height: 1.5;
+    color: var(--text-secondary);
+  }
+}
+
 // ─── Section header "see all" link (shared/SectionHeader.jsx) ────────────────
 // Pill link to the right of a section title. Hover/focus live here (CSS) rather
 // than as inline JS handlers, and the caret nudges right on hover for a subtle,

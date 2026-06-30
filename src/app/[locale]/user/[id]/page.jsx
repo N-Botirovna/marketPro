@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
-import Breadcrumb from "@/components/Breadcrumb";
+import PageHeader from "@/components/shared/PageHeader";
 import UserPublicProfile from "@/components/UserPublicProfile";
 import ColorInit from "@/helper/ColorInit";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
@@ -21,7 +21,7 @@ const UserProfilePage = async ({ params }) => {
     <>
       <ColorInit color={true} />
       <ScrollToTopInit color="#FA6400" />
-      <Breadcrumb title={tBreadcrumb("userProfile")} />
+      <PageHeader title={tBreadcrumb("userProfile")} />
       <UserPublicProfile userId={params.id} />
       <FooterOne />
     </>

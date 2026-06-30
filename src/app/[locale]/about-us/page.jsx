@@ -1,7 +1,6 @@
 import "./page.scss";
 import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
-import Breadcrumb from "@/components/Breadcrumb";
 import AboutUs from "@/components/AboutUs";
 import ColorInit from "@/helper/ColorInit";
 import ScrollToTopInit from "@/helper/ScrollToTopInit";
@@ -23,8 +22,6 @@ export async function generateMetadata({ params }) {
 }
 
 const page = async () => {
-  const tBreadcrumb = await getTranslations("Breadcrumb");
-
   return (
     <>
       {/* ColorInit */}
@@ -32,9 +29,6 @@ const page = async () => {
 
       {/* ScrollToTop */}
       <ScrollToTopInit color="#299E60" />
-
-      {/* Breadcrumb */}
-      <Breadcrumb title={tBreadcrumb("aboutUs")} />
 
       {/* AboutUs */}
       <AboutUs />

@@ -335,9 +335,11 @@ Kitob 2 xil ko'rinishda render qilinadi — kontekstga qarab. **Inline card mark
 - **profile/ProfileEditModal.jsx** — region/district (**majburiy**, asterisk + inline xato), gender + birth_date (ixtiyoriy, native `type="date"`). i18n namespace `ProfileForm` (ilgari yo'q edi → label'lar raw key bo'lib chiqardi).
 - **Kitob joylash profil gate** (`utils/profile.js` `isProfileComplete` = region && district): `PostBookFab` bosilganda — login yo'q bo'lsa `/login?next=`, profil to'liq emas bo'lsa `/account?complete=book` (ProfileDashboard editor'ni avtomatik ochadi + sabab toast'i), aks holda BookCreateModal. Backend ham `code="profile_incomplete"` bilan enforce qiladi. ProfileDashboard'dagi "add book" tugmasi ham shu gate'dan o'tadi. Unit test: `tests/unit/profile.test.js`.
 
-### Breadcrumb va h.k.
+### Sahifa sarlavhasi (page header)
 
-- **Breadcrumb.jsx**, **BreadcrumbTwo.jsx**, **BreadcrumbThree.jsx**, **BreadcrumbImage.jsx** — 4 ta variant, bittasini saqlab qolish refactor task'i.
+- **`shared/PageHeader.jsx`** — yagona, flat, app-like sahifa sarlavhasi (server-rendered): slim breadcrumb trail + ishonchli `<h1>` title + ixtiyoriy subtitle, **tinted band yo'q** (`.kz-page-header` `globals.scss`'da). Props: `title`, `subtitle`, `crumbs=[{label,href}]`, `showCrumbs`. **Faqat o'z hero/title'i yo'q "yalang'och" sahifalarda** ishlating (hozir: contact, vendor, user/[id]).
+- O'z hero/h1'i bor sahifalar (about-us, shops, faq, policies, account, community/[type], shops/[id], book-details/[id], wishlist) **sarlavha komponenti qo'shmaydi** — dublikat hierarxiyaning oldini olish uchun breadcrumb umuman tushirilgan.
+- ⚠️ Eski **`Breadcrumb.jsx` (peach band) + `BreadcrumbThree.jsx` (green band)** olib tashlandi (`BreadcrumbTwo`/`BreadcrumbImage` ilgariroq). SEO breadcrumb trail'i alohida — `breadcrumbLd()` JSON-LD orqali (`lib/seo/jsonLd.js`), vizual band'ga bog'liq emas.
 
 ### Form / input
 
