@@ -46,16 +46,24 @@ const ShareSheet = ({ open, payload, onClose }) => {
     };
   }, [open, onClose]);
 
-  const { absoluteUrl, encodedUrl, encodedText, encodedTitle } = useMemo(() => {
-    const u = buildAbsoluteUrl(payload?.url || "");
-    const text = payload?.text || payload?.title || "";
-    return {
-      absoluteUrl: u,
-      encodedUrl: encodeURIComponent(u),
-      encodedText: encodeURIComponent(text),
-      encodedTitle: encodeURIComponent(payload?.title || ""),
-    };
-  }, [payload?.url, payload?.text, payload?.title]);
+  const { absoluteUrl, encodedUrl, encodedText, encodedTextTg, encodedTextGap, encodedTitle } =
+    useMemo(() => {
+      const u = buildAbsoluteUrl(payload?.url || "");
+      const text = payload?.text || payload?.title || "";
+      return {
+        absoluteUrl: u,
+        encodedUrl: encodeURIComponent(u),
+        encodedText: encodeURIComponent(text),
+        // Layout goal: caption, a blank line, then the link.
+        // Telegram joins its `text` param with the `url` using a single
+        // "\n", so a trailing "\n" here becomes a blank line before the link.
+        encodedTextTg: encodeURIComponent(text ? `${text}\n` : ""),
+        // WhatsApp / SMS: we concatenate the url ourselves, so a full blank
+        // line ("\n\n") sits between the caption and the link.
+        encodedTextGap: encodeURIComponent(text ? `${text}\n\n` : ""),
+        encodedTitle: encodeURIComponent(payload?.title || ""),
+      };
+    }, [payload?.url, payload?.text, payload?.title]);
 
   const openAndClose = useCallback(
     (href) => {
@@ -130,7 +138,7 @@ const ShareSheet = ({ open, payload, onClose }) => {
       icon: "ph-fill ph-telegram-logo",
       color: "#229ED9",
       bg: "rgba(34, 158, 217, 0.12)",
-      onClick: () => openAndClose(`https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`),
+      onClick: () => openAndClose(`https://t.me/share/url?url=${encodedUrl}&text=${encodedTextTg}`),
     },
     {
       key: "whatsapp",
@@ -138,7 +146,7 @@ const ShareSheet = ({ open, payload, onClose }) => {
       icon: "ph-fill ph-whatsapp-logo",
       color: "#25D366",
       bg: "rgba(37, 211, 102, 0.12)",
-      onClick: () => openAndClose(`https://wa.me/?text=${encodedText}%20${encodedUrl}`),
+      onClick: () => openAndClose(`https://wa.me/?text=${encodedTextGap}${encodedUrl}`),
     },
     {
       key: "instagram",
@@ -156,7 +164,7 @@ const ShareSheet = ({ open, payload, onClose }) => {
       bg: "rgba(22, 163, 74, 0.12)",
       onClick: () => {
         if (typeof window !== "undefined") {
-          window.location.href = `sms:?&body=${encodedText}%20${encodedUrl}`;
+          window.location.href = `sms:?&body=${encodedTextGap}${encodedUrl}`;
         }
         onClose?.();
       },
