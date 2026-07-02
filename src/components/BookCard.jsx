@@ -6,7 +6,6 @@ import { useLike } from "@/hooks/useLike";
 import { useAuth } from "@/hooks/useAuth";
 import { formatPrice } from "@/utils/formatPrice";
 import { openShareSheet } from "@/lib/shareSheet";
-import { getBotUrl } from "@/config/env";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { bookOwnerLocation } from "@/utils/location";
 import { bookTypeVisual, bookTypeI18nKey } from "@/utils/bookType";
@@ -99,7 +98,6 @@ const BookCard = ({
         ? tShare("bookCaption", { name: bookName, author: bookAuthor })
         : tShare("bookCaptionNoAuthor", { name: bookName }),
       url: `/${locale}/book-details/${book.id}`,
-      telegramUrl: getBotUrl({ start: `share_book_${locale}_${book.id}` }),
     });
   };
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import {
   Box,
   Stack,
@@ -24,7 +24,6 @@ import { openPostChooser } from "@/lib/postBookModal";
 import { getBookCategories, getBookSubcategories } from "@/services/categories";
 import BookRowGrid from "@/components/shared/BookRowGrid";
 import { openShareSheet } from "@/lib/shareSheet";
-import { getBotUrl } from "@/config/env";
 import ShopBannerCarousel from "@/components/ShopBannerCarousel";
 import Icon from "@/components/Icon";
 
@@ -106,7 +105,6 @@ const ShopDetailPage = ({ shopId }) => {
   const tShare = useTranslations("Share");
   const tShopEdit = useTranslations("ShopEdit");
   const tShopLoc = useTranslations("ShopLocation");
-  const locale = useLocale();
 
   const handleShareShop = () => {
     const name = shop?.name || "Kitobzor";
@@ -114,7 +112,6 @@ const ShopDetailPage = ({ shopId }) => {
       title: name,
       text: tShare("shopCaption", { name }),
       url: typeof window !== "undefined" ? window.location.pathname : "",
-      telegramUrl: shopId ? getBotUrl({ start: `share_shop_${locale}_${shopId}` }) : undefined,
     });
   };
 
