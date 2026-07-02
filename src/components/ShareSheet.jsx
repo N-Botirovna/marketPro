@@ -130,7 +130,13 @@ const ShareSheet = ({ open, payload, onClose }) => {
       icon: "ph-fill ph-telegram-logo",
       color: "#229ED9",
       bg: "rgba(34, 158, 217, 0.12)",
-      onClick: () => openAndClose(`https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`),
+      // A bot deep-link (payload.telegramUrl) makes the bot hand the user a
+      // fully HTML-formatted, ready-to-forward card. Falls back to the plain
+      // t.me/share/url path when a caller doesn't supply one.
+      onClick: () =>
+        openAndClose(
+          payload?.telegramUrl || `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`,
+        ),
     },
     {
       key: "whatsapp",
