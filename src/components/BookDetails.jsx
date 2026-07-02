@@ -18,6 +18,7 @@ import { trackEvent } from "@/lib/analytics";
 import { useLike } from "@/hooks/useLike";
 import { useAuth } from "@/hooks/useAuth";
 import { openShareSheet } from "@/lib/shareSheet";
+import { getBotUrl } from "@/config/env";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { localizedField } from "@/utils/localizedField";
 import { bookTypeVisual, bookTypeI18nKey } from "@/utils/bookType";
@@ -164,6 +165,7 @@ const BookDetails = ({ bookId }) => {
         ? tShare("bookCaption", { name: bookTitle, author: bookAuthor })
         : tShare("bookCaptionNoAuthor", { name: bookTitle }),
       url: typeof window !== "undefined" ? window.location.pathname : "",
+      telegramUrl: getBotUrl({ start: `share_book_${locale}_${book.id}` }),
     });
   };
 
@@ -187,6 +189,8 @@ const BookDetails = ({ bookId }) => {
       title: bookTitle,
       text,
       url: typeof window !== "undefined" ? window.location.pathname : "",
+      // mode is "gift" | "wish" → share_gift_… / share_wish_…
+      telegramUrl: getBotUrl({ start: `share_${mode}_${locale}_${book.id}` }),
     });
   };
 
