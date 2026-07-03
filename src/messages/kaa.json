@@ -1014,9 +1014,9 @@
     "targetCopy": "Siltemeni kóshiriw",
     "targetInstagram": "Instagram",
     "instagramHint": "Silteme kóshirildi — Instagram'da story yáki DM'ge qoyıń",
-    "bookCaption": "📖 «{name}» — {author}\nTolıq maǵlıwmat hám iyesi menen baylanıs — siltemede",
-    "bookCaptionNoAuthor": "📖 «{name}»\nTolıq maǵlıwmat hám iyesi menen baylanıs — siltemede",
-    "shopCaption": "🏬 «{name}» — Kitobzor'dagı dúken\nKitapları hám mánzili siltemede",
+    "bookCaption": "📖 «{name}» — {author}\nTolıq maǵlıwmat hám iyesi menen baylanıs — siltemede.",
+    "bookCaptionNoAuthor": "📖 «{name}»\nTolıq maǵlıwmat hám iyesi menen baylanıs — siltemede.",
+    "shopCaption": "🏬 «{name}» — Kitobzor'dagı dúken\nKitapları hám mánzili siltemede.",
     "profileCaption": "👤 {name} — Kitobzor'dagı profil\nJaylastırǵan kitapları siltemede"
   },
   "Vendor": {

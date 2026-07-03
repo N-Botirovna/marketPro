@@ -1014,9 +1014,9 @@
     "targetCopy": "Скопировать ссылку",
     "targetInstagram": "Instagram",
     "instagramHint": "Ссылка скопирована — вставьте её в Instagram сторис или ЛС",
-    "bookCaption": "📖 «{name}» — {author}\nПодробности и связь с владельцем — по ссылке",
-    "bookCaptionNoAuthor": "📖 «{name}»\nПодробности и связь с владельцем — по ссылке",
-    "shopCaption": "🏬 «{name}» — магазин на Kitobzor\nКниги и адрес — по ссылке",
+    "bookCaption": "📖 «{name}» — {author}\nПодробности и связь с владельцем — по ссылке.",
+    "bookCaptionNoAuthor": "📖 «{name}»\nПодробности и связь с владельцем — по ссылке.",
+    "shopCaption": "🏬 «{name}» — магазин на Kitobzor\nКниги и адрес — по ссылке.",
     "profileCaption": "👤 {name} — профиль на Kitobzor\nЕго книги — по ссылке"
   },
   "Vendor": {
