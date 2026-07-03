@@ -142,12 +142,12 @@ const ShareSheet = ({ open, payload, onClose }) => {
       icon: "ph-fill ph-telegram-logo",
       color: "#229ED9",
       bg: "rgba(34, 158, 217, 0.12)",
-      // Telegram forces the `url` param to the TOP of the composed message
-      // (core.telegram.org/api/links), which would put the link above our
-      // caption. So we leave `url` empty and embed the link inside `text`
-      // to keep the caption-first layout; Telegram still builds the link
-      // preview from the URL it finds in the body.
-      onClick: () => openAndClose(`https://t.me/share/url?url=&text=${encodedBody}`),
+      // Telegram's share endpoint REQUIRES a non-empty `url` param (an empty
+      // one fails to open Telegram at all) and always renders it at the TOP
+      // of the message (core.telegram.org/api/links). So caption-first is not
+      // achievable here — we pass the real url + caption and accept the link
+      // leading. Telegram renders the rich preview card from the same url.
+      onClick: () => openAndClose(`https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`),
     },
     {
       key: "whatsapp",
