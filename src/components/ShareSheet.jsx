@@ -46,21 +46,22 @@ const ShareSheet = ({ open, payload, onClose }) => {
     };
   }, [open, onClose]);
 
-  const { absoluteUrl, encodedUrl, encodedText, encodedTextTg, encodedTextGap, encodedTitle } =
+  const { absoluteUrl, shareBody, encodedUrl, encodedText, encodedBody, encodedTitle } =
     useMemo(() => {
       const u = buildAbsoluteUrl(payload?.url || "");
       const text = payload?.text || payload?.title || "";
+      // Canonical message layout the user asked for: caption first, a blank
+      // line, then the link. Text-first — a warm line, then the link below it.
+      // Chat apps that show a link preview render it under this text.
+      const body = text ? `${text}\n\n${u}` : u;
       return {
         absoluteUrl: u,
+        shareBody: body,
         encodedUrl: encodeURIComponent(u),
         encodedText: encodeURIComponent(text),
-        // Layout goal: caption, a blank line, then the link.
-        // Telegram joins its `text` param with the `url` using a single
-        // "\n", so a trailing "\n" here becomes a blank line before the link.
-        encodedTextTg: encodeURIComponent(text ? `${text}\n` : ""),
-        // WhatsApp / SMS: we concatenate the url ourselves, so a full blank
-        // line ("\n\n") sits between the caption and the link.
-        encodedTextGap: encodeURIComponent(text ? `${text}\n\n` : ""),
+        // Single source of truth for every channel where WE build the full
+        // message body (Telegram, WhatsApp, SMS, email).
+        encodedBody: encodeURIComponent(body),
         encodedTitle: encodeURIComponent(payload?.title || ""),
       };
     }, [payload?.url, payload?.text, payload?.title]);
@@ -79,10 +80,13 @@ const ShareSheet = ({ open, payload, onClose }) => {
   const handleNativeShare = useCallback(async () => {
     if (!hasNativeShare || !payload) return;
     try {
+      // Send the caption-first body as a single `text` (link embedded) and
+      // omit `url` — otherwise the receiving app decides where to place the
+      // link and often hoists it above the caption. Embedding keeps the
+      // "caption, blank line, link" layout deterministic across targets.
       await navigator.share({
         title: payload.title || "",
-        text: payload.text || payload.title || "",
-        url: absoluteUrl,
+        text: shareBody,
       });
       onClose?.();
     } catch (err) {
@@ -94,7 +98,7 @@ const ShareSheet = ({ open, payload, onClose }) => {
         });
       }
     }
-  }, [hasNativeShare, payload, absoluteUrl, onClose, showToast, t]);
+  }, [hasNativeShare, payload, shareBody, onClose, showToast, t]);
 
   const handleCopy = useCallback(
     async ({ instagram = false } = {}) => {
@@ -138,7 +142,12 @@ const ShareSheet = ({ open, payload, onClose }) => {
       icon: "ph-fill ph-telegram-logo",
       color: "#229ED9",
       bg: "rgba(34, 158, 217, 0.12)",
-      onClick: () => openAndClose(`https://t.me/share/url?url=${encodedUrl}&text=${encodedTextTg}`),
+      // Telegram forces the `url` param to the TOP of the composed message
+      // (core.telegram.org/api/links), which would put the link above our
+      // caption. So we leave `url` empty and embed the link inside `text`
+      // to keep the caption-first layout; Telegram still builds the link
+      // preview from the URL it finds in the body.
+      onClick: () => openAndClose(`https://t.me/share/url?url=&text=${encodedBody}`),
     },
     {
       key: "whatsapp",
@@ -146,7 +155,7 @@ const ShareSheet = ({ open, payload, onClose }) => {
       icon: "ph-fill ph-whatsapp-logo",
       color: "#25D366",
       bg: "rgba(37, 211, 102, 0.12)",
-      onClick: () => openAndClose(`https://wa.me/?text=${encodedTextGap}${encodedUrl}`),
+      onClick: () => openAndClose(`https://wa.me/?text=${encodedBody}`),
     },
     {
       key: "instagram",
@@ -164,7 +173,7 @@ const ShareSheet = ({ open, payload, onClose }) => {
       bg: "rgba(22, 163, 74, 0.12)",
       onClick: () => {
         if (typeof window !== "undefined") {
-          window.location.href = `sms:?&body=${encodedTextGap}${encodedUrl}`;
+          window.location.href = `sms:?&body=${encodedBody}`;
         }
         onClose?.();
       },
@@ -194,7 +203,7 @@ const ShareSheet = ({ open, payload, onClose }) => {
       bg: "rgba(124, 58, 237, 0.12)",
       onClick: () => {
         if (typeof window !== "undefined") {
-          window.location.href = `mailto:?subject=${encodedTitle}&body=${encodedText}%20${encodedUrl}`;
+          window.location.href = `mailto:?subject=${encodedTitle}&body=${encodedBody}`;
         }
         onClose?.();
       },
