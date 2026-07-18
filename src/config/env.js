@@ -69,7 +69,13 @@ export function getSentryRelease() {
   return (process.env.NEXT_PUBLIC_SENTRY_RELEASE || "").trim();
 }
 
-const DEFAULT_BOT_USERNAME = "kitobzoruz_bot";
+// Must be a bot that actually exists, so a forgotten NEXT_PUBLIC_BOT_USERNAME
+// at build time still yields a working "go to bot" link instead of a dead
+// t.me profile. This is the live bot backing the dev/prod deploy — keep it in
+// sync with .env.production.example. (The old `kitobzoruz_bot` default pointed
+// at a non-existent handle, so any build with the env unset silently broke the
+// login + AuthRequiredModal deep-links.)
+const DEFAULT_BOT_USERNAME = "kitobzorim_bot";
 
 /**
  * Telegram bot handle (no leading @). Default kept so a forgotten env
