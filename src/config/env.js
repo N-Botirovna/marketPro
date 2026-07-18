@@ -69,12 +69,16 @@ export function getSentryRelease() {
   return (process.env.NEXT_PUBLIC_SENTRY_RELEASE || "").trim();
 }
 
-// Must be a bot that actually exists, so a forgotten NEXT_PUBLIC_BOT_USERNAME
-// at build time still yields a working "go to bot" link instead of a dead
-// t.me profile. This is the live bot backing the dev/prod deploy — keep it in
-// sync with .env.production.example. (The old `kitobzoruz_bot` default pointed
-// at a non-existent handle, so any build with the env unset silently broke the
-// login + AuthRequiredModal deep-links.)
+// Per-environment bot (each deploy sets NEXT_PUBLIC_BOT_USERNAME in its own
+// server .env; this default only applies when the env var is unset — i.e. local
+// dev). The handle MUST match the bot configured on that env's backend, else
+// "go to bot" opens one bot while a different one sends the OTP code.
+//   local → kitobzorim_bot (this default)
+//   dev   → octagonuzbot     (/opt/kitobzor-frontend/.env on kitobzor-dev)
+//   prod  → kitobzor_uz_bot  (/opt/kitobzor-frontend/.env on kitobzor-prod)
+// Keep this in sync with .env.example (the local template). The old
+// `kitobzoruz_bot` default was a non-existent handle, so any build with the env
+// unset silently shipped dead login + AuthRequiredModal deep-links.
 const DEFAULT_BOT_USERNAME = "kitobzorim_bot";
 
 /**
