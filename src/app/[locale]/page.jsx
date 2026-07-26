@@ -86,7 +86,12 @@ const page = async ({ params }) => {
       serverGet("/api/v1/stories/", { locale, revalidate: 120 }),
       serverGet("/api/v1/shop/list/", {
         locale,
-        params: { is_active: true, limit: 10 },
+        // 6 for the same reason as the book rows: HomeShopsRow is a 3-column
+        // grid on desktop, so 6 fills exactly two rows with no dangling card.
+        // It also matches what the component itself assumes — its skeleton
+        // count and its client-side fallback fetch are both 6; this server
+        // prefetch was the odd one out at 10 and silently won.
+        params: { is_active: true, limit: 6 },
         revalidate: 600,
       }),
       serverGet("/api/v1/book/list/", { locale, params: bookParams("sell") }),
