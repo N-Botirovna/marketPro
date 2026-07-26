@@ -81,18 +81,23 @@ const page = async ({ params }) => {
   // each home component fetched its own data after hydration — six
   // round-trips stacked behind React mount, ~600-1200 ms of empty
   // skeleton on cold loads. Now the page lands fully populated.
-  const [storiesRes, shopsRes, sellRes, giftRes, exchangeRes, rentRes] = await Promise.all([
-    serverGet("/api/v1/stories/", { locale, revalidate: 120 }),
-    serverGet("/api/v1/shop/list/", {
-      locale,
-      params: { is_active: true, limit: 10 },
-      revalidate: 600,
-    }),
-    serverGet("/api/v1/book/list/", { locale, params: bookParams("sell") }),
-    serverGet("/api/v1/book/list/", { locale, params: bookParams("gift") }),
-    serverGet("/api/v1/book/list/", { locale, params: bookParams("exchange") }),
-    serverGet("/api/v1/book/list/", { locale, params: bookParams("rent") }),
-  ]);
+  const [storiesRes, shopsRes, sellRes, giftRes, exchangeRes, rentRes, wantedRes] =
+    await Promise.all([
+      serverGet("/api/v1/stories/", { locale, revalidate: 120 }),
+      serverGet("/api/v1/shop/list/", {
+        locale,
+        params: { is_active: true, limit: 10 },
+        revalidate: 600,
+      }),
+      serverGet("/api/v1/book/list/", { locale, params: bookParams("sell") }),
+      serverGet("/api/v1/book/list/", { locale, params: bookParams("gift") }),
+      serverGet("/api/v1/book/list/", { locale, params: bookParams("exchange") }),
+      serverGet("/api/v1/book/list/", { locale, params: bookParams("rent") }),
+      // Demand, not supply. The API hides `wanted` from every unscoped feed, so
+      // this needs its own explicit request — it can never ride along in one of
+      // the sections above.
+      serverGet("/api/v1/book/list/", { locale, params: bookParams("wanted") }),
+    ]);
 
   const initialStories = unwrapList(storiesRes).items;
   const initialShops = unwrapList(shopsRes).items;
@@ -100,6 +105,7 @@ const page = async ({ params }) => {
   const initialGift = unwrapList(giftRes).items;
   const initialExchange = unwrapList(exchangeRes).items;
   const initialRent = unwrapList(rentRes).items;
+  const initialWanted = unwrapList(wantedRes).items;
 
   return (
     <>
@@ -137,6 +143,16 @@ const page = async ({ params }) => {
         titleKey="eldagiRentTitle"
         viewAllHref="/community/rent"
         initialBooks={initialRent}
+      />
+      {/* Demand section — last, mirroring the /community tab order. Reads as a
+          call to action for anyone who HAS one of these books. Self-hides while
+          there are no wanted posts (HomeBookList returns null on an empty list). */}
+      <HomeBookList
+        type="wanted"
+        ownerType="user"
+        titleKey="eldagiWantedTitle"
+        viewAllHref="/community/wanted"
+        initialBooks={initialWanted}
       />
 
       <FooterOne />

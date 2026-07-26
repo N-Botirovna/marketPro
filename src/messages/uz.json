@@ -916,7 +916,8 @@
     "eldagiSellTitle": "Eldagi sotiladigan kitoblar",
     "eldagiGiftTitle": "Eldagi sovg'a kitoblar",
     "eldagiExchangeTitle": "El bilan almashish",
-    "eldagiRentTitle": "Eldan ijaraga"
+    "eldagiRentTitle": "Eldan ijaraga",
+    "eldagiWantedTitle": "Eldan qidirilayotgan kitoblar"
   },
   "HomeMainEntryChips": {
     "shops": "Do'konlardagi",
