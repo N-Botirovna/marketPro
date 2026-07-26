@@ -94,7 +94,7 @@ front-end/
 │   │   │   └── login/page.jsx
 │   │   ├── about-us/, contact/, faq/, policies/
 │   │   ├── books/                    # redirect to community/all
-│   │   ├── community/[type]/page.jsx # tab: all, following, popular (middleware redirects /community → /community/all)
+│   │   ├── community/[type]/page.jsx # tab: all, sell, gift, exchange, rent, wanted (middleware redirects /community → /community/all)
 │   │   ├── book-details/[id]/page.jsx
 │   │   ├── shops/                    # shop listing
 │   │   ├── user/[id]/                # public user profile
@@ -303,7 +303,7 @@ Kitob 2 xil ko'rinishda render qilinadi — kontekstga qarab. **Inline card mark
 - **`shared/BookRowGrid.jsx`** — `BookChatRow` uchun **yagona** responsive grid wrapper: `xs 1 / sm 2 / lg 3` ustun (telefonda 1 ustun = Telegram qatori; desktopda 3 ustun — ilgari 1 ustunli to'liq-kenglik qatorlar desktopda joyni isrof qilardi). `loading` → `BookRowSkeleton`, `books=[]` → `emptyState`. `HomeShopsRow` grid breakpointlari bilan bir xil.
 - **`shared/BookGrid.jsx`** — `BookCard` grid uchun **yagona** wrapper. Yagona responsive ustun qoidasi `col-6 col-md-4 col-xl-3` (**2 / 3 / 4** — telefonda 2 ustun, "giant card on mobile" bug shu yerda yopilgan). `loading` → `BookCardSkeleton`, `books=[]` → `emptyState`. Per-book prop kerak bo'lsa `renderCard` bering. Iste'molchilar: ProfileTabs, WishListSection, UserPublicProfile. ⚠️ eski `.list-grid-wrapper` (`minmax(230px,1fr)`) **ishlatilmaydi** — u telefonda 1 ulkan ustun berardi.
 - **`shop/ShopCard.jsx`** — yagona do'kon kartochkasi (kvadrat avatar + 3 qator). Hamma joyda: `HomeShopsRow`, `ShopsListPage`, `TopVendorsOne` (about), `VendorsList` (/vendor). Eski inline "vendor-card" markup (dumaloq avatar) olib tashlangan.
-- **`utils/bookType.js`** — `BOOK_TYPE_VISUALS` (type → {color,bg,icon,i18nKey}). Type badge rangi/ikoni/labeli **shu yerdan**. API enum `"seller"`, user-facing slug `"sell"` — `bookTypeI18nKey()` remap qiladi.
+- **`utils/bookType.js`** — `BOOK_TYPE_VISUALS` (type → {color,bg,icon,i18nKey}). Type badge rangi/ikoni/labeli **shu yerdan**. API enum `"seller"`, user-facing slug `"sell"` — `bookTypeI18nKey()` remap qiladi. `wanted` (talab) yagona binafsha badge — taklif turlaridan vizual ajralib turishi ataylab.
 
 **Loading = skeleton, har doim.** `shared/BookCardSkeleton`, `shared/BookRowSkeleton`, `shared/ShopCardSkeleton` mos kontentni aks ettiradi; shimmer `.kz-skel` klassidan (`globals.scss`). Ad-hoc `pulse` div yoki to'liq-sahifa `Spin` qo'shmang.
 
@@ -315,7 +315,7 @@ Kitob 2 xil ko'rinishda render qilinadi — kontekstga qarab. **Inline card mark
 
 ### Modal forms (Bootstrap + FieldError + mapValidationError + useDraftStorage)
 
-- **BookCreateModal.jsx** — 744 LOC; uses `useDraftStorage` for 24h auto-resume on new-book flow.
+- **BookCreateModal.jsx** — `useDraftStorage` bilan 24h auto-resume (faqat yangi kitob oqimida). **Birinchi qadam — `intent`**: "Kitobim bor" / "Kitob kerak". "Kerak" tanlansa `formData.type = "wanted"` bo'ladi va qadamlar (`type`, `condition`, `owner`, `category`, `details`, `pricing`) `when()` orqali **skip** qilinadi: **faqat nom majburiy**, muallif/rasm/yil/izoh ixtiyoriy. Submit ham shu tarmoqda katalog maydonlarini **yubormaydi** (API baribir tozalaydi, lekin so'rov so'ralgan narsani aks ettirsin). Yangi qadam qo'shsangiz `isWantedType(formData.type)` bilan tarmoqlang.
 - **PostCreateModal.jsx**, **SellerRegistrationModal.jsx** — same pattern (FieldError + mapValidationError).
 - All three have `modal-fullscreen-md-down` for mobile UX.
 - **MaterialCategoryDropdown.jsx**, **MaterialLocationDropdown.jsx** — Autocomplete-like dropdowns.
@@ -415,7 +415,9 @@ Kitob 2 xil ko'rinishda render qilinadi — kontekstga qarab. **Inline card mark
 | `npm run e2e`                     | Playwright smoke tests (`tests/e2e/**/*.spec.js`). Birinchi marta `npm run e2e:install` chaqirib browser yuklang. |
 | `npm run i18n:check`              | uz/ru/en key drift. CI'da fail bo'ladi.                                                                           |
 
-**Test holati**: 43 unit test yashil (errors, mapValidationError, httpResilience, idempotency, useDraftStorage). 3 ta Playwright spec (home, login, mobile-menu) — backend stand-up'siz ishlaydi (`page.route()` bilan mocked).
+**Test holati**: 188 unit test yashil / 27 fayl (errors, mapValidationError, httpResilience, idempotency, useDraftStorage, bookType, communityTabs, …). 3 ta Playwright spec (home, login, mobile-menu) — backend stand-up'siz ishlaydi (`page.route()` bilan mocked).
+
+> `tests/unit/communityTabs.test.js` — `/community/[type]` slug'lari **uchta** joyda (route `VALID_TYPES`, `TYPE_TABS`, `CommunityPage.title/subtitle` + `BookTypeChips` i18n) sinxron turishini majburlaydi. Yangi tab qo'shsangiz to'rttasini ham yangilang, aks holda shu test tushadi (raw i18n key yoki 404 o'rniga).
 
 **Husky/lint-staged**: `npm install` paytida `prepare` script orqali hook o'rnatiladi. Staged JS/JSX'da `eslint --fix && prettier --write`, qolganlarda `prettier --write`.
 

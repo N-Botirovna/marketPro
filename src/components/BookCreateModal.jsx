@@ -64,6 +64,20 @@ const TYPE_OPTIONS = [
   { value: "rent", icon: "ph-fill ph-clock-clockwise" },
 ];
 
+// The very first question: is this a book you HAVE, or one you're LOOKING FOR?
+// It's modelled as a plain `type` value (`wanted`) rather than a separate flag
+// so there's exactly one source of truth for the listing kind — the same enum
+// the API, the badges and the /community tabs already key on.
+const INTENT_OPTIONS = [
+  { value: "have", icon: "ph-fill ph-books" },
+  { value: "wanted", icon: "ph-fill ph-magnifying-glass" },
+];
+
+// Default supply type when the user switches back from "I need a book".
+const DEFAULT_SUPPLY_TYPE = "seller";
+
+const isWantedType = (type) => type === "wanted";
+
 const CONDITION_OPTIONS = [
   { value: "brand_new", icon: "ph-fill ph-sparkle" },
   { value: "like_new", icon: "ph-fill ph-star" },
@@ -322,8 +336,13 @@ const BookCreateModal = ({
     (name, value, data) => {
       switch (name) {
         case "name":
-        case "author":
           if (isBlank(value)) return tv("required");
+          if (tooLong(value, 255)) return tv("maxLength", { max: 255 });
+          return null;
+        case "author":
+          // On a "wanted" post the author is a nice-to-have: people often
+          // remember only the title of the book they're after.
+          if (isBlank(value)) return isWantedType(data.type) ? null : tv("required");
           if (tooLong(value, 255)) return tv("maxLength", { max: 255 });
           return null;
         case "price": {
@@ -406,9 +425,32 @@ const BookCreateModal = ({
   //   key, title, subtitle, validate(), render()
   // Order mirrors the bot's FSM. Conditional steps (`when`) get auto-skipped.
   const steps = useMemo(() => {
+    const wanted = isWantedType(formData.type);
     const list = [
       {
+        key: "intent",
+        title: t("step.intentTitle"),
+        subtitle: t("step.intentSubtitle"),
+        validate: () => !!formData.type,
+        render: () => (
+          <CardSelect
+            options={INTENT_OPTIONS}
+            value={wanted ? "wanted" : "have"}
+            onChange={(v) => {
+              const nextWanted = v === "wanted";
+              // Re-clicking the current choice must not reset a supply type the
+              // user already picked on the next step (have → gift → back → have).
+              if (nextWanted === wanted) return;
+              setField("type", nextWanted ? "wanted" : DEFAULT_SUPPLY_TYPE);
+            }}
+            getLabel={(v) => t(`step.intent.${v}`)}
+            getCaption={(v) => t(`step.intentCaption.${v}`)}
+          />
+        ),
+      },
+      {
         key: "type",
+        when: () => !wanted,
         title: t("step.typeTitle"),
         subtitle: t("step.typeSubtitle"),
         validate: () => !!formData.type,
@@ -424,6 +466,8 @@ const BookCreateModal = ({
       },
       {
         key: "condition",
+        // A book you don't have yet has no condition to report.
+        when: () => !wanted,
         title: t("step.conditionTitle"),
         subtitle: t("step.conditionSubtitle"),
         validate: () => !!formData.condition,
@@ -439,7 +483,8 @@ const BookCreateModal = ({
       },
       {
         key: "owner",
-        when: () => shops.length > 0 && !lockShop,
+        // A "wanted" post is always personal — the API rejects a shop on it.
+        when: () => !wanted && shops.length > 0 && !lockShop,
         title: t("step.ownerTitle"),
         subtitle: t("step.ownerSubtitle"),
         validate: () => true,
@@ -487,8 +532,8 @@ const BookCreateModal = ({
       },
       {
         key: "basics",
-        title: t("step.basicsTitle"),
-        subtitle: t("step.basicsSubtitle"),
+        title: wanted ? t("step.basicsTitleWanted") : t("step.basicsTitle"),
+        subtitle: wanted ? t("step.basicsSubtitleWanted") : t("step.basicsSubtitle"),
         validate: () =>
           !validateBookField("name", formData.name, formData) &&
           !validateBookField("author", formData.author, formData),
@@ -512,8 +557,9 @@ const BookCreateModal = ({
                 label={t("author")}
                 value={formData.author}
                 onChange={(e) => setField("author", e.target.value)}
-                required
+                required={!wanted}
                 error={!!errors.fields.author}
+                helperText={wanted && !errors.fields.author ? t("optional") : undefined}
               />
               <FieldError message={errors.fields.author} />
             </Box>
@@ -522,6 +568,7 @@ const BookCreateModal = ({
       },
       {
         key: "category",
+        when: () => !wanted,
         title: t("step.categoryTitle"),
         subtitle: t("step.categorySubtitle"),
         validate: () => !!formData.category,
@@ -573,6 +620,7 @@ const BookCreateModal = ({
       },
       {
         key: "details",
+        when: () => !wanted,
         title: t("step.detailsTitle"),
         subtitle: t("step.detailsSubtitle"),
         validate: () => !!formData.language && !!formData.script_type && !!formData.cover_type,
@@ -684,7 +732,7 @@ const BookCreateModal = ({
       {
         key: "optional",
         title: t("step.optionalTitle"),
-        subtitle: t("step.optionalSubtitle"),
+        subtitle: wanted ? t("step.optionalSubtitleWanted") : t("step.optionalSubtitle"),
         validate: () =>
           !validateBookField("publication_year", formData.publication_year, formData) &&
           !validateBookField("pages", formData.pages, formData) &&
@@ -710,39 +758,47 @@ const BookCreateModal = ({
                 />
                 <FieldError message={errors.fields.publication_year} />
               </Box>
-              <Box sx={{ flex: 1 }}>
+              {/* Page count and ISBN describe a copy in hand — meaningless on
+                  a book you're still looking for. */}
+              {!wanted && (
+                <Box sx={{ flex: 1 }}>
+                  <TextField
+                    fullWidth
+                    type="number"
+                    label={t("pages")}
+                    value={formData.pages}
+                    onChange={(e) => setField("pages", e.target.value)}
+                    error={!!errors.fields.pages}
+                    slotProps={{ htmlInput: { min: 1 } }}
+                    helperText={errors.fields.pages ? undefined : t("optional")}
+                  />
+                  <FieldError message={errors.fields.pages} />
+                </Box>
+              )}
+            </Stack>
+            {!wanted && (
+              <Box>
                 <TextField
                   fullWidth
-                  type="number"
-                  label={t("pages")}
-                  value={formData.pages}
-                  onChange={(e) => setField("pages", e.target.value)}
-                  error={!!errors.fields.pages}
-                  slotProps={{ htmlInput: { min: 1 } }}
-                  helperText={errors.fields.pages ? undefined : t("optional")}
+                  label={t("isbn")}
+                  value={formData.isbn}
+                  onChange={(e) => setField("isbn", e.target.value)}
+                  error={!!errors.fields.isbn}
+                  helperText={errors.fields.isbn ? undefined : t("optional")}
                 />
-                <FieldError message={errors.fields.pages} />
+                <FieldError message={errors.fields.isbn} />
               </Box>
-            </Stack>
-            <Box>
-              <TextField
-                fullWidth
-                label={t("isbn")}
-                value={formData.isbn}
-                onChange={(e) => setField("isbn", e.target.value)}
-                error={!!errors.fields.isbn}
-                helperText={errors.fields.isbn ? undefined : t("optional")}
-              />
-              <FieldError message={errors.fields.isbn} />
-            </Box>
+            )}
           </Stack>
         ),
       },
       {
         key: "media",
         title: t("step.mediaTitle"),
-        subtitle: t("step.mediaSubtitle"),
-        validate: () => !!editBook || !!formData.picture,
+        subtitle: wanted ? t("step.mediaSubtitleWanted") : t("step.mediaSubtitle"),
+        // A cover photo is required to sell a book, optional to ask for one —
+        // most people asking don't have the book to photograph.
+        validate: () => wanted || !!editBook || !!formData.picture,
         render: () => (
           <Stack spacing={2.5}>
             <Box>
@@ -801,10 +857,10 @@ const BookCreateModal = ({
                         color: "var(--text-secondary)",
                       }}
                     >
-                      {t("uploadPhoto")}
+                      {wanted ? t("uploadPhotoOptional") : t("uploadPhoto")}
                     </Typography>
                     <Typography variant="caption" sx={{ color: "var(--text-muted)", mt: 0.5 }}>
-                      {t("photoHint")}
+                      {wanted ? t("photoHintWanted") : t("photoHint")}
                     </Typography>
                   </>
                 )}
@@ -928,17 +984,26 @@ const BookCreateModal = ({
     setSubmitting(true);
     setErrors({ general: null, fields: {} });
     try {
+      const wanted = isWantedType(formData.type);
       const fd = new FormData();
       // Required
       fd.append("type", formData.type);
-      fd.append("condition", formData.condition);
       fd.append("name", formData.name);
-      fd.append("author", formData.author);
-      fd.append("language", formData.language);
-      fd.append("script_type", formData.script_type);
-      fd.append("cover_type", formData.cover_type);
-      if (formData.category) fd.append("category", formData.category);
-      if (formData.sub_category) fd.append("sub_category", formData.sub_category);
+
+      // Catalogue fields describe a book the poster HAS. On a "wanted" post the
+      // API clears them anyway — don't send them, so the request mirrors what
+      // the user was actually asked.
+      if (!wanted) {
+        fd.append("condition", formData.condition);
+        fd.append("language", formData.language);
+        fd.append("script_type", formData.script_type);
+        fd.append("cover_type", formData.cover_type);
+        if (formData.category) fd.append("category", formData.category);
+        if (formData.sub_category) fd.append("sub_category", formData.sub_category);
+      }
+
+      // Author is required on supply listings, optional on "wanted".
+      if (!wanted || formData.author) fd.append("author", formData.author);
 
       // Pricing — only when relevant
       if (needsPrice(formData.type)) {
@@ -950,12 +1015,14 @@ const BookCreateModal = ({
       // Optional
       if (formData.publication_year !== "")
         fd.append("publication_year", String(formData.publication_year));
-      if (formData.pages !== "") fd.append("pages", String(formData.pages));
-      if (formData.isbn) fd.append("isbn", formData.isbn);
+      if (!wanted) {
+        if (formData.pages !== "") fd.append("pages", String(formData.pages));
+        if (formData.isbn) fd.append("isbn", formData.isbn);
+      }
       if (formData.description) fd.append("description", formData.description);
 
-      // Shop / owner
-      if (formData.shop) {
+      // Shop / owner — a "wanted" post is always personal.
+      if (!wanted && formData.shop) {
         fd.append("shop", String(formData.shop));
       }
 
@@ -1168,7 +1235,7 @@ const findFirstStepWithError = (steps, fieldErrors) => {
   const FIELD_TO_STEP = {
     name: "basics",
     author: "basics",
-    type: "type",
+    type: "intent",
     condition: "condition",
     category: "category",
     sub_category: "category",
@@ -1215,18 +1282,25 @@ const ReviewSection = ({ formData, categories, shops, t, tType }) => {
     Number(discount) > 0 &&
     Number(discount) < Number(formData.price);
 
-  const details = [
-    { label: t("conditionLabel"), value: t(`condition.${formData.condition}`) },
-    { label: t("category"), value: cat?.name },
-    { label: t("subCategory"), value: sub?.name },
-    { label: t("language"), value: t(`languages.${formData.language}`) },
-    { label: t("scriptType"), value: t(`scripts.${formData.script_type}`) },
-    { label: t("coverLabel"), value: t(`covers.${formData.cover_type}`) },
-    { label: t("publicationYear"), value: formData.publication_year },
-    { label: t("pages"), value: formData.pages },
-    { label: t("isbn"), value: formData.isbn },
-    { label: t("ownerLabel"), value: shop ? shop.name : t("step.ownerPersonal") },
-  ].filter((r) => r.value !== "" && r.value != null && r.value !== undefined);
+  // A "wanted" post was never asked for the catalogue fields, so listing them
+  // here would show a grid of blanks (or worse, defaults the user never chose).
+  const wanted = isWantedType(formData.type);
+  const details = (
+    wanted
+      ? [{ label: t("publicationYear"), value: formData.publication_year }]
+      : [
+          { label: t("conditionLabel"), value: t(`condition.${formData.condition}`) },
+          { label: t("category"), value: cat?.name },
+          { label: t("subCategory"), value: sub?.name },
+          { label: t("language"), value: t(`languages.${formData.language}`) },
+          { label: t("scriptType"), value: t(`scripts.${formData.script_type}`) },
+          { label: t("coverLabel"), value: t(`covers.${formData.cover_type}`) },
+          { label: t("publicationYear"), value: formData.publication_year },
+          { label: t("pages"), value: formData.pages },
+          { label: t("isbn"), value: formData.isbn },
+          { label: t("ownerLabel"), value: shop ? shop.name : t("step.ownerPersonal") },
+        ]
+  ).filter((r) => r.value !== "" && r.value != null && r.value !== undefined);
 
   return (
     <Stack spacing={1.5}>

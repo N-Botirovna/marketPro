@@ -12,6 +12,15 @@ describe("bookTypeVisual", () => {
     expect(bookTypeVisual("gift")).toBe(BOOK_TYPE_VISUALS.gift);
     expect(bookTypeVisual("exchange")).toBe(BOOK_TYPE_VISUALS.exchange);
     expect(bookTypeVisual("rent")).toBe(BOOK_TYPE_VISUALS.rent);
+    // Demand, not supply — "I'm looking for this book".
+    expect(bookTypeVisual("wanted")).toBe(BOOK_TYPE_VISUALS.wanted);
+  });
+
+  it("gives 'wanted' a badge colour no supply type uses", () => {
+    const supplyColors = ["seller", "gift", "exchange", "rent"].map(
+      (t) => BOOK_TYPE_VISUALS[t].color,
+    );
+    expect(supplyColors).not.toContain(BOOK_TYPE_VISUALS.wanted.color);
   });
 
   it("is case-insensitive", () => {
@@ -43,10 +52,11 @@ describe("bookTypeI18nKey", () => {
     expect(bookTypeI18nKey("seller")).toBe("sell");
   });
 
-  it("passes through gift / exchange / rent unchanged", () => {
+  it("passes through gift / exchange / rent / wanted unchanged", () => {
     expect(bookTypeI18nKey("gift")).toBe("gift");
     expect(bookTypeI18nKey("exchange")).toBe("exchange");
     expect(bookTypeI18nKey("rent")).toBe("rent");
+    expect(bookTypeI18nKey("wanted")).toBe("wanted");
   });
 
   it("falls back to the lower-cased raw value for unknown types", () => {

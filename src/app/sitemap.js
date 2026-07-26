@@ -35,6 +35,7 @@ const STATIC_PATHS = [
   { path: "/community/gift", priority: 0.8, changeFrequency: "daily" },
   { path: "/community/exchange", priority: 0.8, changeFrequency: "daily" },
   { path: "/community/rent", priority: 0.7, changeFrequency: "weekly" },
+  { path: "/community/wanted", priority: 0.7, changeFrequency: "daily" },
   { path: "/shops", priority: 0.9, changeFrequency: "daily" },
   { path: "/about-us", priority: 0.5, changeFrequency: "monthly" },
   { path: "/contact", priority: 0.5, changeFrequency: "monthly" },
