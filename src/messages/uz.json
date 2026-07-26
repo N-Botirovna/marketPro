@@ -332,7 +332,9 @@
     "giftGiveText": "📖 Senga «{name}» kitobini sovg'a qilmoqchiman, o'qiysanmi?",
     "seeAll": "Hammasini ko'rish",
     "moreFromShop": "{name} do'konidan boshqa kitoblar",
-    "moreFromUser": "Ushbu sotuvchidan boshqa kitoblar"
+    "moreFromUser": "Ushbu sotuvchidan boshqa kitoblar",
+    "wantedNotice": "Bu foydalanuvchi shu kitobni qidirmoqda",
+    "wantedContact": "Menda bor — bog'lanish"
   },
   "BookCard": {
     "noName": "Kitob Nomi Mavjud Emas",
@@ -480,7 +482,21 @@
       "mediaTitle": "Rasm va tavsif",
       "mediaSubtitle": "Kitob rasmi va batafsil tavsif",
       "reviewTitle": "Ko'rib chiqing",
-      "reviewSubtitle": "Hammasi joyidami? Joylash uchun pastga bosing"
+      "reviewSubtitle": "Hammasi joyidami? Joylash uchun pastga bosing",
+      "intentTitle": "Nima qilmoqchisiz?",
+      "intentSubtitle": "Kitobingiz bormi yoki kitob kerakmi?",
+      "intent": {
+        "have": "Kitobim bor",
+        "wanted": "Kitob kerak"
+      },
+      "intentCaption": {
+        "have": "Sotaman, sovg'a qilaman, almashaman yoki ijaraga beraman",
+        "wanted": "Qidirayotgan kitobingizni e'lon qiling — kimdadir bo'lsa topiladi"
+      },
+      "basicsTitleWanted": "Qanday kitob kerak?",
+      "basicsSubtitleWanted": "Faqat kitob nomi majburiy",
+      "optionalSubtitleWanted": "Bilsangiz nashr yilini yozing — ixtiyoriy",
+      "mediaSubtitleWanted": "Rasm va izoh — ikkalasi ham ixtiyoriy"
     },
     "condition": {
       "brand_new": "Yangi",
@@ -505,7 +521,9 @@
     "covers": {
       "hard": "Qattiq muqova",
       "soft": "Yumshoq muqova"
-    }
+    },
+    "uploadPhotoOptional": "Rasm yuklang (ixtiyoriy)",
+    "photoHintWanted": "Kitob muqovasi rasmi bo'lsa qo'shing — bo'lmasa o'tkazib yuboring"
   },
   "Steps": {
     "title": "Kitoblaringizni 3 ta qadamda soting",
@@ -794,7 +812,8 @@
     "sell": "Sotiladigan",
     "gift": "Sovg'a",
     "exchange": "Almashish",
-    "rent": "Ijaraga"
+    "rent": "Ijaraga",
+    "wanted": "Kerak"
   },
   "ShopsPage": {
     "title": "Do'konlar",
@@ -857,14 +876,16 @@
       "sell": "Eldagi sotiladigan kitoblar",
       "gift": "Eldagi sovg'a kitoblar",
       "exchange": "Eldagi almashish kitoblari",
-      "rent": "Eldagi ijaraga kitoblar"
+      "rent": "Eldagi ijaraga kitoblar",
+      "wanted": "Eldagi kerakli kitoblar"
     },
     "subtitle": {
       "all": "Jismoniy shaxslar tomonidan joylashtirilgan barcha kitoblar",
       "sell": "Jismoniy shaxslar tomonidan sotuvga qo'yilgan kitoblar",
       "gift": "Bepul olib berish niyatida joylashtirilgan kitoblar",
       "exchange": "Almashishga taklif qilinayotgan kitoblar",
-      "rent": "Vaqtinchalik foydalanish uchun taklif qilinayotgan kitoblar"
+      "rent": "Vaqtinchalik foydalanish uchun taklif qilinayotgan kitoblar",
+      "wanted": "Foydalanuvchilar qidirayotgan kitoblar — sizda bo'lsa, egasiga yozing"
     },
     "searchPlaceholder": "Kitob nomidan yoki muallifdan qidiring",
     "categoryFilter": "Kategoriya",

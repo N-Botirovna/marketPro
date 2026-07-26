@@ -332,7 +332,9 @@
     "giftGiveText": "📖 I'd like to gift you “{name}” — would you read it?",
     "seeAll": "See all",
     "moreFromShop": "More books from {name}",
-    "moreFromUser": "More from this seller"
+    "moreFromUser": "More from this seller",
+    "wantedNotice": "This person is looking for this book",
+    "wantedContact": "I have it — get in touch"
   },
   "BookCard": {
     "noName": "Book Name Not Available",
@@ -480,7 +482,21 @@
       "mediaTitle": "Photo and description",
       "mediaSubtitle": "Cover photo and a longer description",
       "reviewTitle": "Review",
-      "reviewSubtitle": "Looks good? Press publish below"
+      "reviewSubtitle": "Looks good? Press publish below",
+      "intentTitle": "What would you like to do?",
+      "intentSubtitle": "Do you have a book, or are you looking for one?",
+      "intent": {
+        "have": "I have a book",
+        "wanted": "I need a book"
+      },
+      "intentCaption": {
+        "have": "Sell, gift, trade, or lend it",
+        "wanted": "Post what you're looking for — someone may have it"
+      },
+      "basicsTitleWanted": "Which book do you need?",
+      "basicsSubtitleWanted": "Only the title is required",
+      "optionalSubtitleWanted": "Add the publication year if you know it — optional",
+      "mediaSubtitleWanted": "Photo and note — both optional"
     },
     "condition": {
       "brand_new": "Brand new",
@@ -505,7 +521,9 @@
     "covers": {
       "hard": "Hard cover",
       "soft": "Soft cover"
-    }
+    },
+    "uploadPhotoOptional": "Upload a photo (optional)",
+    "photoHintWanted": "Add a cover image if you have one — or skip it"
   },
   "SellerRegistration": {
     "modalTitle": "Open a shop",
@@ -794,7 +812,8 @@
     "sell": "For sale",
     "gift": "Gifts",
     "exchange": "Exchange",
-    "rent": "For rent"
+    "rent": "For rent",
+    "wanted": "Wanted"
   },
   "ShopsPage": {
     "title": "Shops",
@@ -857,14 +876,16 @@
       "sell": "Community books for sale",
       "gift": "Community gift books",
       "exchange": "Community books for exchange",
-      "rent": "Community books for rent"
+      "rent": "Community books for rent",
+      "wanted": "Books people are looking for"
     },
     "subtitle": {
       "all": "All books posted by individuals",
       "sell": "Books posted for sale by individuals",
       "gift": "Books offered for free by individuals",
       "exchange": "Books offered for exchange by individuals",
-      "rent": "Books offered for rent by individuals"
+      "rent": "Books offered for rent by individuals",
+      "wanted": "Books wanted by other readers — if you have one, reach out to them"
     },
     "searchPlaceholder": "Search by book name or author",
     "categoryFilter": "Category",

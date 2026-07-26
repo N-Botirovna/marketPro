@@ -246,6 +246,9 @@ const BookDetails = ({ bookId }) => {
   const visual = bookTypeVisual(typeKey);
   const typeText = tBook(bookTypeI18nKey(typeKey) || "sell");
   const isMonetary = typeKey === "seller" || typeKey === "rent";
+  // A demand post ("I'm looking for this book") carries no condition, price,
+  // cover or language — the poster doesn't have the book.
+  const isWanted = typeKey === "wanted";
 
   // Contact is login-gated: the API only returns the seller's phone /
   // telegram handle to authenticated viewers, but the public has_phone /
@@ -364,12 +367,14 @@ const BookDetails = ({ bookId }) => {
                   }}
                 />
               )}
-              <Chip
-                label={conditionLabel(book.condition, book.is_used)}
-                size="small"
-                variant="outlined"
-                sx={{ fontWeight: 600 }}
-              />
+              {!isWanted && (
+                <Chip
+                  label={conditionLabel(book.condition, book.is_used)}
+                  size="small"
+                  variant="outlined"
+                  sx={{ fontWeight: 600 }}
+                />
+              )}
               {canEdit && (
                 <Chip
                   icon={<Icon className="ph ph-user-check" style={{ fontSize: 14 }} />}
@@ -410,6 +415,28 @@ const BookDetails = ({ bookId }) => {
                 {localized("author") || tBook("unknownAuthor")}
               </Typography>
             </Box>
+
+            {/* Demand notice — without it the page reads like an offer, and a
+                visitor would tap "contact" expecting to buy the book. */}
+            {isWanted && (
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  alignItems: "center",
+                  px: 1.5,
+                  py: 1.25,
+                  borderRadius: 2,
+                  bgcolor: "rgba(168, 85, 247, 0.10)",
+                  color: "#7e22ce",
+                }}
+              >
+                <Icon className="ph-fill ph-magnifying-glass" style={{ fontSize: 18 }} />
+                <Typography sx={{ fontSize: 14, fontWeight: 600 }}>
+                  {tBook("wantedNotice")}
+                </Typography>
+              </Stack>
+            )}
 
             {/* Price / non-monetary state */}
             {isMonetary && book.price ? (

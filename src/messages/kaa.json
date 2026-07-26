@@ -332,7 +332,9 @@
     "giftGiveText": "📖 Saǵan «{name}» kitabın sıylıq etpekshimen, oqıysań ba?",
     "seeAll": "Hámmesin kóriw",
     "moreFromShop": "{name} dúkanınan basqa kitaplar",
-    "moreFromUser": "Bul satıwshıdan basqa kitaplar"
+    "moreFromUser": "Bul satıwshıdan basqa kitaplar",
+    "wantedNotice": "Bul paydalanıwshı usı kitaptı izlep atır",
+    "wantedContact": "Mende bar — baylanısıw"
   },
   "BookCard": {
     "noName": "Kitap Atı Joq",
@@ -480,7 +482,21 @@
       "mediaTitle": "Súwret hám táriyp",
       "mediaSubtitle": "Kitap súwreti hám tolıq táriyp",
       "reviewTitle": "Kórip shıǵıń",
-      "reviewSubtitle": "Bárhama ornındamı? Jaylastırıw ushın tómenge basıń"
+      "reviewSubtitle": "Bárhama ornındamı? Jaylastırıw ushın tómenge basıń",
+      "intentTitle": "Ne islemekshisiz?",
+      "intentSubtitle": "Kitabıńız barma yáki kitap kerekpe?",
+      "intent": {
+        "have": "Kitabım bar",
+        "wanted": "Kitap kerek"
+      },
+      "intentCaption": {
+        "have": "Satıw, sıylıq etiw, almastırıw yáki ijaraǵa beriw",
+        "wanted": "Izlep atırǵan kitabıńızdı járiyalań — kimdedir bolsa tabıladı"
+      },
+      "basicsTitleWanted": "Qanday kitap kerek?",
+      "basicsSubtitleWanted": "Tek ǵana kitap atı májbúriy",
+      "optionalSubtitleWanted": "Bilseńiz baspa jılın jazıń — qálewi boyınsha",
+      "mediaSubtitleWanted": "Súwret hám túsindirme — ekewi de qálewi boyınsha"
     },
     "condition": {
       "brand_new": "Jańa",
@@ -505,7 +521,9 @@
     "covers": {
       "hard": "Qattı muqaba",
       "soft": "Jumsaq muqaba"
-    }
+    },
+    "uploadPhotoOptional": "Súwret júkleń (qálewi boyınsha)",
+    "photoHintWanted": "Kitap muqabası súwreti bolsa qosıń — bolmasa ótkerip jiberiń"
   },
   "Steps": {
     "title": "Kitaplarıńızdı 3 qádemde satıń",
@@ -794,7 +812,8 @@
     "sell": "Satılatuǵın",
     "gift": "Sıylıq",
     "exchange": "Almasıw",
-    "rent": "Ijaraǵa"
+    "rent": "Ijaraǵa",
+    "wanted": "Kerek"
   },
   "ShopsPage": {
     "title": "Dúkenler",
@@ -857,14 +876,16 @@
       "sell": "Eldegi satılatuǵın kitaplar",
       "gift": "Eldegi sıylıq kitaplar",
       "exchange": "Eldegi almasıw kitapları",
-      "rent": "Eldegi ijaraǵa kitaplar"
+      "rent": "Eldegi ijaraǵa kitaplar",
+      "wanted": "Eldegi kerekli kitaplar"
     },
     "subtitle": {
       "all": "Jeke shaxslar tárepinen jaylastırılǵan barlıq kitaplar",
       "sell": "Jeke shaxslar tárepinen satıwǵa qoyılǵan kitaplar",
       "gift": "Tegin beriw niyetinde jaylastırılǵan kitaplar",
       "exchange": "Almasıwǵa usınılıp atırǵan kitaplar",
-      "rent": "Waqtınsha paydalanıw ushın usınılıp atırǵan kitaplar"
+      "rent": "Waqtınsha paydalanıw ushın usınılıp atırǵan kitaplar",
+      "wanted": "Paydalanıwshılar izlep atırǵan kitaplar — sizde bolsa, iyesine jazıń"
     },
     "searchPlaceholder": "Kitap atınan yáki avtordan izleń",
     "categoryFilter": "Kategoriya",
