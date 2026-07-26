@@ -19,7 +19,10 @@ export async function getShopById(id) {
   return { shop: normalizeItem(data), raw: data };
 }
 
-export async function getHomePageShops(limit = 8) {
+// 6 = two full rows of the home row's 3-column desktop grid. Was 8, which no
+// caller used (HomeShopsRow always passes 6 explicitly) but made the intended
+// size ambiguous — three different numbers described one row.
+export async function getHomePageShops(limit = 6) {
   return await getShops({ is_active: true, limit });
 }
 
