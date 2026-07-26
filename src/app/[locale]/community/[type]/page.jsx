@@ -9,7 +9,7 @@ import { buildAlternates } from "@/lib/seo/alternates";
 const FooterOne = dynamic(() => import("@/components/FooterOne"));
 const BottomFooter = dynamic(() => import("@/components/BottomFooter"));
 
-const VALID_TYPES = ["all", "sell", "gift", "exchange", "rent"];
+const VALID_TYPES = ["all", "sell", "gift", "exchange", "rent", "wanted"];
 
 export async function generateMetadata({ params }) {
   const { locale, type } = await params;

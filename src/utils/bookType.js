@@ -33,6 +33,15 @@ export const BOOK_TYPE_VISUALS = {
     icon: "ph-fill ph-clock",
     i18nKey: "rent",
   },
+  // Demand, not supply: someone is LOOKING FOR this book. Deliberately the
+  // only cool/violet badge in the set so it never reads as "another book for
+  // sale" when it appears next to one (profile lists, search).
+  wanted: {
+    color: "#7e22ce",
+    bg: "rgba(168, 85, 247, 0.14)",
+    icon: "ph-fill ph-magnifying-glass",
+    i18nKey: "wanted",
+  },
 };
 
 /** Visual descriptor for a raw API book type, or `null` for unknown types. */

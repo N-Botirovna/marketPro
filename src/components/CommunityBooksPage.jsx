@@ -30,7 +30,9 @@ const PAGE_SIZE = 24;
 // selection is shareable/bookmarkable and SEO-indexable (the page is
 // route-driven, `[type]`); previously the only way to change type was the
 // URL. Order matches the home feed sections.
-const TYPE_TABS = ["all", "sell", "gift", "exchange", "rent"];
+// `wanted` sits last and is the only demand tab — the backend keeps it out of
+// every other tab (including "all"), so supply and demand never interleave.
+const TYPE_TABS = ["all", "sell", "gift", "exchange", "rent", "wanted"];
 
 const CommunityBooksPage = ({ type = "all" }) => {
   const t = useTranslations("CommunityPage");
@@ -197,6 +199,7 @@ const CommunityBooksPage = ({ type = "all" }) => {
   const districts = selectedRegion?.districts || [];
 
   const showTypeBadge = type === "all";
+  const isWanted = type === "wanted";
 
   return (
     <Box
@@ -312,43 +315,49 @@ const CommunityBooksPage = ({ type = "all" }) => {
         </Stack>
 
         <Stack direction={{ xs: "column", md: "row" }} spacing={1.5} sx={{ mb: 2.5 }}>
-          <TextField
-            select
-            size="small"
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            label={t("categoryFilter")}
-            sx={{
-              flex: 1,
-              "& .MuiOutlinedInput-root": { bgcolor: "var(--surface-card)" },
-            }}
-          >
-            <MenuItem value="">{t("allCategories")}</MenuItem>
-            {categories.map((cat) => (
-              <MenuItem key={cat.id} value={String(cat.id)}>
-                {cat.name}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            select
-            size="small"
-            value={subcategoryId}
-            onChange={(e) => setSubcategoryId(e.target.value)}
-            label={t("subcategoryFilter")}
-            disabled={!categoryId || subcategories.length === 0}
-            sx={{
-              flex: 1,
-              "& .MuiOutlinedInput-root": { bgcolor: "var(--surface-card)" },
-            }}
-          >
-            <MenuItem value="">{t("allSubcategories")}</MenuItem>
-            {subcategories.map((sub) => (
-              <MenuItem key={sub.id} value={String(sub.id)}>
-                {sub.name}
-              </MenuItem>
-            ))}
-          </TextField>
+          {/* "Wanted" posts are never asked for a category, so offering the
+              filter here would silently empty the list on every selection. */}
+          {!isWanted && (
+            <>
+              <TextField
+                select
+                size="small"
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                label={t("categoryFilter")}
+                sx={{
+                  flex: 1,
+                  "& .MuiOutlinedInput-root": { bgcolor: "var(--surface-card)" },
+                }}
+              >
+                <MenuItem value="">{t("allCategories")}</MenuItem>
+                {categories.map((cat) => (
+                  <MenuItem key={cat.id} value={String(cat.id)}>
+                    {cat.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                select
+                size="small"
+                value={subcategoryId}
+                onChange={(e) => setSubcategoryId(e.target.value)}
+                label={t("subcategoryFilter")}
+                disabled={!categoryId || subcategories.length === 0}
+                sx={{
+                  flex: 1,
+                  "& .MuiOutlinedInput-root": { bgcolor: "var(--surface-card)" },
+                }}
+              >
+                <MenuItem value="">{t("allSubcategories")}</MenuItem>
+                {subcategories.map((sub) => (
+                  <MenuItem key={sub.id} value={String(sub.id)}>
+                    {sub.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </>
+          )}
           {(type === "sell" || type === "rent" || type === "all") && (
             <Stack direction="row" spacing={1} sx={{ flex: 1 }}>
               <TextField
