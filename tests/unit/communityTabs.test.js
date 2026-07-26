@@ -70,6 +70,40 @@ describe("community tab slugs", () => {
     });
   });
 
+  it("every tab has its own home-page section", () => {
+    // The home feed renders one <HomeBookList type="..."> per book type. A new
+    // type that gets a /community tab but no home section is invisible on the
+    // landing page — which is exactly what happened when `wanted` shipped.
+    const source = readSource("src/app/[locale]/page.jsx");
+    const rendered = [...source.matchAll(/<HomeBookList\s+type="([^"]+)"/g)].map((m) => m[1]);
+    TAB_SLUGS.filter((slug) => slug !== "all").forEach((slug) => {
+      expect(rendered, `home page missing a HomeBookList for "${slug}"`).toContain(slug);
+    });
+  });
+
+  it("every home section prefetches its books server-side", () => {
+    // Each section is server-rendered from a `bookParams(<type>)` request. A
+    // section without one falls back to a client fetch — a visible skeleton
+    // flash on the landing page.
+    const source = readSource("src/app/[locale]/page.jsx");
+    const prefetched = [...source.matchAll(/bookParams\("([^"]+)"\)/g)].map((m) => m[1]);
+    TAB_SLUGS.filter((slug) => slug !== "all").forEach((slug) => {
+      expect(prefetched, `home page missing bookParams("${slug}")`).toContain(slug);
+    });
+  });
+
+  it("every home section title exists in all locales", () => {
+    const source = readSource("src/app/[locale]/page.jsx");
+    const titleKeys = [...source.matchAll(/titleKey="([^"]+)"/g)].map((m) => m[1]);
+    expect(titleKeys.length).toBeGreaterThan(0);
+    LOCALES.forEach((locale) => {
+      const messages = readMessages(locale);
+      titleKeys.forEach((key) => {
+        expect(messages.HomeBookList?.[key], `${locale}: HomeBookList.${key}`).toBeTruthy();
+      });
+    });
+  });
+
   it("every book-type badge maps to an existing chip label", () => {
     const messages = readMessages("uz");
     Object.keys(BOOK_TYPE_VISUALS).forEach((apiType) => {

@@ -916,7 +916,8 @@
     "eldagiSellTitle": "Community books for sale",
     "eldagiGiftTitle": "Community gift books",
     "eldagiExchangeTitle": "Community exchange",
-    "eldagiRentTitle": "Community rentals"
+    "eldagiRentTitle": "Community rentals",
+    "eldagiWantedTitle": "Books people are looking for"
   },
   "HomeMainEntryChips": {
     "shops": "From shops",

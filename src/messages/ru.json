@@ -916,7 +916,8 @@
     "eldagiSellTitle": "Книги от пользователей на продажу",
     "eldagiGiftTitle": "Книги-подарки от пользователей",
     "eldagiExchangeTitle": "Обмен от пользователей",
-    "eldagiRentTitle": "Аренда от пользователей"
+    "eldagiRentTitle": "Аренда от пользователей",
+    "eldagiWantedTitle": "Книги, которые ищут"
   },
   "HomeMainEntryChips": {
     "shops": "От магазинов",
