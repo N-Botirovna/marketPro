@@ -84,7 +84,7 @@ front-end/
 ├── src/
 │   ├── app/[locale]/             # App Router (LOCALE PREFIX MAJBURIY)
 │   │   ├── layout.jsx            # async — locale validate, providers, ProtectedRoute, ConditionalHeader
-│   │   ├── page.jsx              # home — server component, dynamic imports below-fold
+│   │   ├── page.jsx              # home — server component, tartib lib/homeRotation.js'dan
 │   │   ├── loading.jsx           # Preloader spinner
 │   │   ├── globals.scss          # Bootstrap selective import + project SASS layers
 │   │   ├── performance.css       # content-visibility, will-change, reduced-motion
@@ -303,9 +303,24 @@ Kitob 2 xil ko'rinishda render qilinadi — kontekstga qarab. **Inline card mark
 - **`shared/BookRowGrid.jsx`** — `BookChatRow` uchun **yagona** responsive grid wrapper: `xs 1 / sm 2 / lg 3` ustun (telefonda 1 ustun = Telegram qatori; desktopda 3 ustun — ilgari 1 ustunli to'liq-kenglik qatorlar desktopda joyni isrof qilardi). `loading` → `BookRowSkeleton`, `books=[]` → `emptyState`. `HomeShopsRow` grid breakpointlari bilan bir xil.
 - **`shared/BookGrid.jsx`** — `BookCard` grid uchun **yagona** wrapper. Yagona responsive ustun qoidasi `col-6 col-md-4 col-xl-3` (**2 / 3 / 4** — telefonda 2 ustun, "giant card on mobile" bug shu yerda yopilgan). `loading` → `BookCardSkeleton`, `books=[]` → `emptyState`. Per-book prop kerak bo'lsa `renderCard` bering. Iste'molchilar: ProfileTabs, WishListSection, UserPublicProfile. ⚠️ eski `.list-grid-wrapper` (`minmax(230px,1fr)`) **ishlatilmaydi** — u telefonda 1 ulkan ustun berardi.
 - **`shop/ShopCard.jsx`** — yagona do'kon kartochkasi (kvadrat avatar + 3 qator). Hamma joyda: `HomeShopsRow`, `ShopsListPage`, `TopVendorsOne` (about), `VendorsList` (/vendor). Eski inline "vendor-card" markup (dumaloq avatar) olib tashlangan.
-- **`utils/bookType.js`** — `BOOK_TYPE_VISUALS` (type → {color,bg,icon,i18nKey}). Type badge rangi/ikoni/labeli **shu yerdan**. API enum `"seller"`, user-facing slug `"sell"` — `bookTypeI18nKey()` remap qiladi. `wanted` (talab) yagona binafsha badge — taklif turlaridan vizual ajralib turishi ataylab.
+- **`utils/bookType.js`** — `BOOK_TYPE_VISUALS` (type → {color,bg,icon,i18nKey}). Type badge rangi/ikoni/labeli **shu yerdan**. API enum `"seller"`, user-facing slug `"sell"` — `bookTypeI18nKey()` remap qiladi. `wanted` (talab) yagona binafsha badge — taklif turlaridan vizual ajralib turishi ataylab. ⚠️ Yangi type qo'shsangiz uning `i18nKey`'ini **`BookDetails` va `BookTypeChips` ikkalasiga ham** yozing: `BookDetails`'da `wanted` yo'q edi va detal sahifasi badge o'rniga xom `"BookDetails.wanted"` matnini chizardi. `tests/unit/bookDetailsMessages.test.js` shuni majburlaydi.
+- **`utils/contactActions.js`** — `contactPrefillKey(bookType)` + `getContactActions(...)`. **`wanted` e'lonida rollar teskari**: e'lon beruvchi kitobni qidiryapti, «bog'lanish»ni bosgan mehmon esa unga ega. Shuning uchun Telegram deep-link matni `BookDetails.wantedContactPrefill` («menda bor»), taklif e'lonlarida esa `BookDetails.contactPrefill` («olmoqchi edim»). Ilgari ikkalasi ham taklif matnini olardi. Backend/bot tomonda ayni shu qoida `bot/handlers/search_book.py:_contact_copy`'da.
 
 **Loading = skeleton, har doim.** `shared/BookCardSkeleton`, `shared/BookRowSkeleton`, `shared/ShopCardSkeleton` mos kontentni aks ettiradi; shimmer `.kz-skel` klassidan (`globals.scss`). Ad-hoc `pulse` div yoki to'liq-sahifa `Spin` qo'shmang.
+
+### Home feed tartibi — `lib/homeRotation.js` (2026-08)
+
+Bosh sahifadagi bo'limlar tartibi endi `page.jsx`'da qo'lda yozilmaydi; u **`src/lib/homeRotation.js`**'dan keladi. Ikkita muammoni yopadi:
+
+1. **`wanted` eng pastda edi** — to'rtta taklif qatoridan keyin, ya'ni harakatga chaqiradigan yagona bo'limga hech kim yetib bormasdi. Endi u **doim birinchi kitob qatori** (`PINNED_SECTION`).
+2. **Qolgani qotib qolgandi** — do'konlar va to'plamlar doim sahifaning eng tepasida, taklif qatorlari doim `sell → gift → exchange → rent`. Endi taklif qatorlari va discovery bloki (do'konlar + to'plamlar) **aylanadi**.
+
+Aylanish **`Math.random()` emas**, vaqt bo'lagi (`ROTATION_PERIOD_MS = 6h`) funksiyasi: home server component + ISR (`revalidate = 600`), tasodifiy tartib SSR payload bilan mos kelmasdi va testlab bo'lmasdi. Bir daqiqada hamma bir xil sahifani ko'radi, bir necha soatdan keyin boshqasini.
+
+- `homeLayout(now?)` → `{ bookOrder, discoveryAt, discoveryOrder }`. `discoveryAt` **hech qachon 0 emas** — do'konlar/to'plamlar `wanted`ni pastga surib yubormasligi kerak.
+- Offset 0'dagi bazaviy tartib: `wanted → exchange → sell → gift → rent`.
+- **Yangi home qatori qo'shish**: `HOME_BOOK_SECTIONS`'ga yozuv + `ROTATING_SECTIONS`'ga slug. `page.jsx` prefetch'ni `ALL_BOOK_SECTIONS` bo'yicha o'zi quradi — u yerga tegish shart emas. Har bir qator bo'sh ro'yxatda `null` qaytaradi, shuning uchun ma'lumoti kam deploy'da tartibda "teshik" qolmaydi.
+- Testlar: `tests/unit/homeRotation.test.js` (15 ta).
 
 ### Slider/legacy
 
@@ -415,9 +430,11 @@ Kitob 2 xil ko'rinishda render qilinadi — kontekstga qarab. **Inline card mark
 | `npm run e2e`                     | Playwright smoke tests (`tests/e2e/**/*.spec.js`). Birinchi marta `npm run e2e:install` chaqirib browser yuklang. |
 | `npm run i18n:check`              | uz/ru/en key drift. CI'da fail bo'ladi.                                                                           |
 
-**Test holati**: 188 unit test yashil / 27 fayl (errors, mapValidationError, httpResilience, idempotency, useDraftStorage, bookType, communityTabs, …). 3 ta Playwright spec (home, login, mobile-menu) — backend stand-up'siz ishlaydi (`page.route()` bilan mocked).
+**Test holati**: 214 unit test yashil / 29 fayl (errors, mapValidationError, httpResilience, idempotency, useDraftStorage, bookType, bookDetailsMessages, homeRotation, communityTabs, …). 3 ta Playwright spec (home, login, mobile-menu) — backend stand-up'siz ishlaydi (`page.route()` bilan mocked).
 
-> `tests/unit/communityTabs.test.js` — `/community/[type]` slug'lari **uchta** joyda (route `VALID_TYPES`, `TYPE_TABS`, `CommunityPage.title/subtitle` + `BookTypeChips` i18n) sinxron turishini majburlaydi. Yangi tab qo'shsangiz to'rttasini ham yangilang, aks holda shu test tushadi (raw i18n key yoki 404 o'rniga).
+> ⚠️ **Node 20+ majburiy.** `jsdom@29` `engines`'da `^20.19 || ^22.13 || >=24` talab qiladi va transitive `@exodus/bytes` ESM-only — Node 18'da `npm test` **hamma** jsdom testini `ERR_REQUIRE_ESM` bilan yiqitadi (kod aybdor emas). CI `node-version: "20"` ishlatadi, lokalda ham shunday qiling. `package.json` `engines.node` hali `>=18.17.0` deb turibdi — mos emas, tuzatilishi kerak.
+
+> `tests/unit/communityTabs.test.js` — `/community/[type]` slug'lari **uchta** joyda (route `VALID_TYPES`, `TYPE_TABS`, `CommunityPage.title/subtitle` + `BookTypeChips` i18n) sinxron turishini majburlaydi. Yangi tab qo'shsangiz to'rttasini ham yangilang, aks holda shu test tushadi (raw i18n key yoki 404 o'rniga). Home qatorlari endi `lib/homeRotation.js`'dagi `HOME_BOOK_SECTIONS`'dan o'qiladi, shuning uchun bu test `page.jsx` manbasini emas, o'sha modulni tekshiradi.
 
 **Husky/lint-staged**: `npm install` paytida `prepare` script orqali hook o'rnatiladi. Staged JS/JSX'da `eslint --fix && prettier --write`, qolganlarda `prettier --write`.
 

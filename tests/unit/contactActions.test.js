@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getContactActions } from "@/utils/contactActions";
+import { contactPrefillKey, getContactActions } from "@/utils/contactActions";
 
 describe("getContactActions", () => {
   const sellerWithBoth = {
@@ -72,5 +72,40 @@ describe("getContactActions", () => {
     expect(a.hasTelegram).toBe(false);
     expect(a.hasPhone).toBe(false);
     expect(a.requiresLogin).toBe(true);
+  });
+});
+
+describe("contactPrefillKey", () => {
+  // Regression: a `wanted` post ("I'm looking for this book") reused the
+  // supply copy, so the Telegram chat opened with "you posted this book, I
+  // would like to buy it" — addressed to the person who had just asked for it.
+  it("uses the demand wording for a wanted post", () => {
+    expect(contactPrefillKey("wanted")).toBe("wantedContactPrefill");
+    expect(contactPrefillKey("WANTED")).toBe("wantedContactPrefill");
+  });
+
+  it("keeps the supply wording for every listing type", () => {
+    ["seller", "gift", "exchange", "rent"].forEach((type) => {
+      expect(contactPrefillKey(type), type).toBe("contactPrefill");
+    });
+  });
+
+  it("defaults to the supply wording for unknown / missing types", () => {
+    expect(contactPrefillKey("")).toBe("contactPrefill");
+    expect(contactPrefillKey(null)).toBe("contactPrefill");
+    expect(contactPrefillKey(undefined)).toBe("contactPrefill");
+  });
+
+  it("seeds a Telegram deep-link whose text is the message it was given", () => {
+    // The two halves the component wires together: the key above selects the
+    // string, getContactActions encodes it into the t.me URL.
+    const prefill = "Assalomu alaykum! «Alkimyogar» kitobini qidirayotgan ekansiz.";
+    const { tgUrl } = getContactActions({
+      postedBy: { telegram_username: "@aziz_k", has_telegram: true },
+      isAuthenticated: true,
+      prefill,
+    });
+    expect(tgUrl.startsWith("https://t.me/aziz_k?text=")).toBe(true);
+    expect(decodeURIComponent(tgUrl.split("?text=")[1])).toBe(prefill);
   });
 });

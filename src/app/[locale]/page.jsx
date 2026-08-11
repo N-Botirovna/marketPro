@@ -10,6 +10,7 @@ import ScrollToTopInit from "@/helper/ScrollToTopInit";
 import { serverGet, unwrapList } from "@/lib/serverFetch";
 import { getSiteUrl } from "@/config/env";
 import { routing } from "@/i18n/routing";
+import { ALL_BOOK_SECTIONS, HOME_BOOK_SECTIONS, homeLayout } from "@/lib/homeRotation";
 
 // Below-fold components — loaded after critical content. FaqSection was
 // pulled from the home page — the FAQ surface is now reachable only via
@@ -81,36 +82,70 @@ const page = async ({ params }) => {
   // each home component fetched its own data after hydration — six
   // round-trips stacked behind React mount, ~600-1200 ms of empty
   // skeleton on cold loads. Now the page lands fully populated.
-  const [storiesRes, shopsRes, sellRes, giftRes, exchangeRes, rentRes, wantedRes] =
-    await Promise.all([
-      serverGet("/api/v1/stories/", { locale, revalidate: 120 }),
-      serverGet("/api/v1/shop/list/", {
+  //
+  // `wanted` is fetched like any other section here, but note it can never
+  // ride along in another one: the API hides demand posts from every unscoped
+  // feed, so it only ever appears under its own explicit `type=wanted`.
+  const [storiesRes, shopsRes, ...bookResults] = await Promise.all([
+    serverGet("/api/v1/stories/", { locale, revalidate: 120 }),
+    serverGet("/api/v1/shop/list/", {
+      locale,
+      // 6 for the same reason as the book rows: HomeShopsRow is a 3-column
+      // grid on desktop, so 6 fills exactly two rows with no dangling card.
+      // It also matches what the component itself assumes — its skeleton
+      // count and its client-side fallback fetch are both 6; this server
+      // prefetch was the odd one out at 10 and silently won.
+      params: { is_active: true, limit: 6 },
+      revalidate: 600,
+    }),
+    ...ALL_BOOK_SECTIONS.map((slug) =>
+      serverGet("/api/v1/book/list/", {
         locale,
-        // 6 for the same reason as the book rows: HomeShopsRow is a 3-column
-        // grid on desktop, so 6 fills exactly two rows with no dangling card.
-        // It also matches what the component itself assumes — its skeleton
-        // count and its client-side fallback fetch are both 6; this server
-        // prefetch was the odd one out at 10 and silently won.
-        params: { is_active: true, limit: 6 },
-        revalidate: 600,
+        params: bookParams(HOME_BOOK_SECTIONS[slug].type),
       }),
-      serverGet("/api/v1/book/list/", { locale, params: bookParams("sell") }),
-      serverGet("/api/v1/book/list/", { locale, params: bookParams("gift") }),
-      serverGet("/api/v1/book/list/", { locale, params: bookParams("exchange") }),
-      serverGet("/api/v1/book/list/", { locale, params: bookParams("rent") }),
-      // Demand, not supply. The API hides `wanted` from every unscoped feed, so
-      // this needs its own explicit request — it can never ride along in one of
-      // the sections above.
-      serverGet("/api/v1/book/list/", { locale, params: bookParams("wanted") }),
-    ]);
+    ),
+  ]);
 
   const initialStories = unwrapList(storiesRes).items;
   const initialShops = unwrapList(shopsRes).items;
-  const initialSell = unwrapList(sellRes).items;
-  const initialGift = unwrapList(giftRes).items;
-  const initialExchange = unwrapList(exchangeRes).items;
-  const initialRent = unwrapList(rentRes).items;
-  const initialWanted = unwrapList(wantedRes).items;
+  const booksBySection = Object.fromEntries(
+    ALL_BOOK_SECTIONS.map((slug, i) => [slug, unwrapList(bookResults[i]).items]),
+  );
+
+  // Order is a pure function of the current time bucket (see lib/homeRotation):
+  // `wanted` is always the first book row, the supply rows cycle, and the
+  // shops/collections block moves between them instead of permanently owning
+  // the top of the page. Computed on the server, so the rendered payload and
+  // the hydrated tree always agree.
+  const { bookOrder, discoveryAt, discoveryOrder } = homeLayout();
+
+  const discoveryBlock = discoveryOrder.map((block) =>
+    block === "shops" ? (
+      <HomeShopsRow key="shops" initialShops={initialShops} />
+    ) : (
+      <HomeCollectionsRow key="collections" />
+    ),
+  );
+
+  // Each row self-hides on an empty list (HomeBookList / HomeShopsRow /
+  // HomeCollectionsRow all return null), so a data-light deployment collapses
+  // to whatever it actually has without leaving holes in the rotation.
+  const sections = [];
+  bookOrder.forEach((slug, i) => {
+    if (i === discoveryAt) sections.push(...discoveryBlock);
+    const section = HOME_BOOK_SECTIONS[slug];
+    sections.push(
+      <HomeBookList
+        key={slug}
+        type={section.type}
+        ownerType="user"
+        titleKey={section.titleKey}
+        viewAllHref={section.href}
+        initialBooks={booksBySection[slug]}
+      />,
+    );
+  });
+  if (discoveryAt >= bookOrder.length) sections.push(...discoveryBlock);
 
   return (
     <>
@@ -118,47 +153,8 @@ const page = async ({ params }) => {
       <ColorInit color={false} />
       <BannerOne />
       <HomeStoryBar initialStories={initialStories} />
-      <HomeShopsRow initialShops={initialShops} />
-      <HomeCollectionsRow />
 
-      <HomeBookList
-        type="sell"
-        ownerType="user"
-        titleKey="eldagiSellTitle"
-        viewAllHref="/community/sell"
-        initialBooks={initialSell}
-      />
-      <HomeBookList
-        type="gift"
-        ownerType="user"
-        titleKey="eldagiGiftTitle"
-        viewAllHref="/community/gift"
-        initialBooks={initialGift}
-      />
-      <HomeBookList
-        type="exchange"
-        ownerType="user"
-        titleKey="eldagiExchangeTitle"
-        viewAllHref="/community/exchange"
-        initialBooks={initialExchange}
-      />
-      <HomeBookList
-        type="rent"
-        ownerType="user"
-        titleKey="eldagiRentTitle"
-        viewAllHref="/community/rent"
-        initialBooks={initialRent}
-      />
-      {/* Demand section — last, mirroring the /community tab order. Reads as a
-          call to action for anyone who HAS one of these books. Self-hides while
-          there are no wanted posts (HomeBookList returns null on an empty list). */}
-      <HomeBookList
-        type="wanted"
-        ownerType="user"
-        titleKey="eldagiWantedTitle"
-        viewAllHref="/community/wanted"
-        initialBooks={initialWanted}
-      />
+      {sections}
 
       <FooterOne />
       <BottomFooter />
