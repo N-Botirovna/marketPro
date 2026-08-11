@@ -24,7 +24,7 @@ import { bookTypeVisual, bookTypeI18nKey } from "@/utils/bookType";
 import { bookLanguageKey } from "@/utils/bookLanguage";
 import { useRouter, usePathname, Link } from "@/i18n/navigation";
 import Icon from "@/components/Icon";
-import { getContactActions } from "@/utils/contactActions";
+import { contactPrefillKey, getContactActions } from "@/utils/contactActions";
 import { mapValidationError } from "@/lib/mapValidationError";
 import EmptyState from "@/components/shared/EmptyState";
 import BookCreateModal from "./BookCreateModal";
@@ -259,7 +259,8 @@ const BookDetails = ({ bookId }) => {
   // passed inline. Doing a manual `.replace("{name}", ...)` made the call
   // arity-mismatch in next-intl v4 and the helper returned the raw key
   // path ("BookDetails.contactPrefill") instead of the formatted string.
-  const contactPrefill = tBook("contactPrefill", { name: book?.name || "" });
+  // `contactPrefillKey` picks the supply vs demand wording — see its docstring.
+  const contactPrefill = tBook(contactPrefillKey(typeKey), { name: book?.name || "" });
   const { hasTelegram, hasPhone, tgUrl, telHref, smsHref } = getContactActions({
     postedBy: book?.posted_by,
     isAuthenticated,

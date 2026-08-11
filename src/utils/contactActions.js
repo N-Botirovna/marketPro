@@ -17,6 +17,23 @@
  *   tgUrl: (string|null), telHref: (string|null), smsHref: (string|null),
  * }}
  */
+/**
+ * Which `BookDetails` message seeds the Telegram deep-link for a book type.
+ *
+ * A `wanted` post inverts the two sides: the poster is LOOKING FOR the book
+ * and whoever taps contact is the one who HAS it. The supply copy ("you posted
+ * this book, I would like to buy it") therefore told a searcher they were
+ * selling the very book they had just asked for.
+ *
+ * @param {string} [bookType] - raw API `book.type`
+ * @returns {"contactPrefill"|"wantedContactPrefill"}
+ */
+export function contactPrefillKey(bookType) {
+  return String(bookType ?? "").toLowerCase() === "wanted"
+    ? "wantedContactPrefill"
+    : "contactPrefill";
+}
+
 export function getContactActions({ postedBy, isAuthenticated, prefill = "" } = {}) {
   const handle = postedBy?.telegram_username
     ? String(postedBy.telegram_username).replace(/^@/, "")
